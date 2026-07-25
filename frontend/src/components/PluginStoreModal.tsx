@@ -21,16 +21,14 @@ export const PluginStoreModal: React.FC<PluginStoreModalProps> = ({ isOpen, onCl
   if (!isOpen) return null;
 
   const toggleInstall = (id: string) => {
+    const target = plugins.find((p) => p.id === id);
+    if (!target) return;
+
+    const nextState = !target.isInstalled;
     setPlugins((prev) =>
-      prev.map((p) => {
-        if (p.id === id) {
-          const nextState = !p.isInstalled;
-          showToast(nextState ? `Installed "${p.name}" extension! 🔌` : `Uninstalled "${p.name}" extension.`);
-          return { ...p, isInstalled: nextState };
-        }
-        return p;
-      })
+      prev.map((p) => (p.id === id ? { ...p, isInstalled: nextState } : p))
     );
+    showToast(nextState ? `Installed "${target.name}" extension! 🔌` : `Uninstalled "${target.name}" extension.`);
   };
 
   return (

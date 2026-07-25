@@ -1,7 +1,9 @@
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+from users.views import UserViewSet, jwt_login
 from products.views import CollectionViewSet, CategoryViewSet, ProductViewSet, ReviewViewSet
+from orders.views import OrderViewSet, OrderItemViewSet, admin_analytics_overview
 from cms.views import HeroBannerViewSet, AnnouncementBarViewSet, PromoPopupViewSet, FAQViewSet, BlogArticleViewSet
 from marketing.views import FlashSaleViewSet, MarketingRuleViewSet
 from operations.views import WarehouseViewSet, ShipmentTrackingViewSet, AuditLogViewSet
@@ -9,10 +11,13 @@ from tenants.views import TenantViewSet, PluginExtensionViewSet, PluginInstallat
 from core.health import health_check
 
 router = DefaultRouter()
+router.register(r'users', UserViewSet, basename='user')
 router.register(r'collections', CollectionViewSet, basename='collection')
 router.register(r'categories', CategoryViewSet, basename='category')
 router.register(r'products', ProductViewSet, basename='product')
 router.register(r'reviews', ReviewViewSet, basename='review')
+router.register(r'orders', OrderViewSet, basename='order')
+router.register(r'order-items', OrderItemViewSet, basename='order-item')
 
 # CMS Endpoints
 router.register(r'cms/banners', HeroBannerViewSet, basename='hero-banner')
@@ -39,5 +44,7 @@ router.register(r'feature-flags', FeatureFlagViewSet, basename='feature-flag')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/health/', health_check, name='health-check'),
+    path('api/v1/auth/login/', jwt_login, name='jwt-login'),
+    path('api/v1/admin/analytics/', admin_analytics_overview, name='admin-analytics'),
     path('api/v1/', include(router.urls)),
 ]

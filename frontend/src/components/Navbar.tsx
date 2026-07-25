@@ -19,7 +19,12 @@ import {
   Sun,
   Moon,
   Building2,
-  PackageCheck
+  PackageCheck,
+  Package,
+  Wallet,
+  MapPin,
+  Settings,
+  LogOut
 } from "lucide-react";
 
 interface NavbarProps {
@@ -34,6 +39,7 @@ interface NavbarProps {
   onOpenCorporate?: () => void;
   onOpenVoiceImageSearch?: () => void;
   onOpenProfile?: () => void;
+  onOpenAuthModal?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -47,7 +53,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenLoyalty,
   onOpenCorporate,
   onOpenVoiceImageSearch,
-  onOpenProfile
+  onOpenProfile,
+  onOpenAuthModal
 }) => {
   const {
     collections,
@@ -56,12 +63,14 @@ export const Navbar: React.FC<NavbarProps> = ({
     searchQuery,
     setSearchQuery,
     theme,
-    toggleTheme
+    toggleTheme,
+    currentUser,
+    logoutUser
   } = useStore();
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCollectionsHovered, setIsCollectionsHovered] = useState(false);
-  const [isShopHovered, setIsShopHovered] = useState(false);
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
 
   const cartItemsCount = cart.reduce((sum, i) => sum + i.quantity, 0);
 
@@ -136,17 +145,9 @@ export const Navbar: React.FC<NavbarProps> = ({
               Home
             </Link>
 
-            {/* Shop Dropdown */}
-            <div
-              className="relative group py-2"
-              onMouseEnter={() => setIsShopHovered(true)}
-              onMouseLeave={() => setIsShopHovered(false)}
-            >
-              <Link href="/#shop-catalog" className="flex items-center gap-1 hover:text-[#C8A75A] transition-colors">
-                Shop
-                <ChevronDown className="w-3 h-3 text-[#666666] group-hover:rotate-180 transition-transform" />
-              </Link>
-            </div>
+            <Link href="/#shop-catalog" className="hover:text-[#C8A75A] transition-colors">
+              Shop
+            </Link>
 
             {/* Collections Dropdown */}
             <div
@@ -208,10 +209,6 @@ export const Navbar: React.FC<NavbarProps> = ({
               About Us
             </button>
 
-            <span className="hover:text-[#C8A75A] transition-colors cursor-pointer">
-              Journal
-            </span>
-
             <Link href="/shipping" className="hover:text-[#C8A75A] transition-colors">
               Contact
             </Link>
@@ -224,7 +221,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <div className="relative hidden md:flex items-center w-48 lg:w-56">
               <input
                 type="text"
-                placeholder="Search candles, fragrances..."
+                placeholder="Search candles..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full text-xs pl-8 pr-8 py-2 rounded-full border border-[#E6DFD3] dark:border-[#383838] bg-[#FAF7F2] dark:bg-[#1E1E1E] focus:bg-[#FFFFFF] dark:focus:bg-[#232323] focus:outline-none focus:border-[#C8A75A] text-[#1F1F1F] dark:text-[#F8F5F0] placeholder-[#666666] dark:placeholder-[#A8A29E] transition-colors"
@@ -268,14 +265,89 @@ export const Navbar: React.FC<NavbarProps> = ({
               )}
             </button>
 
-            {/* Account */}
-            <button
-              onClick={onOpenProfile}
-              className="p-2 rounded-full hover:bg-[#FAF7F2] dark:hover:bg-[#1E1E1E] text-[#1F1F1F] dark:text-[#F8F5F0] hover:text-[#C8A75A] transition-colors"
-              title="Account"
-            >
-              <User className="w-5 h-5" />
-            </button>
+            {/* User Account / Flipkart Style Dropdown */}
+            {currentUser ? (
+              <div className="relative">
+                <button
+                  onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#FAF7F2] dark:bg-[#1E1E1E] border border-[#C8A75A]/60 text-xs font-bold text-[#1F1F1F] dark:text-[#F8F5F0] hover:border-[#C8A75A] transition-all shadow-sm"
+                >
+                  <User className="w-3.5 h-3.5 text-[#C8A75A]" />
+                  <span className="line-clamp-1">{currentUser.name}</span>
+                  <ChevronDown className="w-3 h-3 text-[#666666]" />
+                </button>
+
+                {/* Flipkart / Amazon Style User Dropdown Menu */}
+                {isUserDropdownOpen && (
+                  <div
+                    onMouseLeave={() => setIsUserDropdownOpen(false)}
+                    className="absolute right-0 top-full mt-2 w-56 bg-[#FFFFFF] dark:bg-[#1E1E1E] rounded-2xl border border-[#E6DFD3] dark:border-[#383838] shadow-2xl p-2 text-xs font-sans z-50 space-y-1"
+                  >
+                    <div className="p-3 border-b border-[#E6DFD3] dark:border-[#383838] bg-[#FAF7F2] dark:bg-[#151515] rounded-xl mb-1">
+                      <p className="font-bold text-[#1F1F1F] dark:text-[#F8F5F0]">{currentUser.name}</p>
+                      <p className="text-[10px] text-gray-500 line-clamp-1">{currentUser.email}</p>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        setIsUserDropdownOpen(false);
+                        if (onOpenProfile) onOpenProfile();
+                      }}
+                      className="w-full text-left px-3 py-2 rounded-xl hover:bg-[#FAF7F2] dark:hover:bg-[#232323] flex items-center gap-2 font-medium"
+                    >
+                      <User className="w-4 h-4 text-[#C8A75A]" /> My Profile
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setIsUserDropdownOpen(false);
+                        if (onOpenProfile) onOpenProfile();
+                      }}
+                      className="w-full text-left px-3 py-2 rounded-xl hover:bg-[#FAF7F2] dark:hover:bg-[#232323] flex items-center gap-2 font-medium"
+                    >
+                      <Package className="w-4 h-4 text-[#C8A75A]" /> My Orders
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setIsUserDropdownOpen(false);
+                        if (onOpenWishlist) onOpenWishlist();
+                      }}
+                      className="w-full text-left px-3 py-2 rounded-xl hover:bg-[#FAF7F2] dark:hover:bg-[#232323] flex items-center gap-2 font-medium"
+                    >
+                      <Heart className="w-4 h-4 text-[#C8A75A]" /> Wishlist
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setIsUserDropdownOpen(false);
+                        if (onOpenLoyalty) onOpenLoyalty();
+                      }}
+                      className="w-full text-left px-3 py-2 rounded-xl hover:bg-[#FAF7F2] dark:hover:bg-[#232323] flex items-center gap-2 font-medium"
+                    >
+                      <Wallet className="w-4 h-4 text-[#C8A75A]" /> Wallet (₹{currentUser.walletBalance || 0})
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setIsUserDropdownOpen(false);
+                        logoutUser();
+                      }}
+                      className="w-full text-left px-3 py-2 rounded-xl hover:bg-red-50 text-red-600 font-bold flex items-center gap-2 border-t border-[#E6DFD3] dark:border-[#383838] mt-1"
+                    >
+                      <LogOut className="w-4 h-4 text-red-600" /> Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <button
+                onClick={onOpenAuthModal}
+                className="bg-[#C8A75A] text-white px-4 py-2 rounded-full font-bold text-xs hover:bg-[#D4B46A] transition-all shadow-sm flex items-center gap-1.5"
+              >
+                <User className="w-3.5 h-3.5 text-white" /> Login / Sign Up
+              </button>
+            )}
 
             {/* Mobile Hamburger */}
             <button
@@ -298,18 +370,15 @@ export const Navbar: React.FC<NavbarProps> = ({
               {theme === "dark" ? <Sun className="w-4 h-4 text-[#C8A75A]" /> : <Moon className="w-4 h-4 text-[#C8A75A]" />}
               Switch to {theme === "dark" ? "Light Luxury Theme" : "Dark Luxury Theme"}
             </button>
-            <button
-              onClick={onOpenCustomizer}
-              className="w-full p-3 rounded-xl bg-[#C8A75A] text-white font-bold tracking-wider text-center flex items-center justify-center gap-2 uppercase"
-            >
-              <Sparkles className="w-4 h-4" /> Build Your Candle
-            </button>
-            <div className="grid grid-cols-2 gap-2 font-medium pt-2 text-[#1F1F1F] dark:text-[#D8D2C8]">
-              <Link href="/#shop-catalog" className="p-2.5 rounded-xl bg-[#FAF7F2] dark:bg-[#1E1E1E] text-left">Shop All Candles</Link>
-              <button onClick={onOpenBundle} className="p-2.5 rounded-xl bg-[#FAF7F2] dark:bg-[#1E1E1E] text-left">Gift Boxes 🎁</button>
-              <button onClick={onOpenQuiz} className="p-2.5 rounded-xl bg-[#FAF7F2] dark:bg-[#1E1E1E] text-left">Fragrance Quiz 🌸</button>
-              <button onClick={onOpenLoyalty} className="p-2.5 rounded-xl bg-[#FAF7F2] dark:bg-[#1E1E1E] text-left">Rewards Club 👑</button>
-            </div>
+            
+            {!currentUser && (
+              <button
+                onClick={onOpenAuthModal}
+                className="w-full p-3 rounded-xl bg-[#C8A75A] text-white font-bold tracking-wider text-center flex items-center justify-center gap-2 uppercase"
+              >
+                <User className="w-4 h-4" /> Login / Create Account
+              </button>
+            )}
           </div>
         )}
       </nav>

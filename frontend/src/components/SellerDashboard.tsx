@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useStore } from "@/context/StoreContext";
+import { EmptyState } from "@/components/EmptyState";
 import {
   Store,
   DollarSign,
@@ -186,17 +187,27 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({ onOpenCollecti
       {activeTab === "products" && (
         <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
           <h3 className="text-base font-bold text-slate-900 border-b border-slate-100 pb-3">Active Catalog</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {products.map((p) => (
-              <div key={p.id} className="p-4 rounded-xl border border-slate-200 bg-slate-50 flex items-center gap-3">
-                <img src={p.images[0]} alt={p.name} className="w-12 h-12 rounded-xl object-cover border border-slate-200" />
-                <div>
-                  <h4 className="font-bold text-slate-900 text-xs">{p.name}</h4>
-                  <span className="text-[11px] text-slate-600 font-bold block">₹{p.price} • {p.stock} in stock</span>
+          {products.length === 0 ? (
+            <EmptyState
+              icon={<Package className="w-6 h-6 text-brand-gold" />}
+              title="No Products in Catalog"
+              description="You have not published any candle SKUs yet."
+              actionLabel="Add First Candle SKU"
+              onAction={() => setActiveTab("add-product")}
+            />
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {products.map((p) => (
+                <div key={p.id} className="p-4 rounded-xl border border-slate-200 bg-slate-50 flex items-center gap-3">
+                  <img src={p.images[0]} alt={p.name} className="w-12 h-12 rounded-xl object-cover border border-slate-200" />
+                  <div>
+                    <h4 className="font-bold text-slate-900 text-xs">{p.name}</h4>
+                    <span className="text-[11px] text-slate-600 font-bold block">₹{p.price} • {p.stock} in stock</span>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

@@ -18,9 +18,9 @@ import { CustomerDashboardModal } from "@/components/CustomerDashboardModal";
 import { CollectionsManagerModal } from "@/components/CollectionsManagerModal";
 import { CartDrawer } from "@/components/CartDrawer";
 import { CheckoutModal } from "@/components/CheckoutModal";
-import { SellerDashboard } from "@/components/SellerDashboard";
-import { AdminDashboard } from "@/components/AdminDashboard";
 import { ProductDetailModal } from "@/components/ProductDetailModal";
+import { EmptyState } from "@/components/EmptyState";
+import { AuthModal } from "@/components/AuthModal";
 import {
   Flame,
   Sparkles,
@@ -56,6 +56,7 @@ export default function HomePage() {
   const [isCollectionsModalOpen, setIsCollectionsModalOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [quickViewProduct, setQuickViewProduct] = useState<CandleProduct | null>(null);
 
   // Filters state
@@ -99,42 +100,7 @@ export default function HomePage() {
     return true;
   });
 
-  // Dedicated Back-Office views if role active
-  if (activeRole === "seller") {
-    return (
-      <div className="min-h-screen bg-[#FAF7F2] dark:bg-[#151515] font-sans text-[#1F1F1F] dark:text-[#F8F5F0]">
-        <Navbar
-          onOpenCollectionsModal={() => setIsCollectionsModalOpen(true)}
-          onOpenCart={() => setIsCartOpen(true)}
-          onOpenCustomizer={() => setIsCustomizerOpen(true)}
-          onOpenWishlist={() => setIsWishlistOpen(true)}
-          onOpenLoyalty={() => setIsLoyaltyOpen(true)}
-          onOpenCorporate={() => setIsCorporateOpen(true)}
-          onOpenVoiceImageSearch={() => setIsVoiceImageSearchOpen(true)}
-          onOpenProfile={() => setIsProfileOpen(true)}
-        />
-        <SellerDashboard onOpenCollectionsModal={() => setIsCollectionsModalOpen(true)} />
-        <CollectionsManagerModal
-          isOpen={isCollectionsModalOpen}
-          onClose={() => setIsCollectionsModalOpen(false)}
-        />
-        <CandleCustomizerModal isOpen={isCustomizerOpen} onClose={() => setIsCustomizerOpen(false)} />
-        <Footer />
-      </div>
-    );
-  }
 
-  if (activeRole === "admin") {
-    return (
-      <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
-        <AdminDashboard onOpenCollectionsModal={() => setIsCollectionsModalOpen(true)} />
-        <CollectionsManagerModal
-          isOpen={isCollectionsModalOpen}
-          onClose={() => setIsCollectionsModalOpen(false)}
-        />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-[#FAF7F2] dark:bg-[#151515] font-sans text-[#1F1F1F] dark:text-[#F8F5F0] selection:bg-[#C8A75A] selection:text-white transition-colors duration-300">
@@ -157,6 +123,7 @@ export default function HomePage() {
         onOpenCorporate={() => setIsCorporateOpen(true)}
         onOpenVoiceImageSearch={() => setIsVoiceImageSearchOpen(true)}
         onOpenProfile={() => setIsProfileOpen(true)}
+        onOpenAuthModal={() => setIsAuthModalOpen(true)}
         onOpenCollectionsModal={() => setIsCollectionsModalOpen(true)}
         onOpenCart={() => setIsCartOpen(true)}
       />
@@ -408,13 +375,20 @@ export default function HomePage() {
             </div>
 
             {filteredProducts.length === 0 ? (
-              <div className="bg-white dark:bg-[#1E1E1E] p-12 rounded-2xl border border-[#E6DFD3] dark:border-[#383838] text-center space-y-3">
-                <Flame className="w-10 h-10 text-[#C8A75A]/50 mx-auto" />
-                <h4 className="font-serif text-lg font-bold text-[#1F1F1F] dark:text-[#F8F5F0]">No Candles Found</h4>
-                <p className="text-xs text-[#666666] dark:text-[#A8A29E]">Try adjusting your filters or search terms.</p>
-              </div>
+              <EmptyState
+                icon={<Flame className="w-6 h-6 text-brand-gold" />}
+                title="No Candles Matching Criteria"
+                description="We couldn't find any luxury candles matching your current filters or search terms."
+                actionLabel="Reset All Filters"
+                onAction={() => {
+                  setSelectedCollectionSlug("all");
+                  setSelectedWaxType("all");
+                  setSelectedWickType("all");
+                  setMaxPrice(2500);
+                }}
+              />
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 items-stretch">
                 {filteredProducts.map((p) => (
                   <ProductCard
                     key={p.id}
@@ -502,6 +476,7 @@ export default function HomePage() {
       <LoyaltyReferralModal isOpen={isLoyaltyOpen} onClose={() => setIsLoyaltyOpen(false)} />
       <CorporateOrdersModal isOpen={isCorporateOpen} onClose={() => setIsCorporateOpen(false)} />
       <CustomerDashboardModal isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />
+      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
       <CollectionsManagerModal isOpen={isCollectionsModalOpen} onClose={() => setIsCollectionsModalOpen(false)} />
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} onOpenCheckout={() => setIsCheckoutOpen(true)} />
       <CheckoutModal isOpen={isCheckoutOpen} onClose={() => setIsCheckoutOpen(false)} />

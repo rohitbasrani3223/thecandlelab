@@ -269,6 +269,9 @@ interface StoreContextType {
   clearBundle: () => void;
 
   // User & Loyalty System
+  currentUser: { id: string; name: string; email: string; role: string; walletBalance: number; loyaltyPoints: number; loyaltyTier: string } | null;
+  setCurrentUser: (user: any) => void;
+  logoutUser: () => void;
   activeRole: "customer" | "seller" | "admin";
   setActiveRole: (role: "customer" | "seller" | "admin") => void;
   loyaltyPoints: number;
@@ -836,26 +839,115 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [bundleItems, setBundleItems] = useState<CandleProduct[]>([]);
 
   // User state
-  const [activeRole, setActiveRole] = useState<"customer" | "seller" | "admin">("admin");
-  const [loyaltyPoints, setLoyaltyPoints] = useState(850);
-  const [walletBalance, setWalletBalance] = useState(1200);
-  const [referralCode] = useState("CANDLE-AARAV99");
-  const [supportTickets, setSupportTickets] = useState<SupportTicket[]>([
-    {
-      id: "TICK-102",
-      subject: "Custom Engraving Inquiry",
-      status: "OPEN",
-      priority: "High",
-      date: "2026-07-24",
-      messages: ["Customer requested gold leaf monogramming for corporate order."]
+  const [currentUser, setCurrentUser] = useState<{ id: string; name: string; email: string; role: string; walletBalance: number; loyaltyPoints: number; loyaltyTier: string } | null>(null);
+  const [activeRole, setActiveRole] = useState<"customer" | "seller" | "admin">("customer");
+  const [loyaltyPoints, setLoyaltyPoints] = useState(100);
+  const [walletBalance, setWalletBalance] = useState(0);
+  const [referralCode] = useState("CANDLE-CLUB");
+  const [supportTickets, setSupportTickets] = useState<SupportTicket[]>([]);
+
+  // Check stored user session on mount
+  React.useEffect(() => {
+    try {
+      const stored = localStorage.getItem("candlelab_user");
+      if (stored) {
+        const u = JSON.parse(stored);
+        setCurrentUser(u);
+        setWalletBalance(u.walletBalance || 0);
+        setLoyaltyPoints(u.loyaltyPoints || 100);
+      }
+    } catch (e) {
+      console.error("Session parse error", e);
     }
-  ]);
+  }, []);
+
+  const logoutUser = () => {
+    localStorage.removeItem("candlelab_jwt_access");
+    localStorage.removeItem("candlelab_jwt_refresh");
+    localStorage.removeItem("candlelab_user");
+    localStorage.removeItem("candlelab_user_role");
+    setCurrentUser(null);
+    setActiveRole("customer");
+    showToast("Logged out successfully 🚪");
+  };
 
   // System settings
   const [searchQuery, setSearchQuery] = useState("");
   const [currency, setCurrency] = useState("INR");
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Sync collections and products with live Supabase Django backend APIs
+  React.useEffect(() => {
+    async function loadBackendData() {
+      try {
+        const [colRes, prodRes] = await Promise.all([
+          fetch('/api/v1/collections/').catch(() => null),
+          fetch('/api/v1/products/').catch(() => null)
+        ]);
+
+        if (colRes && colRes.ok) {
+          const colData = await colRes.json();
+          const items = colData.results || colData;
+          if (Array.isArray(items) && items.length > 0) {
+            setCollections(items.map((c: any) => ({
+              id: String(c.id),
+              name: c.name,
+              slug: c.slug,
+              description: c.description || "",
+              bannerImage: c.banner_image || c.bannerImage || "https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=1200&q=80",
+              iconSymbol: c.icon_symbol || c.iconSymbol || "🕯️",
+              isFeatured: c.is_featured ?? true
+            })));
+          }
+        }
+
+        if (prodRes && prodRes.ok) {
+          const prodData = await prodRes.json();
+          const items = prodData.results || prodData;
+          if (Array.isArray(items) && items.length > 0) {
+            setProducts(items.map((p: any) => ({
+              id: String(p.id),
+              name: p.name,
+              slug: p.slug,
+              tagline: p.tagline || "",
+              price: Number(p.price),
+              originalPrice: p.original_price ? Number(p.original_price) : undefined,
+              rating: p.rating ? Number(p.rating) : 4.9,
+              reviewsCount: p.reviews_count || 12,
+              images: p.images && p.images.length > 0 ? p.images : ["https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80"],
+              category: p.category_name || p.category || "Luxury",
+              collections: p.collection_slugs || ["scented-candles"],
+              waxType: p.wax_type || "Soy Wax",
+              wickType: p.wick_type || "Wooden Crackling Wick",
+              burnTimeHours: p.burn_time_hours || 55,
+              weightGrams: p.weight_grams || 280,
+              fragranceNotes: p.fragrance_notes || { top: ["Amber"], middle: ["Oud"], base: ["Vanilla"] },
+              fragranceStrength: p.fragrance_strength || 4,
+              roomSize: p.room_size || "Medium (Living Room)",
+              careInstructions: p.care_instructions || ["Trim wick to 1/4 inch"],
+              ingredients: p.ingredients || ["100% Soy Wax"],
+              isVegan: p.is_vegan ?? true,
+              isHandmade: p.is_handmade ?? true,
+              isEcoFriendly: p.is_eco_friendly ?? true,
+              isBestSeller: p.is_bestseller ?? true,
+              stock: p.stock ?? 10,
+              sku: p.sku || `SKU-${p.id}`,
+              barcode: p.barcode || "8901234567890",
+              brand: "The Candle Lab Atelier",
+              status: "Active",
+              sellerId: "s-1",
+              sellerName: "The Candle Lab Atelier",
+              description: p.description || ""
+            })));
+          }
+        }
+      } catch (err) {
+        console.error("Backend fetch error:", err);
+      }
+    }
+    loadBackendData();
+  }, []);
 
   // Collection Handlers
   const addCollection = (col: Omit<CollectionItem, "id">) => {
@@ -1155,6 +1247,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         removeBundleItem,
         clearBundle,
 
+        currentUser,
+        setCurrentUser,
+        logoutUser,
         activeRole,
         setActiveRole,
         loyaltyPoints,
