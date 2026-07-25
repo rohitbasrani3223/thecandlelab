@@ -1,0 +1,31 @@
+# Node / Next.js
+node_modules/
+**/node_modules/
+.next/
+**/.next/
+out/
+build/
+dist/
+
+# Python / Django
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+**/venv/
+*.sqlite3
+
+# Environment variables & Local config
+.env
+.env*.local
+*.env
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
