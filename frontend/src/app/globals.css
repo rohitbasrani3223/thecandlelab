@@ -7,62 +7,76 @@
 :root {
   --font-playfair: 'Playfair Display', Georgia, serif;
   --font-poppins: 'Poppins', sans-serif;
-  --bg-primary: #F8F5F0;
-  --text-primary: #2B2B2B;
+  --bg-primary: #151515;
+  --bg-secondary: #1D1D1D;
+  --bg-card: #1E1E1E;
+  --text-primary: #F8F5F0;
+  --text-secondary: #D8D2C8;
+  --text-muted: #A8A29E;
+  --gold-primary: #C8A75A;
+  --gold-hover: #D4B46A;
+  --border-color: #383838;
 }
 
 body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--font-poppins);
+  font-weight: 300;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
 
 /* Custom Luxury Glassmorphism & Aesthetics */
 .glass-panel {
-  background: rgba(248, 245, 240, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(200, 167, 90, 0.2);
+  background: rgba(30, 30, 30, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(200, 167, 90, 0.25);
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(234, 221, 203, 0.6);
+  background: rgba(30, 30, 30, 0.75);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(56, 56, 56, 0.8);
 }
 
 .glass-dark {
-  background: rgba(43, 43, 43, 0.92);
-  backdrop-filter: blur(16px);
+  background: rgba(21, 21, 21, 0.94);
+  backdrop-filter: blur(20px);
   border: 1px solid rgba(200, 167, 90, 0.3);
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
 }
 ::-webkit-scrollbar-track {
-  background: #F8F5F0;
+  background: #151515;
 }
 ::-webkit-scrollbar-thumb {
   background: #C8A75A;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #8B6F4E;
+  background: #D4B46A;
 }
 
-/* Flame Glow Effect */
-.flame-glow-effect {
-  box-shadow: 0 0 35px 8px rgba(200, 167, 90, 0.35);
+/* Luxury Hero Box Shadow */
+.hero-luxury-shadow {
+  box-shadow: 0 30px 70px rgba(200, 167, 90, 0.15);
 }
 
 /* Gold Gradient Text */
 .gold-gradient-text {
-  background: linear-gradient(135deg, #C8A75A 0%, #8B6F4E 50%, #D97706 100%);
+  background: linear-gradient(135deg, #F8F5F0 0%, #C8A75A 50%, #D4B46A 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+/* Luxury Pill Button Base */
+.btn-luxury {
+  border-radius: 18px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }

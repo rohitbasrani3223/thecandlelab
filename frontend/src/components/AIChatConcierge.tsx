@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useStore, CandleProduct } from "@/context/StoreContext";
-import { Sparkles, MessageSquare, X, Send, Bot, ShoppingBag, Flame } from "lucide-react";
+import { Sparkles, X, Send, Bot, ShoppingBag } from "lucide-react";
 
 interface Message {
   sender: "bot" | "user";
@@ -59,50 +59,53 @@ export const AIChatConcierge: React.FC = () => {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-40">
+    <div className="fixed bottom-6 right-6 z-50">
       
-      {/* Floating Toggle Button */}
+      {/* Floating Circle Button (Intercom / ChatGPT Style with Gold Glow) */}
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="bg-brand-charcoal text-brand-gold hover:bg-brand-gold hover:text-brand-charcoal border-2 border-brand-gold p-3.5 rounded-full shadow-2xl transition-all hover:scale-110 flex items-center gap-2 group"
+          className="w-14 h-14 rounded-full bg-[#C8A75A] text-[#151515] shadow-2xl flex items-center justify-center hover:scale-105 transition-all hover:bg-[#D4B46A] relative group border border-[#F8F5F0]/30"
+          style={{ boxShadow: '0 0 25px rgba(200, 167, 90, 0.45)' }}
           title="AI Scent Concierge"
         >
-          <Bot className="w-6 h-6 animate-pulse" />
-          <span className="text-xs font-serif font-bold uppercase tracking-wider hidden sm:inline">AI Concierge</span>
+          <Bot className="w-6 h-6 text-[#151515]" />
+          <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-[#5F8A5D] border-2 border-[#151515] rounded-full" />
         </button>
       )}
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="w-80 sm:w-96 bg-brand-surface rounded-2xl border-2 border-brand-gold shadow-2xl overflow-hidden flex flex-col h-[480px]">
+        <div className="w-80 sm:w-96 bg-[#1E1E1E] rounded-3xl border border-[#C8A75A]/50 shadow-2xl overflow-hidden flex flex-col h-[490px]">
           
           {/* Header */}
-          <div className="bg-brand-charcoal text-brand-beige p-3.5 border-b border-brand-gold/40 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Bot className="w-5 h-5 text-brand-gold" />
+          <div className="bg-[#151515] text-[#F8F5F0] p-4 border-b border-[#383838] flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-full bg-[#C8A75A]/20 flex items-center justify-center border border-[#C8A75A]/40">
+                <Bot className="w-4 h-4 text-[#C8A75A]" />
+              </div>
               <div>
-                <h4 className="font-serif text-xs font-bold text-white">AI SCENT CONCIERGE</h4>
-                <p className="text-[9px] text-brand-gold font-mono">ONLINE • LIVE RECOMMENDATIONS</p>
+                <h4 className="font-serif text-xs font-bold text-[#F8F5F0]">AI SCENT CONCIERGE</h4>
+                <p className="text-[9px] text-[#C8A75A] font-mono tracking-wider">ONLINE • LIVE RECOMMENDATIONS</p>
               </div>
             </div>
-            <button onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-white">
+            <button onClick={() => setIsOpen(false)} className="text-[#A8A29E] hover:text-[#F8F5F0]">
               <X className="w-4 h-4" />
             </button>
           </div>
 
           {/* Messages Feed */}
-          <div className="flex-1 overflow-y-auto p-3 space-y-3">
+          <div className="flex-1 overflow-y-auto p-4 space-y-3.5">
             {messages.map((m, idx) => (
               <div
                 key={idx}
                 className={`flex flex-col ${m.sender === "user" ? "items-end" : "items-start"}`}
               >
                 <div
-                  className={`max-w-[85%] p-3 rounded-xl text-xs ${
+                  className={`max-w-[85%] p-3 rounded-2xl text-xs leading-relaxed ${
                     m.sender === "user"
-                      ? "bg-brand-charcoal text-brand-gold font-medium rounded-br-none"
-                      : "bg-white border border-brand-beige text-brand-charcoal rounded-bl-none shadow-sm"
+                      ? "bg-[#C8A75A] text-[#151515] font-medium rounded-br-none"
+                      : "bg-[#151515] border border-[#383838] text-[#F8F5F0] rounded-bl-none shadow-sm font-light"
                   }`}
                 >
                   <p>{m.text}</p>
@@ -112,16 +115,16 @@ export const AIChatConcierge: React.FC = () => {
                 {m.recommendedProducts && (
                   <div className="mt-2 space-y-2 w-full">
                     {m.recommendedProducts.map((p) => (
-                      <div key={p.id} className="bg-white p-2.5 rounded-xl border border-brand-gold/40 flex items-center gap-2.5 shadow-sm">
-                        <img src={p.images[0]} alt="" className="w-12 h-12 object-cover rounded-lg" />
+                      <div key={p.id} className="bg-[#151515] p-2.5 rounded-2xl border border-[#383838] flex items-center gap-2.5 shadow-sm">
+                        <img src={p.images[0]} alt="" className="w-12 h-12 object-cover rounded-xl border border-[#383838]" />
                         <div className="flex-1">
-                          <h5 className="font-serif text-xs font-bold text-brand-charcoal line-clamp-1">{p.name}</h5>
-                          <p className="text-[9px] text-brand-earth">{p.waxType} • {p.burnTimeHours}h Burn</p>
-                          <span className="text-xs font-bold text-brand-charcoal">{currency}{p.price}</span>
+                          <h5 className="font-serif text-xs font-bold text-[#F8F5F0] line-clamp-1">{p.name}</h5>
+                          <p className="text-[9px] text-[#A8A29E]">{p.waxType} • {p.burnTimeHours}h Burn</p>
+                          <span className="text-xs font-bold text-[#C8A75A]">{currency}{p.price}</span>
                         </div>
                         <button
                           onClick={() => addToCart(p)}
-                          className="bg-brand-charcoal text-brand-gold p-2 rounded-lg text-xs font-bold hover:bg-brand-gold hover:text-brand-charcoal"
+                          className="bg-[#C8A75A] text-[#151515] p-2 rounded-xl text-xs font-bold hover:bg-[#D4B46A] transition-colors"
                         >
                           <ShoppingBag className="w-3.5 h-3.5" />
                         </button>
@@ -134,17 +137,17 @@ export const AIChatConcierge: React.FC = () => {
           </div>
 
           {/* Input Bar */}
-          <form onSubmit={handleSend} className="p-2 bg-white border-t border-brand-beige flex gap-1.5">
+          <form onSubmit={handleSend} className="p-2.5 bg-[#151515] border-t border-[#383838] flex gap-2">
             <input
               type="text"
               placeholder="Ask AI Concierge..."
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              className="flex-1 text-xs px-3 py-2 rounded-lg border border-brand-beige focus:outline-none focus:ring-1 focus:ring-brand-gold"
+              className="flex-1 text-xs px-3.5 py-2.5 rounded-xl border border-[#383838] bg-[#1E1E1E] focus:outline-none focus:border-[#C8A75A] text-[#F8F5F0] placeholder-[#A8A29E]"
             />
             <button
               type="submit"
-              className="bg-brand-charcoal text-brand-gold p-2 rounded-lg hover:bg-brand-gold hover:text-brand-charcoal transition-colors"
+              className="bg-[#C8A75A] text-[#151515] px-3 rounded-xl hover:bg-[#D4B46A] transition-colors font-bold"
             >
               <Send className="w-4 h-4" />
             </button>
