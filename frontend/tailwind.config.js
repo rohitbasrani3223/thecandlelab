@@ -24,7 +24,7 @@ module.exports = {
       },
       fontFamily: {
         serif: ["var(--font-playfair)", "Playfair Display", "Georgia", "serif"],
-        sans: ["var(--font-jakarta)", "Plus Jakarta Sans", "Inter", "sans-serif"]
+        sans: ["var(--font-poppins)", "Poppins", "sans-serif"]
       },
       animation: {
         'flame-glow': 'flame 2.5s ease-in-out infinite alternate',
