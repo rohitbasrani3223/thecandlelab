@@ -129,11 +129,14 @@ interface StoreContextType {
   supportTickets: SupportTicket[];
   addSupportTicket: (subject: string, initialMsg: string) => void;
 
-  // Search & Settings
+  // Search & Settings & Theme
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   currency: string;
   setCurrency: (c: string) => void;
+  theme: "light" | "dark";
+  setTheme: (theme: "light" | "dark") => void;
+  toggleTheme: () => void;
 
   // Toast
   toastMessage: string | null;
@@ -379,6 +382,26 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [currency, setCurrency] = useState("₹");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  // Theme State ("light" | "dark")
+  const [theme, setThemeState] = useState<"light" | "dark">("light");
+
+  const setTheme = (newTheme: "light" | "dark") => {
+    setThemeState(newTheme);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("thecandlelab_theme", newTheme);
+      if (newTheme === "dark") {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+    }
+  };
+
+  const toggleTheme = () => {
+    const next = theme === "light" ? "dark" : "light";
+    setTheme(next);
+  };
+
   // Loyalty System
   const [loyaltyPoints, setLoyaltyPoints] = useState(480);
   const [walletBalance, setWalletBalance] = useState(500);
@@ -595,6 +618,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setSearchQuery,
         currency,
         setCurrency,
+        theme,
+        setTheme,
+        toggleTheme,
 
         toastMessage,
         showToast

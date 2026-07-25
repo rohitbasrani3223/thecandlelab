@@ -24,7 +24,7 @@ interface AdminDashboardProps {
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenCollectionsModal }) => {
-  const { collections, products, currency } = useStore();
+  const { collections, products, currency, theme, toggleTheme } = useStore();
   const [adminTab, setAdminTab] = useState<"overview" | "cms" | "operations">("overview");
 
   const [isPosOpen, setIsPosOpen] = useState(false);
@@ -46,34 +46,42 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenCollection
     <div className="max-w-7xl mx-auto px-4 lg:px-8 py-8 space-y-6">
       
       {/* Admin Executive Header */}
-      <div className="bg-gradient-to-r from-brand-charcoal to-black text-brand-beige p-6 rounded-2xl border-2 border-brand-gold shadow-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="bg-[#1E1E1E] text-[#F8F5F0] p-6 rounded-3xl border border-[#C8A75A] shadow-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <span className="text-xs font-bold text-brand-gold uppercase tracking-widest flex items-center gap-1.5">
-            <Crown className="w-4 h-4 text-brand-gold" /> ENTERPRISE SAAS MASTER PLATFORM (V5.0)
+          <span className="text-xs font-semibold text-[#C8A75A] uppercase tracking-widest flex items-center gap-1.5">
+            <Crown className="w-4 h-4 text-[#C8A75A]" /> ATELIER GOVERNANCE & ADMIN DASHBOARD
           </span>
           <h1 className="font-serif text-2xl md:text-3xl font-bold text-white mt-1">
-            Admin Master Governance Dashboard
+            Storefront Administration
           </h1>
         </div>
 
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-2 flex-wrap items-center">
+          {/* Theme Mode Toggle in Admin Panel */}
+          <button
+            onClick={toggleTheme}
+            className="bg-[#C8A75A] text-[#151515] px-4 py-2.5 rounded-2xl text-xs font-bold hover:bg-[#D4B46A] transition-colors flex items-center gap-1.5 shadow"
+          >
+            {theme === "dark" ? "🌞 Switch to Light Theme" : "🌙 Switch to Dark Theme"}
+          </button>
+
           <button
             onClick={() => setIsPosOpen(true)}
-            className="bg-white text-brand-charcoal px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-brand-gold transition-colors flex items-center gap-1.5 shadow"
+            className="bg-white text-[#151515] px-3.5 py-2.5 rounded-2xl text-xs font-bold hover:bg-[#C8A75A] hover:text-white transition-colors flex items-center gap-1.5 shadow"
           >
-            <Printer className="w-3.5 h-3.5 text-brand-gold" /> Boutique POS Billing
+            <Printer className="w-3.5 h-3.5 text-[#C8A75A]" /> Boutique POS
           </button>
 
           <button
             onClick={() => setIsPluginStoreOpen(true)}
-            className="bg-brand-gold text-brand-charcoal px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-brand-goldLight transition-colors flex items-center gap-1.5 shadow"
+            className="bg-white/10 text-[#F8F5F0] border border-[#383838] px-3.5 py-2.5 rounded-2xl text-xs font-bold hover:bg-white/20 transition-colors flex items-center gap-1.5"
           >
-            <Plug className="w-3.5 h-3.5" /> Plugin Store
+            <Plug className="w-3.5 h-3.5" /> Plugins
           </button>
 
           <button
             onClick={onOpenCollectionsModal}
-            className="bg-white/10 text-brand-beige border border-brand-beige/40 px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-white/20 transition-colors flex items-center gap-1.5"
+            className="bg-white/10 text-[#F8F5F0] border border-[#383838] px-3.5 py-2.5 rounded-2xl text-xs font-bold hover:bg-white/20 transition-colors flex items-center gap-1.5"
           >
             <Layers className="w-3.5 h-3.5" /> Collections
           </button>

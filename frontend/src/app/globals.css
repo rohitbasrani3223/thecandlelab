@@ -7,14 +7,25 @@
 :root {
   --font-playfair: 'Playfair Display', Georgia, serif;
   --font-poppins: 'Poppins', sans-serif;
+  
+  /* Light Luxury Theme Tokens (Default) */
+  --bg-primary: #FAF7F2;
+  --bg-secondary: #F4EFE8;
+  --bg-card: #FFFFFF;
+  --text-primary: #1F1F1F;
+  --text-secondary: #666666;
+  --border-color: #E6DFD3;
+  --gold-primary: #C8A75A;
+  --gold-hover: #D4B46A;
+}
+
+.dark {
+  /* Dark Luxury Theme Tokens (Optional) */
   --bg-primary: #151515;
   --bg-secondary: #1D1D1D;
   --bg-card: #1E1E1E;
   --text-primary: #F8F5F0;
   --text-secondary: #D8D2C8;
-  --text-muted: #A8A29E;
-  --gold-primary: #C8A75A;
-  --gold-hover: #D4B46A;
   --border-color: #383838;
 }
 
@@ -25,26 +36,31 @@ body {
   font-weight: 300;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Custom Luxury Glassmorphism & Aesthetics */
 .glass-panel {
-  background: rgba(30, 30, 30, 0.85);
+  background: rgba(250, 247, 242, 0.92);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(200, 167, 90, 0.25);
+  border: 1px solid rgba(230, 223, 211, 0.8);
 }
 
-.glass-card {
-  background: rgba(30, 30, 30, 0.75);
-  backdrop-filter: blur(12px);
+.dark .glass-panel {
+  background: rgba(21, 21, 21, 0.92);
   border: 1px solid rgba(56, 56, 56, 0.8);
 }
 
-.glass-dark {
-  background: rgba(21, 21, 21, 0.94);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(200, 167, 90, 0.3);
+.glass-card {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(230, 223, 211, 0.7);
+}
+
+.dark .glass-card {
+  background: rgba(30, 30, 30, 0.85);
+  border: 1px solid rgba(56, 56, 56, 0.7);
 }
 
 /* Custom Scrollbar */
@@ -53,7 +69,7 @@ body {
   height: 7px;
 }
 ::-webkit-scrollbar-track {
-  background: #151515;
+  background: var(--bg-primary);
 }
 ::-webkit-scrollbar-thumb {
   background: #C8A75A;
@@ -63,20 +79,49 @@ body {
   background: #D4B46A;
 }
 
-/* Luxury Hero Box Shadow */
-.hero-luxury-shadow {
-  box-shadow: 0 30px 70px rgba(200, 167, 90, 0.15);
+/* Soft Luxury Box Shadow */
+.shadow-luxury-light {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+}
+
+.shadow-luxury-hero {
+  box-shadow: 0 20px 50px rgba(200, 167, 90, 0.12);
 }
 
 /* Gold Gradient Text */
 .gold-gradient-text {
-  background: linear-gradient(135deg, #F8F5F0 0%, #C8A75A 50%, #D4B46A 100%);
+  background: linear-gradient(135deg, #1F1F1F 0%, #C8A75A 60%, #D4B46A 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-/* Luxury Pill Button Base */
-.btn-luxury {
+.dark .gold-gradient-text {
+  background: linear-gradient(135deg, #F8F5F0 0%, #C8A75A 60%, #D4B46A 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Luxury Button Base */
+.btn-luxury-primary {
+  background-color: #C8A75A;
+  color: #FFFFFF;
   border-radius: 18px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-luxury-primary:hover {
+  background-color: #D4B46A;
+  transform: translateY(-1px);
+}
+
+.btn-luxury-secondary {
+  background-color: #FFFFFF;
+  color: #1F1F1F;
+  border: 1px solid #C8A75A;
+  border-radius: 18px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-luxury-secondary:hover {
+  background-color: #FAF7F2;
+  border-color: #D4B46A;
+  transform: translateY(-1px);
 }
