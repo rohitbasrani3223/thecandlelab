@@ -126,24 +126,12 @@ export default function HomePage() {
 
   if (activeRole === "admin") {
     return (
-      <div className="min-h-screen bg-[#FAF7F2] dark:bg-[#151515] font-sans text-[#1F1F1F] dark:text-[#F8F5F0]">
-        <Navbar
-          onOpenCollectionsModal={() => setIsCollectionsModalOpen(true)}
-          onOpenCart={() => setIsCartOpen(true)}
-          onOpenCustomizer={() => setIsCustomizerOpen(true)}
-          onOpenWishlist={() => setIsWishlistOpen(true)}
-          onOpenLoyalty={() => setIsLoyaltyOpen(true)}
-          onOpenCorporate={() => setIsCorporateOpen(true)}
-          onOpenVoiceImageSearch={() => setIsVoiceImageSearchOpen(true)}
-          onOpenProfile={() => setIsProfileOpen(true)}
-        />
+      <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
         <AdminDashboard onOpenCollectionsModal={() => setIsCollectionsModalOpen(true)} />
         <CollectionsManagerModal
           isOpen={isCollectionsModalOpen}
           onClose={() => setIsCollectionsModalOpen(false)}
         />
-        <CandleCustomizerModal isOpen={isCustomizerOpen} onClose={() => setIsCustomizerOpen(false)} />
-        <Footer />
       </div>
     );
   }
