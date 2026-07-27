@@ -1,0 +1,426 @@
+Bro, Hero Banner Module ke liye complete production-ready PRD niche hai.
+
+Hero Banner Management
+Purpose
+
+Homepage Hero Slider ko manage karna.
+
+Admin can
+
+Create Banner
+Edit Banner
+Delete Banner
+Activate /Deactivate Banner
+Change Display Priority
+Upload Banner Image
+Configure Deep Link
+Search Banner
+Dashboard
+Header
+
+Title
+
+Hero Banners
+
+Subtitle
+
+Manage homepage hero banners
+
+Buttons
+
+Create New Hero Banner
+Search
+
+Realtime Search
+
+Search By
+
+Banner Name
+Deep Link
+Priority
+Banner Card
+
+Each banner card contains
+
+Banner Preview
+
+Large Image Preview
+
+Status Badge
+Active
+Inactive
+Details
+
+Banner Name
+
+Priority
+
+Deep Link
+
+Created Date (Recommended)
+
+Last Updated (Recommended)
+
+Image Size (Recommended)
+
+Actions
+Edit
+
+Delete
+Create Banner
+
+Fields
+
+Banner Name *
+
+Example
+
+Summer Sale Banner
+
+Priority *
+
+1
+2
+3
+
+Lower Number
+
+Higher Priority
+
+Deep Link
+
+Example
+
+/products
+
+/products?category=shirts
+
+/product/abc123
+
+/categories/men
+
+/offers
+
+/combo-offer
+
+Banner Image *
+
+Supported
+
+JPG
+
+JPEG
+
+PNG
+
+WEBP
+
+GIF
+
+SVG
+
+Recommended
+
+1920 × 600
+
+16:5 Ratio
+
+Minimum
+
+1200 × 400
+
+Maximum Size
+
+10 MB
+
+Status
+
+Checkbox
+
+Active
+
+Buttons
+
+Cancel
+
+Create Banner
+Edit Banner
+
+Editable
+
+Banner Name
+
+Priority
+
+Deep Link
+
+Image
+
+Status
+
+Show Current Banner Preview
+
+Replace Image
+
+Update
+
+Buttons
+
+Cancel
+
+Update Banner
+Delete Banner
+
+Confirmation
+
+Delete Banner?
+
+This banner will immediately disappear from the homepage.
+
+This action cannot be undone.
+
+Buttons
+
+Cancel
+
+Delete
+Banner Priority Rules
+
+Priority decides display order.
+
+Example
+
+Priority
+
+1
+
+Shows First
+
+Priority
+
+2
+
+Shows Second
+
+Priority
+
+3
+
+Shows Third
+
+Duplicate priority
+
+Automatically shift remaining banners
+
+OR
+
+Show validation
+
+Priority already exists.
+Image Validation
+
+Required
+
+Allowed
+
+PNG
+
+JPG
+
+JPEG
+
+WEBP
+
+SVG
+
+Max Size
+
+10 MB
+
+Aspect Ratio
+
+16:5
+
+If invalid
+
+Please upload 1920×600 image.
+Deep Link Validation
+
+Must start with
+
+/
+
+Example
+
+Correct
+
+/products
+
+/categories/men
+
+/offers
+
+Wrong
+
+products
+
+abc
+
+google.com
+APIs
+GET /hero-banners
+
+GET /hero-banners/{id}
+
+POST /hero-banners
+
+PUT /hero-banners/{id}
+
+DELETE /hero-banners/{id}
+
+PATCH /hero-banners/{id}/status
+
+PATCH /hero-banners/reorder
+Database
+hero_banners
+id
+
+banner_name
+
+image_url
+
+deep_link
+
+priority
+
+is_active
+
+created_by
+
+created_at
+
+updated_at
+Business Rules
+Only Active banners should appear on the website.
+Lower priority numbers display before higher numbers.
+Deep links must point to valid internal pages.
+Banner images should be optimized for fast loading.
+Uploaded images should be automatically compressed without noticeable quality loss.
+If a banner image is replaced, remove the old image from storage to avoid unused files.
+Every create, update, delete, and status change should be recorded in the audit log.
+If no active banners are available, the homepage slider should automatically hide or display a default banner.
+Recommended Enhancements (Production)
+Banner Scheduling
+Start Date
+
+End Date
+
+Automatically publish
+
+Automatically expire
+
+Device Specific Banner
+
+Desktop Banner
+
+Mobile Banner
+
+Tablet Banner
+
+Banner Analytics
+
+Views
+
+Clicks
+
+CTR
+
+Conversion
+
+Revenue Generated
+
+Target Audience
+
+Show Banner To
+
+Everyone
+
+Guest Users
+
+Logged In Users
+
+New Users
+
+Returning Users
+
+VIP Customers
+Banner Position
+Homepage Slider
+
+Category Page
+
+Offer Page
+
+Checkout
+
+Product Page
+Auto Rotation
+
+Duration
+
+3 Seconds
+
+5 Seconds
+
+8 Seconds
+SEO
+
+Image Alt Text
+
+Image Title
+
+Meta Description
+
+A/B Testing
+
+Banner A
+
+Banner B
+
+Conversion Comparison
+
+UTM Tracking
+
+Campaign
+
+Source
+
+Medium
+
+Drag & Drop Reordering
+
+Instead of manually changing priority, allow admins to drag banners to rearrange them. The system updates priorities automatically.
+
+Security
+Only Super Admin/Admin roles can manage banners.
+Validate file type and MIME type before upload.
+Reject executable or malicious files.
+Store images with randomized filenames.
+Serve uploaded images through secure CDN/storage URLs.
+Module Summary
+✅ Create Banner
+✅ Edit Banner
+✅ Delete Banner
+✅ Search Banner
+✅ Active / Inactive Status
+✅ Priority Management
+✅ Deep Link Support
+✅ Image Upload & Validation
+✅ Drag & Drop Reordering (Recommended)
+✅ Scheduling (Recommended)
+✅ Analytics & CTR Tracking (Recommended)
+✅ Device-specific Banners (Recommended)
+✅ Audit Logs
+✅ Production Ready
+
+Ye Hero Banner module kisi bhi modern e-commerce platform (Amazon, Myntra, Ajio, Flipkart, Shopify-type stores) ke standard ke hisaab se scalable aur production-ready design hai.

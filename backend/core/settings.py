@@ -110,16 +110,19 @@ def parse_db_url(url_str):
             }
     return None
 
-db_config = parse_db_url(DATABASE_URL)
-if db_config:
-    DATABASES = {'default': db_config}
+DATABASE_URL = os.environ.get("DATABASE_URL", "")
+USE_SQLITE = os.environ.get("USE_SQLITE", "False" if DATABASE_URL else "True").lower() == "true"
+
+if not USE_SQLITE and DATABASE_URL and DATABASE_URL.startswith(('postgresql://', 'postgres://')):
+    db_config = parse_db_url(DATABASE_URL)
+    if db_config:
+        DATABASES = {'default': db_config}
+    else:
+        DATABASES = {'default': {'ENGINE': 'django.db.backends.sqlite3', 'NAME': BASE_DIR / 'db.sqlite3'}}
 else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+    DATABASES = {'default': {'ENGINE': 'django.db.backends.sqlite3', 'NAME': BASE_DIR / 'db.sqlite3'}}
+
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -150,11 +153,11 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.UserRateThrottle'
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'anon': '100/day',
-        'user': '1000/day'
+        'anon': '100000/day',
+        'user': '100000/day'
     },
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 20
+    'PAGE_SIZE': 50
 }
 
 # Production Security Headers
@@ -163,4 +166,14 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = True
+
+# Transactional Email SMTP Configuration
+EMAIL_BACKEND = os.environ.get("EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend")
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "smtp.gmail.com")
+EMAIL_PORT = int(os.environ.get("EMAIL_PORT", 587))
+EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "True").lower() == "true"
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "support.thecandlelab@gmail.com")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "muhg ftgq cipa dgxc")
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "The Candle Lab <support.thecandlelab@gmail.com>")
+
 

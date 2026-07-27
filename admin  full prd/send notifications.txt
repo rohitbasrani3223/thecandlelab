@@ -1,0 +1,564 @@
+Perfect bro. Ye module kaafi clear dikh raha hai. Is level ki documentation hi final PRD me jayegi.
+
+MODULE 03 — SEND NOTIFICATION (FCM Push Notification)
+Module Information
+Property	Value
+Module Name	Send Notification
+Purpose	Android/iOS app users ko Firebase Cloud Messaging (FCM) ke through push notifications bhejna
+Sidebar Position	Dashboard → Alerts ke baad
+Route (Expected)	/admin/send-notification
+Access	Admin
+Business Objective
+
+Admin kisi bhi offer, sale, update ya important announcement ko mobile app users tak instantly push kar sakta hai.
+
+Ye module notification send karne ke saath-saath notification history bhi maintain karta hai.
+
+Page Header
+Title
+
+Send Notification
+
+Subtitle
+
+Push notifications to app users (FCM). View sent history below.
+
+Header Action
+Create Notification
+
+Button
+
+Top Right
+
+Gradient CTA
+
+Icon
+
+➕
+
+Purpose
+
+New push notification create karna.
+
+Expected API
+
+POST /api/admin/notifications
+
+Permission
+
+Notification Create
+
+Main Layout
+Header
+     │
+Create Notification Button
+
+↓
+
+Notification History Table
+
+↓
+
+Create Modal
+
+↓
+
+Notification Details Modal
+Notification History Section
+Title
+
+Sent notification history
+
+Subtitle
+
+Recent notifications sent.
+
+Table Columns
+
+Visible Columns
+
+Column
+Date & Time
+Title
+Body
+Link
+Sent
+Failed
+Sent By
+Action
+Column Documentation
+Date & Time
+
+Purpose
+
+Notification kab send hui.
+
+Example
+
+09/03/2026 21:30
+
+Title
+
+Notification title
+
+Example
+
+Mega Offer Live
+
+Body
+
+Notification message
+
+Example
+
+Sirf ₹500 me 4 Stylish Shirts!
+
+Link
+
+Clickable URL
+
+Example
+
+Link
+
+Purpose
+
+Deep link ya website URL.
+
+Sent
+
+Successfully delivered devices.
+
+Example
+
+36
+
+Failed
+
+Delivery failed count.
+
+Example
+
+40
+
+Sent By
+
+Admin Name
+
+Example
+
+MBA
+
+Admin
+
+Action
+
+Buttons
+
+View
+
+Delete
+
+Table Actions
+View Button
+
+Purpose
+
+Notification details dekhna.
+
+Expected API
+
+GET /notifications/{id}
+
+Database
+
+Read Only
+
+Delete Button
+
+Purpose
+
+History delete karna.
+
+Expected API
+
+DELETE /notifications/{id}
+
+Database
+
+Delete notification history record.
+
+Create Notification Modal
+
+Title
+
+Create Notification
+
+Subtitle
+
+Send push notification to app users
+
+Form Fields
+Title *
+
+Type
+
+Text
+
+Required
+
+Yes
+
+Placeholder
+
+50% Sale is Live Now
+
+Character Limit
+
+255
+
+Validation
+
+Cannot be empty
+
+Body *
+
+Type
+
+Textarea
+
+Required
+
+Yes
+
+Placeholder
+
+Limited time offer.
+
+Character Limit
+
+1000
+
+Link
+
+Type
+
+URL
+
+Required
+
+No
+
+Placeholder
+
+https://...
+
+Purpose
+
+Deep Link
+
+Product Link
+
+Offer Link
+
+Category Link
+
+Send To
+
+Radio Buttons
+
+Visible Options
+
+All Customers
+
+Description
+
+All FCM registered customers
+
+Selected Customers
+
+Purpose
+
+Specific users only
+
+(Selection UI not visible in screenshots.)
+
+Footer Buttons
+Cancel
+
+Purpose
+
+Close Modal
+
+No DB Update
+
+Send Notification
+
+Primary CTA
+
+Gradient Button
+
+Expected API
+
+POST /notifications/send
+
+Database Impact
+
+Creates notification history.
+
+Stores delivery result.
+
+Calls Firebase Cloud Messaging.
+
+Validation Rules
+
+Observed
+
+Title Required
+
+Body Required
+
+Optional Link
+
+Character Counter
+
+No visible attachment upload
+
+Notification Details Modal
+
+Opens after clicking
+
+View
+
+Header
+
+Notification Details
+
+Date & Time
+
+Close Icon
+
+Information Cards
+Title
+
+Displays notification title
+
+Message
+
+Complete message
+
+Link
+
+Open Link Button
+
+Purpose
+
+Open destination URL
+
+Sent
+
+Delivered count
+
+Failed
+
+Failed count
+
+Sent By
+
+Admin Name
+
+Footer
+
+Close Button
+
+APIs Required
+GET /notifications
+
+GET /notifications/{id}
+
+POST /notifications
+
+POST /notifications/send
+
+DELETE /notifications/{id}
+Firebase APIs
+
+Required
+
+FCM Send
+
+FCM Topic Send (optional)
+
+Device Token Send
+
+Database Tables
+notifications
+Column
+id
+title
+body
+link
+created_by
+created_at
+notification_logs
+Column
+id
+notification_id
+customer_id
+device_token
+status
+response
+sent_at
+customer_devices
+Column
+id
+customer_id
+fcm_token
+platform
+app_version
+is_active
+Permissions
+
+View Notifications
+
+Create Notification
+
+Delete Notification
+
+View History
+
+Frontend Mapping
+
+Admin Notification
+↓
+Mobile Push Notification
+
+Notification Link
+↓
+Open Product / Category / Offer Page
+
+Notification Title
+↓
+Push Title
+
+Notification Body
+↓
+Push Message
+
+Workflow
+Open Module
+
+↓
+
+Click Create Notification
+
+↓
+
+Fill Title
+
+↓
+
+Fill Body
+
+↓
+
+Optional Link
+
+↓
+
+Choose Audience
+
+↓
+
+Click Send Notification
+
+↓
+
+Backend validates request
+
+↓
+
+FCM Push Sent
+
+↓
+
+Delivery Status Stored
+
+↓
+
+History Table Updated
+
+↓
+
+Admin can View Details or Delete Record
+States Observed
+Empty State
+
+Not Visible
+
+Loading State
+
+Not Visible
+
+Error State
+
+Not Visible
+
+Success Toast
+
+Not Visible
+
+Confirmation Before Delete
+
+Not Visible
+
+Pagination
+
+Not Visible
+
+Search
+
+Not Visible
+
+Filters
+
+Not Visible
+
+Export
+
+Not Visible
+
+Import
+
+Not Visible
+
+Bulk Delete
+
+Not Visible
+
+Sorting
+
+Not Visible
+
+Enterprise Improvements (Not Present in Recording)
+
+Ye recording ka part nahi hain, lekin enterprise-grade notification system me useful honge:
+
+Audience segmentation (City, State, Customer Group, Order Count)
+Schedule Notification (Date & Time)
+Draft Notifications
+Rich notifications with image/banner
+Product picker instead of manual URL
+A/B testing
+Retry failed notifications
+Delivery analytics (Delivered, Opened, Clicked)
+Notification templates
+Multi-language notifications
+Silent notifications
+Push campaign tags
+Export notification history
+Search and filters in history
+Bulk delete/archive
+Web push support alongside mobile FCM
+
+Ye module bhi Dashboard aur Alerts ki tarah final enterprise PRD ke same format me add kiya jayega.

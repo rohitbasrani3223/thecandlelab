@@ -1,5 +1,7 @@
 from rest_framework import serializers
-from .models import Collection, Category, Product, Review
+from .models import Collection, Category, Product, ProductHistory, Review
+
+
 
 class CollectionSerializer(serializers.ModelSerializer):
     product_count = serializers.SerializerMethodField()
@@ -11,19 +13,35 @@ class CollectionSerializer(serializers.ModelSerializer):
     def get_product_count(self, obj):
         return obj.products.count()
 
+class ProductHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductHistory
+        fields = '__all__'
+
 class CategorySerializer(serializers.ModelSerializer):
+    product_count = serializers.SerializerMethodField()
+
     class Meta:
         model = Category
-        fields = '__all__'
+        fields = ['id', 'name', 'slug', 'product_count']
+
+    def get_product_count(self, obj):
+        return obj.products.count()
 
 class ProductSerializer(serializers.ModelSerializer):
     collections_data = CollectionSerializer(source='collections', many=True, read_only=True)
+    category_name = serializers.CharField(source='category.name', read_only=True)
+    collection_slugs = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
         fields = '__all__'
 
+    def get_collection_slugs(self, obj):
+        return [c.slug for c in obj.collections.all()]
+
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = '__all__'
+

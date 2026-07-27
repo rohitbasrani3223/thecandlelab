@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useStore } from "@/context/StoreContext";
-import { AdminDashboard } from "@/components/AdminDashboard";
+import { EnterpriseAdminSystem } from "@/components/EnterpriseAdminSystem";
 import { CollectionsManagerModal } from "@/components/CollectionsManagerModal";
 import { Footer } from "@/components/Footer";
 import { Lock, ArrowLeft, ShieldAlert } from "lucide-react";
@@ -158,18 +158,8 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
-      <div className="bg-slate-900 text-white px-4 py-2 flex justify-between items-center text-xs">
-        <span className="font-bold text-amber-400">Authenticated Session: Master Admin</span>
-        <button
-          onClick={handleLogout}
-          className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs font-bold transition-colors"
-        >
-          Logout Admin 🚪
-        </button>
-      </div>
-
-      <AdminDashboard onOpenCollectionsModal={() => setIsCollectionsModalOpen(true)} />
+    <div className="min-h-screen bg-[#F8FAFC]">
+      <EnterpriseAdminSystem onOpenCollectionsModal={() => setIsCollectionsModalOpen(true)} />
       <CollectionsManagerModal
         isOpen={isCollectionsModalOpen}
         onClose={() => setIsCollectionsModalOpen(false)}

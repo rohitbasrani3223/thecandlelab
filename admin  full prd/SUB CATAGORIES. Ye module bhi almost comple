@@ -1,0 +1,369 @@
+Perfect bro. Ye module bhi almost complete capture ho gaya hai. Aur jo tumne bola "baaki sab me Delete aur Deactivate direct hai", wo is reverse engineering me important business observation hai. Main usse note kar raha hoon aur final PRD me common CRUD behavior ke roop me include karunga.
+
+MODULE 05 — SUB CATEGORIES MANAGEMENT
+Module Information
+Property	Value
+Module Name	Sub Categories
+Purpose	Main Categories ke andar child categories manage karna
+Route (Expected)	/admin/sub-categories
+Sidebar Position	Main Categories ke baad
+Access	Admin
+Business Objective
+
+Sub Categories products ko organize karti hain aur har Sub Category exactly ek Main Category se linked hoti hai.
+
+Example:
+
+Top Wear
+ ├── T-Shirts
+ ├── Casual Shirts
+ ├── Jackets
+
+Bottom Wear
+ ├── Jeans
+ ├── Lower
+Page Header
+Title
+
+Categories Management
+
+Subtitle
+
+Organize your products into categories
+
+Header Buttons
+Export to Excel
+
+Purpose
+
+Category list export karna.
+
+API
+
+GET /api/sub-categories/export
+Add New Category
+
+Purpose
+
+New Sub Category create karna.
+
+API
+
+POST /api/sub-categories
+Search Box
+
+Placeholder
+
+Search categories...
+
+Purpose
+
+Search by category name.
+
+API
+
+GET /api/sub-categories?search=
+Table Documentation
+Columns
+Column	Description
+Sub Category	Image + Name
+Main Category	Parent category
+Products	Product count
+Sort Order	Display priority
+Status	Active / Inactive
+Actions	CRUD
+Sub Category
+
+Contains:
+
+Thumbnail
+Category Name
+
+Examples visible:
+
+T-Shirts
+Casual Shirt
+Shirts @ ₹199
+Hunter Jackets
+Lower
+combo shirt's
+Main Category
+
+Blue Badge
+
+Examples:
+
+Top Wear
+Bottom Wear
+COMBO Offer
+Products
+
+Numeric badge.
+
+Examples:
+
+12
+41
+6
+3
+5
+
+Purpose
+
+Total linked products.
+
+Sort Order
+
+Numeric
+
+Examples
+
+1
+
+2
+
+Status
+
+Green Badge
+
+Active
+
+Action Buttons
+
+Har row me:
+
+Deactivate
+View
+Edit
+Delete
+Business Rule (Observed)
+
+Tumhari recording ke basis par:
+
+Deactivate direct action hai.
+Delete direct action hai.
+Koi alag action menu ya 3-dot dropdown visible nahi hai.
+
+Ye pattern Main Categories aur baaki modules me bhi follow ho raha hai.
+
+Add Category Modal
+Fields
+Main Category *
+
+Type
+
+Dropdown
+
+Required
+
+Yes
+
+Purpose
+
+Parent category select karna.
+
+Sub Category Name *
+
+Type
+
+Text
+
+Required
+
+Yes
+
+Placeholder
+
+e.g., T-Shirts
+Description
+
+Type
+
+Textarea
+
+Required
+
+No (asterisk nahi dikh raha)
+
+Purpose
+
+Category description.
+
+Category Icon/Image
+
+Upload
+
+Max Size
+
+2 MB
+
+Sort Order
+
+Number
+
+Default
+
+0
+
+Active
+
+Checkbox
+
+Default
+
+Checked
+
+Footer Buttons
+
+Cancel
+
+Create Category
+
+API
+
+POST /api/sub-categories
+View Modal
+
+Read-only mode.
+
+Visible fields:
+
+Main Category
+Sub Category Name
+Description
+Current Image
+Sort Order
+Active Status
+
+Image upload disabled.
+
+Footer:
+
+Close
+
+Edit Modal
+
+Editable Fields:
+
+Main Category
+Sub Category Name
+Description
+Upload Image
+Sort Order
+Active
+
+Footer:
+
+Cancel
+Update Category
+
+API
+
+PUT /api/sub-categories/{id}
+Validation Rules (Observed)
+Main Category required.
+Sub Category Name required.
+Image upload limit: 2 MB.
+Sort Order numeric.
+Description optional (no required indicator visible).
+Active checkbox.
+CRUD Matrix
+Operation	Visible
+Create	✅
+Read	✅
+Update	✅
+Delete	✅
+Search	✅
+Export	✅
+Status Change	✅
+Required APIs
+GET    /api/sub-categories
+GET    /api/sub-categories/{id}
+POST   /api/sub-categories
+PUT    /api/sub-categories/{id}
+DELETE /api/sub-categories/{id}
+PATCH  /api/sub-categories/{id}/status
+GET    /api/sub-categories/export
+GET    /api/sub-categories?search=
+POST   /api/upload/category-image
+Database Design
+sub_categories
+Column
+id
+main_category_id
+name
+slug
+description
+image
+sort_order
+status
+created_by
+created_at
+updated_at
+main_categories
+
+Relationship
+
+main_categories (1)
+        │
+        ▼
+sub_categories (Many)
+products
+
+Relationship
+
+sub_categories (1)
+        │
+        ▼
+products (Many)
+Frontend Mapping
+
+Main Category
+↓
+Website Main Navigation
+
+Sub Category
+↓
+Category Listing Page
+
+Category Image
+↓
+Category Card / Collection Tile
+
+Sort Order
+↓
+Frontend Display Priority
+
+Status
+↓
+Show / Hide Category
+
+Common CRUD Pattern (Observed Across Modules)
+
+Ye pattern ab tak ke screenshots me consistent hai:
+
+Export button top-right (jahan applicable)
+Add button top-right
+Search bar
+Data table
+Status badge
+Direct Deactivate button
+Direct View button
+Direct Edit button
+Direct Delete button
+Add/View/Edit modal ka same UI structure
+Image upload area
+Active checkbox
+Cancel + Primary CTA footer
+
+Is common pattern ko main final PRD me Reusable Admin CRUD Pattern ke naam se ek alag chapter banaunga, taaki developers har naye module me same UX follow kar saken.
+
+Ab tak documented modules:
+
+Dashboard ✅
+Alerts ✅
+Send Notification ✅
+Main Categories ✅
+Sub Categories ✅
+
+Ye sab final enterprise PRD me same standardized format me merge honge.

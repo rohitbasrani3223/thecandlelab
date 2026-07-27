@@ -72,16 +72,33 @@ class Product(models.Model):
     is_new_arrival = models.BooleanField(default=False)
 
     stock = models.IntegerField(default=50)
+    sku = models.CharField(max_length=100, blank=True, null=True)
+    status = models.CharField(max_length=20, default='Active') # Active, Draft, Archived
     description = models.TextField(blank=True)
+    images = models.JSONField(default=list, blank=True) # list of image URLs
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
+        if not self.sku and self.id:
+            self.sku = f"SKU-{self.id:04d}"
         super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
+
+class ProductHistory(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='history_logs')
+    action = models.CharField(max_length=100) # Created, Updated, Status Changed, Stock Updated
+    changed_by = models.CharField(max_length=100, default='Admin')
+    old_value = models.TextField(blank=True, null=True)
+    new_value = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.product.name} - {self.action} at {self.created_at}"
 
 class Review(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
@@ -93,3 +110,4 @@ class Review(models.Model):
 
     def __str__(self):
         return f"{self.user_name} - {self.product.name} ({self.rating} stars)"
+
