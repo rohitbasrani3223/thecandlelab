@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { StoreProvider } from "@/context/StoreContext";
 import { StoreConfigProvider } from "@/context/StoreConfigContext";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
   title: "The Candle Lab | Handcrafted Luxury Soy & Beeswax Candles",
@@ -22,6 +23,7 @@ export default function RootLayout({
             {children}
           </StoreProvider>
         </StoreConfigProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
