@@ -25,19 +25,23 @@ export interface ProductSummaryProps {
 
 export const ProductSummary: React.FC<ProductSummaryProps> = ({ product, onAddToCart, onBuyNow }) => {
   const productName = product?.name || 'Velvet Rose & Smoked Amber';
-  const productPrice = product?.price ? Math.round(product.price * (product.price < 500 ? 1 : 19)) : 1499;
-  const productOriginal = product?.originalPrice ? Math.round(product.originalPrice * (product.originalPrice < 500 ? 1 : 19)) : Math.round(productPrice * 1.2);
+  const productPrice = product?.price ? Math.round(product.price < 300 ? product.price * 19 : product.price) : 1499;
+  const productOriginal = product?.originalPrice ? Math.round(product.originalPrice < 300 ? product.originalPrice * 19 : product.originalPrice) : Math.round(productPrice * 1.25);
   const rating = product?.rating || 4.95;
   const reviewsCount = product?.reviewsCount || 142;
   const topNotes = product?.topNotes || 'Calabrian Bergamot, Damask Rose';
   const vesselDesc = product?.vesselDescription || 'A moody, seductive fusion of Damask Rose, Clove bud, and Smoked Amber.';
   const sku = `TCL-${(product?.id || 'VRSA').toUpperCase()}-2026`;
 
-  const [selectedSize, setSelectedSize] = useState(`12 oz Glass (₹${productPrice.toLocaleString('en-IN')}.00)`);
+  const [sizeOption, setSizeOption] = useState<'8oz' | '12oz' | '16oz'>('12oz');
   const [selectedWick, setSelectedWick] = useState('Organic Wood Wick (Crackling)');
   const [quantity, setQuantity] = useState(1);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const { toast } = useToast();
+
+  const currentPrice = sizeOption === '8oz' ? Math.round(productPrice * 0.7) : sizeOption === '16oz' ? Math.round(productPrice * 1.3) : productPrice;
+  const currentOriginal = sizeOption === '8oz' ? Math.round(productOriginal * 0.7) : sizeOption === '16oz' ? Math.round(productOriginal * 1.3) : productOriginal;
+  const selectedSizeLabel = sizeOption === '8oz' ? `8 oz Travel Tin (₹${currentPrice.toLocaleString('en-IN')}.00)` : sizeOption === '16oz' ? `16 oz 3-Wick (₹${currentPrice.toLocaleString('en-IN')}.00)` : `12 oz Glass (₹${currentPrice.toLocaleString('en-IN')}.00)`;
 
   const handleShare = () => {
     navigator.clipboard?.writeText(window.location.href);
@@ -88,8 +92,8 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({ product, onAddTo
       {/* Price Box */}
       <div className="p-4 bg-[#F4EFE6] border border-[#E5D9C5] rounded-md flex items-center justify-between">
         <div className="flex items-baseline gap-3">
-          <span className="text-3xl font-bold text-[#2A1E17]">₹{productPrice.toLocaleString('en-IN')}.00</span>
-          <span className="text-sm text-[#8C7A6B] line-through">₹{productOriginal.toLocaleString('en-IN')}.00</span>
+          <span className="text-3xl font-bold text-[#2A1E17]">₹{currentPrice.toLocaleString('en-IN')}.00</span>
+          <span className="text-sm text-[#8C7A6B] line-through">₹{currentOriginal.toLocaleString('en-IN')}.00</span>
           <Badge variant="success" size="sm">Special Artisanal Batch</Badge>
         </div>
         <div className="text-right">
@@ -102,19 +106,19 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({ product, onAddTo
       <div className="space-y-2.5">
         <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#2A1E17]">
           <span>Select Vessel Size:</span>
-          <span className="text-[#D4AF37] font-normal">{selectedSize}</span>
+          <span className="text-[#D4AF37] font-normal">{selectedSizeLabel}</span>
         </div>
         <div className="grid grid-cols-3 gap-3">
           {[
-            { label: '8 oz Tin', price: `₹${Math.round(productPrice * 0.7).toLocaleString('en-IN')}`, full: `8 oz Travel Tin` },
-            { label: '12 oz Glass', price: `₹${productPrice.toLocaleString('en-IN')}`, full: `12 oz Glass`, popular: true },
-            { label: '16 oz 3-Wick', price: `₹${Math.round(productPrice * 1.3).toLocaleString('en-IN')}`, full: `16 oz 3-Wick` },
+            { id: '8oz', label: '8 oz Tin', price: `₹${Math.round(productPrice * 0.7).toLocaleString('en-IN')}` },
+            { id: '12oz', label: '12 oz Glass', price: `₹${productPrice.toLocaleString('en-IN')}`, popular: true },
+            { id: '16oz', label: '16 oz 3-Wick', price: `₹${Math.round(productPrice * 1.3).toLocaleString('en-IN')}` },
           ].map((item) => (
             <button
-              key={item.label}
-              onClick={() => setSelectedSize(`${item.full} (${item.price}.00)`)}
+              key={item.id}
+              onClick={() => setSizeOption(item.id as any)}
               className={`p-3 rounded-md border text-center transition-all relative cursor-pointer ${
-                selectedSize.includes(item.full)
+                sizeOption === item.id
                   ? 'border-[#D4AF37] bg-[#FAF6F0] ring-2 ring-[#D4AF37]/40 shadow-xs'
                   : 'border-[#E5D9C5] bg-[#F4EFE6] hover:bg-[#FAF6F0]'
               }`}

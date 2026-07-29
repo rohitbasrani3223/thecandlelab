@@ -29,8 +29,10 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 font-sans">
       {products.map((prod) => {
         const isWishlisted = wishlist.includes(prod.id);
-        const inrPrice = Math.round(prod.price * 19);
-        const inrOriginal = prod.originalPrice ? Math.round(prod.originalPrice * 19) : Math.round(inrPrice * 1.3);
+        const inrPrice = prod.price < 300 ? Math.round(prod.price * 19) : Math.round(prod.price);
+        const inrOriginal = prod.originalPrice
+          ? (prod.originalPrice < 300 ? Math.round(prod.originalPrice * 19) : Math.round(prod.originalPrice))
+          : Math.round(inrPrice * 1.25);
         const discountAmount = inrOriginal - inrPrice;
 
         return (
@@ -123,14 +125,6 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                 </div>
 
                 <div className="flex items-center gap-1.5">
-                  <button
-                    onClick={() => onQuickView(prod)}
-                    className="p-2 border border-[#EFE8DB] rounded-lg text-[#2C1E16] hover:bg-[#F8F3EA] text-xs transition-colors cursor-pointer"
-                    title="Quick View"
-                  >
-                    🔍
-                  </button>
-
                   <button
                     onClick={() => handleProductClick(prod)}
                     className="bg-[#B88B38] hover:bg-[#A3792E] text-white font-bold text-xs py-2 px-3.5 rounded-lg flex items-center gap-1.5 shadow-xs transition-all cursor-pointer shrink-0"

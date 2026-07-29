@@ -1,14 +1,20 @@
 import React, { useState } from 'react';
 import { Badge, SparklesIcon } from '../../design-system';
 
-const galleryImages = [
-  { id: 1, label: 'Front Vessel', src: '/hero_candle.png', isMain: true },
-  { id: 2, label: 'Unboxing Packaging', src: '/hero_candle.png' },
-  { id: 3, label: 'Wick Flame Glow', src: '/hero_candle.png' },
-  { id: 4, label: 'Botanical Ingredients', src: '/hero_candle.png' },
-];
+export interface ProductGalleryProps {
+  mainImage?: string;
+}
 
-export const ProductGallery: React.FC = () => {
+export const ProductGallery: React.FC<ProductGalleryProps> = ({ mainImage }) => {
+  const defaultSrc = mainImage || 'https://images.unsplash.com/photo-1603006905003-be475563bc59?w=1000&auto=format&fit=crop&q=80';
+
+  const galleryImages = [
+    { id: 1, label: 'Front Vessel', src: defaultSrc, isMain: true },
+    { id: 2, label: 'Unboxing Packaging', src: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&auto=format&fit=crop&q=80' },
+    { id: 3, label: 'Wick Flame Glow', src: 'https://images.unsplash.com/photo-1595425970377-c9703cf48b6d?w=800&auto=format&fit=crop&q=80' },
+    { id: 4, label: 'Botanical Ingredients', src: defaultSrc },
+  ];
+
   const [selectedImage, setSelectedImage] = useState(galleryImages[0]);
   const [isZoomed, setIsZoomed] = useState(false);
 

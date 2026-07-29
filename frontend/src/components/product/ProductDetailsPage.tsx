@@ -79,7 +79,7 @@ export const ProductDetailsPage: React.FC<ProductDetailsPageProps> = ({ product,
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           {/* Left Column: Gallery */}
           <div className="lg:col-span-7">
-            <ProductGallery />
+            <ProductGallery mainImage={product?.image} />
           </div>
 
           {/* Right Column: Purchase Summary */}

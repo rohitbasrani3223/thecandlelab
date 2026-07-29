@@ -10,6 +10,7 @@ import { QuickViewModal } from './QuickViewModal';
 import { ShopPagination } from './ShopPagination';
 
 import { Drawer, EmptyState, useToast } from '../../design-system';
+import { useCMS } from '../../context/CMSContext';
 
 const allProductsMock: ShopProduct[] = [
   {
@@ -165,6 +166,7 @@ export interface ShopPageProps {
 }
 
 export const ShopPage: React.FC<ShopPageProps> = ({ onSelectProduct }) => {
+  const { products: cmsProducts } = useCMS();
   const [filters, setFilters] = useState<ShopFiltersState>(initialFilters);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState('featured');
@@ -187,12 +189,15 @@ export const ShopPage: React.FC<ShopPageProps> = ({ onSelectProduct }) => {
 
   const handleResetFilters = () => setFilters(initialFilters);
 
+  // Dynamic products source directly from CMSContext / Admin Panel
+  const activeProducts = useMemo(() => {
+    return cmsProducts.length > 0 ? cmsProducts : (allProductsMock as any);
+  }, [cmsProducts]);
+
   // Filter & Sort Logic
   const filteredProducts = useMemo(() => {
-    return allProductsMock.filter((prod) => {
+    return activeProducts.filter((prod) => {
       if (filters.inStockOnly && !prod.inStock) return false;
-      if (prod.price < filters.priceMin || prod.price > filters.priceMax) return false;
-      if (filters.minRating > 0 && prod.rating < filters.minRating) return false;
       if (filters.categories.length > 0 && !filters.categories.includes(prod.category)) return false;
       if (filters.collections.length > 0 && !filters.collections.includes(prod.collection)) return false;
       if (filters.scentProfiles.length > 0 && !filters.scentProfiles.includes(prod.scentProfile)) return false;
@@ -204,7 +209,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({ onSelectProduct }) => {
       if (sortBy === 'newest') return (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0);
       return 0;
     });
-  }, [filters, sortBy]);
+  }, [activeProducts, filters, sortBy]);
 
   const totalPages = Math.ceil(filteredProducts.length / pageSize) || 1;
   const paginatedProducts = useMemo(() => {

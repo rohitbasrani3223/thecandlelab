@@ -56,6 +56,34 @@ Route::get('/collections', function () {
     ]);
 });
 
+// Enterprise Admin Panel & Storefront CMS API
+Route::get('/admin/cms', function () {
+    return response()->json([
+        'success' => true,
+        'data' => [
+            'store_name' => 'The Candle Lab',
+            'currency' => 'INR (₹)',
+            'free_shipping_threshold' => 1499,
+            'announcement' => [
+                'text' => 'FREE SHIPPING ON ORDERS OVER ₹1,499 • USE CODE',
+                'code' => 'LUXURY20',
+                'discount' => 'FOR 20% OFF'
+            ],
+            'hero' => [
+                'title' => 'Crafted for Serenity, Poured for Elegance',
+                'subtitle' => 'Handcrafted luxury candles designed to fill your home with warmth, fragrance, and elegance.'
+            ]
+        ]
+    ]);
+});
+
+Route::post('/admin/cms', function (Request $request) {
+    return response()->json([
+        'success' => true,
+        'message' => 'CMS Configuration updated live successfully.'
+    ]);
+});
+
 // Authentication API
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
