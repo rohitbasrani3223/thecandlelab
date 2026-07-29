@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { Drawer, Button, ChevronDownIcon, SearchIcon, HeartIcon, ShoppingBagIcon, CandleIcon } from '../../design-system';
+import { useState } from 'react';
+import { Drawer, Button, ChevronDownIcon, SearchIcon, HeartIcon, ShoppingBagIcon } from '../../design-system';
 
 export interface MobileNavProps {
   isOpen: boolean;
   onClose: () => void;
   onOpenSearch: () => void;
+  onNavigate?: (page: 'home' | 'shop') => void;
   cartCount?: number;
   wishlistCount?: number;
 }
@@ -13,6 +14,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({
   isOpen,
   onClose,
   onOpenSearch,
+  onNavigate,
   cartCount = 2,
   wishlistCount = 4,
 }) => {
@@ -20,6 +22,12 @@ export const MobileNav: React.FC<MobileNavProps> = ({
 
   const toggleSection = (section: 'shop' | 'collections') => {
     setExpandedSection(expandedSection === section ? null : section);
+  };
+
+  const handleLink = (e: React.MouseEvent, page: 'home' | 'shop') => {
+    e.preventDefault();
+    onClose();
+    if (onNavigate) onNavigate(page);
   };
 
   return (
@@ -42,11 +50,11 @@ export const MobileNav: React.FC<MobileNavProps> = ({
     >
       <div className="space-y-6 font-sans">
         {/* Brand Header */}
-        <div className="flex items-center gap-2.5 pb-4 border-b border-[#E5D9C5]">
-          <CandleIcon size={28} className="text-[#D4AF37]" />
+        <div className="flex items-center gap-3 pb-4 border-b border-[#E5D9C5]">
+          <img src="/logo.jpeg" alt="The Candle Lab Logo" className="h-10 w-auto object-contain rounded-xs shadow-xs" />
           <div>
-            <h3 className="font-serif font-bold text-lg text-[#2A1E17] tracking-wider">THE CANDLE LAB</h3>
-            <span className="text-[10px] uppercase tracking-widest text-[#D4AF37] font-semibold">Luxury Fragrance</span>
+            <h3 className="font-serif font-bold text-base text-[#2A1E17] tracking-wider leading-tight">THE CANDLE LAB</h3>
+            <span className="text-[9px] uppercase tracking-widest text-[#D4AF37] font-semibold">Botanical & Soy Artisans</span>
           </div>
         </div>
 
@@ -69,7 +77,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({
         <nav className="space-y-1">
           <a
             href="#home"
-            onClick={onClose}
+            onClick={(e) => handleLink(e, 'home')}
             className="block py-3 px-2 text-sm font-bold uppercase tracking-wider text-[#2A1E17] border-b border-[#F4EFE6] hover:text-[#D4AF37]"
           >
             Home
@@ -86,11 +94,11 @@ export const MobileNav: React.FC<MobileNavProps> = ({
             </button>
             {expandedSection === 'shop' && (
               <div className="pl-4 pb-3 space-y-2 text-xs text-[#69574A] animate-fade-in">
-                <a href="#shop-jars" onClick={onClose} className="block py-1 hover:text-[#D4AF37]">Luxury Glass Jars</a>
-                <a href="#shop-tins" onClick={onClose} className="block py-1 hover:text-[#D4AF37]">Botanical Travel Tins</a>
-                <a href="#shop-pillars" onClick={onClose} className="block py-1 hover:text-[#D4AF37]">Aromatherapy Pillars</a>
-                <a href="#shop-diffusers" onClick={onClose} className="block py-1 hover:text-[#D4AF37]">Reed Diffusers & Oils</a>
-                <a href="#shop-gifts" onClick={onClose} className="block py-1 hover:text-[#D4AF37]">Gift Sets & Combos</a>
+                <a href="#shop" onClick={(e) => handleLink(e, 'shop')} className="block py-1 hover:text-[#D4AF37]">Luxury Glass Jars</a>
+                <a href="#shop" onClick={(e) => handleLink(e, 'shop')} className="block py-1 hover:text-[#D4AF37]">Botanical Travel Tins</a>
+                <a href="#shop" onClick={(e) => handleLink(e, 'shop')} className="block py-1 hover:text-[#D4AF37]">Aromatherapy Pillars</a>
+                <a href="#shop" onClick={(e) => handleLink(e, 'shop')} className="block py-1 hover:text-[#D4AF37]">Reed Diffusers & Oils</a>
+                <a href="#shop" onClick={(e) => handleLink(e, 'shop')} className="block py-1 hover:text-[#D4AF37]">Gift Sets & Combos</a>
               </div>
             )}
           </div>
@@ -106,42 +114,34 @@ export const MobileNav: React.FC<MobileNavProps> = ({
             </button>
             {expandedSection === 'collections' && (
               <div className="pl-4 pb-3 space-y-2 text-xs text-[#69574A] animate-fade-in">
-                <a href="#collection-luxury" onClick={onClose} className="block py-1 hover:text-[#D4AF37]">Luxury Collection</a>
-                <a href="#collection-signature" onClick={onClose} className="block py-1 hover:text-[#D4AF37]">Signature Collection</a>
-                <a href="#collection-seasonal" onClick={onClose} className="block py-1 hover:text-[#D4AF37]">Seasonal Collection</a>
-                <a href="#collection-gift" onClick={onClose} className="block py-1 hover:text-[#D4AF37]">Gift Collection</a>
+                <a href="#shop" onClick={(e) => handleLink(e, 'shop')} className="block py-1 hover:text-[#D4AF37]">Luxury Collection</a>
+                <a href="#shop" onClick={(e) => handleLink(e, 'shop')} className="block py-1 hover:text-[#D4AF37]">Signature Collection</a>
+                <a href="#shop" onClick={(e) => handleLink(e, 'shop')} className="block py-1 hover:text-[#D4AF37]">Seasonal Collection</a>
+                <a href="#shop" onClick={(e) => handleLink(e, 'shop')} className="block py-1 hover:text-[#D4AF37]">Gift Collection</a>
               </div>
             )}
           </div>
 
           <a
-            href="#scent-finder"
-            onClick={onClose}
+            href="#scent-quiz-section"
+            onClick={(e) => handleLink(e, 'home')}
             className="block py-3 px-2 text-sm font-bold uppercase tracking-wider text-[#2A1E17] border-b border-[#F4EFE6] hover:text-[#D4AF37]"
           >
             Scent Match Quiz
           </a>
 
           <a
-            href="#about"
-            onClick={onClose}
+            href="#story"
+            onClick={(e) => handleLink(e, 'home')}
             className="block py-3 px-2 text-sm font-bold uppercase tracking-wider text-[#2A1E17] border-b border-[#F4EFE6] hover:text-[#D4AF37]"
           >
             Our Story
-          </a>
-
-          <a
-            href="#contact"
-            onClick={onClose}
-            className="block py-3 px-2 text-sm font-bold uppercase tracking-wider text-[#2A1E17] border-b border-[#F4EFE6] hover:text-[#D4AF37]"
-          >
-            Contact & Support
           </a>
         </nav>
 
         {/* Wishlist & Account Shortcuts */}
         <div className="pt-2 flex items-center justify-around bg-[#F4EFE6] p-3 rounded-md border border-[#E5D9C5]">
-          <a href="#wishlist" onClick={onClose} className="flex items-center gap-1.5 text-xs font-semibold text-[#2A1E17]">
+          <a href="#wishlist" onClick={(e) => handleLink(e, 'shop')} className="flex items-center gap-1.5 text-xs font-semibold text-[#2A1E17]">
             <HeartIcon size={16} className="text-[#B33A3A]" />
             <span>Wishlist ({wishlistCount})</span>
           </a>

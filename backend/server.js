@@ -80,7 +80,7 @@ const server = http.createServer((req, res) => {
     if (body) {
       try {
         payload = JSON.parse(body);
-      } catch (e) {}
+      } catch (e) { }
     }
 
     // Router
@@ -110,13 +110,114 @@ const server = http.createServer((req, res) => {
         res.end(JSON.stringify({ success: false, error: "Invalid coupon code" }));
       }
     } else if (pathname === "/api/auth/login" && req.method === "POST") {
+      const emailOrPhone = payload.emailOrPhone || payload.email;
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(
         JSON.stringify({
           success: true,
-          data: {
-            user: { id: "u-1", name: "Priya Sharma", email: payload.email, role: "customer" },
-            token: `tcl_token_${Date.now()}`,
+          message: "Signed in successfully",
+          user: {
+            id: "usr_" + Date.now().toString().slice(-6),
+            name: emailOrPhone ? emailOrPhone.split("@")[0] : "Priya Sharma",
+            email: emailOrPhone && emailOrPhone.includes("@") ? emailOrPhone : "priya.sharma@example.com",
+            phone: emailOrPhone && !emailOrPhone.includes("@") ? emailOrPhone : "+91 98765 43210",
+            avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+            isEmailVerified: true,
+            isPhoneVerified: true,
+            role: "customer",
+            createdAt: new Date().toISOString(),
+          },
+          token: `tcl_jwt_${Date.now()}`,
+        })
+      );
+    } else if (pathname === "/api/auth/register" && req.method === "POST") {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(
+        JSON.stringify({
+          success: true,
+          message: "Registration successful. 6-digit OTP code sent for verification.",
+          requireOtp: true,
+        })
+      );
+    } else if (pathname === "/api/auth/forgot-password" && req.method === "POST") {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(
+        JSON.stringify({
+          success: true,
+          message: "Password reset verification code dispatched.",
+        })
+      );
+    } else if (pathname === "/api/auth/reset-password" && req.method === "POST") {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(
+        JSON.stringify({
+          success: true,
+          message: "Password updated successfully.",
+        })
+      );
+    } else if (pathname === "/api/auth/verify-email" && req.method === "POST") {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(
+        JSON.stringify({
+          success: true,
+          message: "Email address verified successfully.",
+        })
+      );
+    } else if (pathname === "/api/auth/verify-otp" && req.method === "POST") {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(
+        JSON.stringify({
+          success: true,
+          message: "OTP code verified successfully.",
+          user: {
+            id: "usr_" + Date.now().toString().slice(-6),
+            name: payload.email ? payload.email.split("@")[0] : "Verified Customer",
+            email: payload.email || "customer@thecandlelab.com",
+            phone: payload.phone || "+91 98765 43210",
+            avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+            isEmailVerified: true,
+            isPhoneVerified: true,
+            role: "customer",
+            createdAt: new Date().toISOString(),
+          },
+          token: `tcl_jwt_${Date.now()}`,
+        })
+      );
+    } else if (pathname === "/api/auth/social" && req.method === "POST") {
+      const provider = payload.provider || "google";
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(
+        JSON.stringify({
+          success: true,
+          message: `Authenticated via ${provider}`,
+          user: {
+            id: `usr_${provider}_${Date.now().toString().slice(-6)}`,
+            name: `Valued User (${provider})`,
+            email: `user.${provider}@thecandlelab.com`,
+            avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+            isEmailVerified: true,
+            isPhoneVerified: false,
+            role: "customer",
+            createdAt: new Date().toISOString(),
+          },
+          token: `tcl_jwt_social_${Date.now()}`,
+        })
+      );
+    } else if (pathname === "/api/auth/me" && req.method === "GET") {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(
+        JSON.stringify({
+          success: true,
+          user: {
+            id: "usr_1001",
+            name: "Priya   Sharma",
+            email: "[EMAIL_ADDRESS]",
+            phone: "+91 8210425028",
+            avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+            isEmailVerified: true,
+            isPhoneVerified: true,
+            role: "customer",
+            createdAt: new Date().toISOString(),
           },
         })
       );

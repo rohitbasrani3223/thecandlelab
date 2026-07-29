@@ -10,7 +10,7 @@ const announcements = [
 export const AnnouncementBar: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
-  const [currency, setCurrency] = useState('USD ($)');
+  const [currency, setCurrency] = useState('ind ($)');
   const [isCurrencyOpen, setIsCurrencyOpen] = useState(false);
 
   useEffect(() => {

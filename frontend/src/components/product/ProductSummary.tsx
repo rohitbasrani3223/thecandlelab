@@ -1,0 +1,225 @@
+import React, { useState } from 'react';
+import { Button, Badge, StarIcon, SparklesIcon, HeartIcon, useToast } from '../../design-system';
+
+export interface ProductSummaryProps {
+  product?: {
+    id?: string;
+    name?: string;
+    category?: string;
+    collection?: string;
+    scentProfile?: string;
+    price?: number;
+    originalPrice?: number;
+    rating?: number;
+    reviewsCount?: number;
+    topNotes?: string;
+    heartNotes?: string;
+    baseNotes?: string;
+    burnTime?: string;
+    vesselDescription?: string;
+    image?: string;
+  } | null;
+  onAddToCart: (size: string, wick: string, qty: number) => void;
+  onBuyNow: (size: string, wick: string, qty: number) => void;
+}
+
+export const ProductSummary: React.FC<ProductSummaryProps> = ({ product, onAddToCart, onBuyNow }) => {
+  const productName = product?.name || 'Velvet Rose & Smoked Amber';
+  const productPrice = product?.price ? Math.round(product.price * (product.price < 500 ? 1 : 19)) : 1499;
+  const productOriginal = product?.originalPrice ? Math.round(product.originalPrice * (product.originalPrice < 500 ? 1 : 19)) : Math.round(productPrice * 1.2);
+  const rating = product?.rating || 4.95;
+  const reviewsCount = product?.reviewsCount || 142;
+  const topNotes = product?.topNotes || 'Calabrian Bergamot, Damask Rose';
+  const vesselDesc = product?.vesselDescription || 'A moody, seductive fusion of Damask Rose, Clove bud, and Smoked Amber.';
+  const sku = `TCL-${(product?.id || 'VRSA').toUpperCase()}-2026`;
+
+  const [selectedSize, setSelectedSize] = useState(`12 oz Glass (₹${productPrice.toLocaleString('en-IN')}.00)`);
+  const [selectedWick, setSelectedWick] = useState('Organic Wood Wick (Crackling)');
+  const [quantity, setQuantity] = useState(1);
+  const [isWishlisted, setIsWishlisted] = useState(false);
+  const { toast } = useToast();
+
+  const handleShare = () => {
+    navigator.clipboard?.writeText(window.location.href);
+    toast({ type: 'info', title: 'Product Link Copied to Clipboard' });
+  };
+
+  return (
+    <div className="space-y-6 font-sans">
+      {/* Header Info */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <Badge variant="gold" icon={<SparklesIcon size={12} />}>ROYAL 24K GOLD RESERVE</Badge>
+          <span className="text-xs font-mono text-[#8C7A6B]">SKU: {sku}</span>
+        </div>
+
+        <h1 className="text-3xl sm:text-5xl font-serif font-bold text-[#2A1E17] leading-tight">
+          {productName}
+        </h1>
+
+        <p className="text-sm font-accent-luxury italic text-[#69574A] leading-relaxed">
+          {vesselDesc}
+        </p>
+
+        <div className="text-xs text-[#8C7A6B] bg-[#F4EFE6] p-2 rounded-xs border border-[#E5D9C5]/50 flex items-center justify-between">
+          <span><strong className="text-[#2A1E17]">Fragrance Notes:</strong> {topNotes}</span>
+          <button onClick={handleShare} className="text-[#D4AF37] font-bold hover:underline cursor-pointer">
+            Share 🔗
+          </button>
+        </div>
+
+        {/* Rating & Review Jump Link */}
+        <div className="flex items-center gap-3 text-xs pt-1">
+          <div className="flex items-center gap-1 text-[#D4AF37] font-bold">
+            <div className="flex text-[#D4AF37]">
+              {[...Array(5)].map((_, i) => (
+                <StarIcon key={i} size={16} className="fill-current text-[#D4AF37]" />
+              ))}
+            </div>
+            <span className="ml-1">{rating}</span>
+          </div>
+          <span className="text-[#8C7A6B]">•</span>
+          <a href="#reviews" className="text-[#2A1E17] font-semibold underline hover:text-[#D4AF37]">
+            {reviewsCount} Verified Connoisseur Reviews
+          </a>
+        </div>
+      </div>
+
+      {/* Price Box */}
+      <div className="p-4 bg-[#F4EFE6] border border-[#E5D9C5] rounded-md flex items-center justify-between">
+        <div className="flex items-baseline gap-3">
+          <span className="text-3xl font-bold text-[#2A1E17]">₹{productPrice.toLocaleString('en-IN')}.00</span>
+          <span className="text-sm text-[#8C7A6B] line-through">₹{productOriginal.toLocaleString('en-IN')}.00</span>
+          <Badge variant="success" size="sm">Special Artisanal Batch</Badge>
+        </div>
+        <div className="text-right">
+          <span className="text-xs font-bold text-[#2E6F40] block">✓ In Stock</span>
+          <span className="text-[11px] text-[#B33A3A] font-semibold">⚡ Limited Batch Available</span>
+        </div>
+      </div>
+
+      {/* 1. Vessel Size Selection */}
+      <div className="space-y-2.5">
+        <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#2A1E17]">
+          <span>Select Vessel Size:</span>
+          <span className="text-[#D4AF37] font-normal">{selectedSize}</span>
+        </div>
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { label: '8 oz Tin', price: `₹${Math.round(productPrice * 0.7).toLocaleString('en-IN')}`, full: `8 oz Travel Tin` },
+            { label: '12 oz Glass', price: `₹${productPrice.toLocaleString('en-IN')}`, full: `12 oz Glass`, popular: true },
+            { label: '16 oz 3-Wick', price: `₹${Math.round(productPrice * 1.3).toLocaleString('en-IN')}`, full: `16 oz 3-Wick` },
+          ].map((item) => (
+            <button
+              key={item.label}
+              onClick={() => setSelectedSize(`${item.full} (${item.price}.00)`)}
+              className={`p-3 rounded-md border text-center transition-all relative cursor-pointer ${
+                selectedSize.includes(item.full)
+                  ? 'border-[#D4AF37] bg-[#FAF6F0] ring-2 ring-[#D4AF37]/40 shadow-xs'
+                  : 'border-[#E5D9C5] bg-[#F4EFE6] hover:bg-[#FAF6F0]'
+              }`}
+            >
+              {item.popular && (
+                <span className="absolute -top-2 right-2 bg-[#D4AF37] text-[#1C130E] text-[9px] font-bold px-1.5 py-0.5 rounded-full">
+                  MOST LOVED
+                </span>
+              )}
+              <span className="text-xs font-bold text-[#2A1E17] block">{item.label}</span>
+              <span className="text-[11px] text-[#8C7A6B]">{item.price}.00</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 2. Wick Type Selection */}
+      <div className="space-y-2.5">
+        <span className="text-xs font-bold uppercase tracking-wider text-[#2A1E17] block">
+          Select Wick Type:
+        </span>
+        <div className="grid grid-cols-2 gap-3 text-xs">
+          {[
+            { title: 'Organic Wood Wick', desc: 'Crackling fireside sound', val: 'Organic Wood Wick (Crackling)' },
+            { title: '100% Cotton Wick', desc: 'Silent flame diffusion', val: '100% Cotton Wick (Silent)' },
+          ].map((wick) => (
+            <button
+              key={wick.val}
+              onClick={() => setSelectedWick(wick.val)}
+              className={`p-3 rounded-md border text-left transition-all cursor-pointer ${
+                selectedWick === wick.val
+                  ? 'border-[#D4AF37] bg-[#FAF6F0] ring-2 ring-[#D4AF37]/40 shadow-xs'
+                  : 'border-[#E5D9C5] bg-[#F4EFE6] hover:bg-[#FAF6F0]'
+              }`}
+            >
+              <span className="font-bold text-[#2A1E17] block">{wick.title}</span>
+              <span className="text-[10px] text-[#8C7A6B]">{wick.desc}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 3. Quantity & Primary CTA Buttons */}
+      <div className="space-y-4 pt-2">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center border border-[#E5D9C5] rounded-md bg-[#F4EFE6]">
+            <button
+              onClick={() => setQuantity(Math.max(1, quantity - 1))}
+              className="px-3.5 py-2.5 text-[#2A1E17] font-bold hover:bg-[#E5D9C5] transition-colors rounded-l-md cursor-pointer"
+            >
+              -
+            </button>
+            <span className="px-4 py-2.5 font-bold text-[#2A1E17] text-sm font-mono min-w-[40px] text-center">
+              {quantity}
+            </span>
+            <button
+              onClick={() => setQuantity(quantity + 1)}
+              className="px-3.5 py-2.5 text-[#2A1E17] font-bold hover:bg-[#E5D9C5] transition-colors rounded-r-md cursor-pointer"
+            >
+              +
+            </button>
+          </div>
+
+          <Button
+            variant="gold"
+            size="lg"
+            className="flex-1 text-sm font-bold shadow-goldGlow"
+            onClick={() => onAddToCart(selectedSize, selectedWick, quantity)}
+          >
+            Add to Shopping Bag — ₹{(productPrice * quantity).toLocaleString('en-IN')}.00
+          </Button>
+
+          <button
+            onClick={() => {
+              setIsWishlisted(!isWishlisted);
+              toast({
+                type: isWishlisted ? 'info' : 'luxury',
+                title: isWishlisted ? 'Removed from Wishlist' : 'Saved to Sanctuary Wishlist',
+              });
+            }}
+            className={`p-3 rounded-md border border-[#E5D9C5] transition-colors cursor-pointer ${
+              isWishlisted ? 'bg-[#B33A3A] text-white' : 'bg-[#F4EFE6] text-[#2A1E17] hover:bg-[#E5D9C5]'
+            }`}
+          >
+            <HeartIcon size={20} />
+          </button>
+        </div>
+
+        <Button
+          variant="primary"
+          size="lg"
+          fullWidth
+          className="bg-[#2A1E17] hover:bg-[#1C130E] text-[#FAF6F0]"
+          onClick={() => onBuyNow(selectedSize, selectedWick, quantity)}
+        >
+          Buy Now with Instant Express Checkout →
+        </Button>
+      </div>
+
+      {/* Trust Micro Features */}
+      <div className="pt-4 border-t border-[#E5D9C5] grid grid-cols-3 gap-2 text-center text-[11px] text-[#69574A]">
+        <div>🚚 Free Express Shipping</div>
+        <div>🌿 100% Organic Soy & Beeswax</div>
+        <div>✨ Gold Packaging Included</div>
+      </div>
+    </div>
+  );
+};

@@ -11,14 +11,26 @@ import { InstagramGallery } from './InstagramGallery';
 import { FaqSection } from './FaqSection';
 import { NewsletterSection } from './NewsletterSection';
 
-export const HomePage: React.FC = () => {
+export interface HomePageProps {
+  onNavigateToShop?: () => void;
+}
+
+export const HomePage: React.FC<HomePageProps> = ({ onNavigateToShop }) => {
+  const handleShopClick = () => {
+    if (onNavigateToShop) {
+      onNavigateToShop();
+    } else {
+      window.location.hash = '#shop';
+    }
+  };
+
   return (
     <div className="w-full">
       {/* 1. Hero Banner */}
       <HeroBanner />
 
       {/* 2. Category Highlights */}
-      <CategoryGrid />
+      <CategoryGrid onNavigateToShop={handleShopClick} />
 
       {/* 3. Featured Royal Collection */}
       <FeaturedCollection />

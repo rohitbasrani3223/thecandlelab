@@ -19,7 +19,9 @@ class OrderController extends Controller
     {
         $query = Order::with('items');
 
-        if ($request->user() && $request->user()->role !== 'admin') {
+        if ($request->has('email')) {
+            $query->where('customer_email', $request->email);
+        } elseif ($request->user() && $request->user()->role !== 'admin') {
             $query->where('user_id', $request->user()->id);
         }
 

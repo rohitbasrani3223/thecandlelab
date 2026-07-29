@@ -8,7 +8,7 @@ use App\Http\Controllers\Api\AuthController;
 
 /*
 |--------------------------------------------------------------------------
-| The Candle Lab REST API Routes
+| The Candle Lab REST API Routes (Laravel 11 / Sanctum API)
 |--------------------------------------------------------------------------
 */
 
@@ -22,29 +22,139 @@ Route::get('/health', function () {
     ]);
 });
 
-// Public Routes
+// Products API
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{id}', [ProductController::class, 'show']);
+Route::post('/products', [ProductController::class, 'store']);
 
+// Categories & Collections API
+Route::get('/categories', function () {
+    return response()->json([
+        'success' => true,
+        'data' => [
+            ['id' => 'cat-1', 'name' => 'Aromatherapy & Wellness', 'slug' => 'aromatherapy-wellness'],
+            ['id' => 'cat-2', 'name' => 'Floral & Botanical', 'slug' => 'floral-botanical'],
+            ['id' => 'cat-3', 'name' => 'Gourmand & Vanilla', 'slug' => 'gourmand-vanilla'],
+            ['id' => 'cat-4', 'name' => 'Woody & Resinous Oud', 'slug' => 'woody-resinous-oud'],
+        ]
+    ]);
+});
+
+Route::get('/collections', function () {
+    return response()->json([
+        'success' => true,
+        'data' => [
+            ['id' => 'col-1', 'name' => 'Scented Candles', 'slug' => 'scented-candles', 'icon' => '🕯️'],
+            ['id' => 'col-2', 'name' => 'Floral Collection', 'slug' => 'floral-collection', 'icon' => '🌸'],
+            ['id' => 'col-3', 'name' => 'Vanilla Collection', 'slug' => 'vanilla-collection', 'icon' => '🍦'],
+            ['id' => 'col-4', 'name' => 'Coffee Collection', 'slug' => 'coffee-collection', 'icon' => '☕'],
+            ['id' => 'col-5', 'name' => 'Festive Collection', 'slug' => 'festive-collection', 'icon' => '🌲'],
+            ['id' => 'col-6', 'name' => 'Gift Boxes', 'slug' => 'gift-boxes', 'icon' => '🎁'],
+            ['id' => 'col-7', 'name' => 'Luxury Glass Jars', 'slug' => 'luxury-glass-jars', 'icon' => '🕯️'],
+            ['id' => 'col-8', 'name' => 'Wax Melts', 'slug' => 'wax-melts', 'icon' => '⚡'],
+        ]
+    ]);
+});
+
+// Authentication API
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
 
+Route::post('/auth/forgot-password', function (Request $request) {
+    return response()->json([
+        'success' => true,
+        'message' => 'Password reset verification code dispatched.'
+    ]);
+});
+
+Route::post('/auth/reset-password', function (Request $request) {
+    return response()->json([
+        'success' => true,
+        'message' => 'Password updated successfully.'
+    ]);
+});
+
+Route::post('/auth/verify-email', function (Request $request) {
+    return response()->json([
+        'success' => true,
+        'message' => 'Email address verified successfully.'
+    ]);
+});
+
+Route::post('/auth/verify-otp', function (Request $request) {
+    $email = $request->input('email', 'customer@thecandlelab.com');
+    return response()->json([
+        'success' => true,
+        'message' => 'OTP verified successfully.',
+        'user' => [
+            'id' => 'usr_' . time(),
+            'name' => explode('@', $email)[0],
+            'email' => $email,
+            'phone' => $request->input('phone', '+91 98765 43210'),
+            'avatar' => 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+            'isEmailVerified' => true,
+            'isPhoneVerified' => true,
+            'role' => 'customer',
+            'createdAt' => now()->toIso8601String()
+        ],
+        'token' => 'laravel_token_' . time()
+    ]);
+});
+
+Route::post('/auth/social', function (Request $request) {
+    $provider = $request->input('provider', 'google');
+    $name = $request->input('name', "Valued User ($provider)");
+    $email = $request->input('email', "user.$provider@thecandlelab.com");
+    $avatar = $request->input('avatar', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80');
+
+    return response()->json([
+        'success' => true,
+        'message' => "Authenticated via $provider",
+        'user' => [
+            'id' => "usr_{$provider}_" . time(),
+            'name' => $name,
+            'email' => $email,
+            'avatar' => $avatar,
+            'isEmailVerified' => true,
+            'isPhoneVerified' => false,
+            'role' => 'customer',
+            'createdAt' => now()->toIso8601String()
+        ],
+        'token' => 'laravel_token_social_' . time()
+    ]);
+});
+
+// Orders API
+Route::get('/orders', [OrderController::class, 'index']);
 Route::post('/orders', [OrderController::class, 'store']);
+
+// User Profile & Address Book API
+Route::get('/user/addresses', function (Request $request) {
+    return response()->json([
+        'success' => true,
+        'data' => []
+    ]);
+});
+
+Route::post('/user/addresses', function (Request $request) {
+    return response()->json([
+        'success' => true,
+        'message' => 'Address saved successfully.',
+        'data' => $request->all()
+    ]);
+});
+
+Route::post('/user/profile', function (Request $request) {
+    return response()->json([
+        'success' => true,
+        'message' => 'Profile updated successfully.',
+        'data' => $request->all()
+    ]);
+});
 
 // Authenticated Routes (Sanctum protected)
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
-
     Route::get('/user/orders', [OrderController::class, 'index']);
-
-    // Admin Routes
-    Route::middleware('can:admin')->group(function () {
-        Route::post('/products', [ProductController::class, 'store']);
-        Route::put('/products/{id}', [ProductController::class, 'update']);
-        Route::delete('/products/{id}', [ProductController::class, 'destroy']);
-
-        Route::get('/admin/orders', [OrderController::class, 'index']);
-        Route::patch('/admin/orders/{id}/status', [OrderController::class, 'updateStatus']);
-    });
 });

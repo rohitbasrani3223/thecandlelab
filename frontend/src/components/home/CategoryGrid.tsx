@@ -1,5 +1,5 @@
+import React from 'react';
 import { Card, Badge, ChevronRightIcon } from '../../design-system';
-
 
 const categories = [
   {
@@ -44,7 +44,20 @@ const categories = [
   },
 ];
 
-export const CategoryGrid: React.FC = () => {
+export interface CategoryGridProps {
+  onNavigateToShop?: () => void;
+}
+
+export const CategoryGrid: React.FC<CategoryGridProps> = ({ onNavigateToShop }) => {
+  const handleCategoryClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (onNavigateToShop) {
+      window.location.hash = '#categories';
+    } else {
+      window.location.hash = '#categories';
+    }
+  };
+
   return (
     <section className="py-16 sm:py-24 bg-[#FAF6F0] border-b border-[#E5D9C5] font-sans">
       <div className="max-w-7xl mx-auto px-6 sm:px-12 space-y-12">
@@ -59,8 +72,9 @@ export const CategoryGrid: React.FC = () => {
             </h2>
           </div>
           <a
-            href="#all-categories"
-            className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#2A1E17] hover:text-[#D4AF37] transition-colors"
+            href="#shop"
+            onClick={handleCategoryClick}
+            className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#2A1E17] hover:text-[#D4AF37] transition-colors cursor-pointer"
           >
             <span>View All Categories</span>
             <ChevronRightIcon size={14} />
@@ -74,7 +88,8 @@ export const CategoryGrid: React.FC = () => {
               key={cat.id}
               variant="gold-border"
               padding="lg"
-              className="group cursor-pointer flex flex-col justify-between h-64 hover:-translate-y-1 transition-all duration-300 relative overflow-hidden"
+              onClick={handleCategoryClick}
+              className="group cursor-pointer flex flex-col justify-between h-64 hover:-translate-y-1.5 transition-all duration-300 relative overflow-hidden bg-[#FAF6F0] hover:shadow-card hover:border-[#D4AF37]"
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between">

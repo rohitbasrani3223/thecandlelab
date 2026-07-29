@@ -1,0 +1,58 @@
+import React from 'react';
+import { Badge, SparklesIcon, Button, useToast } from '../../design-system';
+
+export interface WishlistHeaderProps {
+  itemCount: number;
+  onMoveAllToCart?: () => void;
+}
+
+export const WishlistHeader: React.FC<WishlistHeaderProps> = ({ itemCount, onMoveAllToCart }) => {
+  const { toast } = useToast();
+
+  const handleShareWishlist = () => {
+    navigator.clipboard?.writeText(window.location.href);
+    toast({
+      type: 'luxury',
+      title: 'Wishlist Link Copied!',
+      description: 'Your curated candle wishlist link is ready to share.',
+    });
+  };
+
+  return (
+    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-[#E5D9C5] pb-6 font-sans">
+      <div className="space-y-2">
+        <div className="flex items-center gap-3">
+          <Badge variant="gold" icon={<SparklesIcon size={12} />}>PERSONAL SANCTUARY</Badge>
+          <span className="text-xs font-semibold text-[#8C7A6B]">
+            {itemCount} {itemCount === 1 ? 'Formulation' : 'Formulations'} Saved
+          </span>
+        </div>
+        <h1 className="text-3xl sm:text-5xl font-serif font-bold text-[#2A1E17]">
+          My Saved Wishlist
+        </h1>
+      </div>
+
+      {itemCount > 0 && (
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <Button
+            variant="outline"
+            size="md"
+            onClick={handleShareWishlist}
+            className="flex-1 sm:flex-initial"
+          >
+            🔗 Share Wishlist
+          </Button>
+
+          <Button
+            variant="gold"
+            size="md"
+            onClick={onMoveAllToCart}
+            className="flex-1 sm:flex-initial"
+          >
+            Move All to Bag ({itemCount})
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+};

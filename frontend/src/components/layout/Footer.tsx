@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CandleIcon, Input, Button, useToast, SparklesIcon } from '../../design-system';
+import { Input, Button, useToast, SparklesIcon } from '../../design-system';
 
 export const Footer: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -57,12 +57,13 @@ export const Footer: React.FC = () => {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 text-xs">
           {/* Brand Info */}
           <div className="col-span-2 space-y-4">
-            <div className="flex items-center gap-2.5">
-              <CandleIcon size={28} className="text-[#D4AF37]" />
+            <div className="flex items-center gap-3">
+              <img src="/logo.jpeg" alt="The Candle Lab Logo" className="h-10 w-auto object-contain rounded-xs border border-[#4A3B32]" />
               <span className="font-serif font-extrabold text-xl tracking-wider text-[#FAF6F0]">
                 THE CANDLE LAB
               </span>
             </div>
+
             <p className="text-[#C2AE90] leading-relaxed max-w-sm">
               Artisanal hand-poured soy candles crafted in small batches using 100% natural botanical oils and lead-free cotton wicks.
             </p>
@@ -83,11 +84,11 @@ export const Footer: React.FC = () => {
           <div className="space-y-3">
             <h4 className="text-xs uppercase font-bold tracking-widest text-[#D4AF37]">Shop Collections</h4>
             <ul className="space-y-2 text-[#C2AE90]">
-              <li><a href="#shop-glass" className="hover:text-[#FAF6F0] transition-colors">Luxury Glass Jars</a></li>
-              <li><a href="#shop-tins" className="hover:text-[#FAF6F0] transition-colors">Botanical Travel Tins</a></li>
-              <li><a href="#shop-pillars" className="hover:text-[#FAF6F0] transition-colors">Aromatherapy Pillars</a></li>
-              <li><a href="#shop-diffusers" className="hover:text-[#FAF6F0] transition-colors">Reed Diffusers</a></li>
-              <li><a href="#shop-gifts" className="hover:text-[#FAF6F0] transition-colors">Bespoke Gift Boxes</a></li>
+              <li><a href="#shop" className="hover:text-[#FAF6F0] transition-colors">Scented Candles</a></li>
+              <li><a href="#collections" className="hover:text-[#FAF6F0] transition-colors">Curated Collections</a></li>
+              <li><a href="#categories" className="hover:text-[#FAF6F0] transition-colors">Category Showcase</a></li>
+              <li><a href="#shop" className="hover:text-[#FAF6F0] transition-colors">Luxury Glass Jars</a></li>
+              <li><a href="#shop" className="hover:text-[#FAF6F0] transition-colors">Bespoke Gift Boxes</a></li>
             </ul>
           </div>
 
@@ -95,11 +96,10 @@ export const Footer: React.FC = () => {
           <div className="space-y-3">
             <h4 className="text-xs uppercase font-bold tracking-widest text-[#D4AF37]">About The Lab</h4>
             <ul className="space-y-2 text-[#C2AE90]">
-              <li><a href="#story" className="hover:text-[#FAF6F0] transition-colors">Our Artisan Story</a></li>
-              <li><a href="#sustainability" className="hover:text-[#FAF6F0] transition-colors">Sustainable Soy Wax</a></li>
-              <li><a href="#perfumer-journal" className="hover:text-[#FAF6F0] transition-colors">The Perfumer Journal</a></li>
-              <li><a href="#press" className="hover:text-[#FAF6F0] transition-colors">Press & Media</a></li>
-              <li><a href="#careers" className="hover:text-[#FAF6F0] transition-colors">Careers</a></li>
+              <li><a href="#about" className="hover:text-[#FAF6F0] transition-colors">About Us</a></li>
+              <li><a href="#blog" className="hover:text-[#FAF6F0] transition-colors">Atelier Gazette & Journal</a></li>
+              <li><a href="#careers" className="hover:text-[#FAF6F0] transition-colors">Careers & Hiring</a></li>
+              <li><a href="#contact" className="hover:text-[#FAF6F0] transition-colors">Press & PR</a></li>
             </ul>
           </div>
 
@@ -107,26 +107,26 @@ export const Footer: React.FC = () => {
           <div className="space-y-3">
             <h4 className="text-xs uppercase font-bold tracking-widest text-[#D4AF37]">Customer Support</h4>
             <ul className="space-y-2 text-[#C2AE90]">
-              <li><a href="#shipping" className="hover:text-[#FAF6F0] transition-colors">Shipping & Returns</a></li>
-              <li><a href="#care-guide" className="hover:text-[#FAF6F0] transition-colors">Candle Care Guide</a></li>
-              <li><a href="#tracking" className="hover:text-[#FAF6F0] transition-colors">Track Order Status</a></li>
-              <li><a href="#faqs" className="hover:text-[#FAF6F0] transition-colors">FAQs</a></li>
-              <li><a href="#contact" className="hover:text-[#FAF6F0] transition-colors">Contact Us</a></li>
+              <li><a href="#shipping-policy" className="hover:text-[#FAF6F0] transition-colors">Shipping Policy</a></li>
+              <li><a href="#refund-policy" className="hover:text-[#FAF6F0] transition-colors">Refund & Returns Policy</a></li>
+              <li><a href="#faq" className="hover:text-[#FAF6F0] transition-colors">FAQ & Help Center</a></li>
+              <li><a href="#contact" className="hover:text-[#FAF6F0] transition-colors">Contact Concierge</a></li>
+              <li><a href="#account" className="hover:text-[#FAF6F0] transition-colors">Order Tracking</a></li>
             </ul>
           </div>
         </div>
 
-        {/* Bottom Copyright Bar & Payment Icons */}
+        {/* Bottom Copyright Bar & Legal Links */}
         <div className="pt-8 border-t border-[#3D2C22] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#8C7A6B]">
           <div>
-            © {new Date().getFullYear()} The Candle Lab LLC. All rights reserved. Designed for Luxury & Elegance.
+            © {new Date().getFullYear()} The Candle Lab. All rights reserved. Crafted for Luxury & Serenity.
           </div>
           <div className="flex items-center gap-4 text-[11px]">
-            <a href="#privacy" className="hover:text-[#FAF6F0]">Privacy Policy</a>
+            <a href="#privacy-policy" className="hover:text-[#FAF6F0]">Privacy Policy</a>
             <span>•</span>
-            <a href="#terms" className="hover:text-[#FAF6F0]">Terms of Service</a>
+            <a href="#terms-conditions" className="hover:text-[#FAF6F0]">Terms & Conditions</a>
             <span>•</span>
-            <a href="#accessibility" className="hover:text-[#FAF6F0]">Accessibility</a>
+            <a href="#shipping-policy" className="hover:text-[#FAF6F0]">Shipping Policy</a>
           </div>
         </div>
       </div>
