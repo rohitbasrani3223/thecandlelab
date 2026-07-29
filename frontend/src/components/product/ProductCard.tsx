@@ -135,9 +135,9 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
               }}
             />
 
-            {/* ── Badges top-left ── */}
-            <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5 z-10">
-              {product.isBestSeller && (
+            {/* ── Single Priority Badge (Bestseller > New Arrival > % Off) ── */}
+            <div className="absolute top-2.5 left-2.5 z-10">
+              {product.isBestSeller ? (
                 <span
                   className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide shadow-sm"
                   style={{ background: "#C4964A", color: "#fff" }}
@@ -145,16 +145,14 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
                   <Flame size={9} className="fill-white" />
                   Bestseller
                 </span>
-              )}
-              {product.isNewArrival && (
+              ) : product.isNewArrival ? (
                 <span
                   className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide shadow-sm"
                   style={{ background: "#1A1208", color: "#F5EFE4" }}
                 >
-                  New
+                  New Arrival
                 </span>
-              )}
-              {discountPct > 0 && (
+              ) : discountPct > 0 ? (
                 <span
                   className="px-2 py-0.5 rounded-full text-[10px] font-bold shadow-sm"
                   style={{
@@ -165,7 +163,7 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
                 >
                   {discountPct}% OFF
                 </span>
-              )}
+              ) : null}
             </div>
 
             {/* ── Burn Time & Wax Pills Overlay at Bottom of Image ── */}
@@ -274,16 +272,16 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
             </p>
           )}
 
-          {/* ── Rating — Flipkart green pill style ── */}
+          {/* ── Rating — brand success green ── */}
           <div className="flex items-center gap-2 mb-2">
             <span
               className="flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold"
-              style={{ background: "#388E3C", color: "#fff" }}
+              style={{ background: "#4A7C59", color: "#fff" }}
             >
               {product.rating}
               <Star size={9} fill="white" className="text-white" />
             </span>
-            <span className="text-[11px] text-[#9E9E9E]">
+            <span className="text-[11px] text-[#8B7355]">
               ({product.reviewCount.toLocaleString("en-IN")})
             </span>
           </div>
@@ -301,22 +299,14 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
                 </span>
                 {product.originalPrice > product.price && (
                   <>
-                    <span className="text-[12px] text-[#9E9E9E] line-through">
+                    <span className="text-[12px] text-[#8B7355] line-through">
                       {formatPrice(product.originalPrice)}
                     </span>
-                    <span className="text-[12px] font-semibold" style={{ color: "#388E3C" }}>
+                    <span className="text-[12px] font-semibold" style={{ color: "#B85450" }}>
                       {discountPct}% off
                     </span>
                   </>
                 )}
-              </div>
-
-              {/* ── Flipkart style Offer Price Line ── */}
-              <div className="text-[11px] font-bold text-[#A87B32] mb-2 flex items-center gap-1">
-                <span>Buy at {formatPrice(Math.round(product.price * 0.9))}</span>
-                <span className="text-[9px] font-normal px-1 py-0.2 rounded bg-[#F5EFE4] text-[#8B7355] border border-[#E0D0B8]">
-                  with coupon
-                </span>
               </div>
 
               {/* ── Action Buttons: Compare (Left) + Add to Cart (Right) ── */}

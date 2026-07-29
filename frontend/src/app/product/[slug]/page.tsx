@@ -36,7 +36,7 @@ export default async function ProductPage({ params }: Props) {
     <>
       <AnnouncementBar />
       <Navbar />
-      <main className="pt-20">
+      <main className="min-h-screen" style={{ background: "#FDFAF5" }}>
         <ProductDetailClient product={product} relatedProducts={relatedProducts} />
       </main>
       <Footer />

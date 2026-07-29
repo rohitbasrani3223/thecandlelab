@@ -5,7 +5,7 @@ import AccountClient from "@/components/account/AccountClient";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "My Account",
+  title: "My Account — The Candle Lab",
   description: "Manage your profile, orders, saved addresses, and wishlist at The Candle Lab.",
 };
 
@@ -14,7 +14,7 @@ export default function AccountPage() {
     <>
       <AnnouncementBar />
       <Navbar />
-      <main className="pt-20 min-h-screen" style={{ background: "#FDFAF5" }}>
+      <main className="min-h-screen" style={{ background: "#FDFAF5" }}>
         <AccountClient />
       </main>
       <Footer />

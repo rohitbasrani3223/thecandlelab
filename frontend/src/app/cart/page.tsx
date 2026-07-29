@@ -5,8 +5,8 @@ import { CartPageClient } from "@/components/cart/CartPageClient";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Your Cart",
-  description: "Review your selected candles and proceed to checkout.",
+  title: "Your Cart — The Candle Lab",
+  description: "Review your selected luxury candles and proceed to checkout. Free shipping on orders above ₹999.",
 };
 
 export default function CartPage() {
@@ -14,7 +14,7 @@ export default function CartPage() {
     <>
       <AnnouncementBar />
       <Navbar />
-      <main className="pt-20 min-h-screen" style={{ background: "#FDFAF5" }}>
+      <main className="min-h-screen" style={{ background: "#FDFAF5" }}>
         <CartPageClient />
       </main>
       <Footer />

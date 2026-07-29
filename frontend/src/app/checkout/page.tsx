@@ -4,8 +4,8 @@ import { CheckoutClient } from "@/components/checkout/CheckoutClient";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Checkout",
-  description: "Complete your order securely at The Candle Lab.",
+  title: "Checkout — The Candle Lab",
+  description: "Complete your luxury candle order securely. Safe checkout with UPI, Card, and COD payment options.",
 };
 
 export default function CheckoutPage() {
@@ -13,7 +13,7 @@ export default function CheckoutPage() {
     <>
       <AnnouncementBar />
       <Navbar />
-      <main className="pt-20 min-h-screen" style={{ background: "#FDFAF5" }}>
+      <main className="min-h-screen" style={{ background: "#FDFAF5" }}>
         <CheckoutClient />
       </main>
     </>

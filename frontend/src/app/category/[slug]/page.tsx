@@ -28,7 +28,7 @@ export default async function CategoryPage({ params }: Props) {
     <>
       <AnnouncementBar />
       <Navbar />
-      <main className="pt-20">
+      <main className="min-h-screen" style={{ background: "#FDFAF5" }}>
         <ShopClient presetCategory={category.id} categoryName={category.name} />
       </main>
       <Footer />

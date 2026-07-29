@@ -18,7 +18,7 @@ export default function WishlistPage() {
     <>
       <AnnouncementBar />
       <Navbar />
-      <main className="pt-20 min-h-screen" style={{ background: "#FDFAF5" }}>
+      <main className="min-h-screen" style={{ background: "#FDFAF5" }}>
         <div className="container py-10">
           <div className="flex items-center justify-between mb-8">
             <div>

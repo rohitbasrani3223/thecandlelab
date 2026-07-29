@@ -208,7 +208,7 @@ export function ShopClient({
         {/* Main Content Layout: Left Sidebar + Right Products Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Desktop Left Sidebar: Exact Filter Candles Sidebar */}
-          <div className="hidden lg:block lg:col-span-4 xl:col-span-3 sticky top-24">
+          <div className="hidden lg:block lg:col-span-4 xl:col-span-3 sticky top-4">
             <FilterCandlesSidebar
               selectedCollection={selectedCollection}
               onCollectionChange={setSelectedCollection}
