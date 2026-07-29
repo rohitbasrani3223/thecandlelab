@@ -12,6 +12,16 @@ use App\Http\Controllers\Api\AuthController;
 |--------------------------------------------------------------------------
 */
 
+// Health Check Endpoint
+Route::get('/health', function () {
+    return response()->json([
+        'status' => 'ok',
+        'service' => 'The Candle Lab Laravel API',
+        'database' => 'Supabase PostgreSQL',
+        'timestamp' => now()->toIso8601String()
+    ]);
+});
+
 // Public Routes
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{id}', [ProductController::class, 'show']);

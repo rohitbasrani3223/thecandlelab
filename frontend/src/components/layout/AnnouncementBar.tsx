@@ -1,104 +1,83 @@
-"use client";
+import React, { useState, useEffect } from 'react';
+import { CloseIcon, ChevronDownIcon, SparklesIcon } from '../../design-system';
 
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { X, Sparkles, Truck, Gift, Star } from "lucide-react";
-
-const ANNOUNCEMENTS = [
-  {
-    id: 1,
-    icon: <Truck size={12} className="text-[#C4964A]" />,
-    text: "FREE SHIPPING on all orders above ₹999",
-    highlight: "₹999",
-  },
-  {
-    id: 2,
-    icon: <Sparkles size={12} className="text-[#C4964A]" />,
-    text: "NEW LAUNCH — Midnight Jasmine & Amber Vetiver is here",
-    highlight: "Midnight Jasmine",
-  },
-  {
-    id: 3,
-    icon: <Gift size={12} className="text-[#C4964A]" />,
-    text: "USE CODE LUXURY15 — Get 15% off your first order",
-    highlight: "LUXURY15",
-  },
-  {
-    id: 4,
-    icon: <Star size={12} className="text-[#C4964A]" />,
-    text: "100% Natural Soy & Beeswax — Clean Burn Promise",
-    highlight: "Clean Burn",
-  },
+const announcements = [
+  "✨ Complimentary Gold Foil Gift Packaging on Orders Over $150",
+  "🚚 Free Express Shipping Nationwide on All Signature Collections",
+  "🎁 Special Offer: Buy 2 Candles & Receive a Free Rosewood Wick Trimmer (Use Code: LUXURY)",
 ];
 
-export function AnnouncementBar() {
-  const [current, setCurrent] = useState(0);
-  const [dismissed, setDismissed] = useState(false);
+export const AnnouncementBar: React.FC = () => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isVisible, setIsVisible] = useState(true);
+  const [currency, setCurrency] = useState('USD ($)');
+  const [isCurrencyOpen, setIsCurrencyOpen] = useState(false);
 
   useEffect(() => {
-    if (dismissed) return;
     const timer = setInterval(() => {
-      setCurrent((prev) => (prev + 1) % ANNOUNCEMENTS.length);
-    }, 4000);
+      setCurrentIndex((prev) => (prev + 1) % announcements.length);
+    }, 4500);
     return () => clearInterval(timer);
-  }, [dismissed]);
+  }, []);
 
-  if (dismissed) return null;
-
-  const announcement = ANNOUNCEMENTS[current];
+  if (!isVisible) return null;
 
   return (
-    <div
-      className="relative w-full z-[400] flex items-center justify-center px-4 py-2"
-      style={{
-        background: "linear-gradient(90deg, #1A1208 0%, #3D2010 50%, #1A1208 100%)",
-        borderBottom: "1px solid rgba(196,150,74,0.25)",
-      }}
-    >
-      {/* Rotating Text */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={announcement.id}
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -6 }}
-          transition={{ duration: 0.35 }}
-          className="flex items-center gap-2 text-[#F5EFE4]"
-        >
-          {announcement.icon}
-          <span className="text-[10px] sm:text-[11px] font-medium tracking-[0.18em] uppercase">
-            {announcement.text.split(announcement.highlight).map((part, i) => (
-              <span key={i}>
-                {part}
-                {i < announcement.text.split(announcement.highlight).length - 1 && (
-                  <span className="text-[#C4964A] font-bold">{announcement.highlight}</span>
-                )}
-              </span>
-            ))}
-          </span>
-        </motion.div>
-      </AnimatePresence>
-
-      {/* Dot indicators */}
-      <div className="absolute left-1/2 -translate-x-1/2 bottom-0.5 flex gap-1 opacity-0 sm:opacity-60">
-        {ANNOUNCEMENTS.map((_, i) => (
+    <div className="bg-[#1C130E] text-[#FAF6F0] border-b border-[#3D2C22] py-2 px-4 text-xs font-sans relative z-40 transition-all duration-300">
+      <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+        {/* Left Side: Currency Selector */}
+        <div className="hidden sm:flex items-center gap-2 relative">
           <button
-            key={i}
-            onClick={() => setCurrent(i)}
-            className="w-1 h-1 rounded-full transition-all"
-            style={{ background: i === current ? "#C4964A" : "rgba(245,239,228,0.35)" }}
-          />
-        ))}
-      </div>
+            onClick={() => setIsCurrencyOpen(!isCurrencyOpen)}
+            className="flex items-center gap-1 text-[#D4C3AA] hover:text-[#E6CA65] transition-colors focus:outline-none tracking-wider text-[11px]"
+          >
+            <span>{currency}</span>
+            <ChevronDownIcon size={12} />
+          </button>
 
-      {/* Dismiss */}
-      <button
-        onClick={() => setDismissed(true)}
-        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#F5EFE4]/50 hover:text-[#F5EFE4] transition-colors"
-        aria-label="Dismiss announcement"
-      >
-        <X size={13} />
-      </button>
+          {isCurrencyOpen && (
+            <div className="absolute left-0 top-full mt-1 bg-[#2A1E17] border border-[#4A3B32] rounded-xs shadow-card py-1 w-24 z-50 animate-fade-in">
+              {['USD ($)', 'EUR (€)', 'GBP (£)', 'INR (₹)'].map((curr) => (
+                <button
+                  key={curr}
+                  onClick={() => {
+                    setCurrency(curr);
+                    setIsCurrencyOpen(false);
+                  }}
+                  className="w-full text-left px-3 py-1 text-[11px] text-[#E5D9C5] hover:bg-[#3D2C22] hover:text-[#E6CA65]"
+                >
+                  {curr}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Center: Rotating Ticker Message */}
+        <div className="flex-1 text-center overflow-hidden flex items-center justify-center min-h-[20px]">
+          <div key={currentIndex} className="animate-fade-in inline-flex items-center gap-1.5 font-medium tracking-wide">
+            <span className="text-[#D4AF37] shrink-0"><SparklesIcon size={13} /></span>
+            <span className="truncate max-w-xs sm:max-w-xl text-[#FAF6F0]">{announcements[currentIndex]}</span>
+          </div>
+        </div>
+
+        {/* Right Side: Quick Action & Close */}
+        <div className="flex items-center gap-3">
+          <a
+            href="#seasonal-promo"
+            className="hidden md:inline-block text-[#D4AF37] hover:underline text-[11px] font-semibold uppercase tracking-wider"
+          >
+            Shop Offers →
+          </a>
+          <button
+            onClick={() => setIsVisible(false)}
+            className="text-[#8C7A6B] hover:text-[#FAF6F0] p-0.5 rounded-xs transition-colors"
+            aria-label="Dismiss Announcement"
+          >
+            <CloseIcon size={14} />
+          </button>
+        </div>
+      </div>
     </div>
   );
-}
+};

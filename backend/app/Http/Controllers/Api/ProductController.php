@@ -14,10 +14,10 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Product::with('category')->where('is_active', true);
+        $query = Product::with(['mainCategory', 'images', 'inventory'])->where('status', 'ACTIVE');
 
         if ($request->has('category')) {
-            $query->whereHas('category', function ($q) use ($request) {
+            $query->whereHas('mainCategory', function ($q) use ($request) {
                 $q->where('slug', $request->category)->orWhere('id', $request->category);
             });
         }
@@ -26,8 +26,8 @@ class ProductController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'ILIKE', "%{$search}%")
-                  ->orWhere('description', 'ILIKE', "%{$search}%")
-                  ->orWhere('fragrance', 'ILIKE', "%{$search}%");
+                  ->orWhere('short_description', 'ILIKE', "%{$search}%")
+                  ->orWhere('tagline', 'ILIKE', "%{$search}%");
             });
         }
 
@@ -46,7 +46,7 @@ class ProductController extends Controller
         } elseif ($request->sort === 'rating') {
             $query->orderBy('rating', 'desc');
         } else {
-            $query->orderBy('review_count', 'desc');
+            $query->orderBy('reviews_count', 'desc');
         }
 
         $products = $query->paginate($request->get('per_page', 12));
@@ -58,43 +58,11 @@ class ProductController extends Controller
     }
 
     /**
-     * Store a newly created product in storage.
-     */
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0',
-            'category_id' => 'required|exists:categories,id',
-            'stock' => 'required|integer|min:0',
-            'sku' => 'required|string|unique:products,sku',
-        ]);
-
-        $validated['slug'] = Str::slug($request->name);
-        $validated['description'] = $request->description ?? '';
-        $validated['short_description'] = $request->short_description ?? '';
-        $validated['original_price'] = $request->original_price ?? $request->price;
-        $validated['fragrance'] = $request->fragrance ?? '';
-        $validated['wax_type'] = $request->wax_type ?? '100% Natural Soy Wax';
-        $validated['size'] = $request->size ?? '250g';
-        $validated['images'] = $request->images ?? [];
-        $validated['thumbnail'] = $request->thumbnail ?? '';
-
-        $product = Product::create($validated);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Product created successfully',
-            'data' => $product,
-        ], 201);
-    }
-
-    /**
      * Display the specified product.
      */
     public function show($id)
     {
-        $product = Product::with('category')
+        $product = Product::with(['mainCategory', 'subCategory', 'collection', 'images', 'inventory'])
             ->where('id', $id)
             ->orWhere('slug', $id)
             ->firstOrFail();
@@ -106,23 +74,39 @@ class ProductController extends Controller
     }
 
     /**
-     * Update the specified product in storage.
+     * Store a newly created product (Admin).
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+            'main_category_id' => 'nullable|uuid',
+            'short_description' => 'nullable|string',
+            'wax_type' => 'nullable|string',
+            'burn_time_hours' => 'nullable|integer',
+        ]);
+
+        $validated['id'] = (string) Str::uuid();
+        $validated['slug'] = Str::slug($validated['name']) . '-' . Str::random(5);
+        $validated['status'] = 'ACTIVE';
+
+        $product = Product::create($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Product created successfully',
+            'data' => $product,
+        ], 201);
+    }
+
+    /**
+     * Update the specified product (Admin).
      */
     public function update(Request $request, $id)
     {
         $product = Product::findOrFail($id);
-
-        $validated = $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'price' => 'sometimes|numeric|min:0',
-            'stock' => 'sometimes|integer|min:0',
-        ]);
-
-        if (isset($validated['name'])) {
-            $validated['slug'] = Str::slug($validated['name']);
-        }
-
-        $product->update($validated);
+        $product->update($request->all());
 
         return response()->json([
             'success' => true,
@@ -132,7 +116,7 @@ class ProductController extends Controller
     }
 
     /**
-     * Remove the specified product from storage.
+     * Remove the specified product (Admin).
      */
     public function destroy($id)
     {
