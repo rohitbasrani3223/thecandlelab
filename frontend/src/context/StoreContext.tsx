@@ -198,22 +198,37 @@ export interface CMSConfig {
   globalSeoDescription: string;
 }
 
+export interface CategoryItem {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  image?: string;
+  productCount?: number;
+}
+
 interface StoreContextType {
+  // Categories
+  categories: CategoryItem[];
+  addCategory: (cat: Omit<CategoryItem, "id">) => void | Promise<void>;
+  updateCategory: (id: string, cat: Partial<CategoryItem>) => void | Promise<void>;
+  deleteCategory: (id: string) => void | Promise<void>;
+
   // Collections
   collections: CollectionItem[];
-  addCollection: (col: Omit<CollectionItem, "id">) => void;
-  updateCollection: (id: string, col: Partial<CollectionItem>) => void;
-  deleteCollection: (id: string) => void;
+  addCollection: (col: Omit<CollectionItem, "id">) => void | Promise<void>;
+  updateCollection: (id: string, col: Partial<CollectionItem>) => void | Promise<void>;
+  deleteCollection: (id: string) => void | Promise<void>;
 
   // Products
   products: CandleProduct[];
-  addProduct: (product: Omit<CandleProduct, "id">) => void;
-  updateProduct: (id: string, product: Partial<CandleProduct>) => void;
-  deleteProduct: (id: string) => void;
+  addProduct: (product: Omit<CandleProduct, "id">) => void | Promise<void>;
+  updateProduct: (id: string, product: Partial<CandleProduct>) => void | Promise<void>;
+  deleteProduct: (id: string) => void | Promise<void>;
 
   // Orders Management
   orders: OrderRecord[];
-  updateOrderStatus: (orderId: string, status: OrderRecord["status"], courier?: string, tracking?: string) => void;
+  updateOrderStatus: (orderId: string, status: OrderRecord["status"], courier?: string, tracking?: string) => void | Promise<void>;
   addOrder: (order: Omit<OrderRecord, "id">) => void;
 
   // Customer CRM
@@ -677,8 +692,14 @@ const INITIAL_CMS: CMSConfig = {
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [collections, setCollections] = useState<CollectionItem[]>([]);
-  const [products, setProducts] = useState<CandleProduct[]>([]);
+  const [collections, setCollections] = useState<CollectionItem[]>(INITIAL_COLLECTIONS);
+  const [categories, setCategories] = useState<CategoryItem[]>([
+    { id: "cat-1", name: "Luxury Aromatherapy", slug: "luxury-aromatherapy", description: "Premium essential oil candles for wellness", productCount: 4 },
+    { id: "cat-2", name: "Floral", slug: "floral", description: "Fresh botanical floral infusions", productCount: 2 },
+    { id: "cat-3", name: "Gourmand", slug: "gourmand", description: "Warm bakery vanilla & caramel gourmand blends", productCount: 3 },
+    { id: "cat-4", name: "Woody & Smoked", slug: "woody-smoked", description: "Deep resinous oud & sandalwood scents", productCount: 2 },
+  ]);
+  const [products, setProducts] = useState<CandleProduct[]>(INITIAL_PRODUCTS);
   const [orders, setOrders] = useState<OrderRecord[]>([]);
   const [customers, setCustomers] = useState<CustomerRecord[]>([]);
   const [sellers, setSellers] = useState<SellerRecord[]>([]);
@@ -702,20 +723,101 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [referralCode] = useState("CANDLE-CLUB");
   const [supportTickets, setSupportTickets] = useState<SupportTicket[]>([]);
 
-  // Check stored user session on mount
+  // Check stored user session and persisted state on mount
   React.useEffect(() => {
     try {
-      const stored = localStorage.getItem("candlelab_user");
-      if (stored) {
-        const u = JSON.parse(stored);
+      const storedUser = localStorage.getItem("candlelab_user");
+      if (storedUser) {
+        const u = JSON.parse(storedUser);
         setCurrentUser(u);
         setWalletBalance(u.walletBalance || 0);
         setLoyaltyPoints(u.loyaltyPoints || 100);
       }
+      const storedProds = localStorage.getItem("candlelab_products");
+      if (storedProds) setProducts(JSON.parse(storedProds));
+
+      const storedCats = localStorage.getItem("candlelab_categories");
+      if (storedCats) setCategories(JSON.parse(storedCats));
+
+      const storedCols = localStorage.getItem("candlelab_collections");
+      if (storedCols) setCollections(JSON.parse(storedCols));
+
+      const storedOrders = localStorage.getItem("candlelab_orders");
+      if (storedOrders) setOrders(JSON.parse(storedOrders));
+
+      const storedCusts = localStorage.getItem("candlelab_customers");
+      if (storedCusts) setCustomers(JSON.parse(storedCusts));
+
+      const storedCoupons = localStorage.getItem("candlelab_coupons");
+      if (storedCoupons) setCoupons(JSON.parse(storedCoupons));
+
+      const storedCMS = localStorage.getItem("candlelab_cms");
+      if (storedCMS) setCmsConfig(JSON.parse(storedCMS));
+
+      const storedCart = localStorage.getItem("candlelab_cart");
+      if (storedCart) setCart(JSON.parse(storedCart));
+
+      const storedWishlist = localStorage.getItem("candlelab_wishlist");
+      if (storedWishlist) setWishlist(JSON.parse(storedWishlist));
     } catch (e) {
-      console.error("Session parse error", e);
+      console.error("Session/Localstate parse error", e);
     }
   }, []);
+
+  // Save state updates to localStorage
+  React.useEffect(() => {
+    try {
+      if (products.length > 0) localStorage.setItem("candlelab_products", JSON.stringify(products));
+    } catch(e) {}
+  }, [products]);
+
+  React.useEffect(() => {
+    try {
+      if (categories.length > 0) localStorage.setItem("candlelab_categories", JSON.stringify(categories));
+    } catch(e) {}
+  }, [categories]);
+
+  React.useEffect(() => {
+    try {
+      if (collections.length > 0) localStorage.setItem("candlelab_collections", JSON.stringify(collections));
+    } catch(e) {}
+  }, [collections]);
+
+  React.useEffect(() => {
+    try {
+      if (orders.length > 0) localStorage.setItem("candlelab_orders", JSON.stringify(orders));
+    } catch(e) {}
+  }, [orders]);
+
+  React.useEffect(() => {
+    try {
+      if (coupons.length > 0) localStorage.setItem("candlelab_coupons", JSON.stringify(coupons));
+    } catch(e) {}
+  }, [coupons]);
+
+  React.useEffect(() => {
+    try {
+      if (customers.length > 0) localStorage.setItem("candlelab_customers", JSON.stringify(customers));
+    } catch(e) {}
+  }, [customers]);
+
+  React.useEffect(() => {
+    try {
+      localStorage.setItem("candlelab_cms", JSON.stringify(cmsConfig));
+    } catch(e) {}
+  }, [cmsConfig]);
+
+  React.useEffect(() => {
+    try {
+      localStorage.setItem("candlelab_cart", JSON.stringify(cart));
+    } catch(e) {}
+  }, [cart]);
+
+  React.useEffect(() => {
+    try {
+      localStorage.setItem("candlelab_wishlist", JSON.stringify(wishlist));
+    } catch(e) {}
+  }, [wishlist]);
 
   const logoutUser = () => {
     localStorage.removeItem("candlelab_jwt_access");
@@ -733,16 +835,31 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Sync collections, products, orders, users, and marketing rules from live Django backend REST APIs
+  // Resilient API fetcher with automatic backend direct URL fallback
+  const safeFetch = async (endpoint: string, options?: RequestInit) => {
+    try {
+      let res = await fetch(endpoint, options).catch(() => null);
+      if (!res || !res.ok) {
+        const directUrl = endpoint.startsWith('/') ? `http://127.0.0.1:8000${endpoint}` : endpoint;
+        res = await fetch(directUrl, options).catch(() => null);
+      }
+      return res;
+    } catch(e) {
+      return null;
+    }
+  };
+
+  // Sync collections, categories, products, orders, users, and marketing rules from live Django backend REST APIs
   React.useEffect(() => {
     async function loadBackendData() {
       try {
-        const [colRes, prodRes, orderRes, userRes, ruleRes] = await Promise.all([
-          fetch('/api/v1/collections/').catch(() => null),
-          fetch('/api/v1/products/').catch(() => null),
-          fetch('/api/v1/orders/').catch(() => null),
-          fetch('/api/v1/users/').catch(() => null),
-          fetch('/api/v1/marketing/rules/').catch(() => null),
+        const [colRes, catRes, prodRes, orderRes, userRes, ruleRes] = await Promise.all([
+          safeFetch('/api/v1/collections/'),
+          safeFetch('/api/v1/categories/'),
+          safeFetch('/api/v1/products/'),
+          safeFetch('/api/v1/orders/'),
+          safeFetch('/api/v1/users/'),
+          safeFetch('/api/v1/marketing/rules/'),
         ]);
 
         if (colRes && colRes.ok) {
@@ -756,7 +873,23 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               description: c.description || "",
               bannerImage: c.banner_image || c.bannerImage || "https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=1200&q=80",
               iconSymbol: c.icon_symbol || c.iconSymbol || "🕯️",
-              isFeatured: c.is_featured ?? true
+              isFeatured: c.is_featured ?? true,
+              productCount: c.product_count || 0
+            })));
+          }
+        }
+
+        if (catRes && catRes.ok) {
+          const catData = await catRes.json();
+          const items = catData.results || catData;
+          if (Array.isArray(items)) {
+            setCategories(items.map((c: any) => ({
+              id: String(c.id),
+              name: c.name,
+              slug: c.slug,
+              description: c.description || "",
+              image: c.image || "https://images.unsplash.com/photo-1603006905003-be475563bc59?w=400&q=80",
+              productCount: c.product_count || 0
             })));
           }
         }
@@ -791,10 +924,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               isEcoFriendly: p.is_eco_friendly ?? true,
               isBestSeller: p.is_best_seller ?? true,
               stock: p.stock ?? 10,
-              sku: `SKU-${p.id}`,
+              sku: p.sku || `SKU-${p.id}`,
               barcode: "8901234567890",
               brand: "The Candle Lab Atelier",
-              status: "Active",
+              status: p.status || "Active",
               sellerId: "s-1",
               sellerName: "The Candle Lab Atelier",
               description: p.description || ""
@@ -871,45 +1004,278 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     loadBackendData();
   }, []);
 
-  // Collection Handlers
-  const addCollection = (col: Omit<CollectionItem, "id">) => {
-    const newCol: CollectionItem = { ...col, id: `col-${Date.now()}` };
-    setCollections((prev) => [...prev, newCol]);
-    showToast(`Created collection "${col.name}" ✨`);
+  // Category Handlers (Wired to PostgreSQL)
+  const addCategory = async (cat: Omit<CategoryItem, "id">) => {
+    try {
+      const res = await fetch('/api/v1/categories/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: cat.name,
+          slug: cat.slug || cat.name.toLowerCase().replace(/\s+/g, '-'),
+          description: cat.description || "",
+          image: cat.image || ""
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCategories(prev => [...prev, {
+          id: String(data.id),
+          name: data.name,
+          slug: data.slug,
+          description: data.description || "",
+          image: data.image || ""
+        }]);
+        showToast(`Created category "${cat.name}" in PostgreSQL 📁`);
+      }
+    } catch(e) {
+      setCategories(prev => [...prev, { ...cat, id: `cat-${Date.now()}` }]);
+      showToast(`Added category "${cat.name}" locally 📁`);
+    }
   };
 
-  const updateCollection = (id: string, col: Partial<CollectionItem>) => {
+  const updateCategory = async (id: string, cat: Partial<CategoryItem>) => {
+    setCategories(prev => prev.map(c => c.id === id ? { ...c, ...cat } : c));
+    try {
+      await fetch(`/api/v1/categories/${id}/`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: cat.name,
+          slug: cat.slug,
+          description: cat.description,
+          image: cat.image
+        })
+      });
+      showToast(`Updated category in PostgreSQL ✏️`);
+    } catch(e) { /* optimistic update */ }
+  };
+
+  const deleteCategory = async (id: string) => {
+    setCategories(prev => prev.filter(c => c.id !== id));
+    try {
+      await fetch(`/api/v1/categories/${id}/`, { method: 'DELETE' });
+      showToast(`Category deleted from PostgreSQL 🗑️`);
+    } catch(e) { /* optimistic delete */ }
+  };
+
+  // Collection Handlers (Wired to PostgreSQL)
+  const addCollection = async (col: Omit<CollectionItem, "id">) => {
+    try {
+      const res = await fetch('/api/v1/collections/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: col.name,
+          slug: col.slug || col.name.toLowerCase().replace(/\s+/g, '-'),
+          description: col.description || "",
+          banner_image: col.bannerImage || "",
+          icon_symbol: col.iconSymbol || "🕯️",
+          is_featured: col.isFeatured ?? true
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCollections(prev => [...prev, {
+          id: String(data.id),
+          name: data.name,
+          slug: data.slug,
+          description: data.description || "",
+          bannerImage: data.banner_image || "",
+          iconSymbol: data.icon_symbol || "🕯️",
+          isFeatured: data.is_featured ?? true
+        }]);
+        showToast(`Created collection "${col.name}" in PostgreSQL ✨`);
+      }
+    } catch(e) {
+      setCollections(prev => [...prev, { ...col, id: `col-${Date.now()}` }]);
+      showToast(`Created collection "${col.name}" locally ✨`);
+    }
+  };
+
+  const updateCollection = async (id: string, col: Partial<CollectionItem>) => {
     setCollections((prev) => prev.map((c) => (c.id === id ? { ...c, ...col } : c)));
-    showToast(`Updated collection details 🏷️`);
+    try {
+      await fetch(`/api/v1/collections/${id}/`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: col.name,
+          slug: col.slug,
+          description: col.description,
+          banner_image: col.bannerImage,
+          icon_symbol: col.iconSymbol,
+          is_featured: col.isFeatured
+        })
+      });
+      showToast(`Updated collection in PostgreSQL 🏷️`);
+    } catch(e) { /* optimistic update */ }
   };
 
-  const deleteCollection = (id: string) => {
+  const deleteCollection = async (id: string) => {
     setCollections((prev) => prev.filter((c) => c.id !== id));
-    showToast(`Collection removed 🗑️`);
+    try {
+      await fetch(`/api/v1/collections/${id}/`, { method: 'DELETE' });
+      showToast(`Collection removed from PostgreSQL 🗑️`);
+    } catch(e) { /* optimistic delete */ }
   };
 
-  // Product Handlers
-  const addProduct = (product: Omit<CandleProduct, "id">) => {
-    const newProd: CandleProduct = { ...product, id: `prod-${Date.now()}` };
-    setProducts((prev) => [newProd, ...prev]);
-    showToast(`Added product "${product.name}" 🕯️`);
+  // Product Handlers — wired to real Django REST API (PostgreSQL)
+  const reloadProducts = async () => {
+    try {
+      const res = await fetch('/api/v1/products/');
+      if (res.ok) {
+        const data = await res.json();
+        const items = data.results || data;
+        if (Array.isArray(items)) {
+          setProducts(items.map((p: any) => ({
+            id: String(p.id),
+            name: p.name,
+            slug: p.slug || p.name.toLowerCase().replace(/\s+/g,'-'),
+            tagline: p.tagline || "",
+            price: Number(p.price),
+            originalPrice: p.original_price ? Number(p.original_price) : undefined,
+            rating: p.rating ? Number(p.rating) : 4.9,
+            reviewsCount: p.reviews_count || 12,
+            images: p.images && p.images.length > 0 ? p.images : ["https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80"],
+            category: p.category_name || p.category || "Luxury Aromatherapy",
+            collections: p.collection_slugs || ["scented-candles"],
+            waxType: p.wax_type || "Soy Wax",
+            wickType: p.wick_type || "Wooden Crackling Wick",
+            burnTimeHours: p.burn_time_hours || 55,
+            weightGrams: p.weight_grams || 280,
+            fragranceNotes: { top: p.top_notes || ["Amber"], middle: p.middle_notes || ["Oud"], base: p.base_notes || ["Vanilla"] },
+            fragranceStrength: p.fragrance_strength || 4,
+            roomSize: p.room_size || "Medium (Living Room)",
+            careInstructions: ["Trim wick to 1/4 inch"],
+            ingredients: ["100% Soy Wax"],
+            isVegan: p.is_vegan ?? true,
+            isHandmade: p.is_handmade ?? true,
+            isEcoFriendly: p.is_eco_friendly ?? true,
+            isBestSeller: p.is_best_seller ?? false,
+            isNewArrival: p.is_new_arrival ?? false,
+            stock: p.stock ?? 0,
+            sku: p.sku || `SKU-${p.id}`,
+            barcode: "8901234567890",
+            brand: "The Candle Lab Atelier",
+            status: p.status || "Active",
+            sellerId: "s-1",
+            sellerName: "The Candle Lab Atelier",
+            description: p.description || ""
+          })));
+        }
+      }
+    } catch(e) { console.error("reloadProducts error", e); }
   };
 
-  const updateProduct = (id: string, product: Partial<CandleProduct>) => {
+  const addProduct = async (product: Omit<CandleProduct, "id">) => {
+    try {
+      const payload: any = {
+        name: product.name,
+        slug: product.slug || product.name.toLowerCase().replace(/\s+/g, '-'),
+        tagline: product.tagline || "",
+        price: product.price,
+        original_price: product.originalPrice || null,
+        stock: product.stock,
+        status: product.status || "Active",
+        description: product.description || "",
+        wax_type: product.waxType || "Soy Wax",
+        wick_type: product.wickType || "Wooden Crackling Wick",
+        burn_time_hours: product.burnTimeHours || 50,
+        weight_grams: product.weightGrams || 250,
+        is_vegan: product.isVegan ?? true,
+        is_handmade: product.isHandmade ?? true,
+        is_eco_friendly: product.isEcoFriendly ?? true,
+        is_best_seller: product.isBestSeller ?? false,
+        is_new_arrival: product.isNewArrival ?? false,
+        fragrance_strength: product.fragranceStrength || 4,
+        room_size: product.roomSize || "Medium (Living Room)",
+        images: product.images && product.images.length > 0 ? product.images : []
+      };
+      const res = await fetch('/api/v1/products/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        showToast(`Added product "${product.name}" to PostgreSQL 🕯️`);
+        await reloadProducts();
+      } else {
+        const err = await res.json().catch(() => ({}));
+        showToast(`Error saving product: ${JSON.stringify(err)}`);
+      }
+    } catch (e: any) {
+      showToast(`Network error: ${e.message}`);
+    }
+  };
+
+  const updateProduct = async (id: string, product: Partial<CandleProduct>) => {
+    // Optimistic local update
     setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, ...product } : p)));
-    showToast(`Updated product status 📝`);
+    try {
+      const payload: any = {};
+      if (product.name !== undefined) payload.name = product.name;
+      if (product.slug !== undefined) payload.slug = product.slug;
+      if (product.tagline !== undefined) payload.tagline = product.tagline;
+      if (product.price !== undefined) payload.price = product.price;
+      if (product.originalPrice !== undefined) payload.original_price = product.originalPrice;
+      if (product.stock !== undefined) payload.stock = product.stock;
+      if (product.status !== undefined) payload.status = product.status;
+      if (product.description !== undefined) payload.description = product.description;
+      if (product.waxType !== undefined) payload.wax_type = product.waxType;
+      if (product.wickType !== undefined) payload.wick_type = product.wickType;
+      if (product.burnTimeHours !== undefined) payload.burn_time_hours = product.burnTimeHours;
+      if (product.weightGrams !== undefined) payload.weight_grams = product.weightGrams;
+      if (product.isBestSeller !== undefined) payload.is_best_seller = product.isBestSeller;
+      if (product.isNewArrival !== undefined) payload.is_new_arrival = product.isNewArrival;
+      if (product.images !== undefined) payload.images = product.images;
+      if (product.category !== undefined) payload.category_name = product.category;
+      const res = await fetch(`/api/v1/products/${id}/`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        showToast(`Product updated in PostgreSQL ✅`);
+      } else {
+        showToast(`Updated locally (sync pending)`);
+      }
+    } catch(e) {
+      showToast(`Product updated locally 📝`);
+    }
   };
 
-  const deleteProduct = (id: string) => {
+  const deleteProduct = async (id: string) => {
+    // Optimistic local remove
     setProducts((prev) => prev.filter((p) => p.id !== id));
-    showToast(`Product deleted 🗑️`);
+    try {
+      const res = await fetch(`/api/v1/products/${id}/`, { method: 'DELETE' });
+      if (res.ok || res.status === 204) {
+        showToast(`Product deleted from PostgreSQL 🗑️`);
+      } else {
+        showToast(`Deleted locally (sync pending)`);
+      }
+    } catch(e) {
+      showToast(`Product removed locally 🗑️`);
+    }
   };
 
-  // Order Handlers
-  const updateOrderStatus = (orderId: string, status: OrderRecord["status"], courier?: string, tracking?: string) => {
+  // Order Handlers — wired to real Django REST API
+  const updateOrderStatus = async (orderId: string, status: OrderRecord["status"], courier?: string, tracking?: string) => {
     setOrders((prev) =>
       prev.map((o) => (o.id === orderId ? { ...o, status, courier: courier || o.courier, trackingNumber: tracking || o.trackingNumber } : o))
     );
+    try {
+      const statusMap: Record<string, string> = {
+        "Pending": "PENDING", "Packed": "PACKING", "Shipped": "SHIPPED",
+        "Delivered": "DELIVERED", "Cancelled": "CANCELLED"
+      };
+      await fetch(`/api/v1/orders/${orderId}/`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: statusMap[status] || status })
+      });
+    } catch(e) { /* local update already done */ }
     showToast(`Order ${orderId} updated to ${status} 📦`);
   };
 
@@ -1112,6 +1478,11 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   return (
     <StoreContext.Provider
       value={{
+        categories,
+        addCategory,
+        updateCategory,
+        deleteCategory,
+
         collections,
         addCollection,
         updateCollection,

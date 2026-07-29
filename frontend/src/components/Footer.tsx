@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Flame, Leaf, HeartHandshake, Truck, Sparkles, Send, Instagram, Facebook, Pin } from "lucide-react";
+import { Flame, Leaf, HeartHandshake, Truck, Sparkles, Send } from "lucide-react";
 
 export const Footer: React.FC = () => {
   return (
@@ -66,13 +66,10 @@ export const Footer: React.FC = () => {
             {/* Social Icons */}
             <div className="flex items-center space-x-3 pt-2 text-[#666666] dark:text-[#A8A29E]">
               <a href="#" className="p-2 rounded-full bg-white dark:bg-[#1E1E1E] border border-[#E6DFD3] dark:border-[#383838] hover:text-[#C8A75A] transition-colors">
-                <Instagram className="w-4 h-4" />
+                <Sparkles className="w-4 h-4" />
               </a>
               <a href="#" className="p-2 rounded-full bg-white dark:bg-[#1E1E1E] border border-[#E6DFD3] dark:border-[#383838] hover:text-[#C8A75A] transition-colors">
-                <Facebook className="w-4 h-4" />
-              </a>
-              <a href="#" className="p-2 rounded-full bg-white dark:bg-[#1E1E1E] border border-[#E6DFD3] dark:border-[#383838] hover:text-[#C8A75A] transition-colors">
-                <Pin className="w-4 h-4" />
+                <Leaf className="w-4 h-4" />
               </a>
             </div>
           </div>

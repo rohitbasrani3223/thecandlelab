@@ -10,35 +10,36 @@ module.exports = {
     extend: {
       colors: {
         brand: {
-          lightBg: "#FAF7F2",
-          lightBgSecondary: "#F4EFE8",
-          lightSection: "#F8F5F0",
+          lightBg: "#FDFAF5",          // Warm White
+          lightBgSecondary: "#F5EFE4", // Ivory
+          lightSection: "#FAF5ED",
           lightCard: "#FFFFFF",
-          lightText: "#1F1F1F",
-          lightTextMuted: "#666666",
-          lightBorder: "#E6DFD3",
-          gold: "#C8A75A",
-          goldHover: "#D4B46A",
-          goldLight: "#E7D3A2",
-          darkBg: "#151515",
-          darkBgSecondary: "#1D1D1D",
-          darkCard: "#1E1E1E",
-          darkCardSecondary: "#232323",
-          darkText: "#F8F5F0",
+          lightText: "#1C1917",        // Deep Stone Black
+          lightTextMuted: "#57534E",
+          lightBorder: "#E7E0D3",
+          gold: "#C4964A",             // Gold Primary
+          goldHover: "#D4A85B",
+          goldLight: "#E8CFA6",
+          accentBrown: "#8B5E3C",      // Warm Brown
+          darkBg: "#151413",
+          darkBgSecondary: "#1E1B18",
+          darkCard: "#201D19",
+          darkCardSecondary: "#282420",
+          darkText: "#F5EFE4",
           darkTextMuted: "#A8A29E",
-          darkBorder: "#383838",
+          darkBorder: "#38342E",
           error: "#C94A4A",
           success: "#5F8A5D",
         }
       },
       fontFamily: {
-        serif: ["var(--font-playfair)", "Playfair Display", "Georgia", "serif"],
-        sans: ["var(--font-poppins)", "Poppins", "sans-serif"]
+        serif: ["var(--font-cormorant)", "Cormorant Garamond", "Georgia", "serif"],
+        sans: ["var(--font-inter)", "Inter", "sans-serif"]
       },
       boxShadow: {
-        'luxury-light': '0 8px 30px rgba(0, 0, 0, 0.04)',
-        'luxury-hero': '0 20px 50px rgba(200, 167, 90, 0.12)',
-        'gold-glow': '0 0 25px rgba(200, 167, 90, 0.35)',
+        'luxury-light': '0 8px 30px rgba(28, 25, 23, 0.04)',
+        'luxury-hero': '0 20px 50px rgba(196, 150, 74, 0.14)',
+        'gold-glow': '0 0 25px rgba(196, 150, 74, 0.35)',
       },
       borderRadius: {
         'pill': '20px',
@@ -51,9 +52,9 @@ module.exports = {
       },
       keyframes: {
         flame: {
-          '0%': { transform: 'scale(1)', opacity: '0.85', filter: 'drop-shadow(0 0 6px rgba(200, 167, 90, 0.4))' },
-          '50%': { transform: 'scale(1.04) rotate(1deg)', opacity: '1', filter: 'drop-shadow(0 0 12px rgba(212, 180, 106, 0.6))' },
-          '100%': { transform: 'scale(0.98) rotate(-1deg)', opacity: '0.9', filter: 'drop-shadow(0 0 8px rgba(200, 167, 90, 0.5))' }
+          '0%': { transform: 'scale(1)', opacity: '0.85', filter: 'drop-shadow(0 0 6px rgba(196, 150, 74, 0.4))' },
+          '50%': { transform: 'scale(1.04) rotate(1deg)', opacity: '1', filter: 'drop-shadow(0 0 12px rgba(212, 168, 91, 0.6))' },
+          '100%': { transform: 'scale(0.98) rotate(-1deg)', opacity: '0.9', filter: 'drop-shadow(0 0 8px rgba(196, 150, 74, 0.5))' }
         },
         pulseSubtle: {
           '0%, 100%': { opacity: '1' },

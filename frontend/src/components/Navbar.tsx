@@ -3,6 +3,9 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useStore } from "@/context/StoreContext";
+import { CandleLabLogo } from "@/components/CandleLabLogo";
+
+
 import {
   Flame,
   Search,
@@ -125,19 +128,10 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           
           {/* Brand Logo */}
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative w-9 h-9 rounded-full bg-[#FAF7F2] dark:bg-[#1E1E1E] flex items-center justify-center border border-[#C8A75A]/60 shadow-sm group-hover:scale-105 transition-transform">
-              <Flame className="w-5 h-5 text-[#C8A75A] animate-flame-glow" />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-serif text-xl font-bold tracking-tight text-[#1F1F1F] dark:text-[#F8F5F0] group-hover:text-[#C8A75A] transition-colors leading-none">
-                THE CANDLE LAB
-              </span>
-              <span className="text-[8px] uppercase tracking-[0.28em] text-[#C8A75A] font-semibold mt-1">
-                CRAFTED TO GLOW
-              </span>
-            </div>
+          <Link href="/" className="flex items-center group">
+            <CandleLabLogo variant={theme === "dark" ? "light" : "dark"} size="md" />
           </Link>
+
 
           {/* Luxury Editorial Storefront Links */}
           <div className="hidden lg:flex items-center space-x-6 text-[11px] uppercase tracking-widest font-medium text-[#1F1F1F] dark:text-[#D8D2C8]">
@@ -341,12 +335,12 @@ export const Navbar: React.FC<NavbarProps> = ({
                 )}
               </div>
             ) : (
-              <button
-                onClick={onOpenAuthModal}
+              <Link
+                href="/login"
                 className="bg-[#C8A75A] text-white px-4 py-2 rounded-full font-bold text-xs hover:bg-[#D4B46A] transition-all shadow-sm flex items-center gap-1.5"
               >
                 <User className="w-3.5 h-3.5 text-white" /> Login / Sign Up
-              </button>
+              </Link>
             )}
 
             {/* Mobile Hamburger */}
@@ -372,12 +366,12 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
             
             {!currentUser && (
-              <button
-                onClick={onOpenAuthModal}
+              <Link
+                href="/login"
                 className="w-full p-3 rounded-xl bg-[#C8A75A] text-white font-bold tracking-wider text-center flex items-center justify-center gap-2 uppercase"
               >
                 <User className="w-4 h-4" /> Login / Create Account
-              </button>
+              </Link>
             )}
           </div>
         )}

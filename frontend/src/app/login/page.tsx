@@ -14,8 +14,8 @@ export default function LoginPage() {
   const [loginMode, setLoginMode] = useState<"otp" | "password">("password");
 
   // Form inputs
-  const [identifier, setIdentifier] = useState("biharijicollection@gmail.com");
-  const [password, setPassword] = useState("");
+  const [identifier, setIdentifier] = useState("EXAMPLE@GMAIL.COM");
+  const [password, setPassword] = useState("123456");
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);

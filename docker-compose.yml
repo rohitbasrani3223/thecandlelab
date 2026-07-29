@@ -4,10 +4,10 @@ services:
   web:
     build: .
     ports:
-      - "8000:8000"
+      - "8085:8085"
     environment:
-      - DEBUG=0
-      - DJANGO_SETTINGS_MODULE=core.settings
+      - APP_ENV=production
+      - APP_DEBUG=false
       - DATABASE_URL=${DATABASE_URL:-postgresql://postgres.bpvbfnmthbthzvhqiwhh:[YOUR-PASSWORD]@aws-1-ap-south-1.pooler.supabase.com:5432/postgres}
     depends_on:
       - db
