@@ -67,3 +67,5 @@ export const FaqSection: React.FC = () => {
     </section>
   );
 };
+
+export { FaqSection as FAQSection };
