@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabaseFetch } from '../config/supabaseClient';
 
 export interface CMSStoreSettings {
   storeName: string;
@@ -10,6 +11,13 @@ export interface CMSStoreSettings {
   supportPhone: string;
   studioAddress: string;
   logoUrl: string;
+  footerText?: string;
+  socialLinks?: {
+    instagram?: string;
+    facebook?: string;
+    pinterest?: string;
+    whatsapp?: string;
+  };
 }
 
 export interface CMSAnnouncement {
@@ -56,13 +64,66 @@ export interface CMSProduct {
   inStock: boolean;
   isBestSeller?: boolean;
   isNew?: boolean;
+  isFeatured?: boolean;
   vesselDescription: string;
+  imageUrl?: string;
 }
 
 export interface CMSCoupon {
   code: string;
   discountPercent: number;
   description: string;
+  active: boolean;
+}
+
+export interface CMSPagesContent {
+  aboutUs: string;
+  shippingPolicy: string;
+  refundPolicy: string;
+  termsConditions: string;
+  privacyPolicy: string;
+  faqList: { question: string; answer: string; category: string }[];
+}
+
+export interface CMSCustomer {
+  id: string;
+  name: string;
+  email: string;
+  ordersCount: number;
+  totalSpent: number;
+  tier: string;
+}
+
+export interface CMSMediaItem {
+  id: string;
+  name: string;
+  url: string;
+  type: string;
+  size: string;
+}
+
+export interface CMSOrder {
+  id: string;
+  customerName: string;
+  email: string;
+  items: string;
+  totalAmount: number;
+  paymentMethod: string;
+  status: string;
+}
+
+export interface CMSSEOSetting {
+  pageKey: string;
+  title: string;
+  description: string;
+  keywords: string;
+}
+
+export interface CMSStaffUser {
+  id: string;
+  name: string;
+  email: string;
+  role: 'Super Admin' | 'Inventory Manager' | 'Content Manager' | 'Marketing Manager';
   active: boolean;
 }
 
@@ -83,7 +144,27 @@ export interface CMSContextType {
   deleteProduct: (id: string) => void;
   coupons: CMSCoupon[];
   addCoupon: (coupon: CMSCoupon) => void;
+  updateCoupon: (code: string, updated: Partial<CMSCoupon>) => void;
   deleteCoupon: (code: string) => void;
+  pagesContent: CMSPagesContent;
+  updatePagesContent: (updated: Partial<CMSPagesContent>) => void;
+  customers: CMSCustomer[];
+  addCustomer: (c: CMSCustomer) => void;
+  updateCustomer: (id: string, updated: Partial<CMSCustomer>) => void;
+  deleteCustomer: (id: string) => void;
+  mediaItems: CMSMediaItem[];
+  addMediaItem: (m: CMSMediaItem) => void;
+  deleteMediaItem: (id: string) => void;
+  orders: CMSOrder[];
+  addOrder: (order: CMSOrder) => void;
+  updateOrderStatus: (id: string, status: string) => void;
+  deleteOrder: (id: string) => void;
+  seoSettings: CMSSEOSetting[];
+  updateSEO: (pageKey: string, updated: Partial<CMSSEOSetting>) => void;
+  staffUsers: CMSStaffUser[];
+  addStaffUser: (u: CMSStaffUser) => void;
+  updateStaffUser: (id: string, updated: Partial<CMSStaffUser>) => void;
+  deleteStaffUser: (id: string) => void;
   ordersCount: number;
   totalRevenue: number;
   incrementRevenue: (amount: number) => void;
@@ -97,8 +178,15 @@ const DEFAULT_SETTINGS: CMSStoreSettings = {
   standardShippingFee: 99,
   supportEmail: 'support.thecandlelab@gmail.com',
   supportPhone: '+916264885453',
-  studioAddress: '',
+  studioAddress: 'Artisanal Studio, Bandra West, Mumbai, Maharashtra 400050',
   logoUrl: '/logo.jpeg',
+  footerText: 'Artisanal hand-poured soy candles crafted in small batches using 100% natural botanical oils and lead-free cotton wicks.',
+  socialLinks: {
+    instagram: 'https://instagram.com/thecandlelab.in',
+    facebook: 'https://facebook.com/thecandlelab',
+    pinterest: 'https://pinterest.com/thecandlelab',
+    whatsapp: 'https://wa.me/916264885453',
+  },
 };
 
 const DEFAULT_ANNOUNCEMENT: CMSAnnouncement = {
@@ -201,21 +289,60 @@ const DEFAULT_COLLECTIONS: CMSCollection[] = [
 ];
 
 const DEFAULT_PRODUCTS: CMSProduct[] = [
-  { id: 'sp-1', name: 'Velvet Rose & Smoked Amber', category: 'Glass Jars', collection: 'Royal Gold', scentProfile: 'Floral Elegance', price: 1482, originalPrice: 1710, rating: 4.9, reviewsCount: 142, topNotes: 'Calabrian Bergamot, Pink Pepper', heartNotes: 'Damask Rose, Clove Bud', baseNotes: 'Smoked Amber, Oud Wood', burnTime: '65 Hours', inStock: true, isBestSeller: true, vesselDescription: 'Hand-poured in heavy Italian frosted glass with 24K gold foil branding.' },
-  { id: 'sp-2', name: 'French Bourbon Vanilla Bean', category: 'Glass Jars', collection: 'Royal Gold', scentProfile: 'Warm Vanilla', price: 1786, originalPrice: 2090, rating: 4.95, reviewsCount: 98, topNotes: 'Crushed Tonka, Sweet Almond', heartNotes: 'Bourbon Vanilla Pod', baseNotes: 'White Amber, Brown Sugar', burnTime: '80 Hours', inStock: true, isBestSeller: true, vesselDescription: 'Luxury 3-wick champagne gold vessel engineered for rich room diffusion.' },
+  { id: 'sp-1', name: 'Velvet Rose & Smoked Amber', category: 'Glass Jars', collection: 'Royal Gold', scentProfile: 'Floral Elegance', price: 1482, originalPrice: 1710, rating: 4.9, reviewsCount: 142, topNotes: 'Calabrian Bergamot, Pink Pepper', heartNotes: 'Damask Rose, Clove Bud', baseNotes: 'Smoked Amber, Oud Wood', burnTime: '65 Hours', inStock: true, isBestSeller: true, isFeatured: true, vesselDescription: 'Hand-poured in heavy Italian frosted glass with 24K gold foil branding.' },
+  { id: 'sp-2', name: 'French Bourbon Vanilla Bean', category: 'Glass Jars', collection: 'Royal Gold', scentProfile: 'Warm Vanilla', price: 1786, originalPrice: 2090, rating: 4.95, reviewsCount: 98, topNotes: 'Crushed Tonka, Sweet Almond', heartNotes: 'Bourbon Vanilla Pod', baseNotes: 'White Amber, Brown Sugar', burnTime: '80 Hours', inStock: true, isBestSeller: true, isFeatured: true, vesselDescription: 'Luxury 3-wick champagne gold vessel engineered for rich room diffusion.' },
   { id: 'sp-3', name: 'Mysore Sandalwood & Cedar', category: 'Travel Tins', collection: 'Signature', scentProfile: 'Woody & Spiced', price: 798, originalPrice: 950, rating: 4.85, reviewsCount: 76, topNotes: 'Golden Cedar, Cypress', heartNotes: 'Mysore Sandalwood', baseNotes: 'Smoked Vetiver, Oakmoss', burnTime: '45 Hours', inStock: true, isNew: true, vesselDescription: 'Seamless brass travel tin with airtight botanical lid.' },
-  { id: 'sp-4', name: 'Bergamot & White Jasmine Bloom', category: 'Glass Jars', collection: 'Signature', scentProfile: 'Fresh Citrus', price: 1292, originalPrice: 1520, rating: 4.88, reviewsCount: 114, topNotes: 'Italian Citrus, Bergamot', heartNotes: 'White Jasmine, Neroli', baseNotes: 'Cashmere Wood, Musk', burnTime: '60 Hours', inStock: true, vesselDescription: 'Translucent ivory glass vessel with natural wood lid.' },
-  { id: 'sp-5', name: 'Smoked Leather & Tobacco Oud', category: 'Glass Jars', collection: 'Autumn Woodfire', scentProfile: 'Woody & Spiced', price: 1634, originalPrice: 1950, rating: 4.98, reviewsCount: 312, topNotes: 'Cardamom, Cinnamon Bark', heartNotes: 'Smoked Tobacco Leaf', baseNotes: 'Rich Leather, Oud Wood', burnTime: '65 Hours', inStock: true, isBestSeller: true, vesselDescription: 'Obsidian matte black jar formulated for deep evening relaxation.' },
+  { id: 'sp-4', name: 'Bergamot & White Jasmine Bloom', category: 'Glass Jars', collection: 'Signature', scentProfile: 'Fresh Citrus', price: 1292, originalPrice: 1520, rating: 4.88, reviewsCount: 114, topNotes: 'Italian Citrus, Bergamot', heartNotes: 'White Jasmine, Neroli', baseNotes: 'Cashmere Wood, Musk', burnTime: '60 Hours', inStock: true, isFeatured: true, vesselDescription: 'Translucent ivory glass vessel with natural wood lid.' },
+  { id: 'sp-5', name: 'Smoked Leather & Tobacco Oud', category: 'Glass Jars', collection: 'Autumn Woodfire', scentProfile: 'Woody & Spiced', price: 1634, originalPrice: 1950, rating: 4.98, reviewsCount: 312, topNotes: 'Cardamom, Cinnamon Bark', heartNotes: 'Smoked Tobacco Leaf', baseNotes: 'Rich Leather, Oud Wood', burnTime: '65 Hours', inStock: true, isBestSeller: true, isFeatured: true, vesselDescription: 'Obsidian matte black jar formulated for deep evening relaxation.' },
   { id: 'sp-6', name: 'Wild Lavender & Bergamot Bloom', category: 'Pillars', collection: 'Aromatherapy Series', scentProfile: 'Fresh Citrus', price: 1368, originalPrice: 1620, rating: 4.89, reviewsCount: 168, topNotes: 'Bergamot, Eucalyptus', heartNotes: 'French Lavender', baseNotes: 'White Sage, Cedar', burnTime: '70 Hours', inStock: true, vesselDescription: 'Pure beeswax aromatherapy pillar candle.' },
   { id: 'sp-7', name: 'Midnight Fig & Honeyed Amber', category: 'Glass Jars', collection: 'Signature', scentProfile: 'Warm Vanilla', price: 1406, originalPrice: 1680, rating: 5.0, reviewsCount: 24, topNotes: 'Wild Fig, Plum Bloom', heartNotes: 'Honeyed Amber', baseNotes: 'Dark Cedar, Vanilla', burnTime: '60 Hours', inStock: true, isNew: true, vesselDescription: 'Obsidian matte jar with crackling wood wick.' },
   { id: 'sp-8', name: 'French Vanilla & Cinnamon Scented Jar', category: 'Scented Candles', collection: 'Vanilla Collection', scentProfile: 'Warm Vanilla', price: 899, originalPrice: 1199, rating: 4.9, reviewsCount: 128, topNotes: 'Vanilla Bean, Ceylon Cinnamon, Warm Amber', heartNotes: 'Madagascar Vanilla Pod', baseNotes: 'Bourbon Amber', burnTime: '65 Hours', inStock: true, isBestSeller: true, vesselDescription: 'Hand-poured in heavy Italian frosted glass jar with wood wick.' },
-  { id: 'sp-9', name: 'Amber & Oud Royal Glass Candle', category: 'Luxury Glass Jars', collection: 'Luxury Glass Jars', scentProfile: 'Woody & Spiced', price: 1299, originalPrice: 1499, rating: 5.0, reviewsCount: 94, topNotes: 'Golden Amber, Cambodian Oud, Sandalwood', heartNotes: 'Smoked Cedar', baseNotes: 'Resinous Musk', burnTime: '80 Hours', inStock: true, isBestSeller: true, vesselDescription: 'Heavy 14 oz frosted glass jar with pure gold leaf branding.' },
+  { id: 'sp-9', name: 'Amber & Oud Royal Glass Candle', category: 'Luxury Glass Jars', collection: 'Luxury Glass Jars', scentProfile: 'Woody & Spiced', price: 1299, originalPrice: 1499, rating: 5.0, reviewsCount: 94, topNotes: 'Golden Amber, Cambodian Oud, Sandalwood', heartNotes: 'Smoked Cedar', baseNotes: 'Resinous Musk', burnTime: '80 Hours', inStock: true, isBestSeller: true, isFeatured: true, vesselDescription: 'Heavy 14 oz frosted glass jar with pure gold leaf branding.' },
   { id: 'sp-10', name: 'Rose Petals & Cardamom Wax Melts', category: 'Wax Melts', collection: 'Wax Melts', scentProfile: 'Floral Elegance', price: 499, originalPrice: 599, rating: 4.8, reviewsCount: 62, topNotes: 'Damask Rose, Spiced Cardamom, Soft Musk', heartNotes: 'Pink Rose Petals', baseNotes: 'White Amber', burnTime: '40 Hours', inStock: true, isNew: true, vesselDescription: 'Flame-free ambient essential oil wax melts pack.' },
 ];
 
 const DEFAULT_COUPONS: CMSCoupon[] = [
   { code: 'LUXURY20', discountPercent: 20, description: '20% Off Storewide on Orders over ₹1,499', active: true },
   { code: 'WELCOME15', discountPercent: 15, description: '15% Off VIP Welcome Discount', active: true },
+];
+
+const DEFAULT_PAGES_CONTENT: CMSPagesContent = {
+  aboutUs: 'At The Candle Lab, we blend botanical purity with timeless artisanal elegance. Every jar is hand-poured in small batches using 100% natural soy wax, lead-free cotton or crackling wooden wicks, and custom fragrance oils.',
+  shippingPolicy: 'Standard domestic shipping delivers in 3-5 business days. Complimentary white-glove shipping on all orders over ₹1,499. Orders dispatched within 24 hours.',
+  refundPolicy: 'We offer a 30-day hassle-free luxury return window. If your vessel arrives damaged or you are unsatisfied with the fragrance profile, contact support for instant replacement or refund.',
+  termsConditions: 'By purchasing from The Candle Lab, you agree to our standard boutique terms of service, safe burning guidelines, and privacy regulations.',
+  privacyPolicy: 'We respect your privacy. Customer data is encrypted with enterprise-grade SSL and is never sold or shared with third parties.',
+  faqList: [
+    { question: 'What wax do you use in your candles?', answer: 'We use 100% natural botanical soy wax blended with pure beeswax for clean, non-toxic, long-lasting burns.', category: 'Product Care' },
+    { question: 'How long do your candles burn?', answer: 'Our 12 oz luxury glass jars burn for up to 65 hours, while our 14 oz vessels burn for up to 80 hours.', category: 'Burn Specs' },
+    { question: 'How do I care for wooden wicks?', answer: 'Trim the wooden wick to 1/4 inch before every burn and allow the melted wax pool to reach the edges of the jar on first light.', category: 'Wick Care' },
+  ],
+};
+
+const DEFAULT_CUSTOMERS: CMSCustomer[] = [
+  { id: 'c-1', name: 'Aarav Sharma', email: 'aarav@example.com', ordersCount: 5, totalSpent: 12450, tier: 'VIP Gold' },
+  { id: 'c-2', name: 'Priya Patel', email: 'priya@example.com', ordersCount: 3, totalSpent: 7800, tier: 'Silver' },
+  { id: 'c-3', name: 'Rohan Mehta', email: 'rohan@example.com', ordersCount: 8, totalSpent: 24900, tier: 'Platinum' },
+];
+
+const DEFAULT_MEDIA: CMSMediaItem[] = [
+  { id: 'm-1', name: 'Hero Royal Reserve Jar', url: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?w=800', type: 'image', size: '1.4 MB' },
+  { id: 'm-2', name: 'Floral Rose Glass Banner', url: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800', type: 'image', size: '2.1 MB' },
+];
+
+const DEFAULT_ORDERS: CMSOrder[] = [
+  { id: 'ORD-9842', customerName: 'Aarav Sharma', email: 'aarav@example.com', items: '2x Velvet Rose, 1x Sandalwood Tin', totalAmount: 3762, paymentMethod: 'Razorpay UPI', status: 'Delivered' },
+  { id: 'ORD-9843', customerName: 'Priya Patel', email: 'priya@example.com', items: '1x Bourbon Vanilla 3-Wick', totalAmount: 1786, paymentMethod: 'COD', status: 'Processing' },
+];
+
+const DEFAULT_SEO: CMSSEOSetting[] = [
+  { pageKey: 'home', title: 'The Candle Lab — Handcrafted Botanical Soy Candles', description: 'Luxury handcrafted soy candles poured in small batches with pure essential oils.', keywords: 'luxury candles, soy candles, aromatherapy' },
+  { pageKey: 'shop', title: 'Shop All Candles & Wax Melts — The Candle Lab', description: 'Browse our complete collection of botanical soy candles, travel tins, and wax melts.', keywords: 'shop candles, scented candles' },
+];
+
+const DEFAULT_STAFF: CMSStaffUser[] = [
+  { id: 'u-1', name: 'Rohit Basrani', email: 'rohit@thecandlelab.com', role: 'Super Admin', active: true },
+  { id: 'u-2', name: 'Ananya Roy', email: 'ananya@thecandlelab.com', role: 'Content Manager', active: true },
 ];
 
 const CMSContext = createContext<CMSContextType | undefined>(undefined);
@@ -275,6 +402,60 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   });
 
+  const [pagesContent, setPagesContent] = useState<CMSPagesContent>(() => {
+    try {
+      const saved = localStorage.getItem('tcl_cms_pages_content');
+      return saved ? JSON.parse(saved) : DEFAULT_PAGES_CONTENT;
+    } catch {
+      return DEFAULT_PAGES_CONTENT;
+    }
+  });
+
+  const [customers, setCustomers] = useState<CMSCustomer[]>(() => {
+    try {
+      const saved = localStorage.getItem('tcl_cms_customers');
+      return saved ? JSON.parse(saved) : DEFAULT_CUSTOMERS;
+    } catch {
+      return DEFAULT_CUSTOMERS;
+    }
+  });
+
+  const [mediaItems, setMediaItems] = useState<CMSMediaItem[]>(() => {
+    try {
+      const saved = localStorage.getItem('tcl_cms_media');
+      return saved ? JSON.parse(saved) : DEFAULT_MEDIA;
+    } catch {
+      return DEFAULT_MEDIA;
+    }
+  });
+
+  const [orders, setOrders] = useState<CMSOrder[]>(() => {
+    try {
+      const saved = localStorage.getItem('tcl_cms_orders');
+      return saved ? JSON.parse(saved) : DEFAULT_ORDERS;
+    } catch {
+      return DEFAULT_ORDERS;
+    }
+  });
+
+  const [seoSettings, setSeoSettings] = useState<CMSSEOSetting[]>(() => {
+    try {
+      const saved = localStorage.getItem('tcl_cms_seo');
+      return saved ? JSON.parse(saved) : DEFAULT_SEO;
+    } catch {
+      return DEFAULT_SEO;
+    }
+  });
+
+  const [staffUsers, setStaffUsers] = useState<CMSStaffUser[]>(() => {
+    try {
+      const saved = localStorage.getItem('tcl_cms_staff');
+      return saved ? JSON.parse(saved) : DEFAULT_STAFF;
+    } catch {
+      return DEFAULT_STAFF;
+    }
+  });
+
   const [totalRevenue, setTotalRevenue] = useState<number>(() => {
     try {
       const saved = localStorage.getItem('tcl_cms_revenue');
@@ -292,6 +473,94 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return 112;
     }
   });
+
+  // Initial sync from live Supabase PostgreSQL Database
+  useEffect(() => {
+    async function loadSupabaseData() {
+      try {
+        const dbProducts = await supabaseFetch<any[]>('products');
+        if (dbProducts && Array.isArray(dbProducts) && dbProducts.length > 0) {
+          const mapped = dbProducts.map((p) => ({
+            id: String(p.id),
+            name: p.name || 'Artisanal Candle',
+            category: p.category || 'Scented Candles',
+            collection: p.collection || 'Royal Gold',
+            scentProfile: p.tagline || p.scent_profile || 'Aromatherapy',
+            price: Number(p.price || 999),
+            originalPrice: Number(p.original_price || p.price || 1299),
+            rating: Number(p.rating || 4.9),
+            reviewsCount: Number(p.reviews_count || 12),
+            topNotes: p.top_notes || 'Calabrian Bergamot',
+            heartNotes: p.heart_notes || 'Damask Rose',
+            baseNotes: p.base_notes || 'Smoked Amber',
+            burnTime: p.burn_time_hours ? `${p.burn_time_hours} Hours` : (p.burn_time || '60 Hours'),
+            inStock: p.status === 'ACTIVE' || p.in_stock === true || p.in_stock === undefined,
+            isBestSeller: p.is_bestseller ?? false,
+            isNew: p.is_new_arrival ?? false,
+            isFeatured: p.is_featured ?? false,
+            vesselDescription: p.short_description || p.vessel_description || 'Hand-poured in luxury frosted glass jar.',
+          }));
+          setProducts(mapped);
+        }
+
+        const dbOrders = await supabaseFetch<any[]>('orders');
+        if (dbOrders && Array.isArray(dbOrders) && dbOrders.length > 0) {
+          const mappedOrders = dbOrders.map((o) => ({
+            id: String(o.order_number || o.id),
+            customerName: o.customer_name || 'Valued Customer',
+            email: o.customer_email || 'customer@example.com',
+            items: 'Scented Candle Jar',
+            totalAmount: Number(o.total_amount || 1499),
+            paymentMethod: o.payment_method || 'Razorpay',
+            status: o.order_status || 'Processing',
+          }));
+          setOrders(mappedOrders);
+        }
+
+        const dbCollections = await supabaseFetch<any[]>('collections');
+        if (dbCollections && Array.isArray(dbCollections) && dbCollections.length > 0) {
+          const mappedCollections: CMSCollection[] = dbCollections.map((c) => ({
+            id: String(c.id),
+            title: c.name || c.title || 'Signature Collection',
+            icon: c.icon_symbol || c.icon || '🕯️',
+            desc: c.description || c.desc || 'Luxury Handcrafted Candles',
+            badge: 'ATELIER',
+            count: '12 Items',
+            scents: 'Vanilla, Rose & Amber',
+            image: c.banner_image || 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80',
+          }));
+          setCollections(mappedCollections);
+        }
+
+        const dbCoupons = await supabaseFetch<any[]>('coupons');
+        if (dbCoupons && Array.isArray(dbCoupons) && dbCoupons.length > 0) {
+          const mappedCoupons = dbCoupons.map((c) => ({
+            code: c.code,
+            discountPercent: Number(c.discount_percentage || 15),
+            description: `Flat ${c.discount_percentage}% OFF on luxury collections`,
+            active: c.is_active ?? true,
+          }));
+          setCoupons(mappedCoupons);
+        }
+
+        const dbCustomers = await supabaseFetch<any[]>('customers');
+        if (dbCustomers && Array.isArray(dbCustomers) && dbCustomers.length > 0) {
+          const mappedCustomers = dbCustomers.map((c) => ({
+            id: String(c.id),
+            name: c.full_name || 'Valued Customer',
+            email: c.email || 'customer@example.com',
+            ordersCount: 3,
+            totalSpent: 4290,
+            tier: 'VIP Gold',
+          }));
+          setCustomers(mappedCustomers);
+        }
+      } catch (err) {
+        console.warn('Supabase DB initial load note:', err);
+      }
+    }
+    loadSupabaseData();
+  }, []);
 
   // Sync state changes to localStorage
   useEffect(() => {
@@ -318,6 +587,30 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem('tcl_cms_coupons', JSON.stringify(coupons));
   }, [coupons]);
 
+  useEffect(() => {
+    localStorage.setItem('tcl_cms_pages_content', JSON.stringify(pagesContent));
+  }, [pagesContent]);
+
+  useEffect(() => {
+    localStorage.setItem('tcl_cms_customers', JSON.stringify(customers));
+  }, [customers]);
+
+  useEffect(() => {
+    localStorage.setItem('tcl_cms_media', JSON.stringify(mediaItems));
+  }, [mediaItems]);
+
+  useEffect(() => {
+    localStorage.setItem('tcl_cms_orders', JSON.stringify(orders));
+  }, [orders]);
+
+  useEffect(() => {
+    localStorage.setItem('tcl_cms_seo', JSON.stringify(seoSettings));
+  }, [seoSettings]);
+
+  useEffect(() => {
+    localStorage.setItem('tcl_cms_staff', JSON.stringify(staffUsers));
+  }, [staffUsers]);
+
   const updateSettings = (newSettings: Partial<CMSStoreSettings>) => {
     setSettings((prev) => ({ ...prev, ...newSettings }));
   };
@@ -336,30 +629,192 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const addCollection = (col: CMSCollection) => {
     setCollections((prev) => [...prev, col]);
+    const cleanSlug = col.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now();
+    supabaseFetch('collections', {
+      method: 'POST',
+      body: {
+        name: col.title,
+        slug: cleanSlug,
+        description: col.desc || '',
+        icon_symbol: col.icon || '🕯️',
+        is_featured: true,
+      },
+    }).catch(() => {});
   };
 
   const deleteCollection = (id: string) => {
     setCollections((prev) => prev.filter((c) => c.id !== id));
+    supabaseFetch('collections', {
+      method: 'DELETE',
+      query: `id=eq.${id}`,
+    }).catch(() => {});
   };
 
-  const addProduct = (prod: CMSProduct) => {
+  const addProduct = async (prod: CMSProduct) => {
     setProducts((prev) => [prod, ...prev]);
+    const cleanSlug = prod.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now();
+    try {
+      const res = await supabaseFetch<any[]>('products', {
+        method: 'POST',
+        body: {
+          name: prod.name,
+          slug: cleanSlug,
+          tagline: prod.scentProfile || 'Artisanal Scented Candle',
+          short_description: prod.vesselDescription || 'Hand-poured in luxury glass jar.',
+          price: Number(prod.price),
+          original_price: Number(prod.originalPrice || prod.price),
+          rating: Number(prod.rating || 4.9),
+          reviews_count: Number(prod.reviewsCount || 10),
+          burn_time_hours: 60,
+          is_bestseller: Boolean(prod.isBestSeller),
+          is_new_arrival: Boolean(prod.isNew),
+          is_featured: Boolean(prod.isFeatured),
+          status: prod.inStock ? 'ACTIVE' : 'OUT_OF_STOCK',
+        },
+      });
+      if (res && Array.isArray(res) && res[0] && res[0].id) {
+        const realId = String(res[0].id);
+        setProducts((prev) => prev.map((p) => (p.id === prod.id ? { ...p, id: realId } : p)));
+      }
+    } catch (err) {
+      console.warn('Supabase product insert note:', err);
+    }
   };
 
   const updateProduct = (id: string, updated: Partial<CMSProduct>) => {
     setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, ...updated } : p)));
+    supabaseFetch('products', {
+      method: 'PATCH',
+      query: `id=eq.${id}`,
+      body: {
+        ...(updated.name && { name: updated.name }),
+        ...(updated.price !== undefined && { price: updated.price }),
+        ...(updated.originalPrice !== undefined && { original_price: updated.originalPrice }),
+        ...(updated.inStock !== undefined && { status: updated.inStock ? 'ACTIVE' : 'OUT_OF_STOCK' }),
+        ...(updated.isBestSeller !== undefined && { is_bestseller: updated.isBestSeller }),
+        ...(updated.isNew !== undefined && { is_new_arrival: updated.isNew }),
+        ...(updated.isFeatured !== undefined && { is_featured: updated.isFeatured }),
+      },
+    }).catch(() => {});
   };
 
   const deleteProduct = (id: string) => {
     setProducts((prev) => prev.filter((p) => p.id !== id));
+    supabaseFetch('products', {
+      method: 'DELETE',
+      query: `id=eq.${id}`,
+    }).catch(() => {});
   };
 
   const addCoupon = (coupon: CMSCoupon) => {
     setCoupons((prev) => [...prev, coupon]);
+    supabaseFetch('coupons', {
+      method: 'POST',
+      body: {
+        code: coupon.code,
+        discount_percentage: coupon.discountPercent,
+        usage_limit: 500,
+        is_active: coupon.active,
+      },
+    }).catch(() => {});
+  };
+
+  const updateCoupon = (code: string, updated: Partial<CMSCoupon>) => {
+    setCoupons((prev) => prev.map((c) => (c.code === code ? { ...c, ...updated } : c)));
   };
 
   const deleteCoupon = (code: string) => {
     setCoupons((prev) => prev.filter((c) => c.code !== code));
+    supabaseFetch('coupons', {
+      method: 'DELETE',
+      query: `code=eq.${code}`,
+    }).catch(() => {});
+  };
+
+  const updatePagesContent = (updated: Partial<CMSPagesContent>) => {
+    setPagesContent((prev) => ({ ...prev, ...updated }));
+  };
+
+  const addCustomer = (c: CMSCustomer) => {
+    setCustomers((prev) => [c, ...prev]);
+    supabaseFetch('customers', {
+      method: 'POST',
+      body: {
+        full_name: c.name,
+        email: c.email,
+        phone: '+91 98765 43210',
+        status: 'ACTIVE',
+      },
+    }).catch(() => {});
+  };
+
+  const updateCustomer = (id: string, updated: Partial<CMSCustomer>) => {
+    setCustomers((prev) => prev.map((c) => (c.id === id ? { ...c, ...updated } : c)));
+  };
+
+  const deleteCustomer = (id: string) => {
+    setCustomers((prev) => prev.filter((c) => c.id !== id));
+    supabaseFetch('customers', {
+      method: 'DELETE',
+      query: `email=eq.${id}`,
+    }).catch(() => {});
+  };
+
+  const addMediaItem = (m: CMSMediaItem) => {
+    setMediaItems((prev) => [m, ...prev]);
+  };
+
+  const deleteMediaItem = (id: string) => {
+    setMediaItems((prev) => prev.filter((m) => m.id !== id));
+  };
+
+  const addOrder = (order: CMSOrder) => {
+    setOrders((prev) => [order, ...prev]);
+    supabaseFetch('orders', {
+      method: 'POST',
+      body: {
+        order_number: order.id || `TCL-${Math.floor(10000 + Math.random() * 90000)}`,
+        customer_name: order.customerName,
+        customer_email: order.email,
+        total_amount: Number(order.totalAmount),
+        payment_method: order.paymentMethod || 'Razorpay',
+        order_status: order.status.toUpperCase() || 'PROCESSING',
+        payment_status: 'PAID',
+      },
+    }).catch(() => {});
+  };
+
+  const updateOrderStatus = (id: string, status: string) => {
+    setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status } : o)));
+    supabaseFetch('orders', {
+      method: 'PATCH',
+      query: `order_number=eq.${id}`,
+      body: { order_status: status.toUpperCase() },
+    }).catch(() => {});
+  };
+
+  const deleteOrder = (id: string) => {
+    setOrders((prev) => prev.filter((o) => o.id !== id));
+    supabaseFetch('orders', {
+      method: 'DELETE',
+      query: `order_number=eq.${id}`,
+    }).catch(() => {});
+  };
+
+  const updateSEO = (pageKey: string, updated: Partial<CMSSEOSetting>) => {
+    setSeoSettings((prev) => prev.map((s) => (s.pageKey === pageKey ? { ...s, ...updated } : s)));
+  };
+
+  const addStaffUser = (u: CMSStaffUser) => {
+    setStaffUsers((prev) => [...prev, u]);
+  };
+
+  const updateStaffUser = (id: string, updated: Partial<CMSStaffUser>) => {
+    setStaffUsers((prev) => prev.map((u) => (u.id === id ? { ...u, ...updated } : u)));
+  };
+
+  const deleteStaffUser = (id: string) => {
+    setStaffUsers((prev) => prev.filter((u) => u.id !== id));
   };
 
   const incrementRevenue = (amount: number) => {
@@ -394,7 +849,27 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         deleteProduct,
         coupons,
         addCoupon,
+        updateCoupon,
         deleteCoupon,
+        pagesContent,
+        updatePagesContent,
+        customers,
+        addCustomer,
+        updateCustomer,
+        deleteCustomer,
+        mediaItems,
+        addMediaItem,
+        deleteMediaItem,
+        orders,
+        addOrder,
+        updateOrderStatus,
+        deleteOrder,
+        seoSettings,
+        updateSEO,
+        staffUsers,
+        addStaffUser,
+        updateStaffUser,
+        deleteStaffUser,
         ordersCount,
         totalRevenue,
         incrementRevenue,

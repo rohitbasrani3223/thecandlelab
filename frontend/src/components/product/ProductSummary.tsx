@@ -186,7 +186,7 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({ product, onAddTo
             variant="gold"
             size="lg"
             className="flex-1 text-sm font-bold shadow-goldGlow"
-            onClick={() => onAddToCart(selectedSize, selectedWick, quantity)}
+            onClick={() => onAddToCart(selectedSizeLabel, selectedWick, quantity)}
           >
             Add to Shopping Bag — ₹{(productPrice * quantity).toLocaleString('en-IN')}.00
           </Button>
@@ -212,7 +212,7 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({ product, onAddTo
           size="lg"
           fullWidth
           className="bg-[#2A1E17] hover:bg-[#1C130E] text-[#FAF6F0]"
-          onClick={() => onBuyNow(selectedSize, selectedWick, quantity)}
+          onClick={() => onBuyNow(selectedSizeLabel, selectedWick, quantity)}
         >
           Buy Now with Instant Express Checkout →
         </Button>

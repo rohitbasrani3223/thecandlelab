@@ -60,9 +60,15 @@ export const OrderReviewStep: React.FC<OrderReviewStepProps> = ({
         <div className="p-4 bg-[#FAF6F0] border border-[#E5D9C5] rounded-md space-y-1 text-xs">
           <span className="font-bold text-[#D4AF37] uppercase tracking-wider block">Payment Option:</span>
           <strong className="text-[#2A1E17] block">
-            {paymentData.method === 'card' ? `Credit Card (•••• ${paymentData.cardNumber.slice(-4) || '4242'})` : paymentData.method === 'applepay' ? 'Apple Pay' : 'Klarna Installments'}
+            {paymentData.method === 'cod'
+              ? 'Cash on Delivery (Pay at Doorstep)'
+              : paymentData.method === 'upi'
+              ? 'UPI Instant (GPay / PhonePe / Paytm)'
+              : 'Razorpay Online (UPI, Cards, NetBanking)'}
           </strong>
-          <span className="text-[#2E6F40] font-semibold block">✓ Verified & Authorized</span>
+          <span className="text-[#2E6F40] font-semibold block">
+            {paymentData.method === 'cod' ? '✓ Pay Cash / UPI on Delivery' : '✓ Verified & Encrypted Gateway'}
+          </span>
         </div>
       </div>
 
@@ -73,36 +79,36 @@ export const OrderReviewStep: React.FC<OrderReviewStepProps> = ({
         <div className="space-y-2 text-xs">
           <div className="flex items-center justify-between">
             <span className="text-[#2A1E17]">Velvet Rose & Smoked Amber (12 oz Glass)</span>
-            <span className="font-bold text-[#2A1E17]">$78.00</span>
+            <span className="font-bold text-[#2A1E17]">₹1,499.00</span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-[#2A1E17]">French Bourbon Vanilla 3-Wick (16 oz Jar)</span>
-            <span className="font-bold text-[#2A1E17]">$94.00</span>
+            <span className="font-bold text-[#2A1E17]">₹1,299.00</span>
           </div>
         </div>
 
         <div className="pt-3 border-t border-[#E5D9C5] space-y-1 text-xs">
           <div className="flex justify-between text-[#8C7A6B]">
             <span>Subtotal</span>
-            <span>${subtotal.toFixed(2)}</span>
+            <span>₹{subtotal.toFixed(2)}</span>
           </div>
           {discountAmount > 0 && (
             <div className="flex justify-between text-[#2E6F40] font-semibold">
               <span>Promo Savings (LUXURY10)</span>
-              <span>-${discountAmount.toFixed(2)}</span>
+              <span>-₹{discountAmount.toFixed(2)}</span>
             </div>
           )}
           <div className="flex justify-between text-[#8C7A6B]">
             <span>Shipping</span>
-            <span>{shippingOption.price === 0 ? 'FREE' : `$${shippingOption.price.toFixed(2)}`}</span>
+            <span>{shippingOption.price === 0 ? 'FREE' : `₹${shippingOption.price.toFixed(2)}`}</span>
           </div>
           <div className="flex justify-between text-[#8C7A6B]">
-            <span>Tax (7%)</span>
-            <span>${tax.toFixed(2)}</span>
+            <span>GST / Taxes</span>
+            <span>Included (₹0.00)</span>
           </div>
           <div className="flex justify-between text-base font-bold text-[#2A1E17] pt-2 border-t border-[#E5D9C5]">
             <span>Grand Total</span>
-            <span className="text-xl font-serif text-[#D4AF37]">${total.toFixed(2)}</span>
+            <span className="text-xl font-serif text-[#D4AF37]">₹{Math.round(total).toLocaleString('en-IN')}.00</span>
           </div>
         </div>
       </div>
@@ -117,11 +123,16 @@ export const OrderReviewStep: React.FC<OrderReviewStepProps> = ({
           size="lg"
           fullWidth
           onClick={() => {
-            toast({ type: 'luxury', title: 'Processing Order Payment...' });
+            toast({
+              type: 'luxury',
+              title: paymentData.method === 'cod' ? 'Confirming COD Order...' : 'Opening Razorpay Gateway...',
+            });
             onPlaceOrder();
           }}
         >
-          Place Order Now (${total.toFixed(2)}) →
+          {paymentData.method === 'cod'
+            ? `Place Cash on Delivery Order (₹${Math.round(total).toLocaleString('en-IN')}) →`
+            : `Pay Securely with Razorpay (₹${Math.round(total).toLocaleString('en-IN')}) →`}
         </Button>
       </div>
     </div>

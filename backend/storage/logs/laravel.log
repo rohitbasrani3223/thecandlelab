@@ -581,3 +581,5 @@ LINE 1: select count(*) as aggregate from \"users\" where \"email\" = $1
 #56 D:/thecandlelab/backend/server.php(12): require_once('D://thecandlelab...')
 #57 {main}
 "} 
+[2026-07-29 18:43:02] local.ERROR: PaymentController createOrder Exception: cURL error 60: SSL certificate OpenSSL verify result: self-signed certificate in certificate chain (19) (see https://curl.se/libcurl/c/libcurl-errors.html) for https://api.razorpay.com/v1/orders  
+[2026-07-29 18:52:04] local.INFO: Razorpay Payment Signature Verified Successfully {"order_id":"order_TJQK6SKzI79RnQ","payment_id":"pay_TJQKbuAiqe9OgQ"} 

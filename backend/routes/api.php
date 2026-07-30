@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\PaymentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,6 +22,12 @@ Route::get('/health', function () {
         'timestamp' => now()->toIso8601String()
     ]);
 });
+
+// Razorpay Standard Checkout Endpoints
+Route::post('/create-order', [PaymentController::class, 'createOrder']);
+Route::post('/verify-payment', [PaymentController::class, 'verifyPayment']);
+Route::post('/razorpay/create-order', [PaymentController::class, 'createOrder']);
+Route::post('/razorpay/verify-payment', [PaymentController::class, 'verifyPayment']);
 
 // Products API
 Route::get('/products', [ProductController::class, 'index']);

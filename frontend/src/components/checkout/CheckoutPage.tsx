@@ -14,6 +14,8 @@ import { CheckoutTrustBadges } from './CheckoutTrustBadges';
 import { OrderSuccessPage } from './OrderSuccessPage';
 import { useAuth } from '../../context/AuthContext';
 import { getApiUrl } from '../../config/api';
+import { processRazorpayPayment } from '../../services/razorpay';
+import { useToast } from '../../design-system';
 
 export interface CheckoutPageProps {
   onReturnHome?: () => void;
@@ -21,7 +23,9 @@ export interface CheckoutPageProps {
 
 export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [step, setStep] = useState<CheckoutStep | 5>(1);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const initialAddress: AddressData = {
     email: user?.email || 'customer@thecandlelab.com',
@@ -59,21 +63,25 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
 
   const subtotal = 2798.0;
   const discountAmount = 279.8; // 10% off
+  const totalAmount = Math.max(1, Math.round(subtotal - discountAmount + shipping.price));
 
-  const handlePlaceOrder = async () => {
-    const orderNumber = `#TCL-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+  const completeOrderSave = async (paymentId?: string, razorpayOrderId?: string) => {
+    const isCOD = payment.method === 'cod';
+    const orderNumber = razorpayOrderId ? `#${razorpayOrderId}` : `#TCL-2026-${Math.floor(1000 + Math.random() * 9000)}`;
     const newOrder = {
       id: orderNumber,
       orderNumber,
       date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
-      status: 'PROCESSING',
-      badgeVariant: 'gold',
+      status: isCOD ? 'COD_PENDING' : 'PAID',
+      badgeVariant: isCOD ? 'warning' : 'gold',
       itemsSummary: 'Velvet Rose & Smoked Amber, French Bourbon Vanilla',
       items: [
         { name: 'Velvet Rose & Smoked Amber', quantity: 1, price: 1499 },
         { name: 'French Bourbon Vanilla 3-Wick', quantity: 1, price: 1299 },
       ],
-      totalAmount: `₹${(subtotal - discountAmount + shipping.price).toLocaleString('en-IN')}`,
+      totalAmount: `₹${totalAmount.toLocaleString('en-IN')}`,
+      paymentMethod: isCOD ? 'Cash on Delivery (COD)' : 'Razorpay Online (UPI/Cards)',
+      paymentId: paymentId || (isCOD ? 'COD_ORDER' : 'PAY_RAZORPAY_SUCCESS'),
       trackingNumber: `AWB${Date.now().toString().slice(-8)}`,
       customerEmail: address.email || user?.email || 'customer@thecandlelab.com',
       customerName: `${address.firstName} ${address.lastName}`.trim(),
@@ -100,7 +108,50 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
       // Fallback local persistence completed
     }
 
+    setIsProcessing(false);
+    toast({
+      type: 'luxury',
+      title: isCOD ? 'COD Order Placed Successfully!' : 'Payment Verified & Order Confirmed!',
+      description: isCOD ? 'Pay cash on delivery.' : `Payment ID: ${paymentId || 'Verified'}`,
+    });
     setStep(5);
+  };
+
+  const handlePlaceOrder = async () => {
+    setIsProcessing(true);
+
+    if (payment.method === 'cod') {
+      completeOrderSave(undefined, undefined);
+      return;
+    }
+
+    // Launch Razorpay Standard Web Checkout Modal for Razorpay / UPI
+    processRazorpayPayment({
+      amountInRupees: totalAmount,
+      customerName: `${address.firstName} ${address.lastName}`.trim(),
+      customerEmail: address.email || user?.email || 'customer@thecandlelab.com',
+      customerPhone: address.phone || user?.phone || '+91 98765 43210',
+      description: 'The Candle Lab Artisanal Order Payment',
+      onSuccess: (paymentId, orderId) => {
+        completeOrderSave(paymentId, orderId);
+      },
+      onFailure: (errorMessage) => {
+        setIsProcessing(false);
+        toast({
+          type: 'error',
+          title: 'Razorpay API Key Auth Error (401)',
+          description: `${errorMessage} (Complete flow via Cash on Delivery or generate active API Keys from Razorpay Dashboard).`,
+        });
+      },
+      onDismiss: () => {
+        setIsProcessing(false);
+        toast({
+          type: 'info',
+          title: 'Payment Window Closed',
+          description: 'You cancelled the checkout. You can retry payment anytime.',
+        });
+      },
+    });
   };
 
   if (step === 5) {

@@ -196,13 +196,13 @@ export const ShopPage: React.FC<ShopPageProps> = ({ onSelectProduct }) => {
 
   // Filter & Sort Logic
   const filteredProducts = useMemo(() => {
-    return activeProducts.filter((prod) => {
+    return activeProducts.filter((prod: any) => {
       if (filters.inStockOnly && !prod.inStock) return false;
       if (filters.categories.length > 0 && !filters.categories.includes(prod.category)) return false;
       if (filters.collections.length > 0 && !filters.collections.includes(prod.collection)) return false;
       if (filters.scentProfiles.length > 0 && !filters.scentProfiles.includes(prod.scentProfile)) return false;
       return true;
-    }).sort((a, b) => {
+    }).sort((a: any, b: any) => {
       if (sortBy === 'price-asc') return a.price - b.price;
       if (sortBy === 'price-desc') return b.price - a.price;
       if (sortBy === 'rating') return b.rating - a.rating;
@@ -267,7 +267,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({ onSelectProduct }) => {
               />
             ) : (
               <div className="space-y-4">
-                {paginatedProducts.map((prod) => (
+                {paginatedProducts.map((prod: any) => (
                   <ProductListItem
                     key={prod.id}
                     product={prod}

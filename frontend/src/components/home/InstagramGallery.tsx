@@ -2,10 +2,10 @@ import React from 'react';
 import { Badge, SparklesIcon, HeartIcon } from '../../design-system';
 
 const instaPosts = [
-  { id: 1, title: 'Evening Sanctuary Vibes', likes: '1.4k', tag: '#thecandlelab' },
-  { id: 2, title: 'Unboxing 24K Gold Series', likes: '2.1k', tag: '#luxurycandles' },
-  { id: 3, title: 'Botanical Oil Infusion', likes: '980', tag: '#soycandles' },
-  { id: 4, title: 'Wood Wick Flame Dance', likes: '3.2k', tag: '#candlecare' },
+  { id: 1, title: 'Evening Sanctuary Vibes', likes: '1.4k', tag: '#thecandlelab', url: 'https://instagram.com/_the_candlelab', image: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80' },
+  { id: 2, title: 'Unboxing 24K Gold Series', likes: '2.1k', tag: '#luxurycandles', url: 'https://instagram.com/_the_candlelab', image: 'https://images.unsplash.com/photo-1596435452227-886313d0130f?auto=format&fit=crop&w=800&q=80' },
+  { id: 3, title: 'Botanical Oil Infusion', likes: '980', tag: '#soycandles', url: 'https://instagram.com/_the_candlelab', image: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=800&q=80' },
+  { id: 4, title: 'Wood Wick Flame Dance', likes: '3.2k', tag: '#candlecare', url: 'https://instagram.com/_the_candlelab', image: 'https://images.unsplash.com/photo-1572726729207-a78d6fea73a7?auto=format&fit=crop&w=800&q=80' },
 ];
 
 export const InstagramGallery: React.FC = () => {
@@ -24,13 +24,18 @@ export const InstagramGallery: React.FC = () => {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {instaPosts.map((post) => (
-            <div
+            <a
               key={post.id}
+              href={post.url}
+              target="_blank"
+              rel="noreferrer"
               className="relative h-64 bg-[#2A1E17] rounded-md overflow-hidden group cursor-pointer border border-[#E5D9C5]"
             >
-              <div className="w-full h-full flex items-center justify-center text-5xl group-hover:scale-110 transition-transform duration-500">
-                📸 🕯️
-              </div>
+              <img
+                src={post.image}
+                alt={post.title}
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              />
               <div className="absolute inset-0 bg-[#1C130E]/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-4 text-[#FAF6F0]">
                 <div className="text-[10px] font-bold text-[#D4AF37] uppercase">{post.tag}</div>
                 <div>
@@ -38,10 +43,11 @@ export const InstagramGallery: React.FC = () => {
                   <div className="flex items-center gap-1 text-xs text-[#E5D9C5] mt-1">
                     <HeartIcon size={12} className="text-[#B33A3A]" />
                     <span>{post.likes}</span>
+                    <span className="ml-auto text-[10px] text-[#D4AF37] font-bold">Open Instagram ↗</span>
                   </div>
                 </div>
               </div>
-            </div>
+            </a>
           ))}
         </div>
       </div>

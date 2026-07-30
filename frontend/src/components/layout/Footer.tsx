@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Input, Button, useToast, SparklesIcon } from '../../design-system';
+import { useCMS } from '../../context/CMSContext';
 
 export const Footer: React.FC = () => {
   const [email, setEmail] = useState('');
   const { toast } = useToast();
+  const { settings } = useCMS();
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,18 +67,57 @@ export const Footer: React.FC = () => {
             </div>
 
             <p className="text-[#C2AE90] leading-relaxed max-w-sm">
-              Artisanal hand-poured soy candles crafted in small batches using 100% natural botanical oils and lead-free cotton wicks.
+              {settings.footerText || 'Artisanal hand-poured soy candles crafted in small batches using 100% natural botanical oils and lead-free cotton wicks.'}
             </p>
             <div className="flex items-center gap-3 pt-2 text-[#E5D9C5]">
-              <a href="#instagram" className="w-8 h-8 rounded-full bg-[#2A1E17] border border-[#4A3B32] flex items-center justify-center hover:text-[#D4AF37] hover:border-[#D4AF37] transition-colors" aria-label="Instagram">
-                📸
-              </a>
-              <a href="#pinterest" className="w-8 h-8 rounded-full bg-[#2A1E17] border border-[#4A3B32] flex items-center justify-center hover:text-[#D4AF37] hover:border-[#D4AF37] transition-colors" aria-label="Pinterest">
-                📌
-              </a>
-              <a href="#facebook" className="w-8 h-8 rounded-full bg-[#2A1E17] border border-[#4A3B32] flex items-center justify-center hover:text-[#D4AF37] hover:border-[#D4AF37] transition-colors" aria-label="Facebook">
-                👤
-              </a>
+              {settings.socialLinks?.instagram && (
+                <a
+                  href={settings.socialLinks.instagram}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-8 h-8 rounded-full bg-[#2A1E17] border border-[#4A3B32] flex items-center justify-center hover:text-[#D4AF37] hover:border-[#D4AF37] transition-colors"
+                  aria-label="Instagram"
+                  title="Instagram"
+                >
+                  📸
+                </a>
+              )}
+              {settings.socialLinks?.facebook && (
+                <a
+                  href={settings.socialLinks.facebook}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-8 h-8 rounded-full bg-[#2A1E17] border border-[#4A3B32] flex items-center justify-center hover:text-[#D4AF37] hover:border-[#D4AF37] transition-colors"
+                  aria-label="Facebook"
+                  title="Facebook"
+                >
+                  👤
+                </a>
+              )}
+              {settings.socialLinks?.pinterest && (
+                <a
+                  href={settings.socialLinks.pinterest}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-8 h-8 rounded-full bg-[#2A1E17] border border-[#4A3B32] flex items-center justify-center hover:text-[#D4AF37] hover:border-[#D4AF37] transition-colors"
+                  aria-label="Pinterest"
+                  title="Pinterest"
+                >
+                  📌
+                </a>
+              )}
+              {settings.socialLinks?.whatsapp && (
+                <a
+                  href={settings.socialLinks.whatsapp}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-8 h-8 rounded-full bg-[#2A1E17] border border-[#4A3B32] flex items-center justify-center hover:text-[#D4AF37] hover:border-[#D4AF37] transition-colors"
+                  aria-label="WhatsApp"
+                  title="WhatsApp"
+                >
+                  💬
+                </a>
+              )}
             </div>
           </div>
 

@@ -1,11 +1,30 @@
 import React, { useState } from 'react';
 import { useCMS } from '../../context/CMSContext';
 
+type StaffSubTab =
+  | 'superadmin'
+  | 'admin'
+  | 'contentmanager'
+  | 'inventorymanager'
+  | 'marketingmanager'
+  | 'support';
+
 export const AdminStaffManager: React.FC = () => {
+  const [activeSubTab, setActiveSubTab] = useState<StaffSubTab>('superadmin');
   const { staffUsers, addStaffUser, deleteStaffUser } = useCMS();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [role, setRole] = useState<'Super Admin' | 'Inventory Manager' | 'Content Manager' | 'Marketing Manager'>('Content Manager');
+  const [role, setRole] = useState<'Super Admin' | 'Inventory Manager' | 'Content Manager' | 'Marketing Manager' | 'Admin' | 'Support'>('Super Admin');
+  const [savedMsg, setSavedMsg] = useState('');
+
+  const SUB_TABS: { id: StaffSubTab; label: string; icon: string }[] = [
+    { id: 'superadmin', label: 'Super Admin', icon: '👑' },
+    { id: 'admin', label: 'Admin', icon: '🛡️' },
+    { id: 'contentmanager', label: 'Content Manager', icon: '✍️' },
+    { id: 'inventorymanager', label: 'Inventory Manager', icon: '📦' },
+    { id: 'marketingmanager', label: 'Marketing Manager', icon: '🎯' },
+    { id: 'support', label: 'Support', icon: '🎧' },
+  ];
 
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
@@ -14,19 +33,50 @@ export const AdminStaffManager: React.FC = () => {
       id: `u-${Date.now()}`,
       name,
       email,
-      role,
+      role: role as any,
       active: true,
     });
     setName('');
     setEmail('');
+    setSavedMsg('New staff account created!');
+    setTimeout(() => setSavedMsg(''), 3000);
   };
 
   return (
     <div className="space-y-6 font-sans">
-      <div className="border-b border-[#EFE8DB] pb-5">
-        <span className="text-[10px] font-bold uppercase tracking-widest text-[#B88B38]">STAFF ACCESS CONTROL</span>
-        <h1 className="text-3xl font-serif font-bold text-[#2C1E16]">User Management & Roles ({staffUsers.length})</h1>
-        <p className="text-xs text-[#7A6B5D] mt-1">Manage staff admin permissions (Super Admin, Inventory Manager, Content Manager).</p>
+      {/* Top Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#EFE8DB] pb-5">
+        <div>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-[#B88B38]">STAFF & PERMISSIONS MANAGEMENT</span>
+          <h1 className="text-3xl font-serif font-bold text-[#2C1E16]">User Management & Role Access ({staffUsers.length})</h1>
+        </div>
+
+        {savedMsg && (
+          <span className="bg-[#2E6F40] text-white text-xs font-bold px-4 py-2 rounded-full shadow-subtle animate-bounce">
+            ✓ {savedMsg}
+          </span>
+        )}
+      </div>
+
+      {/* Sub Navigation Bar */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-[#EFE8DB] scrollbar-none">
+        {SUB_TABS.map((tab) => {
+          const isActive = activeSubTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveSubTab(tab.id)}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
+                isActive
+                  ? 'bg-[#B88B38] text-white shadow-card'
+                  : 'bg-white text-[#7A6B5D] border border-[#EFE8DB] hover:bg-[#F8F3EA] hover:text-[#2C1E16]'
+              }`}
+            >
+              <span>{tab.icon}</span>
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -67,9 +117,11 @@ export const AdminStaffManager: React.FC = () => {
                 className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg text-[#2C1E16] font-semibold"
               >
                 <option value="Super Admin">Super Admin</option>
-                <option value="Inventory Manager">Inventory Manager</option>
+                <option value="Admin">Admin</option>
                 <option value="Content Manager">Content Manager</option>
+                <option value="Inventory Manager">Inventory Manager</option>
                 <option value="Marketing Manager">Marketing Manager</option>
+                <option value="Support">Support Staff</option>
               </select>
             </div>
 
@@ -109,7 +161,7 @@ export const AdminStaffManager: React.FC = () => {
                   <td className="p-4 text-right">
                     <button
                       onClick={() => deleteStaffUser(u.id)}
-                      className="text-[#B93829] font-bold hover:underline"
+                      className="text-[#B93829] font-bold hover:underline cursor-pointer"
                     >
                       Remove
                     </button>

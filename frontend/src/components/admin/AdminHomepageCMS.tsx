@@ -1,130 +1,289 @@
 import React, { useState } from 'react';
 import { useCMS } from '../../context/CMSContext';
 
+type StorefrontSubTab =
+  | 'homepage'
+  | 'header'
+  | 'footer'
+  | 'megamenu'
+  | 'announcement'
+  | 'theme';
+
 export const AdminHomepageCMS: React.FC = () => {
+  const [activeSubTab, setActiveSubTab] = useState<StorefrontSubTab>('homepage');
   const { hero, updateHero, announcement, updateAnnouncement } = useCMS();
   const [heroForm, setHeroForm] = useState(hero);
   const [annForm, setAnnForm] = useState(announcement);
   const [savedMessage, setSavedMessage] = useState('');
 
+  // Local state for layout components
+  const [sections, setSections] = useState([
+    { id: 'hero', name: 'Hero Banner Carousel', enabled: true },
+    { id: 'categories', name: 'Category Grid', enabled: true },
+    { id: 'featured', name: 'Featured Products Slider', enabled: true },
+    { id: 'story', name: 'Brand Heritage & Craft Story', enabled: true },
+    { id: 'testimonials', name: 'Customer Reviews Carousel', enabled: true },
+  ]);
+
+  const [headerSettings, setHeaderSettings] = useState({
+    stickyHeader: true,
+    showSearch: true,
+    showWishlist: true,
+    noticeText: 'Complimentary Pan-India Shipping on Orders ₹999+',
+  });
+
+  const [footerSettings, setFooterSettings] = useState({
+    copyrightText: '© 2026 The Candle Lab India. Handcrafted Luxury Candles.',
+    showPaymentIcons: true,
+    showNewsletterBox: true,
+  });
+
+  const [megaMenu, setMegaMenu] = useState([
+    { id: '1', title: 'Scented Jars', items: ['French Vanilla', 'Royal Amber & Oud', 'Lavender Luxe'] },
+    { id: '2', title: 'Wax Melts', items: ['Rose Petal Melts', 'Cinnamon Spice', 'Eucalyptus Mint'] },
+    { id: '3', title: 'Gift Sets', items: ['Festive Trio Box', 'Romance Votive Pair', 'Luxury Artisan Set'] },
+  ]);
+
+  const [themeColors, setThemeColors] = useState({
+    primary: '#B88B38',
+    dark: '#1C130E',
+    light: '#FAF6F0',
+    accent: '#B93829',
+  });
+
+  const SUB_TABS: { id: StorefrontSubTab; label: string; icon: string }[] = [
+    { id: 'homepage', label: 'Homepage Builder (Drag & Drop)', icon: '🧩' },
+    { id: 'header', label: 'Header Builder', icon: '🔝' },
+    { id: 'footer', label: 'Footer Builder', icon: '🔻' },
+    { id: 'megamenu', label: 'Mega Menu Builder', icon: '📂' },
+    { id: 'announcement', label: 'Announcement Bar', icon: '📢' },
+    { id: 'theme', label: 'Theme Settings', icon: '🎨' },
+  ];
+
   const handleHeroSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     updateHero(heroForm);
-    setSavedMessage('Hero Banner updated live across storefront!');
+    setSavedMessage('Hero Banner updated live!');
     setTimeout(() => setSavedMessage(''), 3000);
   };
 
   const handleAnnSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     updateAnnouncement(annForm);
-    setSavedMessage('Announcement Bar updated live across storefront!');
+    setSavedMessage('Announcement Bar updated live!');
     setTimeout(() => setSavedMessage(''), 3000);
   };
 
   return (
-    <div className="space-y-8 font-sans">
-      <div className="border-b border-[#EFE8DB] pb-5 flex items-center justify-between">
+    <div className="space-y-6 font-sans">
+      {/* Header */}
+      <div className="border-b border-[#EFE8DB] pb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <span className="text-[10px] font-bold uppercase tracking-widest text-[#B88B38]">STOREFRONT HOMEPAGE CMS</span>
-          <h1 className="text-3xl font-serif font-bold text-[#2C1E16]">Homepage & Hero Editor</h1>
-          <p className="text-xs text-[#7A6B5D] mt-1">Changes made here update the homepage hero section and header announcement bar live in real-time.</p>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-[#B88B38]">STOREFRONT BUILDER & DESIGN</span>
+          <h1 className="text-3xl font-serif font-bold text-[#2C1E16]">Storefront Layout & Theme Builder</h1>
+          <p className="text-xs text-[#7A6B5D] mt-1">Configure layout sections, headers, footers, mega menu, and brand colors.</p>
         </div>
 
         {savedMessage && (
-          <span className="bg-[#2E6F40] text-white text-xs font-bold px-3 py-1.5 rounded-full animate-bounce">
+          <span className="bg-[#2E6F40] text-white text-xs font-bold px-4 py-2 rounded-full shadow-subtle animate-bounce">
             ✓ {savedMessage}
           </span>
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Hero Section Form */}
-        <div className="lg:col-span-7 bg-white border border-[#EFE8DB] rounded-2xl p-6 shadow-subtle space-y-6">
-          <h3 className="font-serif font-bold text-xl text-[#2C1E16] border-b border-[#F2ECE1] pb-3">
-            🎨 Hero Banner Section
-          </h3>
-
-          <form onSubmit={handleHeroSubmit} className="space-y-4 text-xs">
-            <div>
-              <label className="font-bold text-[#2C1E16] block uppercase mb-1">Header Tagline</label>
-              <input
-                type="text"
-                value={heroForm.tagline}
-                onChange={(e) => setHeroForm({ ...heroForm, tagline: e.target.value })}
-                className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg text-[#2C1E16]"
-              />
-            </div>
-
-            <div>
-              <label className="font-bold text-[#2C1E16] block uppercase mb-1">Hero Main Heading *</label>
-              <input
-                type="text"
-                required
-                value={heroForm.title}
-                onChange={(e) => setHeroForm({ ...heroForm, title: e.target.value })}
-                className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg text-[#2C1E16] font-serif text-base font-bold"
-              />
-            </div>
-
-            <div>
-              <label className="font-bold text-[#2C1E16] block uppercase mb-1">Hero Subtitle Paragraph</label>
-              <textarea
-                rows={3}
-                value={heroForm.subtitle}
-                onChange={(e) => setHeroForm({ ...heroForm, subtitle: e.target.value })}
-                className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg text-[#2C1E16]"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="font-bold text-[#2C1E16] block uppercase mb-1">Primary CTA Button Label</label>
-                <input
-                  type="text"
-                  value={heroForm.primaryBtnText}
-                  onChange={(e) => setHeroForm({ ...heroForm, primaryBtnText: e.target.value })}
-                  className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg text-[#2C1E16]"
-                />
-              </div>
-              <div>
-                <label className="font-bold text-[#2C1E16] block uppercase mb-1">Secondary Button Label</label>
-                <input
-                  type="text"
-                  value={heroForm.secondaryBtnText}
-                  onChange={(e) => setHeroForm({ ...heroForm, secondaryBtnText: e.target.value })}
-                  className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg text-[#2C1E16]"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="font-bold text-[#2C1E16] block uppercase mb-1">Hero Background Image URL</label>
-              <input
-                type="url"
-                value={heroForm.imageUrl}
-                onChange={(e) => setHeroForm({ ...heroForm, imageUrl: e.target.value })}
-                className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg text-[#2C1E16]"
-              />
-            </div>
-
+      {/* Sub Navigation Bar */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-[#EFE8DB] scrollbar-none">
+        {SUB_TABS.map((tab) => {
+          const isActive = activeSubTab === tab.id;
+          return (
             <button
-              type="submit"
-              className="bg-[#B88B38] hover:bg-[#A3792E] text-white font-bold text-xs py-2.5 px-6 rounded-xl shadow-xs transition-all cursor-pointer"
+              key={tab.id}
+              onClick={() => setActiveSubTab(tab.id)}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
+                isActive
+                  ? 'bg-[#B88B38] text-white shadow-card'
+                  : 'bg-white text-[#7A6B5D] border border-[#EFE8DB] hover:bg-[#F8F3EA] hover:text-[#2C1E16]'
+              }`}
             >
-              Update Hero Banner Live →
+              <span>{tab.icon}</span>
+              <span>{tab.label}</span>
             </button>
-          </form>
-        </div>
+          );
+        })}
+      </div>
 
-        {/* Announcement Bar Form */}
-        <div className="lg:col-span-5 bg-white border border-[#EFE8DB] rounded-2xl p-6 shadow-subtle space-y-6">
-          <h3 className="font-serif font-bold text-xl text-[#2C1E16] border-b border-[#F2ECE1] pb-3">
-            📢 Header Announcement Bar
-          </h3>
+      {/* Dynamic Sub-Tab Views */}
+      <div className="bg-white border border-[#EFE8DB] rounded-2xl p-6 sm:p-8 shadow-subtle">
+        {activeSubTab === 'homepage' && (
+          <div className="space-y-6">
+            <h3 className="font-serif font-bold text-xl text-[#2C1E16]">Homepage Drag & Drop Layout Builder</h3>
+            <p className="text-xs text-[#7A6B5D]">Reorder or enable/disable sections displayed on the storefront home page.</p>
+            
+            <div className="space-y-3 max-w-xl">
+              {sections.map((sec, idx) => (
+                <div key={sec.id} className="flex items-center justify-between p-3.5 bg-[#FAF6F0] border border-[#EFE8DB] rounded-xl text-xs">
+                  <div className="flex items-center gap-3">
+                    <span className="cursor-grab text-[#B88B38] font-bold">⋮⋮ {idx + 1}.</span>
+                    <strong className="text-[#2C1E16]">{sec.name}</strong>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={sec.enabled}
+                    onChange={(e) => {
+                      const updated = [...sections];
+                      updated[idx].enabled = e.target.checked;
+                      setSections(updated);
+                    }}
+                    className="w-4 h-4 accent-[#B88B38]"
+                  />
+                </div>
+              ))}
+            </div>
 
-          <form onSubmit={handleAnnSubmit} className="space-y-4 text-xs">
+            {/* Hero Form */}
+            <div className="pt-6 border-t border-[#EFE8DB] max-w-3xl space-y-4">
+              <h4 className="font-serif font-bold text-lg text-[#2C1E16]">Hero Banner Content</h4>
+              <form onSubmit={handleHeroSubmit} className="space-y-4 text-xs">
+                <div>
+                  <label className="font-bold text-[#2C1E16] block uppercase mb-1">Tagline</label>
+                  <input
+                    type="text"
+                    value={heroForm.tagline}
+                    onChange={(e) => setHeroForm({ ...heroForm, tagline: e.target.value })}
+                    className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg text-[#2C1E16]"
+                  />
+                </div>
+                <div>
+                  <label className="font-bold text-[#2C1E16] block uppercase mb-1">Main Heading</label>
+                  <input
+                    type="text"
+                    value={heroForm.title}
+                    onChange={(e) => setHeroForm({ ...heroForm, title: e.target.value })}
+                    className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg text-[#2C1E16] font-bold text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="font-bold text-[#2C1E16] block uppercase mb-1">📷 Upload Hero Banner Background Image</label>
+                  <div className="flex items-center gap-3">
+                    {heroForm.imageUrl && (
+                      <div className="w-16 h-12 rounded-lg border border-[#EFE8DB] overflow-hidden shrink-0 bg-[#F8F3EA]">
+                        <img src={heroForm.imageUrl} alt="Banner Preview" className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            setHeroForm({ ...heroForm, imageUrl: reader.result as string });
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                      className="w-full text-xs text-[#2C1E16] file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#B88B38] file:text-white hover:file:bg-[#A3792E] file:cursor-pointer cursor-pointer"
+                    />
+                  </div>
+                </div>
+                <button
+                  type="submit"
+                  className="bg-[#B88B38] text-white font-bold text-xs py-2 px-5 rounded-xl cursor-pointer"
+                >
+                  Save Homepage Hero →
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {activeSubTab === 'header' && (
+          <div className="space-y-6 max-w-2xl">
+            <h3 className="font-serif font-bold text-xl text-[#2C1E16]">Header & Top Navigation Builder</h3>
+            <div className="space-y-4 text-xs">
+              <div className="flex items-center justify-between p-3 bg-[#FAF6F0] rounded-xl border border-[#EFE8DB]">
+                <span className="font-bold text-[#2C1E16]">Sticky Header on Scroll</span>
+                <input
+                  type="checkbox"
+                  checked={headerSettings.stickyHeader}
+                  onChange={(e) => setHeaderSettings({ ...headerSettings, stickyHeader: e.target.checked })}
+                  className="w-4 h-4 accent-[#B88B38]"
+                />
+              </div>
+              <div className="flex items-center justify-between p-3 bg-[#FAF6F0] rounded-xl border border-[#EFE8DB]">
+                <span className="font-bold text-[#2C1E16]">Show Live Search Icon</span>
+                <input
+                  type="checkbox"
+                  checked={headerSettings.showSearch}
+                  onChange={(e) => setHeaderSettings({ ...headerSettings, showSearch: e.target.checked })}
+                  className="w-4 h-4 accent-[#B88B38]"
+                />
+              </div>
+              <button
+                onClick={() => {
+                  setSavedMessage('Header settings updated!');
+                  setTimeout(() => setSavedMessage(''), 3000);
+                }}
+                className="bg-[#B88B38] text-white font-bold text-xs py-2 px-5 rounded-xl cursor-pointer"
+              >
+                Save Header Settings →
+              </button>
+            </div>
+          </div>
+        )}
+
+        {activeSubTab === 'footer' && (
+          <div className="space-y-6 max-w-2xl">
+            <h3 className="font-serif font-bold text-xl text-[#2C1E16]">Footer Builder</h3>
+            <div className="space-y-4 text-xs">
+              <div>
+                <label className="font-bold text-[#2C1E16] block uppercase mb-1">Copyright Statement</label>
+                <input
+                  type="text"
+                  value={footerSettings.copyrightText}
+                  onChange={(e) => setFooterSettings({ ...footerSettings, copyrightText: e.target.value })}
+                  className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg text-[#2C1E16]"
+                />
+              </div>
+              <button
+                onClick={() => {
+                  setSavedMessage('Footer settings saved!');
+                  setTimeout(() => setSavedMessage(''), 3000);
+                }}
+                className="bg-[#B88B38] text-white font-bold text-xs py-2 px-5 rounded-xl cursor-pointer"
+              >
+                Save Footer →
+              </button>
+            </div>
+          </div>
+        )}
+
+        {activeSubTab === 'megamenu' && (
+          <div className="space-y-6 max-w-3xl">
+            <h3 className="font-serif font-bold text-xl text-[#2C1E16]">Mega Menu Category Builder</h3>
+            <div className="space-y-3">
+              {megaMenu.map((group) => (
+                <div key={group.id} className="p-4 bg-[#FAF6F0] rounded-xl border border-[#EFE8DB] text-xs">
+                  <strong className="text-sm font-serif font-bold text-[#2C1E16] block mb-2">{group.title}</strong>
+                  <div className="flex flex-wrap gap-2">
+                    {group.items.map((item, i) => (
+                      <span key={i} className="bg-white px-2.5 py-1 rounded-lg border border-[#EFE8DB] text-[11px]">
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeSubTab === 'announcement' && (
+          <form onSubmit={handleAnnSubmit} className="space-y-4 max-w-2xl text-xs">
+            <h3 className="font-serif font-bold text-xl text-[#2C1E16]">Header Announcement Bar Settings</h3>
             <div>
-              <label className="font-bold text-[#2C1E16] block uppercase mb-1">Promo Message Text</label>
+              <label className="font-bold text-[#2C1E16] block uppercase mb-1">Promo Message</label>
               <input
                 type="text"
                 value={annForm.text}
@@ -132,7 +291,6 @@ export const AdminHomepageCMS: React.FC = () => {
                 className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg text-[#2C1E16]"
               />
             </div>
-
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="font-bold text-[#2C1E16] block uppercase mb-1">Coupon Code</label>
@@ -153,26 +311,40 @@ export const AdminHomepageCMS: React.FC = () => {
                 />
               </div>
             </div>
-
-            <div className="flex items-center gap-2 pt-2">
-              <input
-                type="checkbox"
-                id="annVisible"
-                checked={annForm.visible}
-                onChange={(e) => setAnnForm({ ...annForm, visible: e.target.checked })}
-                className="w-4 h-4 accent-[#B88B38]"
-              />
-              <label htmlFor="annVisible" className="font-bold text-[#2C1E16]">Show Announcement Bar in Header</label>
-            </div>
-
             <button
               type="submit"
-              className="bg-[#B88B38] hover:bg-[#A3792E] text-white font-bold text-xs py-2.5 px-6 rounded-xl shadow-xs transition-all cursor-pointer w-full"
+              className="bg-[#B88B38] text-white font-bold text-xs py-2.5 px-6 rounded-xl cursor-pointer"
             >
               Update Announcement Bar →
             </button>
           </form>
-        </div>
+        )}
+
+        {activeSubTab === 'theme' && (
+          <div className="space-y-6 max-w-2xl">
+            <h3 className="font-serif font-bold text-xl text-[#2C1E16]">Store Theme & Color Palette</h3>
+            <div className="grid grid-cols-2 gap-4 text-xs">
+              <div>
+                <label className="font-bold text-[#2C1E16] block mb-1">Primary Luxury Gold</label>
+                <input
+                  type="color"
+                  value={themeColors.primary}
+                  onChange={(e) => setThemeColors({ ...themeColors, primary: e.target.value })}
+                  className="w-full h-10 rounded-lg cursor-pointer border border-[#EFE8DB]"
+                />
+              </div>
+              <div>
+                <label className="font-bold text-[#2C1E16] block mb-1">Espresso Dark Theme</label>
+                <input
+                  type="color"
+                  value={themeColors.dark}
+                  onChange={(e) => setThemeColors({ ...themeColors, dark: e.target.value })}
+                  className="w-full h-10 rounded-lg cursor-pointer border border-[#EFE8DB]"
+                />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

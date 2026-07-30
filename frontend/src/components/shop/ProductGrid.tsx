@@ -12,7 +12,7 @@ export interface ProductGridProps {
 
 export const ProductGrid: React.FC<ProductGridProps> = ({
   products,
-  onQuickView,
+  onQuickView: _onQuickView,
   onSelectProduct,
   wishlist,
   onToggleWishlist,

@@ -1,74 +1,8 @@
 import React, { useState } from 'react';
 import { Card, Button, Badge, StarIcon, SparklesIcon, HeartIcon, useToast } from '../../design-system';
+import { useCMS } from '../../context/CMSContext';
 
 type CategoryTab = 'all' | 'woody' | 'floral' | 'vanilla' | 'aromatherapy';
-
-const bestSellerProducts = [
-  {
-    id: 'bs-1',
-    rank: '#1 Best Seller',
-    category: 'woody',
-    name: 'Smoked Leather & Tobacco Oud',
-    vessel: 'Frosted Obsidian Glass (14 oz)',
-    price: '₹1,599.00',
-    rating: 4.98,
-    reviews: 312,
-    scentFamily: 'Woody & Spiced',
-    topNote: 'Cardamom & Cedar',
-    heartNote: 'Smoked Tobacco Leaf',
-    baseNote: 'Rich Leather Oud',
-    burnTime: '65 Hours',
-    stockLeft: 4,
-  },
-  {
-    id: 'bs-2',
-    rank: '#2 Best Seller',
-    category: 'vanilla',
-    name: 'Bourbon Vanilla & Crushed Tonka',
-    vessel: 'Champagne Gold Jar (12 oz)',
-    price: '₹1,499.00',
-    rating: 4.94,
-    reviews: 284,
-    scentFamily: 'Warm Vanilla',
-    topNote: 'Crushed Tonka Bean',
-    heartNote: 'French Bourbon Vanilla',
-    baseNote: 'Warm Amber Resin',
-    burnTime: '60 Hours',
-    stockLeft: 9,
-  },
-  {
-    id: 'bs-3',
-    rank: '#3 Best Seller',
-    category: 'floral',
-    name: 'Damask Rose & Velvet Musk',
-    vessel: 'Blush Ivory Vessel (12 oz)',
-    price: '₹1,399.00',
-    rating: 4.91,
-    reviews: 196,
-    scentFamily: 'Floral Elegance',
-    topNote: 'Pink Peppercorn',
-    heartNote: 'Damask Rose Petals',
-    baseNote: 'Velvet Musk',
-    burnTime: '60 Hours',
-    stockLeft: 12,
-  },
-  {
-    id: 'bs-4',
-    rank: '#4 Best Seller',
-    category: 'aromatherapy',
-    name: 'Wild Lavender & Bergamot Bloom',
-    vessel: 'Matte Clay Pillar (16 oz)',
-    price: '₹1,299.00',
-    rating: 4.88,
-    reviews: 164,
-    scentFamily: 'Aromatherapy',
-    topNote: 'Calabrian Bergamot',
-    heartNote: 'French Wild Lavender',
-    baseNote: 'White Sage & Oakmoss',
-    burnTime: '75 Hours',
-    stockLeft: 6,
-  },
-];
 
 export interface BestSellersProps {
   onNavigateToShop?: () => void;
@@ -78,6 +12,7 @@ export const BestSellers: React.FC<BestSellersProps> = () => {
   const [activeTab, setActiveTab] = useState<CategoryTab>('all');
   const [wishlist, setWishlist] = useState<string[]>([]);
   const { toast } = useToast();
+  const { products, settings } = useCMS();
 
   const handleProductClick = () => {
     window.location.hash = '#pdp';
@@ -94,9 +29,21 @@ export const BestSellers: React.FC<BestSellersProps> = () => {
     }
   };
 
+  // Filter products from CMS for BestSellers
+  const bestSellerList = products.filter((p) => p.isBestSeller).length > 0
+    ? products.filter((p) => p.isBestSeller)
+    : products.filter((p) => p.rating >= 4.85);
+
   const filteredProducts = activeTab === 'all'
-    ? bestSellerProducts
-    : bestSellerProducts.filter((p) => p.category === activeTab);
+    ? bestSellerList
+    : bestSellerList.filter((p) => {
+        const cat = p.scentProfile?.toLowerCase() || p.category?.toLowerCase() || '';
+        if (activeTab === 'woody') return cat.includes('wood') || cat.includes('spice');
+        if (activeTab === 'floral') return cat.includes('floral') || cat.includes('rose');
+        if (activeTab === 'vanilla') return cat.includes('vanilla') || cat.includes('gourmand');
+        if (activeTab === 'aromatherapy') return cat.includes('aroma') || cat.includes('fresh') || cat.includes('citrus');
+        return true;
+      });
 
   return (
     <section className="py-16 sm:py-24 bg-[#FAF6F0] border-b border-[#E5D9C5] font-sans">
@@ -136,8 +83,11 @@ export const BestSellers: React.FC<BestSellersProps> = () => {
 
         {/* Best Seller Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {filteredProducts.map((prod) => {
+          {filteredProducts.map((prod, idx) => {
             const isWishlisted = wishlist.includes(prod.id);
+            const rankLabel = `#${idx + 1} Best Seller`;
+            const formattedPrice = `${settings.currencySymbol}${prod.price}`;
+
             return (
               <Card
                 key={prod.id}
@@ -146,15 +96,24 @@ export const BestSellers: React.FC<BestSellersProps> = () => {
                 onClick={handleProductClick}
                 className="bg-[#FAF6F0] group flex flex-col justify-between overflow-hidden hover:shadow-hover hover:border-[#D4AF37] transition-all duration-300 relative cursor-pointer"
               >
-                {/* Vessel Image Mock */}
-                <div className="relative h-64 bg-[#2A1E17] flex items-center justify-center p-6 overflow-hidden">
-                  <div className="text-6xl group-hover:scale-110 transition-transform duration-500">🕯️</div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#1C130E]/60 to-transparent" />
+                {/* Vessel Image Container */}
+                <div className="relative h-64 bg-[#FAF6F0] flex items-center justify-center overflow-hidden">
+                  <img
+                    src={prod.imageUrl || [
+                      'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80',
+                      'https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=800&q=80',
+                      'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=800&q=80',
+                      'https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=800&q=80'
+                    ][idx % 4]}
+                    alt={prod.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#1C130E]/60 via-transparent to-transparent opacity-40 group-hover:opacity-20 transition-opacity" />
 
                   {/* Rank Badge */}
                   <div className="absolute top-3 left-3 z-10">
                     <Badge variant="gold" size="sm" icon={<SparklesIcon size={10} />}>
-                      {prod.rank}
+                      {rankLabel}
                     </Badge>
                   </div>
 
@@ -174,7 +133,7 @@ export const BestSellers: React.FC<BestSellersProps> = () => {
                   <div className="absolute bottom-3 left-3 right-3 bg-[#1C130E]/90 text-[#FAF6F0] p-2.5 rounded-xs text-[10px] space-y-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-xs z-10">
                     <div className="font-semibold text-[#D4AF37] uppercase tracking-wider">Fragrance Notes:</div>
                     <div className="truncate text-[#E5D9C5]">
-                      Top: {prod.topNote} | Heart: {prod.heartNote} | Base: {prod.baseNote}
+                      Top: {prod.topNotes || 'Bergamot'} | Heart: {prod.heartNotes || 'Rose'} | Base: {prod.baseNotes || 'Amber'}
                     </div>
                   </div>
                 </div>
@@ -183,11 +142,11 @@ export const BestSellers: React.FC<BestSellersProps> = () => {
                 <div className="p-5 space-y-3 flex-1 flex flex-col justify-between">
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="text-[#8C7A6B] font-medium">{prod.scentFamily}</span>
+                      <span className="text-[#8C7A6B] font-medium">{prod.scentProfile || prod.category}</span>
                       <div className="flex items-center gap-1 text-[#D4AF37] font-bold">
                         <StarIcon size={14} className="fill-current text-[#D4AF37]" />
-                        <span>{prod.rating}</span>
-                        <span className="text-[#8C7A6B] font-normal">({prod.reviews})</span>
+                        <span>{prod.rating || 4.9}</span>
+                        <span className="text-[#8C7A6B] font-normal">({prod.reviewsCount || 42})</span>
                       </div>
                     </div>
 
@@ -198,8 +157,8 @@ export const BestSellers: React.FC<BestSellersProps> = () => {
 
                   <div className="pt-3 border-t border-[#E5D9C5] space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-lg font-bold text-[#2A1E17] font-serif">{prod.price}</span>
-                      <span className="text-[10px] text-[#8C7A6B] font-mono">{prod.burnTime}</span>
+                      <span className="text-lg font-bold text-[#2A1E17] font-serif">{formattedPrice}</span>
+                      <span className="text-[10px] text-[#8C7A6B] font-mono">{prod.burnTime || '60 Hours'}</span>
                     </div>
 
                     <Button

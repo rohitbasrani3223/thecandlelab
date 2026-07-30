@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
-import { Input, Button, Checkbox, Badge, SparklesIcon } from '../../design-system';
+import { Button, Checkbox, Badge, SparklesIcon } from '../../design-system';
 
 export interface PaymentData {
-  method: 'card' | 'applepay' | 'klarna';
-  cardNumber: string;
-  cardExpiry: string;
-  cardCvv: string;
-  cardName: string;
+  method: 'razorpay' | 'upi' | 'cod';
+  upiId?: string;
   sameBilling: boolean;
 }
 
@@ -21,7 +18,11 @@ export const PaymentMethodStep: React.FC<PaymentMethodStepProps> = ({
   onBack,
   onNext,
 }) => {
-  const [paymentData, setPaymentData] = useState<PaymentData>(initialData);
+  const [paymentData, setPaymentData] = useState<PaymentData>({
+    method: initialData.method || 'razorpay',
+    upiId: initialData.upiId || '',
+    sameBilling: initialData.sameBilling ?? true,
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,89 +35,115 @@ export const PaymentMethodStep: React.FC<PaymentMethodStepProps> = ({
         <div>
           <Badge variant="gold" icon={<SparklesIcon size={12} />}>STEP 3 OF 4</Badge>
           <h2 className="text-2xl font-serif font-bold text-[#2A1E17] mt-1">
-            Select Payment Method
+            Select Payment Method (India)
           </h2>
+          <p className="text-xs text-[#8C7A6B] mt-0.5">Choose your preferred Indian payment option.</p>
         </div>
       </div>
 
-      {/* Payment Tabs */}
-      <div className="grid grid-cols-3 gap-3">
+      {/* Payment Options Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
-          { id: 'card', title: 'Credit Card', icon: '💳' },
-          { id: 'applepay', title: 'Apple Pay', icon: '🍏' },
-          { id: 'klarna', title: 'Klarna Pay', icon: '🛍️' },
+          {
+            id: 'razorpay',
+            title: 'Razorpay Online',
+            subtitle: 'UPI, Cards, NetBanking',
+            icon: '⚡',
+            badge: 'INSTANT & SECURE',
+          },
+          {
+            id: 'upi',
+            title: 'UPI / QR Code',
+            subtitle: 'GPay, PhonePe, Paytm',
+            icon: '📱',
+            badge: '0% FEES',
+          },
+          {
+            id: 'cod',
+            title: 'Cash on Delivery',
+            subtitle: 'Pay at Doorstep',
+            icon: '💵',
+            badge: 'COD AVAILABLE',
+          },
         ].map((tab) => (
           <button
             key={tab.id}
             type="button"
             onClick={() => setPaymentData({ ...paymentData, method: tab.id as any })}
-            className={`p-3 rounded-md border text-center transition-all ${paymentData.method === tab.id ? 'border-[#D4AF37] bg-[#FAF6F0] ring-2 ring-[#D4AF37]/40 shadow-xs' : 'border-[#E5D9C5] bg-[#F4EFE6] hover:bg-[#FAF6F0]'}`}
+            className={`p-4 rounded-md border text-left transition-all cursor-pointer flex flex-col justify-between space-y-3 ${
+              paymentData.method === tab.id
+                ? 'border-[#D4AF37] bg-[#FAF6F0] ring-2 ring-[#D4AF37]/40 shadow-card'
+                : 'border-[#E5D9C5] bg-[#F4EFE6] hover:bg-[#FAF6F0]'
+            }`}
           >
-            <span className="text-xl block mb-1">{tab.icon}</span>
-            <span className="text-xs font-bold text-[#2A1E17]">{tab.title}</span>
+            <div className="flex items-center justify-between">
+              <span className="text-2xl">{tab.icon}</span>
+              <span className="text-[9px] font-bold uppercase bg-[#D4AF37]/20 text-[#2A1E17] px-2 py-0.5 rounded-full border border-[#D4AF37]/40">
+                {tab.badge}
+              </span>
+            </div>
+            <div>
+              <span className="text-sm font-bold text-[#2A1E17] block leading-snug">{tab.title}</span>
+              <span className="text-[11px] text-[#8C7A6B] block mt-0.5">{tab.subtitle}</span>
+            </div>
           </button>
         ))}
       </div>
 
-      {/* Payment Tab Content */}
-      {paymentData.method === 'card' && (
+      {/* Razorpay Online Checkout Banner */}
+      {paymentData.method === 'razorpay' && (
+        <div className="p-5 bg-[#FAF6F0] border border-[#E5D9C5] rounded-md space-y-3 animate-fade-in">
+          <div className="flex items-center justify-between">
+            <span className="text-xs uppercase font-bold text-[#2A1E17]">Razorpay Payment Gateway</span>
+            <span className="text-xs text-[#2E6F40] font-bold">✓ 256-bit SSL Encrypted</span>
+          </div>
+
+          <p className="text-xs text-[#69574A] leading-relaxed">
+            Pay securely using any Indian payment mode: <strong>UPI (GPay, PhonePe, Paytm, BHIM, Cred)</strong>, <strong>RuPay / Visa / Mastercard</strong>, or <strong>50+ Indian Net Banking</strong> options.
+          </p>
+
+          <div className="flex items-center gap-2 pt-2 border-t border-[#E5D9C5] text-[11px] text-[#8C7A6B] font-medium">
+            <span>Supported Apps:</span>
+            <span className="bg-white px-2 py-1 rounded border border-[#E5D9C5] font-bold text-[#2A1E17]">Google Pay</span>
+            <span className="bg-white px-2 py-1 rounded border border-[#E5D9C5] font-bold text-[#2A1E17]">PhonePe</span>
+            <span className="bg-white px-2 py-1 rounded border border-[#E5D9C5] font-bold text-[#2A1E17]">Paytm</span>
+            <span className="bg-white px-2 py-1 rounded border border-[#E5D9C5] font-bold text-[#2A1E17]">RuPay</span>
+          </div>
+        </div>
+      )}
+
+      {/* UPI Direct Banner */}
+      {paymentData.method === 'upi' && (
         <div className="p-5 bg-[#FAF6F0] border border-[#E5D9C5] rounded-md space-y-4 animate-fade-in">
           <div className="flex items-center justify-between">
-            <span className="text-xs uppercase font-bold text-[#8C7A6B]">Encrypted Card Details</span>
-            <span className="text-xs text-[#2A1E17] font-semibold">💳 Visa • Mastercard • AMEX</span>
+            <span className="text-xs uppercase font-bold text-[#2A1E17]">Direct UPI Instant Payment</span>
+            <span className="text-xs text-[#D4AF37] font-bold">📱 Zero Transaction Fee</span>
           </div>
 
-          <Input
-            label="Name on Card"
-            required
-            value={paymentData.cardName}
-            onChange={(e) => setPaymentData({ ...paymentData, cardName: e.target.value })}
-            placeholder="Clara Hemsworth"
-          />
-
-          <Input
-            label="Card Number"
-            required
-            value={paymentData.cardNumber}
-            onChange={(e) => setPaymentData({ ...paymentData, cardNumber: e.target.value })}
-            placeholder="4242 •••• •••• 4242"
-          />
-
-          <div className="grid grid-cols-2 gap-4">
-            <Input
-              label="Expiry Date (MM/YY)"
-              required
-              value={paymentData.cardExpiry}
-              onChange={(e) => setPaymentData({ ...paymentData, cardExpiry: e.target.value })}
-              placeholder="08 / 28"
+          <div>
+            <label className="block text-xs font-bold text-[#2A1E17] mb-1.5">Enter VPA / UPI ID (Optional)</label>
+            <input
+              type="text"
+              value={paymentData.upiId || ''}
+              onChange={(e) => setPaymentData({ ...paymentData, upiId: e.target.value })}
+              placeholder="e.g. mobileNumber@upi / username@okaxis"
+              className="w-full px-3 py-2 bg-white border border-[#E5D9C5] rounded-xs text-xs font-mono text-[#2A1E17]"
             />
-            <Input
-              label="CVV / CVC"
-              required
-              value={paymentData.cardCvv}
-              onChange={(e) => setPaymentData({ ...paymentData, cardCvv: e.target.value })}
-              placeholder="123"
-            />
+            <p className="text-[10px] text-[#8C7A6B] mt-1">You will receive a payment request directly in your UPI app on click.</p>
           </div>
         </div>
       )}
 
-      {paymentData.method === 'applepay' && (
-        <div className="p-8 bg-[#FAF6F0] border border-[#E5D9C5] rounded-md text-center space-y-4 animate-fade-in">
-          <div className="text-4xl">🍏</div>
-          <h4 className="font-serif font-bold text-lg text-[#2A1E17]">Apple Pay Instant Checkout</h4>
-          <p className="text-xs text-[#8C7A6B] max-w-sm mx-auto">
-            Click below to authorize instant payment with Touch ID or Face ID.
-          </p>
-        </div>
-      )}
+      {/* Cash on Delivery Banner */}
+      {paymentData.method === 'cod' && (
+        <div className="p-5 bg-[#FAF6F0] border border-[#E5D9C5] rounded-md space-y-3 animate-fade-in">
+          <div className="flex items-center justify-between">
+            <span className="text-xs uppercase font-bold text-[#2A1E17]">Cash on Delivery (COD)</span>
+            <span className="text-xs text-[#2E6F40] font-bold">🚚 Doorstep Verification</span>
+          </div>
 
-      {paymentData.method === 'klarna' && (
-        <div className="p-8 bg-[#FAF6F0] border border-[#E5D9C5] rounded-md text-center space-y-4 animate-fade-in">
-          <div className="text-4xl">🛍️</div>
-          <h4 className="font-serif font-bold text-lg text-[#2A1E17]">Klarna 4 Interest-Free Payments</h4>
-          <p className="text-xs text-[#8C7A6B] max-w-sm mx-auto">
-            Pay 4 easy installments of <strong className="text-[#D4AF37]">$43.00</strong> every 2 weeks. No interest or fees.
+          <p className="text-xs text-[#69574A] leading-relaxed">
+            Pay with cash or scan delivery agent UPI QR code when your candle shipment arrives at your delivery address.
           </p>
         </div>
       )}

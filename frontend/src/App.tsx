@@ -32,6 +32,10 @@ type Page = 'home' | 'shop' | 'collections' | 'categories' | 'blog' | 'blog-deta
 const VALID_PAGES: Page[] = ['home', 'shop', 'collections', 'categories', 'blog', 'blog-details', 'pdp', 'wishlist', 'cart', 'checkout', 'account', 'auth', 'about', 'contact', 'faq', 'privacy-policy', 'terms-conditions', 'shipping-policy', 'refund-policy', 'careers', 'admin'];
 
 const getPageFromHash = (): Page => {
+  const path = window.location.pathname.toLowerCase();
+  if (path.startsWith('/admin')) {
+    return 'admin';
+  }
   const rawHash = window.location.hash.replace('#', '').trim().toLowerCase();
   const hash = rawHash.split('?')[0];
   if (hash.startsWith('admin')) {
@@ -72,8 +76,10 @@ export function App() {
   useEffect(() => {
     // Initial sync
     const initialPage = getPageFromHash();
-    if (initialPage !== 'home' && !window.location.hash) {
+    if (initialPage === 'home' && !window.location.hash) {
       window.history.replaceState({ page: 'home' }, '', '#home');
+    } else if (initialPage === 'admin' && !window.location.hash) {
+      window.history.replaceState({ page: 'admin' }, '', '#admin');
     }
 
     window.addEventListener('popstate', syncPageWithUrl);
