@@ -1,101 +1,80 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { Button, useToast } from '../../design-system';
+import { useToast } from '../../design-system';
 
 export const VerifyEmailForm: React.FC = () => {
-  const { pendingEmail, verifyEmail, isLoading, setAuthViewMode } = useAuth();
+  const { verifyEmail, pendingEmail, setAuthViewMode } = useAuth();
   const { toast } = useToast();
+  const [isSending, setIsSending] = useState(false);
 
-  const [resendCooldown, setResendCooldown] = useState(60);
-  const [canResend, setCanResend] = useState(false);
+  const emailToVerify = pendingEmail || 'customer@thecandlelab.com';
 
-  useEffect(() => {
-    let timer: any;
-    if (resendCooldown > 0) {
-      timer = setInterval(() => setResendCooldown((prev) => prev - 1), 1000);
-    } else {
-      setCanResend(true);
-    }
-    return () => clearInterval(timer);
-  }, [resendCooldown]);
-
-  const handleResend = async () => {
-    setResendCooldown(60);
-    setCanResend(false);
-    toast({
-      type: 'info',
-      title: 'Verification Link Sent',
-      description: `A new verification email has been sent to ${pendingEmail || 'your email'}`,
-    });
-  };
-
-  const handleManualVerify = async () => {
-    const res = await verifyEmail('demo-token');
-    if (res.success) {
-      toast({ type: 'success', title: 'Email Verified!', description: res.message });
-      setAuthViewMode('login');
+  const handleResendLink = async () => {
+    setIsSending(true);
+    try {
+      await verifyEmail();
+      toast({
+        type: 'success',
+        title: 'Verification Link Dispatched',
+        description: `A confirmation link has been sent to ${emailToVerify}`,
+      });
+    } catch (e) {
+      toast({ type: 'error', title: 'Error', description: 'Failed to send link' });
+    } finally {
+      setIsSending(false);
     }
   };
 
   return (
-    <div className="w-full max-w-md mx-auto font-sans text-center">
-      <div className="w-16 h-16 bg-[#F4EFE6] border border-[#D4AF37]/30 rounded-full flex items-center justify-center mx-auto mb-4 text-[#D4AF37]">
-        <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-          />
-        </svg>
+    <div className="w-full font-sans text-[#2A1E17]">
+      {/* Top Floating Badge & Icon Header */}
+      <div className="flex flex-col items-center text-center mb-6">
+        <div className="w-14 h-14 rounded-2xl bg-[#F4EFE6] border border-[#E5D9C5] flex items-center justify-center shadow-xs mb-3 text-2xl">
+          ✉️
+        </div>
+        <h2 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-[#2A1E17]">
+          Check Your Email
+        </h2>
+        <p className="text-xs text-[#8C7A6B] mt-1.5 leading-relaxed">
+          We sent a verification link to:
+          <span className="block font-bold text-[#2A1E17] mt-0.5">{emailToVerify}</span>
+        </p>
       </div>
 
-      <h2 className="font-serif text-2xl sm:text-3xl text-[#2A1E17] font-bold tracking-wide">
-        Check Your Email
-      </h2>
-
-      <p className="text-xs text-[#8C7A6B] mt-2 font-medium leading-relaxed">
-        We sent a verification link to{' '}
-        <span className="font-bold text-[#2A1E17]">{pendingEmail || 'your email address'}</span>. Click the link in the email to confirm your account.
-      </p>
-
-      <div className="bg-[#FAF6F0] border border-[#E5D9C5] p-4 rounded-xs my-6 text-xs text-[#5C4A3E]">
-        <p className="font-semibold mb-1 text-[#2A1E17]">Didn't receive the email?</p>
-        <p>Check your spam folder or click below to resend the link.</p>
+      <div className="bg-[#FAF6F0] border border-[#E5D9C5] rounded-xl p-5 text-center space-y-3">
+        <p className="text-xs text-[#69574A] leading-relaxed">
+          Click the link in your email inbox to verify your email address and unlock complete access to your candle order history and rewards.
+        </p>
+        <div className="pt-2">
+          <button
+            onClick={handleResendLink}
+            disabled={isSending}
+            className="w-full bg-[#2A1E17] hover:bg-[#1C130E] text-white font-semibold py-3 px-6 rounded-xl shadow-md transition-all text-xs cursor-pointer disabled:opacity-50"
+          >
+            {isSending ? 'Sending Link...' : 'Resend Email Link'}
+          </button>
+        </div>
       </div>
 
-      <div className="space-y-3">
-        <Button
-          type="button"
-          variant="secondary"
-          size="lg"
-          fullWidth
-          disabled={!canResend || isLoading}
-          onClick={handleResend}
-        >
-          {canResend ? 'Resend Verification Email' : `Resend available in ${resendCooldown}s`}
-        </Button>
-
-        <Button
-          type="button"
-          variant="primary"
-          size="lg"
-          fullWidth
-          isLoading={isLoading}
-          onClick={handleManualVerify}
-        >
-          I've Verified My Email →
-        </Button>
+      {/* Switch to OTP Option */}
+      <div className="bg-[#F4EFE6] border border-[#E5D9C5] rounded-xl p-4 text-center mt-5">
+        <p className="text-xs text-[#69574A]">
+          Have an OTP code instead?{' '}
+          <button
+            onClick={() => setAuthViewMode('verify-otp')}
+            className="font-bold text-[#2A1E17] hover:underline cursor-pointer"
+          >
+            Enter 6-Digit OTP
+          </button>
+        </p>
       </div>
 
-      <div className="mt-6 text-xs text-[#8C7A6B]">
-        Need to use a different email?{' '}
+      <div className="text-center mt-5">
         <button
-          type="button"
-          onClick={() => setAuthViewMode('register')}
-          className="font-bold text-[#2A1E17] hover:text-[#D4AF37] underline cursor-pointer"
+          onClick={() => setAuthViewMode('login')}
+          className="text-xs font-semibold text-[#8C7A6B] hover:text-[#2A1E17] transition-colors"
         >
-          Back to Register
+          ← Return to Login
         </button>
       </div>
     </div>
