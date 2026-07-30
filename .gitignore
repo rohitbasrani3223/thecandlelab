@@ -23,6 +23,8 @@ venv/
 .env
 .env*.local
 *.env
+.env.production
+backend/.env.production
 
 # OS / Editor
 .DS_Store

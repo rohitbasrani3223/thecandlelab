@@ -12,13 +12,13 @@ RUN npm run build
 FROM php:8.2-cli-alpine AS runner
 WORKDIR /app/backend
 
-# Install PHP extensions required for Laravel
-RUN apk add --no-cache libpng-dev libjpeg-turbo-dev freetype-dev zip libzip-dev \
+# Install PHP extensions required for Laravel & PostgreSQL
+RUN apk add --no-cache libpng-dev libjpeg-turbo-dev freetype-dev zip libzip-dev postgresql-dev \
     && docker-php-ext-configure zip \
-    && docker-php-ext-install pdo pdo_mysql gd zip
+    && docker-php-ext-install pdo pdo_pgsql pgsql gd zip
 
 COPY backend/ ./
 EXPOSE 8085
 
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8085"]
+CMD ["sh", "-c", "php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=${PORT:-8085}"]
 

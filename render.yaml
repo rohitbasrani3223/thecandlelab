@@ -1,0 +1,51 @@
+services:
+  - type: web
+    name: thecandlelab-backend
+    env: docker
+    dockerfilePath: ./Dockerfile
+    startCommand: php artisan serve --host=0.0.0.0 --port=$PORT
+    envVars:
+      - key: APP_NAME
+        value: "The Candle Lab"
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_KEY
+        value: base64:X8vB3z9+9Z0lK4a6R2w8T1y5U7i0O2p4S6d8F0g2H4j=
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        value: aws-1-ap-northeast-2.pooler.supabase.com
+      - key: DB_PORT
+        value: "5432"
+      - key: DB_DATABASE
+        value: postgres
+      - key: DB_USERNAME
+        value: postgres.anaqrvrzbqhpgwjfpacx
+      - key: DB_PASSWORD
+        sync: false
+      - key: SUPABASE_URL
+        value: https://anaqrvrzbqhpgwjfpacx.supabase.co
+      - key: SUPABASE_KEY
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        value: rzp_test_TJQHhC34WyD6WT
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: MAIL_MAILER
+        value: smtp
+      - key: MAIL_HOST
+        value: smtp.gmail.com
+      - key: MAIL_PORT
+        value: "587"
+      - key: MAIL_USERNAME
+        value: support.thecandlelab@gmail.com
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: MAIL_ENCRYPTION
+        value: tls
+      - key: MAIL_FROM_ADDRESS
+        value: "support@thecandlelab.in"
+      - key: MAIL_FROM_NAME
+        value: "The Candle Lab"
