@@ -62,29 +62,29 @@ export const LoginForm: React.FC = () => {
   };
 
   return (
-    <div className="w-full font-sans text-[#2A1E17]">
+    <div className="w-full max-w-full font-sans text-[#2A1E17] px-1 sm:px-0 box-border">
       {/* Top Floating Badge & Icon Header */}
-      <div className="flex flex-col items-center text-center mb-6">
-        <div className="w-14 h-14 rounded-2xl bg-[#F4EFE6] border border-[#E5D9C5] flex items-center justify-center shadow-xs mb-3 text-2xl">
+      <div className="flex flex-col items-center text-center mb-5 sm:mb-6">
+        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#F4EFE6] border border-[#E5D9C5] flex items-center justify-center shadow-xs mb-2.5 sm:mb-3 text-xl sm:text-2xl">
           🕯️
         </div>
-        <h2 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-[#2A1E17]">
+        <h2 className="font-serif text-xl sm:text-3xl font-bold tracking-tight text-[#2A1E17]">
           Welcome Back
         </h2>
-        <p className="text-xs text-[#8C7A6B] mt-1">
+        <p className="text-[11px] sm:text-xs text-[#8C7A6B] mt-1 max-w-xs sm:max-w-none">
           Sign in to access your saved candles, wishlist & exclusive rewards.
         </p>
       </div>
 
       {/* Switch between Email and Phone Login */}
-      <div className="flex bg-[#F4EFE6] p-1 rounded-xl border border-[#E5D9C5] mb-5">
+      <div className="flex bg-[#F4EFE6] p-1 rounded-xl border border-[#E5D9C5] mb-4 sm:mb-5">
         <button
           type="button"
           onClick={() => {
             setLoginType('email');
             setErrors({});
           }}
-          className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all cursor-pointer ${
+          className={`flex-1 py-2 text-[10px] sm:text-xs font-bold uppercase tracking-wider rounded-lg transition-all cursor-pointer ${
             loginType === 'email'
               ? 'bg-white text-[#2A1E17] shadow-xs'
               : 'text-[#8C7A6B] hover:text-[#2A1E17]'
@@ -98,7 +98,7 @@ export const LoginForm: React.FC = () => {
             setLoginType('phone');
             setErrors({});
           }}
-          className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all cursor-pointer ${
+          className={`flex-1 py-2 text-[10px] sm:text-xs font-bold uppercase tracking-wider rounded-lg transition-all cursor-pointer ${
             loginType === 'phone'
               ? 'bg-white text-[#2A1E17] shadow-xs'
               : 'text-[#8C7A6B] hover:text-[#2A1E17]'
@@ -108,14 +108,14 @@ export const LoginForm: React.FC = () => {
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-3.5 sm:space-y-4">
         {/* Email or Phone Input */}
         <div className="space-y-1">
           <label className="block text-xs font-semibold text-[#69574A]">
             {loginType === 'email' ? 'Email Address' : 'Mobile Phone Number'}
           </label>
           <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-[#8C7A6B]">
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs sm:text-sm text-[#8C7A6B]">
               {loginType === 'email' ? '✉️' : '📱'}
             </span>
             <input
@@ -125,7 +125,7 @@ export const LoginForm: React.FC = () => {
               placeholder={loginType === 'email' ? 'admin@example.com' : '+91 98765 43210'}
               className={`w-full bg-[#FAF6F0] border ${
                 errors.emailOrPhone ? 'border-red-500' : 'border-[#E5D9C5] focus:border-[#D4AF37]'
-              } rounded-xl pl-10 pr-4 py-3 text-sm text-[#2A1E17] placeholder-[#B0A398] focus:outline-hidden focus:ring-2 focus:ring-[#D4AF37]/20 transition-all`}
+              } rounded-xl pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 text-xs sm:text-sm text-[#2A1E17] placeholder-[#B0A398] focus:outline-hidden focus:ring-2 focus:ring-[#D4AF37]/20 transition-all min-h-[44px]`}
             />
           </div>
           {errors.emailOrPhone && (
@@ -143,13 +143,13 @@ export const LoginForm: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setAuthViewMode('forgot-password')}
-                className="text-[11px] font-semibold text-[#B88B38] hover:text-[#2A1E17] transition-colors"
+                className="text-[11px] font-semibold text-[#B88B38] hover:text-[#2A1E17] transition-colors p-0.5 cursor-pointer"
               >
                 Forgot password?
               </button>
             </div>
             <div className="relative">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-[#8C7A6B]">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs sm:text-sm text-[#8C7A6B]">
                 🔒
               </span>
               <input
@@ -159,12 +159,12 @@ export const LoginForm: React.FC = () => {
                 placeholder="Enter your password"
                 className={`w-full bg-[#FAF6F0] border ${
                   errors.password ? 'border-red-500' : 'border-[#E5D9C5] focus:border-[#D4AF37]'
-                } rounded-xl pl-10 pr-10 py-3 text-sm text-[#2A1E17] placeholder-[#B0A398] focus:outline-hidden focus:ring-2 focus:ring-[#D4AF37]/20 transition-all`}
+                } rounded-xl pl-9 sm:pl-10 pr-10 py-2.5 sm:py-3 text-xs sm:text-sm text-[#2A1E17] placeholder-[#B0A398] focus:outline-hidden focus:ring-2 focus:ring-[#D4AF37]/20 transition-all min-h-[44px]`}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8C7A6B] hover:text-[#2A1E17] p-1 text-xs"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8C7A6B] hover:text-[#2A1E17] p-1 text-xs cursor-pointer"
               >
                 {showPassword ? '🙈' : '👁️'}
               </button>
@@ -176,7 +176,7 @@ export const LoginForm: React.FC = () => {
         )}
 
         {/* Remember Me Checkbox */}
-        <div className="flex items-center justify-between pt-1">
+        <div className="flex items-center justify-between pt-0.5">
           <label className="flex items-center gap-2 text-xs text-[#69574A] cursor-pointer">
             <input
               type="checkbox"
@@ -192,23 +192,23 @@ export const LoginForm: React.FC = () => {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-[#2A1E17] hover:bg-[#1C130E] text-white font-semibold py-3.5 px-6 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-2"
+          className="w-full bg-[#2A1E17] hover:bg-[#1C130E] active:scale-[0.98] text-white font-semibold py-3.5 px-6 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-2 min-h-[46px]"
         >
           {isSubmitting ? (
             <span className="text-xs uppercase tracking-wider">Signing In...</span>
           ) : (
-            <span className="text-sm font-bold">Sign In</span>
+            <span className="text-xs sm:text-sm font-bold">Sign In</span>
           )}
         </button>
       </form>
 
       {/* Account Signup Box */}
-      <div className="bg-[#F4EFE6] border border-[#E5D9C5] rounded-xl p-4 text-center mt-5">
+      <div className="bg-[#F4EFE6] border border-[#E5D9C5] rounded-xl p-3.5 sm:p-4 text-center mt-4 sm:mt-5">
         <p className="text-xs text-[#69574A]">
           First time here?{' '}
           <button
             onClick={() => setAuthViewMode('register')}
-            className="font-bold text-[#2A1E17] hover:underline underline-offset-4 cursor-pointer"
+            className="font-bold text-[#2A1E17] hover:underline underline-offset-4 cursor-pointer p-0.5"
           >
             Create an Account
           </button>
@@ -221,7 +221,7 @@ export const LoginForm: React.FC = () => {
           onClick={() => {
             window.location.hash = '#admin-login';
           }}
-          className="text-xs font-semibold text-[#8C7A6B] hover:text-[#2A1E17] transition-colors inline-flex items-center gap-1.5"
+          className="text-xs font-semibold text-[#8C7A6B] hover:text-[#2A1E17] transition-colors inline-flex items-center gap-1.5 py-1 cursor-pointer"
         >
           🛡️ Access Admin Portal
         </button>

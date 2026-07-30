@@ -14,7 +14,7 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
   const { login } = useAuth();
   const { toast } = useToast();
 
-  const [email, setEmail] = useState('  ');
+  const [email, setEmail] = useState('admin@thecandlelab.com');
   const [password, setPassword] = useState('admin123');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -86,7 +86,7 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#0B0F19] text-white flex flex-col justify-center items-center p-4 sm:p-6 relative overflow-hidden font-sans select-none">
+    <div className="min-h-screen w-full bg-[#0B0F19] text-white flex flex-col justify-center items-center px-3 sm:px-6 py-6 relative overflow-x-hidden font-sans select-none box-border">
       {/* Dynamic Grid Background Overlay */}
       <div
         className="absolute inset-0 opacity-15 pointer-events-none"
@@ -95,20 +95,20 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
             linear-gradient(to right, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
             linear-gradient(to bottom, rgba(255, 255, 255, 0.08) 1px, transparent 1px)
           `,
-          backgroundSize: '36px 36px',
+          backgroundSize: '32px 32px',
         }}
       />
 
       {/* Radial Soft Ambient Glows */}
-      <div className="absolute -top-40 -left-40 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -top-32 -left-32 w-72 h-72 sm:w-96 sm:h-96 bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-32 -right-32 w-72 h-72 sm:w-96 sm:h-96 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="w-full max-w-md relative z-10 space-y-6">
+      <div className="w-full max-w-sm sm:max-w-md relative z-10 space-y-5 sm:space-y-6">
         {/* Top Floating Security Icon & Brand Header */}
-        <div className="flex flex-col items-center text-center space-y-3">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-b from-blue-500/20 to-blue-900/40 border border-blue-400/30 flex items-center justify-center shadow-lg shadow-blue-500/10 backdrop-blur-md">
+        <div className="flex flex-col items-center text-center space-y-2.5 sm:space-y-3">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-b from-blue-500/20 to-blue-900/40 border border-blue-400/30 flex items-center justify-center shadow-lg shadow-blue-500/10 backdrop-blur-md">
             <svg
-              className="w-8 h-8 text-blue-400"
+              className="w-7 h-7 sm:w-8 sm:h-8 text-blue-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -123,29 +123,29 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
           </div>
 
           <div>
-            <h1 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-white flex items-center justify-center gap-2">
+            <h1 className="font-serif text-2xl sm:text-4xl font-bold tracking-tight text-white flex items-center justify-center gap-2">
               Admin<span className="text-blue-400 font-light">Panel</span>
             </h1>
-            <div className="flex items-center justify-center gap-2 mt-2">
-              <span className="h-[1px] w-6 bg-blue-500/40" />
-              <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-blue-300/80">
+            <div className="flex items-center justify-center gap-2 mt-1.5 sm:mt-2">
+              <span className="h-[1px] w-4 sm:w-6 bg-blue-500/40" />
+              <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.2em] sm:tracking-[0.25em] text-blue-300/80">
                 SECURE ACCESS
               </span>
-              <span className="h-[1px] w-6 bg-blue-500/40" />
+              <span className="h-[1px] w-4 sm:w-6 bg-blue-500/40" />
             </div>
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-[11px] sm:text-xs text-slate-400 mt-1">
               Enterprise-grade authentication portal
             </p>
           </div>
         </div>
 
         {/* Central Glassmorphic Card */}
-        <div className="bg-[#131B2E]/80 border border-slate-700/60 rounded-2xl p-6 sm:p-8 backdrop-blur-xl shadow-2xl shadow-black/80 space-y-6">
+        <div className="bg-[#131B2E]/90 border border-slate-700/60 rounded-2xl sm:rounded-3xl p-5 sm:p-8 backdrop-blur-xl shadow-2xl shadow-black/80 space-y-5 sm:space-y-6">
           <div className="text-center space-y-1">
-            <h2 className="text-xl font-semibold text-slate-100 font-serif">
+            <h2 className="text-lg sm:text-xl font-semibold text-slate-100 font-serif">
               Welcome Back
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-[11px] sm:text-xs text-slate-400">
               Enter your administrative credentials to continue
             </p>
           </div>
@@ -162,8 +162,9 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="admin@example.com"
-                  className={`w-full bg-slate-900/80 border ${errors.email ? 'border-red-500/80' : 'border-slate-700 focus:border-blue-500'
-                    } rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 transition-all font-sans`}
+                  className={`w-full bg-slate-900/90 border ${
+                    errors.email ? 'border-red-500/80' : 'border-slate-700 focus:border-blue-500'
+                  } rounded-xl px-3.5 sm:px-4 py-3 text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 transition-all font-sans min-h-[44px]`}
                 />
               </div>
               {errors.email && (
@@ -180,7 +181,7 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
                 <button
                   type="button"
                   onClick={handleFillDemo}
-                  className="text-[11px] text-blue-400 hover:text-blue-300 font-medium transition-colors"
+                  className="text-[11px] text-blue-400 hover:text-blue-300 font-semibold transition-colors cursor-pointer p-0.5 active:scale-95"
                 >
                   ⚡ Autofill Demo
                 </button>
@@ -191,13 +192,14 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
-                  className={`w-full bg-slate-900/80 border ${errors.password ? 'border-red-500/80' : 'border-slate-700 focus:border-blue-500'
-                    } rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 transition-all pr-10 font-sans`}
+                  className={`w-full bg-slate-900/90 border ${
+                    errors.password ? 'border-red-500/80' : 'border-slate-700 focus:border-blue-500'
+                  } rounded-xl px-3.5 sm:px-4 py-3 text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 transition-all pr-10 font-sans min-h-[44px]`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors p-1"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors p-1 cursor-pointer"
                 >
                   {showPassword ? (
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -220,7 +222,7 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold py-3.5 px-6 rounded-xl shadow-lg shadow-blue-600/30 hover:shadow-blue-500/40 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-2"
+              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 active:scale-[0.98] text-white font-semibold py-3.5 px-6 rounded-xl shadow-lg shadow-blue-600/30 hover:shadow-blue-500/40 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-2 min-h-[46px]"
             >
               {isSubmitting ? (
                 <>
@@ -228,22 +230,22 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
-                  <span>Authenticating...</span>
+                  <span className="text-xs uppercase tracking-wider">Authenticating...</span>
                 </>
               ) : (
                 <>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                   </svg>
-                  <span>Sign In</span>
+                  <span className="text-sm font-bold">Sign In</span>
                 </>
               )}
             </button>
           </form>
 
           {/* Security Badge Container */}
-          <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-3 flex items-center justify-center gap-2 text-xs text-slate-400">
-            <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="bg-slate-900/70 border border-slate-800 rounded-xl p-2.5 sm:p-3 flex items-center justify-center gap-2 text-[10px] sm:text-xs text-slate-400">
+            <svg className="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
             <span className="font-medium tracking-wide">SECURE PORTAL — 256-BIT SSL ENCRYPTION</span>
@@ -251,7 +253,7 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
         </div>
 
         {/* Back to Boutique Store Link */}
-        <div className="text-center pt-2">
+        <div className="text-center pt-1 sm:pt-2">
           <button
             onClick={() => {
               if (onReturnToStore) {
@@ -260,14 +262,14 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
                 window.location.hash = '#home';
               }
             }}
-            className="text-xs text-slate-400 hover:text-white transition-colors inline-flex items-center gap-1.5 group cursor-pointer"
+            className="text-xs text-slate-400 hover:text-white transition-colors inline-flex items-center gap-1.5 group cursor-pointer py-1"
           >
             <span className="group-hover:-translate-x-1 transition-transform">←</span>
             <span>Return to Boutique Store</span>
           </button>
         </div>
 
-        <div className="text-center text-[11px] text-slate-500">
+        <div className="text-center text-[10px] sm:text-[11px] text-slate-500">
           © {new Date().getFullYear()} The Candle Lab. All rights reserved.
         </div>
       </div>
