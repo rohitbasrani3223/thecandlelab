@@ -44,10 +44,6 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
 
   const initialPayment: PaymentData = {
     method: 'razorpay',
-    cardNumber: '••••••••4242',
-    cardExpiry: '08/28',
-    cardCvv: '123',
-    cardName: user?.name || 'Valued Customer',
     sameBilling: true,
   };
 
