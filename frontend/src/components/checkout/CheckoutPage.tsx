@@ -25,7 +25,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [step, setStep] = useState<CheckoutStep | 5>(1);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [_isProcessing, setIsProcessing] = useState(false);
 
   const initialAddress: AddressData = {
     email: user?.email || 'customer@thecandlelab.com',
@@ -43,7 +43,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
   };
 
   const initialPayment: PaymentData = {
-    method: 'card',
+    method: 'razorpay',
     cardNumber: '••••••••4242',
     cardExpiry: '08/28',
     cardCvv: '123',

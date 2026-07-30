@@ -10,7 +10,7 @@ export const AdminCustomersCRM: React.FC = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [newCust, setNewCust] = useState({ name: '', email: '', tier: 'Silver' });
 
-  const [reviews, setReviews] = useState([
+  const [reviews, _setReviews] = useState([
     { id: '1', customer: 'Ananya Sharma', product: 'French Vanilla Jar', rating: 5, status: 'Approved', comment: 'Smells like pure heaven! Long burn time.' },
     { id: '2', customer: 'Vikramaditya Singh', product: 'Royal Amber & Oud', rating: 5, status: 'Approved', comment: 'A luxury signature scent for my living room.' },
   ]);

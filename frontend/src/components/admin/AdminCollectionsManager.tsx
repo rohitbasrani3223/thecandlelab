@@ -26,7 +26,7 @@ export const AdminCollectionsManager: React.FC = () => {
     { id: '2', name: 'Simran Kaur', rating: 5, quote: 'Packaging was elegant and the soy wax burns incredibly clean.' },
   ]);
 
-  const [faqs, setFaqs] = useState([
+  const [faqs, _setFaqs] = useState([
     { id: '1', question: 'What type of wax is used in candles?', answer: 'We use 100% natural soy wax infused with pure botanical essential oils.' },
     { id: '2', question: 'How long do the 250g candles burn?', answer: 'Our 250g glass jars provide up to 65 hours of clean burn time.' },
   ]);

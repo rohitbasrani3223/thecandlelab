@@ -38,7 +38,7 @@ export const AdminHomepageCMS: React.FC = () => {
     showNewsletterBox: true,
   });
 
-  const [megaMenu, setMegaMenu] = useState([
+  const [megaMenu, _setMegaMenu] = useState([
     { id: '1', title: 'Scented Jars', items: ['French Vanilla', 'Royal Amber & Oud', 'Lavender Luxe'] },
     { id: '2', title: 'Wax Melts', items: ['Rose Petal Melts', 'Cinnamon Spice', 'Eucalyptus Mint'] },
     { id: '3', title: 'Gift Sets', items: ['Festive Trio Box', 'Romance Votive Pair', 'Luxury Artisan Set'] },

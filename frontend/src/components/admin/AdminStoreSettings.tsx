@@ -16,12 +16,6 @@ export const AdminStoreSettings: React.FC = () => {
   const [form, setForm] = useState(settings);
   const [savedMsg, setSavedMsg] = useState('');
 
-  const [socialLinks, setSocialLinks] = useState({
-    instagram: 'https://instagram.com/thecandlelab.in',
-    facebook: 'https://facebook.com/thecandlelab',
-    pinterest: 'https://pinterest.com/thecandlelab',
-    whatsapp: '+91 98765 43210',
-  });
 
   const [integrations, setIntegrations] = useState({
     gaMeasurementId: 'G-X98273612',
