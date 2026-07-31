@@ -212,8 +212,14 @@ export const Header: React.FC<HeaderProps> = ({
             />
           ) : (
             <button
-              onClick={() => openAuthModal('login')}
-              className="bg-[#B88B38] hover:bg-[#A3792E] text-white font-bold rounded-full px-4 py-2 text-xs flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
+              onClick={() => {
+                if (onNavigate) {
+                  onNavigate('auth' as any);
+                } else {
+                  window.location.hash = '#auth';
+                }
+              }}
+              className="bg-[#B88B38] hover:bg-[#A3792E] text-white font-bold rounded-full px-4 py-2 text-xs flex items-center gap-1.5 shadow-xs transition-all cursor-pointer active:scale-95"
               aria-label="Sign in to your account"
               title="Sign In / Register"
             >

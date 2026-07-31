@@ -95,46 +95,11 @@ Route::post('/admin/cms', function (Request $request) {
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
 
-Route::post('/auth/forgot-password', function (Request $request) {
-    return response()->json([
-        'success' => true,
-        'message' => 'Password reset verification code dispatched.'
-    ]);
-});
-
-Route::post('/auth/reset-password', function (Request $request) {
-    return response()->json([
-        'success' => true,
-        'message' => 'Password updated successfully.'
-    ]);
-});
-
-Route::post('/auth/verify-email', function (Request $request) {
-    return response()->json([
-        'success' => true,
-        'message' => 'Email address verified successfully.'
-    ]);
-});
-
-Route::post('/auth/verify-otp', function (Request $request) {
-    $email = $request->input('email', 'customer@thecandlelab.com');
-    return response()->json([
-        'success' => true,
-        'message' => 'OTP verified successfully.',
-        'user' => [
-            'id' => 'usr_' . time(),
-            'name' => explode('@', $email)[0],
-            'email' => $email,
-            'phone' => $request->input('phone', '+91 98765 43210'),
-            'avatar' => 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-            'isEmailVerified' => true,
-            'isPhoneVerified' => true,
-            'role' => 'customer',
-            'createdAt' => now()->toIso8601String()
-        ],
-        'token' => 'laravel_token_' . time()
-    ]);
-});
+Route::post('/auth/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/auth/reset-password', [AuthController::class, 'forgotPassword']);
+Route::post('/auth/verify-email', [AuthController::class, 'verifyEmail']);
+Route::post('/auth/send-otp', [AuthController::class, 'sendOtp']);
+Route::post('/auth/verify-otp', [AuthController::class, 'verifyOtp']);
 
 Route::post('/auth/social', function (Request $request) {
     $provider = $request->input('provider', 'google');
