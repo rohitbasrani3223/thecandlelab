@@ -15,8 +15,8 @@ export const MobileNav: React.FC<MobileNavProps> = ({
   onClose,
   onOpenSearch,
   onNavigate,
-  cartCount = 2,
-  wishlistCount = 4,
+  cartCount = 0,
+  wishlistCount = 0,
 }) => {
   const [expandedSection, setExpandedSection] = useState<'shop' | 'collections' | null>('shop');
 

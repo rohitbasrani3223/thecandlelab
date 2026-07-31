@@ -60,11 +60,27 @@ export interface WishlistPageProps {
 }
 
 export const WishlistPage: React.FC<WishlistPageProps> = ({ onNavigateToShop }) => {
-  const [items, setItems] = useState<WishlistItem[]>(initialWishlistItems);
+  const [items, setItems] = useState<WishlistItem[]>(() => {
+    try {
+      const saved = localStorage.getItem('tcl_wishlist_items');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
   const { toast } = useToast();
 
+  const syncWishlistStorage = (newItems: WishlistItem[]) => {
+    setItems(newItems);
+    try {
+      localStorage.setItem('tcl_wishlist_items', JSON.stringify(newItems));
+      window.dispatchEvent(new Event('tcl-wishlist-updated'));
+    } catch {}
+  };
+
   const handleMoveToCart = (item: WishlistItem) => {
-    setItems((prev) => prev.filter((i) => i.id !== item.id));
+    const updated = items.filter((i) => i.id !== item.id);
+    syncWishlistStorage(updated);
     toast({
       type: 'luxury',
       title: 'Transferred to Shopping Bag',
@@ -73,7 +89,8 @@ export const WishlistPage: React.FC<WishlistPageProps> = ({ onNavigateToShop }) 
   };
 
   const handleRemoveItem = (id: string, name: string) => {
-    setItems((prev) => prev.filter((i) => i.id !== id));
+    const updated = items.filter((i) => i.id !== id);
+    syncWishlistStorage(updated);
     toast({
       type: 'info',
       title: 'Removed from Wishlist',

@@ -14,7 +14,7 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
   const { login } = useAuth();
   const { toast } = useToast();
 
-  const [email, setEmail] = useState('admin@thecandlelab.com');
+  const [email, setEmail] = useState('  ');
   const [password, setPassword] = useState('admin123');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);

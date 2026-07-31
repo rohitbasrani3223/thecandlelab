@@ -28,8 +28,8 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenCart,
   onNavigate,
   currentPage = 'home',
-  cartCount = 2,
-  wishlistCount = 4,
+  cartCount = 0,
+  wishlistCount = 0,
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeMegaMenu, setActiveMegaMenu] = useState<'shop' | 'collections' | null>(null);

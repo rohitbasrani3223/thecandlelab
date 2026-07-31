@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Drawer, Button, useToast } from '../../design-system';
 import { ShippingProgressBar } from './ShippingProgressBar';
 import { GiftWrapToggle } from './GiftWrapToggle';
@@ -38,25 +38,51 @@ export const CartDrawerUpgrade: React.FC<CartDrawerUpgradeProps> = ({
   onClose,
   onViewFullCart,
 }) => {
-  const [items, setItems] = useState<CartItem[]>(defaultDrawerItems);
-  const [isGiftWrap, setIsGiftWrap] = useState(true);
+  const [items, setItems] = useState<CartItem[]>(() => {
+    try {
+      const saved = localStorage.getItem('tcl_cart_items');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [isGiftWrap, setIsGiftWrap] = useState(false);
   const [giftMsg, setGiftMsg] = useState('');
   const { toast } = useToast();
+
+  useEffect(() => {
+    const handleSync = () => {
+      try {
+        const saved = localStorage.getItem('tcl_cart_items');
+        setItems(saved ? JSON.parse(saved) : []);
+      } catch {}
+    };
+    window.addEventListener('tcl-cart-updated', handleSync);
+    window.addEventListener('storage', handleSync);
+    return () => {
+      window.removeEventListener('tcl-cart-updated', handleSync);
+      window.removeEventListener('storage', handleSync);
+    };
+  }, []);
 
   const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
   const handleUpdateQty = (id: string, delta: number) => {
-    setItems((prev) =>
-      prev
-        .map((item) => {
-          if (item.id === id) {
-            const q = item.quantity + delta;
-            return q > 0 ? { ...item, quantity: q } : null;
-          }
-          return item;
-        })
-        .filter(Boolean) as CartItem[]
-    );
+    const updated = items
+      .map((item) => {
+        if (item.id === id) {
+          const q = item.quantity + delta;
+          return q > 0 ? { ...item, quantity: q } : null;
+        }
+        return item;
+      })
+      .filter(Boolean) as CartItem[];
+
+    setItems(updated);
+    try {
+      localStorage.setItem('tcl_cart_items', JSON.stringify(updated));
+      window.dispatchEvent(new Event('tcl-cart-updated'));
+    } catch {}
   };
 
   const handleRemove = (id: string) => {

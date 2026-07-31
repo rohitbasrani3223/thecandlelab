@@ -1,10 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AnnouncementBar } from './AnnouncementBar';
 import { Header } from './Header';
 import { SearchOverlayModal } from '../search';
 import { CartDrawerUpgrade } from '../cart';
-
-
 import { MobileNav } from './MobileNav';
 import { Footer } from './Footer';
 
@@ -18,9 +16,49 @@ export const Layout: React.FC<LayoutProps> = ({ children, onNavigate, currentPag
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const cartCount = 2;
-  const wishlistCount = 4;
 
+  const [cartCount, setCartCount] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('tcl_cart_items');
+      return saved ? JSON.parse(saved).length : 0;
+    } catch {
+      return 0;
+    }
+  });
+
+  const [wishlistCount, setWishlistCount] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('tcl_wishlist_items');
+      return saved ? JSON.parse(saved).length : 0;
+    } catch {
+      return 0;
+    }
+  });
+
+  useEffect(() => {
+    const syncCounts = () => {
+      try {
+        const cartSaved = localStorage.getItem('tcl_cart_items');
+        setCartCount(cartSaved ? JSON.parse(cartSaved).length : 0);
+
+        const wishlistSaved = localStorage.getItem('tcl_wishlist_items');
+        setWishlistCount(wishlistSaved ? JSON.parse(wishlistSaved).length : 0);
+      } catch {
+        // fallback
+      }
+    };
+
+    syncCounts();
+    window.addEventListener('storage', syncCounts);
+    window.addEventListener('tcl-cart-updated', syncCounts);
+    window.addEventListener('tcl-wishlist-updated', syncCounts);
+
+    return () => {
+      window.removeEventListener('storage', syncCounts);
+      window.removeEventListener('tcl-cart-updated', syncCounts);
+      window.removeEventListener('tcl-wishlist-updated', syncCounts);
+    };
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF6F0] text-[#2A1E17] font-sans">
@@ -44,7 +82,6 @@ export const Layout: React.FC<LayoutProps> = ({ children, onNavigate, currentPag
         onClose={() => setIsSearchOpen(false)}
       />
 
-
       {/* 4. Mobile Navigation Drawer */}
       <MobileNav
         isOpen={isMobileNavOpen}
@@ -61,7 +98,6 @@ export const Layout: React.FC<LayoutProps> = ({ children, onNavigate, currentPag
         onClose={() => setIsCartOpen(false)}
         onViewFullCart={() => onNavigate?.('cart' as any)}
       />
-
 
       {/* 6. Main Content Viewport */}
       <main className="flex-1">

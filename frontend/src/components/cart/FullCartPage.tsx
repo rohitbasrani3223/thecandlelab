@@ -1,9 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ShippingProgressBar } from './ShippingProgressBar';
 import { CartItemRow } from './CartItemRow';
 import type { CartItem } from './CartItemRow';
-
-
 import { SaveForLaterSection } from './SaveForLaterSection';
 import { GiftWrapToggle } from './GiftWrapToggle';
 import { CouponCodeBox } from './CouponCodeBox';
@@ -12,68 +10,80 @@ import { CartAddonsSection } from './CartAddonsSection';
 import { RecentlyViewedSection } from './RecentlyViewedSection';
 import { EmptyState, useToast } from '../../design-system';
 
-const initialCartItems: CartItem[] = [
-  {
-    id: 'c-1',
-    name: 'Velvet Rose & Smoked Amber',
-    size: '12 oz Glass',
-    wick: 'Organic Wood Wick',
-    price: 78.0,
-    quantity: 1,
-    inStock: true,
-  },
-  {
-    id: 'c-2',
-    name: 'French Bourbon Vanilla Bean',
-    size: '16 oz 3-Wick Jar',
-    wick: 'Cotton Wick',
-    price: 94.0,
-    quantity: 1,
-    inStock: true,
-  },
-];
-
 export interface FullCartPageProps {
   onNavigateToShop?: () => void;
 }
 
 export const FullCartPage: React.FC<FullCartPageProps> = ({ onNavigateToShop }) => {
-  const [items, setItems] = useState<CartItem[]>(initialCartItems);
+  const [items, setItems] = useState<CartItem[]>(() => {
+    try {
+      const saved = localStorage.getItem('tcl_cart_items');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
   const [savedItems, setSavedItems] = useState<CartItem[]>([]);
-  const [appliedCoupon, setAppliedCoupon] = useState<string | null>('LUXURY10');
-  const [discountPercent, setDiscountPercent] = useState<number>(10);
-  const [isGiftWrap, setIsGiftWrap] = useState<boolean>(true);
-  const [giftMsg, setGiftMsg] = useState<string>('Happy Anniversary, My Love!');
+  const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
+  const [discountPercent, setDiscountPercent] = useState<number>(0);
+  const [isGiftWrap, setIsGiftWrap] = useState<boolean>(false);
+  const [giftMsg, setGiftMsg] = useState<string>('');
   const { toast } = useToast();
 
+  useEffect(() => {
+    const handleSync = () => {
+      try {
+        const saved = localStorage.getItem('tcl_cart_items');
+        setItems(saved ? JSON.parse(saved) : []);
+      } catch {}
+    };
+    window.addEventListener('tcl-cart-updated', handleSync);
+    window.addEventListener('storage', handleSync);
+    return () => {
+      window.removeEventListener('tcl-cart-updated', handleSync);
+      window.removeEventListener('storage', handleSync);
+    };
+  }, []);
+
+  const syncCartStorage = (newItems: CartItem[]) => {
+    setItems(newItems);
+    try {
+      localStorage.setItem('tcl_cart_items', JSON.stringify(newItems));
+      window.dispatchEvent(new Event('tcl-cart-updated'));
+    } catch {}
+  };
+
   const handleUpdateQty = (id: string, delta: number) => {
-    setItems((prev) =>
-      prev
-        .map((item) => {
-          if (item.id === id) {
-            const newQ = item.quantity + delta;
-            return newQ > 0 ? { ...item, quantity: newQ } : null;
-          }
-          return item;
-        })
-        .filter(Boolean) as CartItem[]
-    );
+    const updated = items
+      .map((item) => {
+        if (item.id === id) {
+          const newQ = item.quantity + delta;
+          return newQ > 0 ? { ...item, quantity: newQ } : null;
+        }
+        return item;
+      })
+      .filter(Boolean) as CartItem[];
+
+    syncCartStorage(updated);
   };
 
   const handleRemoveItem = (id: string) => {
-    setItems((prev) => prev.filter((i) => i.id !== id));
+    const updated = items.filter((i) => i.id !== id);
+    syncCartStorage(updated);
     toast({ type: 'info', title: 'Item Removed from Bag' });
   };
 
   const handleSaveForLater = (item: CartItem) => {
-    setItems((prev) => prev.filter((i) => i.id !== item.id));
+    const updated = items.filter((i) => i.id !== item.id);
+    syncCartStorage(updated);
     setSavedItems((prev) => [...prev, item]);
     toast({ type: 'luxury', title: 'Moved to Saved for Later', description: item.name });
   };
 
   const handleMoveBackToBag = (item: CartItem) => {
     setSavedItems((prev) => prev.filter((i) => i.id !== item.id));
-    setItems((prev) => [...prev, item]);
+    const updated = [...items, item];
+    syncCartStorage(updated);
     toast({ type: 'luxury', title: 'Restored to Shopping Bag', description: item.name });
   };
 
@@ -91,7 +101,8 @@ export const FullCartPage: React.FC<FullCartPageProps> = ({ onNavigateToShop }) 
       quantity: 1,
       inStock: true,
     };
-    setItems((prev) => [...prev, newItem]);
+    const updated = [...items, newItem];
+    syncCartStorage(updated);
   };
 
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
