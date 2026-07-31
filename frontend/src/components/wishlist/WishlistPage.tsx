@@ -8,52 +8,6 @@ import type { WishlistItem } from './WishlistGrid';
 import { WishlistEmptyState } from './WishlistEmptyState';
 import { useToast } from '../../design-system';
 
-const initialWishlistItems: WishlistItem[] = [
-  {
-    id: 'w-1',
-    name: 'Velvet Rose & Smoked Amber',
-    category: 'Glass Jars',
-    collection: 'Royal Gold',
-    price: 78.0,
-    rating: 4.95,
-    reviews: 142,
-    stockStatus: 'In Stock • ⚡ 4 Left in Batch #18',
-    notes: 'Bergamot, Damask Rose, Smoked Oud',
-  },
-  {
-    id: 'w-2',
-    name: 'French Bourbon Vanilla Bean',
-    category: 'Glass Jars',
-    collection: 'Royal Gold',
-    price: 94.0,
-    rating: 4.94,
-    reviews: 98,
-    stockStatus: 'In Stock',
-    notes: 'Tonka, Bourbon Vanilla, Amber',
-  },
-  {
-    id: 'w-3',
-    name: 'Mysore Sandalwood & Cedar',
-    category: 'Travel Tins',
-    collection: 'Signature',
-    price: 42.0,
-    rating: 4.85,
-    reviews: 76,
-    stockStatus: 'In Stock',
-    notes: 'Cedar, Sandalwood, Vetiver',
-  },
-  {
-    id: 'w-4',
-    name: 'Smoked Leather & Tobacco Oud',
-    category: 'Glass Jars',
-    collection: 'Autumn Woodfire',
-    price: 86.0,
-    rating: 4.98,
-    reviews: 312,
-    stockStatus: 'In Stock • Low Batch',
-    notes: 'Cardamom, Tobacco, Leather',
-  },
-];
 
 export interface WishlistPageProps {
   onNavigateToShop?: () => void;

@@ -12,26 +12,6 @@ export interface CartDrawerUpgradeProps {
   onViewFullCart?: () => void;
 }
 
-const defaultDrawerItems: CartItem[] = [
-  {
-    id: 'd-1',
-    name: 'Velvet Rose & Smoked Amber',
-    size: '12 oz Glass',
-    wick: 'Organic Wood Wick',
-    price: 78.0,
-    quantity: 1,
-    inStock: true,
-  },
-  {
-    id: 'd-2',
-    name: 'French Bourbon Vanilla 3-Wick',
-    size: '16 oz Jar',
-    wick: 'Cotton Wick',
-    price: 94.0,
-    quantity: 1,
-    inStock: true,
-  },
-];
 
 export const CartDrawerUpgrade: React.FC<CartDrawerUpgradeProps> = ({
   isOpen,
