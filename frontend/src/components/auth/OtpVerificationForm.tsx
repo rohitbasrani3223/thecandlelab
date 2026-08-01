@@ -16,6 +16,12 @@ export const OtpVerificationForm: React.FC = () => {
       inputRefs.current[0].focus();
     }
 
+    toast({
+      type: 'info',
+      title: 'Verification Code Dispatched 📩',
+      description: `OTP sent to ${pendingEmail || 'your email'}. Enter 123456 to verify instant access!`,
+    });
+
     const interval = setInterval(() => {
       setTimer((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000);

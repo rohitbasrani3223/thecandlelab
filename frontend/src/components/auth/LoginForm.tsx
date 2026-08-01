@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../design-system';
+import { SocialLoginButtons } from './SocialLoginButtons';
 
 export const LoginForm: React.FC = () => {
   const { login, openAuthModal, setAuthViewMode } = useAuth();
@@ -202,6 +203,9 @@ export const LoginForm: React.FC = () => {
         </button>
       </form>
 
+      {/* Google, Apple & Meta Social Sign-In Buttons */}
+      <SocialLoginButtons labelPrefix="or sign in with" />
+
       {/* Account Signup Box */}
       <div className="bg-[#F4EFE6] border border-[#E5D9C5] rounded-xl p-3.5 sm:p-4 text-center mt-4 sm:mt-5">
         <p className="text-xs text-[#69574A]">
@@ -213,18 +217,6 @@ export const LoginForm: React.FC = () => {
             Create an Account
           </button>
         </p>
-      </div>
-
-      {/* Switch to Admin Portal Link */}
-      <div className="text-center mt-4">
-        <button
-          onClick={() => {
-            window.location.hash = '#admin-login';
-          }}
-          className="text-xs font-semibold text-[#8C7A6B] hover:text-[#2A1E17] transition-colors inline-flex items-center gap-1.5 py-1 cursor-pointer"
-        >
-          🛡️ Access Admin Portal
-        </button>
       </div>
     </div>
   );

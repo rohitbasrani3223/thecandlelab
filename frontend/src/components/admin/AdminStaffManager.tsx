@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useCMS } from '../../context/CMSContext';
 
 type StaffSubTab =
+  | 'all'
   | 'superadmin'
   | 'admin'
   | 'contentmanager'
@@ -10,20 +11,22 @@ type StaffSubTab =
   | 'support';
 
 export const AdminStaffManager: React.FC = () => {
-  const [activeSubTab, setActiveSubTab] = useState<StaffSubTab>('superadmin');
-  const { staffUsers, addStaffUser, deleteStaffUser } = useCMS();
+  const [activeSubTab, setActiveSubTab] = useState<StaffSubTab>('all');
+  const { staffUsers, addStaffUser, deleteStaffUser, updateStaffUser } = useCMS();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<'Super Admin' | 'Inventory Manager' | 'Content Manager' | 'Marketing Manager' | 'Admin' | 'Support'>('Super Admin');
+  const [searchQuery, setSearchQuery] = useState('');
   const [savedMsg, setSavedMsg] = useState('');
 
-  const SUB_TABS: { id: StaffSubTab; label: string; icon: string }[] = [
-    { id: 'superadmin', label: 'Super Admin', icon: '👑' },
-    { id: 'admin', label: 'Admin', icon: '🛡️' },
-    { id: 'contentmanager', label: 'Content Manager', icon: '✍️' },
-    { id: 'inventorymanager', label: 'Inventory Manager', icon: '📦' },
-    { id: 'marketingmanager', label: 'Marketing Manager', icon: '🎯' },
-    { id: 'support', label: 'Support', icon: '🎧' },
+  const SUB_TABS: { id: StaffSubTab; label: string; icon: string; roleMatch?: string }[] = [
+    { id: 'all', label: 'All Roles', icon: '👥' },
+    { id: 'superadmin', label: 'Super Admin', icon: '👑', roleMatch: 'Super Admin' },
+    { id: 'admin', label: 'Admin', icon: '🛡️', roleMatch: 'Admin' },
+    { id: 'contentmanager', label: 'Content Manager', icon: '✍️', roleMatch: 'Content Manager' },
+    { id: 'inventorymanager', label: 'Inventory Manager', icon: '📦', roleMatch: 'Inventory Manager' },
+    { id: 'marketingmanager', label: 'Marketing Manager', icon: '🎯', roleMatch: 'Marketing Manager' },
+    { id: 'support', label: 'Support', icon: '🎧', roleMatch: 'Support' },
   ];
 
   const handleAdd = (e: React.FormEvent) => {
@@ -38,17 +41,32 @@ export const AdminStaffManager: React.FC = () => {
     });
     setName('');
     setEmail('');
-    setSavedMsg('New staff account created!');
+    setSavedMsg(`Added ${name} as ${role}!`);
     setTimeout(() => setSavedMsg(''), 3000);
   };
 
+  const selectedTabObj = SUB_TABS.find((t) => t.id === activeSubTab);
+
+  const filteredStaff = staffUsers.filter((u) => {
+    const matchesSearch =
+      u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      u.email.toLowerCase().includes(searchQuery.toLowerCase());
+
+    if (!selectedTabObj?.roleMatch) return matchesSearch;
+    return matchesSearch && u.role === selectedTabObj.roleMatch;
+  });
+
   return (
-    <div className="space-y-6 font-sans">
+    <div className="space-y-6 font-sans text-[#2C1E16]">
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#EFE8DB] pb-5">
         <div>
-          <span className="text-[10px] font-bold uppercase tracking-widest text-[#B88B38]">STAFF & PERMISSIONS MANAGEMENT</span>
-          <h1 className="text-3xl font-serif font-bold text-[#2C1E16]">User Management & Role Access ({staffUsers.length})</h1>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-[#B88B38]">
+            STAFF & PERMISSIONS MANAGEMENT
+          </span>
+          <h1 className="text-3xl font-serif font-bold text-[#2C1E16]">
+            User Management & Role Access ({staffUsers.length})
+          </h1>
         </div>
 
         {savedMsg && (
@@ -62,6 +80,10 @@ export const AdminStaffManager: React.FC = () => {
       <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-[#EFE8DB] scrollbar-none">
         {SUB_TABS.map((tab) => {
           const isActive = activeSubTab === tab.id;
+          const count = tab.roleMatch
+            ? staffUsers.filter((u) => u.role === tab.roleMatch).length
+            : staffUsers.length;
+
           return (
             <button
               key={tab.id}
@@ -74,6 +96,13 @@ export const AdminStaffManager: React.FC = () => {
             >
               <span>{tab.icon}</span>
               <span>{tab.label}</span>
+              <span
+                className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-full ${
+                  isActive ? 'bg-white/20 text-white' : 'bg-[#F8F3EA] text-[#B88B38]'
+                }`}
+              >
+                {count}
+              </span>
             </button>
           );
         })}
@@ -81,20 +110,22 @@ export const AdminStaffManager: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Create Staff User Form */}
-        <div className="lg:col-span-5 bg-white border border-[#EFE8DB] rounded-2xl p-6 shadow-subtle space-y-4">
-          <h3 className="font-serif font-bold text-lg text-[#2C1E16] border-b border-[#F2ECE1] pb-2">
-            👨‍💼 Add Staff Member
+        <div className="lg:col-span-4 bg-white border border-[#EFE8DB] rounded-2xl p-6 shadow-subtle space-y-4 h-fit">
+          <h3 className="font-serif font-bold text-lg text-[#2C1E16] border-b border-[#F2ECE1] pb-2 flex items-center gap-2">
+            <span>👨‍💼</span>
+            <span>Add Staff Member</span>
           </h3>
 
-          <form onSubmit={handleAdd} className="space-y-3 text-xs">
+          <form onSubmit={handleAdd} className="space-y-3.5 text-xs">
             <div>
               <label className="font-bold text-[#2C1E16] block uppercase mb-1">Full Name *</label>
               <input
                 type="text"
                 required
+                placeholder="e.g. Rahul Sharma"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg text-[#2C1E16]"
+                className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg text-[#2C1E16] placeholder-[#8C7A6B]"
               />
             </div>
 
@@ -103,9 +134,10 @@ export const AdminStaffManager: React.FC = () => {
               <input
                 type="email"
                 required
+                placeholder="rahul@thecandlelab.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg text-[#2C1E16]"
+                className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg text-[#2C1E16] placeholder-[#8C7A6B]"
               />
             </div>
 
@@ -127,49 +159,91 @@ export const AdminStaffManager: React.FC = () => {
 
             <button
               type="submit"
-              className="w-full bg-[#B88B38] hover:bg-[#A3792E] text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow-xs transition-all cursor-pointer"
+              className="w-full bg-[#B88B38] hover:bg-[#A3792E] text-white font-bold text-xs py-3 px-4 rounded-xl shadow-xs transition-all cursor-pointer"
             >
               + Add Staff Account
             </button>
           </form>
         </div>
 
-        {/* Staff Table */}
-        <div className="lg:col-span-7 bg-white border border-[#EFE8DB] rounded-2xl overflow-hidden shadow-subtle">
-          <table className="w-full text-left text-xs text-[#2C1E16]">
-            <thead className="bg-[#F8F3EA] border-b border-[#EFE8DB] uppercase font-bold text-[10px] tracking-wider text-[#7A6B5D]">
-              <tr>
-                <th className="p-4">Staff Member</th>
-                <th className="p-4">Role</th>
-                <th className="p-4">Status</th>
-                <th className="p-4 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#F2ECE1]">
-              {staffUsers.map((u) => (
-                <tr key={u.id} className="hover:bg-[#FAF6F0] transition-colors">
-                  <td className="p-4">
-                    <strong className="block text-[#2C1E16]">{u.name}</strong>
-                    <span className="text-[10px] text-[#7A6B5D]">{u.email}</span>
-                  </td>
-                  <td className="p-4 font-bold text-[#B88B38]">{u.role}</td>
-                  <td className="p-4">
-                    <span className="bg-[#2E6F40]/10 text-[#2E6F40] font-bold text-[10px] px-2 py-0.5 rounded-full">
-                      Active
-                    </span>
-                  </td>
-                  <td className="p-4 text-right">
-                    <button
-                      onClick={() => deleteStaffUser(u.id)}
-                      className="text-[#B93829] font-bold hover:underline cursor-pointer"
-                    >
-                      Remove
-                    </button>
-                  </td>
+        {/* Staff Table Container */}
+        <div className="lg:col-span-8 bg-white border border-[#EFE8DB] rounded-2xl overflow-hidden shadow-subtle flex flex-col">
+          {/* Table Search Header */}
+          <div className="p-4 border-b border-[#EFE8DB] bg-[#F8F3EA] flex items-center justify-between gap-4">
+            <span className="text-xs font-bold text-[#7A6B5D] uppercase tracking-wider">
+              Staff List ({filteredStaff.length})
+            </span>
+            <input
+              type="text"
+              placeholder="Search staff by name or email..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="bg-white border border-[#EFE8DB] px-3 py-1.5 rounded-lg text-xs w-64 text-[#2C1E16] focus:outline-hidden focus:border-[#B88B38]"
+            />
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs text-[#2C1E16]">
+              <thead className="bg-[#FAF6F0] border-b border-[#EFE8DB] uppercase font-bold text-[10px] tracking-wider text-[#7A6B5D]">
+                <tr>
+                  <th className="p-4">Staff Member</th>
+                  <th className="p-4">Assigned Role</th>
+                  <th className="p-4">Status</th>
+                  <th className="p-4 text-right">Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-[#F2ECE1]">
+                {filteredStaff.length > 0 ? (
+                  filteredStaff.map((u) => (
+                    <tr key={u.id} className="hover:bg-[#FAF6F0] transition-colors">
+                      <td className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-[#B88B38] text-white font-serif font-bold flex items-center justify-center text-xs shadow-xs">
+                            {u.name[0].toUpperCase()}
+                          </div>
+                          <div>
+                            <strong className="block text-[#2C1E16] font-semibold">{u.name}</strong>
+                            <span className="text-[10px] text-[#7A6B5D]">{u.email}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="p-4 font-bold text-[#B88B38]">
+                        <span className="bg-[#F8F3EA] border border-[#EFE8DB] px-2.5 py-1 rounded-lg">
+                          {u.role}
+                        </span>
+                      </td>
+                      <td className="p-4">
+                        <button
+                          onClick={() => updateStaffUser(u.id, { active: !u.active })}
+                          className={`font-bold text-[10px] px-2.5 py-1 rounded-full cursor-pointer transition-colors ${
+                            u.active
+                              ? 'bg-[#2E6F40]/10 text-[#2E6F40] border border-[#2E6F40]/20'
+                              : 'bg-gray-100 text-gray-500 border border-gray-200'
+                          }`}
+                        >
+                          {u.active ? '● Active' : '○ Suspended'}
+                        </button>
+                      </td>
+                      <td className="p-4 text-right">
+                        <button
+                          onClick={() => deleteStaffUser(u.id)}
+                          className="text-[#B93829] font-bold hover:underline cursor-pointer px-2 py-1 rounded-md hover:bg-red-50"
+                        >
+                          Remove
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={4} className="p-8 text-center text-xs text-[#8C7A6B]">
+                      No staff members found matching this filter.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

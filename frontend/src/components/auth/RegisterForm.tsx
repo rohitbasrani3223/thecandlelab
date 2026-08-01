@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../design-system';
+import { SocialLoginButtons } from './SocialLoginButtons';
 
 export const RegisterForm: React.FC = () => {
   const { register, setAuthViewMode } = useAuth();
@@ -177,6 +178,9 @@ export const RegisterForm: React.FC = () => {
           )}
         </button>
       </form>
+
+      {/* Google, Apple & Meta Social Register Buttons */}
+      <SocialLoginButtons labelPrefix="or register with" />
 
       {/* Already registered */}
       <div className="bg-[#F4EFE6] border border-[#E5D9C5] rounded-xl p-4 text-center mt-5">

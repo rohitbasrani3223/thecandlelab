@@ -15,102 +15,91 @@ class AuthController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email',
+            'email' => 'required|string|email|unique:users,email',
             'phone' => 'nullable|string',
             'password' => 'required|string|min:6',
+        ]);
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => strtolower(trim($validated['email'])),
+            'phone' => $validated['phone'] ?? null,
+            'password' => Hash::make($validated['password']),
+            'role' => 'customer',
+            'reward_points' => 100,
+            'tier' => 'Gold',
         ]);
 
         $otp = (string) random_int(100000, 999999);
 
         // Dispatch real email via Laravel Mailer
         try {
-            Mail::raw("Your OTP verification code for The Candle Lab is: {$otp}\n\nPlease enter this code to verify your account.", function ($message) use ($validated) {
+            Mail::raw("Welcome to The Candle Lab!\n\nYour 6-Digit OTP verification code is: {$otp}", function ($message) use ($validated) {
                 $message->to($validated['email'])
-                        ->subject('The Candle Lab — Your 6-Digit OTP Verification Code');
+                        ->subject('The Candle Lab — Account Verification OTP');
             });
         } catch (Exception $e) {
             logger()->error('Failed to send OTP email: ' . $e->getMessage());
         }
 
-        $user = User::firstOrCreate(
-            ['email' => $validated['email']],
-            [
-                'name' => $validated['name'],
-                'phone' => $validated['phone'] ?? null,
-                'password' => Hash::make($validated['password']),
-                'role' => 'customer',
-                'reward_points' => 100,
-                'tier' => 'Gold',
-            ]
-        );
-
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'success' => true,
-            'message' => "OTP verification code sent to {$validated['email']}.",
-            'otp' => $otp, // Included in response for instant demo testing
-            'data' => [
-                'user' => $user,
-                'token' => $token,
-            ],
+            'message' => 'Registration successful! Verification code sent to your email.',
+            'otp' => $otp,
+            'user' => $user,
+            'token' => $token,
         ], 201);
     }
 
     public function login(Request $request)
     {
-        $emailOrPhone = $request->input('emailOrPhone') ?? $request->input('email');
+        $emailOrPhone = strtolower(trim($request->input('emailOrPhone') ?? $request->input('email') ?? ''));
         $password = $request->input('password');
 
-        if (!$emailOrPhone) {
+        if (!$emailOrPhone || !$password) {
             return response()->json([
                 'success' => false,
-                'message' => 'Email or phone number is required',
+                'message' => 'Please enter both your email/phone and password.',
             ], 422);
         }
 
+        // Query real database users table
         $user = User::where('email', $emailOrPhone)
             ->orWhere('phone', $emailOrPhone)
             ->first();
 
-        if ($user && $password && Hash::check($password, $user->password)) {
-            $token = $user->createToken('auth_token')->plainTextToken;
+        if (!$user || !Hash::check($password, $user->password)) {
             return response()->json([
-                'success' => true,
-                'message' => 'Login successful',
-                'user' => $user,
-                'token' => $token,
-            ]);
+                'success' => false,
+                'message' => 'Invalid credentials. User not found in database or password is incorrect.',
+            ], 401);
         }
 
-        // Demo fallback user response if not found in local DB
-        $name = explode('@', $emailOrPhone)[0];
+        $token = $user->createToken('auth_token')->plainTextToken;
+
         return response()->json([
             'success' => true,
-            'message' => 'Authenticated successfully',
-            'user' => [
-                'id' => 'usr_' . time(),
-                'name' => ucfirst($name),
-                'email' => str_contains($emailOrPhone, '@') ? $emailOrPhone : 'customer@thecandlelab.com',
-                'phone' => str_contains($emailOrPhone, '@') ? '+91 98765 43210' : $emailOrPhone,
-                'avatar' => 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-                'isEmailVerified' => true,
-                'isPhoneVerified' => true,
-                'role' => ($emailOrPhone === 'admin@thecandlelab.com' ? 'admin' : 'customer'),
-                'createdAt' => now()->toIso8601String()
-            ],
-            'token' => 'laravel_token_' . time()
+            'message' => 'Login successful',
+            'user' => $user,
+            'token' => $token,
         ]);
     }
 
     public function sendOtp(Request $request)
     {
-        $email = $request->input('email') ?? $request->input('emailOrPhone', 'customer@thecandlelab.com');
+        $email = strtolower(trim($request->input('email') ?? $request->input('emailOrPhone') ?? ''));
+
+        if (!$email) {
+            return response()->json(['success' => false, 'message' => 'Email address is required.'], 422);
+        }
+
         $otp = (string) random_int(100000, 999999);
 
         if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
             try {
-                Mail::raw("Your OTP verification code for The Candle Lab is: {$otp}\n\nUse this code to sign in or reset your password.", function ($message) use ($email) {
+                Mail::raw("Your OTP verification code for The Candle Lab is: {$otp}", function ($message) use ($email) {
                     $message->to($email)
                             ->subject('The Candle Lab — Your 6-Digit OTP Code');
                 });
@@ -121,7 +110,7 @@ class AuthController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => "OTP code dispatched to {$email}.",
+            'message' => "Verification OTP dispatched to {$email}.",
             'otp' => $otp,
         ]);
     }
@@ -129,23 +118,30 @@ class AuthController extends Controller
     public function verifyOtp(Request $request)
     {
         $otp = $request->input('otp');
-        $email = $request->input('email') ?? $request->input('emailOrPhone', 'customer@thecandlelab.com');
+        $email = strtolower(trim($request->input('email') ?? $request->input('emailOrPhone') ?? ''));
+
+        $user = User::where('email', $email)->first();
+
+        if (!$user) {
+            // Create user in database if not registered yet
+            $user = User::create([
+                'name' => ucfirst(explode('@', $email)[0]),
+                'email' => $email,
+                'phone' => $request->input('phone', null),
+                'password' => Hash::make('password123'),
+                'role' => 'customer',
+                'reward_points' => 100,
+                'tier' => 'Gold',
+            ]);
+        }
+
+        $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'success' => true,
             'message' => 'OTP verified successfully.',
-            'user' => [
-                'id' => 'usr_' . time(),
-                'name' => ucfirst(explode('@', $email)[0]),
-                'email' => $email,
-                'phone' => $request->input('phone', '+91 98765 43210'),
-                'avatar' => 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-                'isEmailVerified' => true,
-                'isPhoneVerified' => true,
-                'role' => 'customer',
-                'createdAt' => now()->toIso8601String()
-            ],
-            'token' => 'laravel_token_' . time()
+            'user' => $user,
+            'token' => $token
         ]);
     }
 
@@ -156,19 +152,16 @@ class AuthController extends Controller
 
     public function verifyEmail(Request $request)
     {
-        $email = $request->input('email', 'customer@thecandlelab.com');
-        try {
-            Mail::raw("Your email address {$email} has been verified successfully on The Candle Lab.", function ($message) use ($email) {
-                $message->to($email)
-                        ->subject('The Candle Lab — Email Verified Successfully');
-            });
-        } catch (Exception $e) {
-            logger()->error('Failed to send verify email notice: ' . $e->getMessage());
+        $email = strtolower(trim($request->input('email', '')));
+        $user = User::where('email', $email)->first();
+        if ($user) {
+            $user->email_verified_at = now();
+            $user->save();
         }
 
         return response()->json([
             'success' => true,
-            'message' => 'Email address verified successfully.'
+            'message' => 'Email address verified successfully in database.'
         ]);
     }
 

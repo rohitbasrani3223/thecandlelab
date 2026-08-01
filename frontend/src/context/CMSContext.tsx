@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabaseFetch } from '../config/supabaseClient';
+import { getApiUrl } from '../config/api';
 
 export interface CMSStoreSettings {
   storeName: string;
@@ -67,6 +68,7 @@ export interface CMSProduct {
   isFeatured?: boolean;
   vesselDescription: string;
   imageUrl?: string;
+  image?: string;
 }
 
 export interface CMSCoupon {
@@ -341,8 +343,12 @@ const DEFAULT_SEO: CMSSEOSetting[] = [
 ];
 
 const DEFAULT_STAFF: CMSStaffUser[] = [
-  { id: 'u-1', name: 'Rohit Basrani', email: 'rohit@thecandlelab.com', role: 'Super Admin', active: true },
-  { id: 'u-2', name: 'Ananya Roy', email: 'ananya@thecandlelab.com', role: 'Content Manager', active: true },
+  { id: 'u-1', name: 'Super Admin', email: 'admin@thecandlelab.com', role: 'Super Admin', active: true },
+  { id: 'u-2', name: 'Rohit Basrani', email: 'rohit@thecandlelab.com', role: 'Super Admin', active: true },
+  { id: 'u-3', name: 'Ananya Roy', email: 'ananya@thecandlelab.com', role: 'Content Manager', active: true },
+  { id: 'u-4', name: 'Vikram Singh', email: 'vikram@thecandlelab.com', role: 'Inventory Manager', active: true },
+  { id: 'u-5', name: 'Neha Sharma', email: 'neha@thecandlelab.com', role: 'Marketing Manager', active: true },
+  { id: 'u-6', name: 'Support Desk', email: 'support@thecandlelab.com', role: 'Support', active: true },
 ];
 
 const CMSContext = createContext<CMSContextType | undefined>(undefined);
@@ -474,33 +480,38 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   });
 
-  // Initial sync from live Supabase PostgreSQL Database
+  // Initial sync from live Backend PostgreSQL Database API
   useEffect(() => {
-    async function loadSupabaseData() {
+    async function loadBackendData() {
       try {
-        const dbProducts = await supabaseFetch<any[]>('products');
-        if (dbProducts && Array.isArray(dbProducts) && dbProducts.length > 0) {
-          const mapped = dbProducts.map((p) => ({
-            id: String(p.id),
-            name: p.name || 'Artisanal Candle',
-            category: p.category || 'Scented Candles',
-            collection: p.collection || 'Royal Gold',
-            scentProfile: p.tagline || p.scent_profile || 'Aromatherapy',
-            price: Number(p.price || 999),
-            originalPrice: Number(p.original_price || p.price || 1299),
-            rating: Number(p.rating || 4.9),
-            reviewsCount: Number(p.reviews_count || 12),
-            topNotes: p.top_notes || 'Calabrian Bergamot',
-            heartNotes: p.heart_notes || 'Damask Rose',
-            baseNotes: p.base_notes || 'Smoked Amber',
-            burnTime: p.burn_time_hours ? `${p.burn_time_hours} Hours` : (p.burn_time || '60 Hours'),
-            inStock: p.status === 'ACTIVE' || p.in_stock === true || p.in_stock === undefined,
-            isBestSeller: p.is_bestseller ?? false,
-            isNew: p.is_new_arrival ?? false,
-            isFeatured: p.is_featured ?? false,
-            vesselDescription: p.short_description || p.vessel_description || 'Hand-poured in luxury frosted glass jar.',
-          }));
-          setProducts(mapped);
+        const res = await fetch(getApiUrl('products'));
+        if (res.ok) {
+          const json = await res.json();
+          const dbProducts = json.data || json;
+          if (Array.isArray(dbProducts) && dbProducts.length > 0) {
+            const mapped = dbProducts.map((p: any) => ({
+              id: String(p.id),
+              name: p.name || 'Artisanal Candle',
+              category: p.category?.name || p.category || 'Scented Candles',
+              collection: p.collection?.name || p.collection || 'Royal Gold',
+              scentProfile: p.tagline || p.scent_profile || 'Aromatherapy',
+              price: Number(p.price || 999),
+              originalPrice: Number(p.original_price || p.price || 1299),
+              rating: Number(p.rating || 4.9),
+              reviewsCount: Number(p.reviews_count || 12),
+              topNotes: p.top_notes || '',
+              heartNotes: p.heart_notes || '',
+              baseNotes: p.base_notes || '',
+              burnTime: p.burn_time_hours ? `${p.burn_time_hours} Hours` : (p.burn_time || ''),
+              inStock: p.status === 'ACTIVE' || p.in_stock === true || p.in_stock === undefined,
+              isBestSeller: p.is_bestseller ?? false,
+              isNew: p.is_new_arrival ?? false,
+              isFeatured: p.is_featured ?? false,
+              vesselDescription: p.short_description || p.vessel_description || '',
+              image: p.image_url || p.images?.[0]?.url || 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80',
+            }));
+            setProducts(mapped);
+          }
         }
 
         const dbOrders = await supabaseFetch<any[]>('orders');
@@ -556,10 +567,10 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           setCustomers(mappedCustomers);
         }
       } catch (err) {
-        console.warn('Supabase DB initial load note:', err);
+        console.error('Failed to fetch live backend data:', err);
       }
     }
-    loadSupabaseData();
+    loadBackendData();
   }, []);
 
   // Sync state changes to localStorage

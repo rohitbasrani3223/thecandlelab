@@ -1,4 +1,5 @@
 import React from 'react';
+import { useAuth } from '../../context/AuthContext';
 
 export type AdminTab =
   | 'dashboard'
@@ -42,11 +43,13 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   onTabChange,
   onReturnToStore,
 }) => {
+  const { logout } = useAuth();
+
   return (
-    <aside className="w-64 bg-[#1C130E] text-[#FAF6F0] border-r border-[#3D2C22] flex flex-col justify-between h-screen sticky top-0 shrink-0 font-sans">
-      <div className="p-5 space-y-4 overflow-y-auto max-h-[85vh]">
-        {/* Header Branding */}
-        <div className="flex items-center gap-3 border-b border-[#3D2C22] pb-3">
+    <aside className="w-full lg:w-64 bg-[#1C130E] text-[#FAF6F0] flex flex-col justify-between h-full border-r border-[#3D2C22] shrink-0 font-sans">
+      <div className="p-5 space-y-6">
+        {/* Brand Header */}
+        <div className="flex items-center gap-3 pb-4 border-b border-[#3D2C22]">
           <img src="/logo.jpeg" alt="Logo" className="w-9 h-9 object-contain rounded-lg border border-[#B88B38]" />
           <div>
             <h2 className="font-serif font-extrabold text-sm tracking-wider text-[#FAF6F0]">THE CANDLE LAB</h2>
@@ -76,8 +79,8 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
         </nav>
       </div>
 
-      {/* Footer Return Action */}
-      <div className="p-4 border-t border-[#3D2C22] space-y-2.5">
+      {/* Footer Return & Logout Action */}
+      <div className="p-4 border-t border-[#3D2C22] space-y-2">
         <div className="flex items-center gap-3">
           <div className="w-7 h-7 rounded-full bg-[#B88B38] text-white font-bold flex items-center justify-center text-[10px]">
             SA
@@ -93,6 +96,16 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
           className="w-full bg-[#2A1E17] hover:bg-[#3D2C22] text-[#B88B38] font-bold text-xs py-2 px-3 rounded-lg flex items-center justify-center gap-2 border border-[#B88B38]/40 transition-colors cursor-pointer"
         >
           ← Return to Storefront
+        </button>
+
+        <button
+          onClick={() => {
+            logout();
+            onReturnToStore();
+          }}
+          className="w-full bg-red-950/40 hover:bg-red-900/60 text-red-300 font-bold text-xs py-2 px-3 rounded-lg flex items-center justify-center gap-2 border border-red-800/40 transition-colors cursor-pointer"
+        >
+          🔒 Logout Admin
         </button>
       </div>
     </aside>

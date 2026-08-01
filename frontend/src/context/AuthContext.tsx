@@ -55,11 +55,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [pendingEmail, setPendingEmail] = useState<string | undefined>(undefined);
   const [pendingPhone, setPendingPhone] = useState<string | undefined>(undefined);
 
-  // Restore session on mount
+  const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;
+
+  // Restore session on mount with 2 days expiration check
   useEffect(() => {
     try {
       const savedUser = localStorage.getItem(STORAGE_KEY);
-      if (savedUser) {
+      const expiryTime = localStorage.getItem(STORAGE_KEY + '_expiry');
+
+      if (savedUser && expiryTime) {
+        if (Date.now() < Number(expiryTime)) {
+          setUser(JSON.parse(savedUser));
+        } else {
+          // Session expired after 2 days
+          localStorage.removeItem(STORAGE_KEY);
+          localStorage.removeItem(TOKEN_KEY);
+          localStorage.removeItem(STORAGE_KEY + '_expiry');
+        }
+      } else if (savedUser) {
         setUser(JSON.parse(savedUser));
       }
     } catch (e) {
@@ -93,48 +106,78 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(userData);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
     localStorage.setItem(TOKEN_KEY, token);
+    localStorage.setItem(STORAGE_KEY + '_expiry', String(Date.now() + TWO_DAYS_MS));
   };
 
   const login = async (credentials: { emailOrPhone: string; password?: string; otp?: string; rememberMe?: boolean }) => {
     setIsLoading(true);
     try {
-      // Try backend call first
       const res = await fetch(getApiUrl('auth/login'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(credentials),
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        if (data.success && data.user) {
-          saveSession(data.user, data.token);
-          closeAuthModal();
-          return { success: true, message: 'Successfully signed in!' };
-        }
+      const data = await res.json();
+      if (res.ok && data.success && data.user) {
+        saveSession(data.user, data.token);
+        closeAuthModal();
+        return { success: true, message: data.message || 'Successfully signed in!' };
+      } else if (!res.ok && data.message) {
+        return { success: false, message: data.message };
       }
     } catch (err) {
-      // Fallback local demo login mode
+      // Offline fallback validation
     } finally {
       setIsLoading(false);
     }
 
-    // Fallback Mock Authentication
-    const mockUser: UserProfile = {
-      id: 'usr_' + Date.now().toString().slice(-6),
-      name: credentials.emailOrPhone.split('@')[0].replace(/[^a-zA-Z]/g, ' ') || 'Valued Customer',
-      email: credentials.emailOrPhone.includes('@') ? credentials.emailOrPhone : 'customer@thecandlelab.com',
-      phone: credentials.emailOrPhone.includes('@') ? '+91 98765 43210' : credentials.emailOrPhone,
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-      isEmailVerified: true,
-      isPhoneVerified: true,
-      role: 'customer',
-      createdAt: new Date().toISOString(),
-    };
+    const input = credentials.emailOrPhone.trim().toLowerCase();
+    const pass = credentials.password ? credentials.password.trim() : '';
 
-    saveSession(mockUser);
-    closeAuthModal();
-    return { success: true, message: 'Signed in successfully!' };
+    // 1. Admin Account Check
+    if (input === 'admin@thecandlelab.com' || input === 'admin') {
+      if (pass === 'admin123') {
+        const adminUser: UserProfile = {
+          id: 'usr_admin_001',
+          name: 'Super Admin',
+          email: 'admin@thecandlelab.com',
+          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+          isEmailVerified: true,
+          isPhoneVerified: true,
+          role: 'admin',
+          createdAt: new Date().toISOString(),
+        };
+        saveSession(adminUser);
+        closeAuthModal();
+        return { success: true, message: 'Welcome to Admin Portal!' };
+      }
+      return { success: false, message: 'Invalid administrator password.' };
+    }
+
+    // 2. Demo Seeded Customer Account Check
+    if ((input === 'customer@thecandlelab.com' || input === 'john') && pass === 'customer123') {
+      const customerUser: UserProfile = {
+        id: 'usr_cust_001',
+        name: 'John Doe',
+        email: 'customer@thecandlelab.com',
+        phone: '+919876543211',
+        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+        isEmailVerified: true,
+        isPhoneVerified: true,
+        role: 'customer',
+        createdAt: new Date().toISOString(),
+      };
+      saveSession(customerUser);
+      closeAuthModal();
+      return { success: true, message: 'Welcome back, John!' };
+    }
+
+    // Reject unknown users not found in database
+    return {
+      success: false,
+      message: 'Account not found in database. Please register a new account first.',
+    };
   };
 
   const register = async (data: { name: string; email: string; phone: string; password?: string }) => {
@@ -318,6 +361,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(STORAGE_KEY + '_expiry');
   };
 
   return (

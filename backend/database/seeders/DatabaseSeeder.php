@@ -22,7 +22,31 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Seed Master Admin
+        // 1. Seed Master Admin & User accounts
+        \App\Models\User::updateOrCreate(
+            ['email' => 'admin@thecandlelab.com'],
+            [
+                'name' => 'Super Admin',
+                'phone' => '+919876543210',
+                'password' => Hash::make('admin123'),
+                'role' => 'admin',
+                'reward_points' => 1000,
+                'tier' => 'Platinum',
+            ]
+        );
+
+        \App\Models\User::updateOrCreate(
+            ['email' => 'customer@thecandlelab.com'],
+            [
+                'name' => 'John Doe',
+                'phone' => '+919876543211',
+                'password' => Hash::make('customer123'),
+                'role' => 'customer',
+                'reward_points' => 250,
+                'tier' => 'Gold',
+            ]
+        );
+
         $admin = Admin::updateOrCreate(
             ['email' => 'admin@candlelab.com'],
             [

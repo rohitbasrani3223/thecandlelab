@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import { AdminLoginPage } from './AdminLoginPage';
 import { AdminSidebar } from './AdminSidebar';
 import type { AdminTab } from './AdminSidebar';
 import { AdminDashboard } from './AdminDashboard';
@@ -34,8 +36,15 @@ const getTabFromHash = (): AdminTab => {
 };
 
 export const AdminLayout: React.FC<AdminLayoutProps> = ({ onReturnToStore }) => {
+  const { user, isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState<AdminTab>(getTabFromHash);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+  // Admin Auth Guard: Check if user has admin/staff role
+  const isAdminUser = isAuthenticated && (user?.role === 'admin' || user?.role === 'staff');
+  const [sessionAdminAccess, setSessionAdminAccess] = useState(false);
+
+  const hasAccess = isAdminUser || sessionAdminAccess;
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -50,6 +59,18 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ onReturnToStore }) => 
     window.location.hash = `#admin?${tab}`;
     setIsMobileSidebarOpen(false);
   };
+
+  // If not authenticated as admin, show Admin Login Portal Page first!
+  if (!hasAccess) {
+    return (
+      <AdminLoginPage
+        onLoginSuccess={() => {
+          setSessionAdminAccess(true);
+        }}
+        onReturnToStore={onReturnToStore}
+      />
+    );
+  }
 
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-[#FAF6F0] w-full max-w-full overflow-x-hidden font-sans box-border">
@@ -93,7 +114,10 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ onReturnToStore }) => 
         <AdminSidebar
           activeTab={activeTab}
           onTabChange={handleTabChange}
-          onReturnToStore={onReturnToStore}
+          onReturnToStore={() => {
+            setSessionAdminAccess(false);
+            onReturnToStore();
+          }}
         />
       </div>
 

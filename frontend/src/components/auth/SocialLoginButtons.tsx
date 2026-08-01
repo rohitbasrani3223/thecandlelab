@@ -68,16 +68,22 @@ export const SocialLoginButtons: React.FC<SocialLoginButtonsProps> = ({ labelPre
               }
             }
 
-            // Fallback login if token response payload missing
-            performFallbackLogin('google');
+            toast({
+              type: 'error',
+              title: 'Google Sign-In Cancelled',
+              description: 'Google authentication was not completed. Please try again.',
+            });
           },
           error_callback: (err: any) => {
             console.error('Google OAuth error:', err);
-            performFallbackLogin('google');
+            toast({
+              type: 'error',
+              title: 'Google OAuth Error',
+              description: 'Failed to connect to Google Identity Services.',
+            });
           },
         });
 
-        // Trigger Google OAuth popup
         tokenClient.requestAccessToken({ prompt: 'consent' });
         return;
       } catch (err) {
@@ -85,73 +91,22 @@ export const SocialLoginButtons: React.FC<SocialLoginButtonsProps> = ({ labelPre
       }
     }
 
-    // Try Google ID Token prompt if Token Client not ready
-    if (window.google?.accounts?.id) {
-      try {
-        window.google.accounts.id.initialize({
-          client_id: GOOGLE_CLIENT_ID,
-          callback: async (response: any) => {
-            if (response.credential) {
-              try {
-                const base64Url = response.credential.split('.')[1];
-                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                const jsonPayload = decodeURIComponent(
-                  atob(base64)
-                    .split('')
-                    .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-                    .join('')
-                );
-                const payload = JSON.parse(jsonPayload);
-
-                const res = await socialLogin('google', {
-                  name: payload.name || payload.given_name,
-                  email: payload.email,
-                  avatar: payload.picture,
-                  idToken: response.credential,
-                });
-
-                if (res.success) {
-                  toast({
-                    type: 'success',
-                    title: 'Google Sign-In Successful',
-                    description: `Welcome back, ${payload.name || payload.email}!`,
-                  });
-                }
-                return;
-              } catch (e) {}
-            }
-            performFallbackLogin('google');
-          },
-        });
-
-        window.google.accounts.id.prompt();
-        return;
-      } catch (e) {}
-    }
-
-    performFallbackLogin('google');
-  };
-
-  const performFallbackLogin = async (provider: 'google' | 'apple' | 'meta') => {
-    try {
-      const res = await socialLogin(provider);
-      if (res.success) {
-        toast({ type: 'success', title: 'Welcome back', description: res.message });
-      }
-    } catch (e) {
-      toast({
-        type: 'error',
-        title: 'Authentication Error',
-        description: 'Social sign in failed. Please try again.',
-      });
-    }
+    toast({
+      type: 'warning',
+      title: 'Google SDK Loading',
+      description: 'Google Identity Services is initializing. Please try again in 2 seconds.',
+    });
   };
 
   const handleSocialClick = (provider: 'google' | 'apple' | 'meta') => {
     if (provider === 'google') {
       handleGoogleSignIn();
     } else {
-      performFallbackLogin(provider);
+      toast({
+        type: 'info',
+        title: `${provider.toUpperCase()} Sign-In`,
+        description: `Please configure ${provider} OAuth credentials in settings to enable direct sign-in.`,
+      });
     }
   };
 
