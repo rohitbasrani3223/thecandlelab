@@ -65,7 +65,8 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
   };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 font-sans">
+    <>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 font-sans">
       {products.map((prod) => {
         const isWishlisted = wishlist.includes(prod.id);
         const inrPrice = Math.round(prod.price || 0);

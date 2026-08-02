@@ -18,7 +18,7 @@ export const BestSellers: React.FC<BestSellersProps> = ({ onSelectProduct }) => 
   const handleProductClick = (prod: any) => {
     try {
       localStorage.setItem('tcl_selected_product', JSON.stringify(prod));
-    } catch {}
+    } catch { }
     if (onSelectProduct) {
       onSelectProduct(prod);
     } else {
@@ -45,13 +45,13 @@ export const BestSellers: React.FC<BestSellersProps> = ({ onSelectProduct }) => 
   const filteredProducts = activeTab === 'all'
     ? bestSellerList
     : bestSellerList.filter((p) => {
-        const cat = p.scentProfile?.toLowerCase() || p.category?.toLowerCase() || '';
-        if (activeTab === 'woody') return cat.includes('wood') || cat.includes('spice');
-        if (activeTab === 'floral') return cat.includes('floral') || cat.includes('rose');
-        if (activeTab === 'vanilla') return cat.includes('vanilla') || cat.includes('gourmand');
-        if (activeTab === 'aromatherapy') return cat.includes('aroma') || cat.includes('fresh') || cat.includes('citrus');
-        return true;
-      });
+      const cat = p.scentProfile?.toLowerCase() || p.category?.toLowerCase() || '';
+      if (activeTab === 'woody') return cat.includes('wood') || cat.includes('spice');
+      if (activeTab === 'floral') return cat.includes('floral') || cat.includes('rose');
+      if (activeTab === 'vanilla') return cat.includes('vanilla') || cat.includes('gourmand');
+      if (activeTab === 'aromatherapy') return cat.includes('aroma') || cat.includes('fresh') || cat.includes('citrus');
+      return true;
+    });
 
   return (
     <section className="py-16 sm:py-24 bg-[#FAF6F0] border-b border-[#E5D9C5] font-sans">
@@ -77,11 +77,10 @@ export const BestSellers: React.FC<BestSellersProps> = ({ onSelectProduct }) => 
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as CategoryTab)}
-                className={`px-3 py-1.5 rounded-xs text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer ${
-                  activeTab === tab.id
+                className={`px-3 py-1.5 rounded-xs text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer ${activeTab === tab.id
                     ? 'bg-[#2A1E17] text-[#D4AF37] shadow-card'
                     : 'bg-transparent text-[#69574A] hover:text-[#2A1E17] hover:bg-[#F4EFE6]'
-                }`}
+                  }`}
               >
                 {tab.label}
               </button>
@@ -128,11 +127,10 @@ export const BestSellers: React.FC<BestSellersProps> = ({ onSelectProduct }) => 
                   {/* Wishlist Button */}
                   <button
                     onClick={(e) => toggleWishlist(prod.id, prod.name, e)}
-                    className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-colors z-20 cursor-pointer ${
-                      isWishlisted
+                    className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-colors z-20 cursor-pointer ${isWishlisted
                         ? 'bg-[#B33A3A] text-white'
                         : 'bg-[#1C130E]/50 text-white hover:bg-[#D4AF37] hover:text-[#1C130E]'
-                    }`}
+                      }`}
                   >
                     <HeartIcon size={16} />
                   </button>
