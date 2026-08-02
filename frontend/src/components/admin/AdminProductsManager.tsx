@@ -34,6 +34,7 @@ export const AdminProductsManager: React.FC = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingProd, setEditingProd] = useState<CMSProduct | null>(null);
   const [savedMsg, setSavedMsg] = useState('');
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   // Categories & Collections state with cross-mapping
   const [categoriesList, setCategoriesList] = useState<CategoryItem[]>([
@@ -360,19 +361,19 @@ export const AdminProductsManager: React.FC = () => {
               <div className="space-y-2">
                 <label className="font-bold text-[#2C1E16] block uppercase mb-1">Product Media Image *</label>
 
-                {formData.image ? (
+                {(formData.image || formData.imageUrl) ? (
                   <div className="flex items-center gap-4 p-3 bg-[#FAF6F0] rounded-xl border border-[#EFE8DB]">
                     <img
-                      src={formData.image}
+                      src={formData.image || formData.imageUrl}
                       alt="Product Preview"
                       className="w-16 h-16 object-cover rounded-lg border border-[#EFE8DB] shadow-xs"
                     />
                     <div className="flex-1 space-y-1">
-                      <span className="bg-[#2E6F40]/15 text-[#2E6F40] font-bold text-[10px] px-2 py-0.5 rounded-full">
-                        ✓ Live Image Attached
+                      <span className={`font-bold text-[10px] px-2 py-0.5 rounded-full ${isUploadingImage ? 'bg-[#B88B38]/15 text-[#B88B38]' : 'bg-[#2E6F40]/15 text-[#2E6F40]'}`}>
+                        {isUploadingImage ? '⏳ Uploading to Supabase Cloud...' : '✓ Live Image Attached'}
                       </span>
                       <p className="text-[11px] text-[#7A6B5D] truncate max-w-xs">
-                        {formData.image.startsWith('data:') ? 'Local Image File (Uploaded)' : formData.image}
+                        {(formData.image || formData.imageUrl || '').startsWith('data:') ? 'Local Image File (Uploaded)' : (formData.image || formData.imageUrl)}
                       </p>
                     </div>
                     <button
@@ -388,11 +389,24 @@ export const AdminProductsManager: React.FC = () => {
                     <input
                       type="file"
                       accept="image/*"
-                      onChange={async (e) => {
+                      onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
-                          const uploadedUrl = await uploadImageToSupabaseStorage(file, 'products');
-                          setFormData({ ...formData, image: uploadedUrl, imageUrl: uploadedUrl });
+                          setIsUploadingImage(true);
+                          const reader = new FileReader();
+                          reader.onloadend = async () => {
+                            const localPreview = reader.result as string;
+                            setFormData((prev) => ({ ...prev, image: localPreview, imageUrl: localPreview }));
+                            try {
+                              const uploadedUrl = await uploadImageToSupabaseStorage(file, 'products');
+                              setFormData((prev) => ({ ...prev, image: uploadedUrl, imageUrl: uploadedUrl }));
+                            } catch (err) {
+                              console.warn('Cloud upload failed, using local preview:', err);
+                            } finally {
+                              setIsUploadingImage(false);
+                            }
+                          };
+                          reader.readAsDataURL(file);
                         }
                       }}
                       className="w-full text-xs text-[#2C1E16] file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#B88B38] file:text-white hover:file:bg-[#A3792E] cursor-pointer"

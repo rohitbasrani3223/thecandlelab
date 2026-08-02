@@ -43,8 +43,14 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
             {/* Top Vessel Media Container */}
             <div
               onClick={() => handleProductClick(prod)}
-              className="relative h-60 bg-[#F8F3EA] flex items-center justify-center p-6 cursor-pointer overflow-hidden rounded-t-2xl"
+              className="relative h-60 bg-[#F8F3EA] flex items-center justify-center cursor-pointer overflow-hidden rounded-t-2xl"
             >
+              <img
+                src={(prod as any).image || (prod as any).imageUrl || 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80'}
+                alt={prod.name}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+
               {/* SAVE Discount Red Pill Badge */}
               <div className="absolute top-3 left-3 z-10">
                 <span className="bg-[#B93829] text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-xs">
@@ -65,14 +71,6 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
               >
                 <HeartIcon size={16} className={isWishlisted ? 'fill-current text-[#B93829]' : ''} />
               </button>
-
-              {/* Center Emblem Icon Circle Container */}
-              <div className="w-16 h-16 rounded-full bg-white shadow-card flex items-center justify-center border border-[#EFE8DB] group-hover:scale-110 transition-transform duration-500 text-[#B88B38]">
-                <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v18m-9-9h18" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 2a4 4 0 014 4c0 2.5-4 6-4 6s-4-3.5-4-6a4 4 0 014-4z" />
-                </svg>
-              </div>
 
               {/* Hover Notes Overlay */}
               <div className="absolute bottom-2 left-2 right-2 bg-[#2D1E15]/90 text-white p-2 rounded-lg text-[10px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-xs z-10">
