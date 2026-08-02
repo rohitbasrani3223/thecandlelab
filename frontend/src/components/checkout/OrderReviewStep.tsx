@@ -10,6 +10,7 @@ export interface OrderReviewStepProps {
   paymentData: PaymentData;
   subtotal: number;
   discountAmount: number;
+  cartItems?: any[];
   onBack: () => void;
   onPlaceOrder: () => void;
 }
@@ -20,12 +21,12 @@ export const OrderReviewStep: React.FC<OrderReviewStepProps> = ({
   paymentData,
   subtotal,
   discountAmount,
+  cartItems = [],
   onBack,
   onPlaceOrder,
 }) => {
   const { toast } = useToast();
-  const tax = (subtotal - discountAmount) * 0.07;
-  const total = subtotal - discountAmount + shippingOption.price + tax;
+  const grandTotal = Math.max(0, Math.round(subtotal - discountAmount + shippingOption.price));
 
   return (
     <div className="space-y-6 font-sans">
@@ -53,7 +54,7 @@ export const OrderReviewStep: React.FC<OrderReviewStepProps> = ({
           <span className="font-bold text-[#D4AF37] uppercase tracking-wider block">Delivery Method:</span>
           <strong className="text-[#2A1E17] block">{shippingOption.name}</strong>
           <span className="text-[#2E6F40] font-semibold block">{shippingOption.timeframe}</span>
-          <span className="text-[#8C7A6B]">{shippingOption.price === 0 ? 'FREE' : `$${shippingOption.price.toFixed(2)}`}</span>
+          <span className="text-[#8C7A6B]">{shippingOption.price === 0 ? 'FREE (Complimentary)' : `₹${shippingOption.price}`}</span>
         </div>
 
         {/* Payment Method Recap */}
@@ -74,41 +75,45 @@ export const OrderReviewStep: React.FC<OrderReviewStepProps> = ({
 
       {/* Item Summary Box */}
       <div className="p-5 bg-[#F4EFE6] border border-[#E5D9C5] rounded-md space-y-3">
-        <h4 className="font-serif font-bold text-sm text-[#2A1E17]">Order Items Summary (2 Items)</h4>
+        <h4 className="font-serif font-bold text-sm text-[#2A1E17]">
+          Order Items Summary ({cartItems.reduce((sum, i) => sum + (i.quantity || 1), 0)} Items)
+        </h4>
 
         <div className="space-y-2 text-xs">
-          <div className="flex items-center justify-between">
-            <span className="text-[#2A1E17]">Velvet Rose & Smoked Amber (12 oz Glass)</span>
-            <span className="font-bold text-[#2A1E17]">₹1,499.00</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-[#2A1E17]">French Bourbon Vanilla 3-Wick (16 oz Jar)</span>
-            <span className="font-bold text-[#2A1E17]">₹1,299.00</span>
-          </div>
+          {cartItems.length === 0 ? (
+            <p className="text-[#8C7A6B] italic">Custom Artisanal Soy Candle Formulation</p>
+          ) : (
+            cartItems.map((item, idx) => (
+              <div key={item.id || idx} className="flex items-center justify-between">
+                <span className="text-[#2A1E17] font-medium">
+                  {item.quantity || 1}x {item.name} ({item.size || '12oz'})
+                </span>
+                <span className="font-bold text-[#2A1E17]">
+                  ₹{Math.round((item.price || 0) * (item.quantity || 1)).toLocaleString('en-IN')}
+                </span>
+              </div>
+            ))
+          )}
         </div>
 
         <div className="pt-3 border-t border-[#E5D9C5] space-y-1 text-xs">
           <div className="flex justify-between text-[#8C7A6B]">
             <span>Subtotal</span>
-            <span>₹{subtotal.toFixed(2)}</span>
+            <span>₹{subtotal.toLocaleString('en-IN')}</span>
           </div>
           {discountAmount > 0 && (
             <div className="flex justify-between text-[#2E6F40] font-semibold">
               <span>Promo Savings (LUXURY10)</span>
-              <span>-₹{discountAmount.toFixed(2)}</span>
+              <span>-₹{discountAmount.toLocaleString('en-IN')}</span>
             </div>
           )}
           <div className="flex justify-between text-[#8C7A6B]">
-            <span>Shipping</span>
-            <span>{shippingOption.price === 0 ? 'FREE' : `₹${shippingOption.price.toFixed(2)}`}</span>
-          </div>
-          <div className="flex justify-between text-[#8C7A6B]">
-            <span>GST / Taxes</span>
-            <span>Included (₹0.00)</span>
+            <span>Shipping / Delivery</span>
+            <span>{shippingOption.price === 0 ? 'FREE' : `₹${shippingOption.price}`}</span>
           </div>
           <div className="flex justify-between text-base font-bold text-[#2A1E17] pt-2 border-t border-[#E5D9C5]">
             <span>Grand Total</span>
-            <span className="text-xl font-serif text-[#D4AF37]">₹{Math.round(total).toLocaleString('en-IN')}.00</span>
+            <span className="text-xl font-serif text-[#D4AF37]">₹{grandTotal.toLocaleString('en-IN')}</span>
           </div>
         </div>
       </div>
@@ -131,8 +136,8 @@ export const OrderReviewStep: React.FC<OrderReviewStepProps> = ({
           }}
         >
           {paymentData.method === 'cod'
-            ? `Place Cash on Delivery Order (₹${Math.round(total).toLocaleString('en-IN')}) →`
-            : `Pay Securely with Razorpay (₹${Math.round(total).toLocaleString('en-IN')}) →`}
+            ? `Place Cash on Delivery Order (₹${grandTotal.toLocaleString('en-IN')}) →`
+            : `Pay Securely with Razorpay (₹${grandTotal.toLocaleString('en-IN')}) →`}
         </Button>
       </div>
     </div>

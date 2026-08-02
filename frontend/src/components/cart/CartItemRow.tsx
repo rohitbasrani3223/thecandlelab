@@ -28,8 +28,12 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({
     <div className="p-4 bg-[#FAF6F0] border border-[#E5D9C5] rounded-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 font-sans hover:border-[#D4AF37]/50 transition-all">
       {/* Product Image & Info */}
       <div className="flex items-center gap-4 flex-1">
-        <div className="w-16 h-16 rounded-sm bg-[#2A1E17] text-2xl flex items-center justify-center border border-[#4A3B32] shrink-0">
-          🕯️
+        <div className="w-16 h-16 rounded-sm bg-[#2A1E17] text-2xl flex items-center justify-center border border-[#4A3B32] shrink-0 overflow-hidden">
+          {item.image ? (
+            <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+          ) : (
+            '🕯️'
+          )}
         </div>
 
         <div className="space-y-1">
@@ -37,9 +41,9 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({
             {item.name}
           </h4>
           <div className="text-xs text-[#8C7A6B] space-x-2">
-            <span>Size: <strong className="text-[#2A1E17]">{item.size}</strong></span>
+            <span>Size: <strong className="text-[#2A1E17]">{item.size || '12oz'}</strong></span>
             <span>•</span>
-            <span>Wick: <strong className="text-[#2A1E17]">{item.wick}</strong></span>
+            <span>Wick: <strong className="text-[#2A1E17]">{item.wick || 'Organic Wood Wick'}</strong></span>
           </div>
           <span className="text-[11px] text-[#2E6F40] font-semibold block">
             ✓ In Stock & Ready to Ship
@@ -69,10 +73,10 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({
         {/* Total Price */}
         <div className="text-right">
           <span className="text-base font-bold text-[#2A1E17] block">
-            ${(item.price * item.quantity).toFixed(2)}
+            ₹{Math.round(item.price * item.quantity).toLocaleString('en-IN')}
           </span>
           <span className="text-[10px] text-[#8C7A6B]">
-            ${item.price.toFixed(2)} each
+            ₹{Math.round(item.price)} each
           </span>
         </div>
 

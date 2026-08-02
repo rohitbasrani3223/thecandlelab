@@ -2,9 +2,9 @@ import React from 'react';
 import { Button, Badge, SparklesIcon, useToast } from '../../design-system';
 
 const addonItems = [
-  { id: 'add-1', name: 'Rosewood Wick Trimmer', price: 18.0, desc: 'Extends candle burn memory', icon: '✂️' },
-  { id: 'add-2', name: 'Solid Brass Candle Snuffer', price: 22.0, desc: 'Smokeless flame extinguishing', icon: '🔔' },
-  { id: 'add-3', name: 'Artisan Apothecary Matchbox', price: 8.0, desc: 'Extra-long 4-inch wooden matches', icon: '🧹' },
+  { id: 'add-1', name: 'Rosewood Wick Trimmer', price: 499, desc: 'Extends candle burn memory', icon: '✂️' },
+  { id: 'add-2', name: 'Solid Brass Candle Snuffer', price: 699, desc: 'Smokeless flame extinguishing', icon: '🔔' },
+  { id: 'add-3', name: 'Artisan Apothecary Matchbox', price: 249, desc: 'Extra-long 4-inch wooden matches', icon: '🧹' },
 ];
 
 export interface CartAddonsSectionProps {
@@ -32,7 +32,7 @@ export const CartAddonsSection: React.FC<CartAddonsSectionProps> = ({ onAddAddon
             <div className="space-y-1">
               <div className="flex items-center justify-between">
                 <span className="text-2xl">{item.icon}</span>
-                <span className="text-xs font-bold text-[#D4AF37]">${item.price.toFixed(2)}</span>
+                <span className="text-xs font-bold text-[#D4AF37]">₹{item.price}</span>
               </div>
               <h5 className="font-serif font-bold text-xs text-[#2A1E17]">{item.name}</h5>
               <p className="text-[10px] text-[#8C7A6B]">{item.desc}</p>

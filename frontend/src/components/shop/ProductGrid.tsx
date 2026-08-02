@@ -186,10 +186,10 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
       })}
     </div>
 
-    {/* ─── Cart Added Notification (Bottom Right, Premium) ─── */}
+    {/* ─── Cart Added Notification (Top Right Below Header, Premium) ─── */}
     {cartAddedProduct && (
       <div
-        className="fixed bottom-6 right-6 z-50 w-80 bg-[#1C130E] border border-[#D4AF37]/40 rounded-2xl shadow-2xl overflow-hidden animate-slide-right font-sans"
+        className="fixed top-20 right-6 z-[9999] w-80 bg-[#1C130E] border border-[#D4AF37]/40 rounded-2xl shadow-2xl overflow-hidden animate-slide-right font-sans"
         style={{ animation: 'slideInRight 0.35s cubic-bezier(0.16,1,0.3,1)' }}
       >
         <style>{`

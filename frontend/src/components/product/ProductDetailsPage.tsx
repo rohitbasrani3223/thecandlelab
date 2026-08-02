@@ -121,11 +121,6 @@ export const ProductDetailsPage: React.FC<ProductDetailsPageProps> = ({ product,
           </div>
         </div>
 
-        {/* Frequently Bought Together Bundle */}
-        <div className="mt-16">
-          <FrequentlyBoughtTogether />
-        </div>
-
         {/* Specs Accordion */}
         <div className="mt-12">
           <ProductSpecsAccordion />
@@ -140,9 +135,6 @@ export const ProductDetailsPage: React.FC<ProductDetailsPageProps> = ({ product,
         <ProductReviewsSection />
         <RelatedProducts />
       </div>
-
-      {/* Sticky Bottom Buy Bar */}
-      <StickyBuyBar onAddToCart={() => handleAddToCart('12 oz Glass', 'Organic Wood Wick', 1)} />
     </div>
   );
 };

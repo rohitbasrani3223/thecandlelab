@@ -2,9 +2,9 @@ import React from 'react';
 import { Card, Button, StarIcon, useToast } from '../../design-system';
 
 const recentItems = [
-  { id: 'rv-1', name: 'Velvet Rose & Smoked Amber', price: '$78.00', rating: 4.95 },
-  { id: 'rv-2', name: 'French Bourbon Vanilla Bean', price: '$94.00', rating: 4.94 },
-  { id: 'rv-3', name: 'Mysore Sandalwood & Cedar', price: '$42.00', rating: 4.85 },
+  { id: 'rv-1', name: 'Velvet Rose & Smoked Amber', price: '₹1,499', rating: 4.95 },
+  { id: 'rv-2', name: 'French Bourbon Vanilla Bean', price: '₹1,299', rating: 4.94 },
+  { id: 'rv-3', name: 'Mysore Sandalwood & Cedar', price: '₹899', rating: 4.85 },
 ];
 
 export const RecentlyViewedSection: React.FC = () => {

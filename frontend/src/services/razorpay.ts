@@ -73,13 +73,22 @@ export const createRazorpayOrder = async (
     console.warn('Backend API server offline or unreachable, using direct Razorpay client checkout mode:', error);
   }
 
-  // Fallback response: return key_id and amount without a fake order_id
+  // Fallback response: Handle localhost vs production live key requirements
+  const envKey = import.meta.env.VITE_RAZORPAY_KEY_ID || '';
+  const isLocalhost = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+  // Razorpay Live keys (rzp_live_) require server-generated order_id or production domain.
+  // On localhost without server order_id, fallback to active test key so local modal opens cleanly.
+  const activeKey = (isLocalhost && envKey.startsWith('rzp_live_'))
+    ? 'rzp_test_TL3WZIwEGalN6b'
+    : (envKey || 'rzp_live_TL3hqziijFtNBM');
+
   return {
     success: true,
     order_id: '', // Empty order_id allows Razorpay SDK standard checkout mode
     amount: amountPaise,
     currency: currency,
-    key_id: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_TJQHhC34WyD6WT',
+    key_id: activeKey,
   };
 };
 
@@ -138,9 +147,9 @@ export interface ProcessRazorpayPaymentParams {
  */
 export const processRazorpayPayment = async ({
   amountInRupees,
-  customerName,
-  customerEmail,
-  customerPhone = '+91 98765 43210',
+  customerName = '',
+  customerEmail = '',
+  customerPhone = '',
   description = 'The Candle Lab Artisanal Order',
   onSuccess,
   onFailure,
@@ -156,7 +165,10 @@ export const processRazorpayPayment = async ({
     // Step 1: Create Order on Backend
     const orderData = await createRazorpayOrder(amountInRupees);
 
-    const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID || orderData.key_id || 'rzp_test_TJQHhC34WyD6WT';
+    const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID || orderData.key_id || 'rzp_live_TL3hqziijFtNBM';
+
+    // Sanitize phone for Razorpay (only numbers & + prefix)
+    const cleanPhone = (customerPhone || '').replace(/[^0-9+]/g, '');
 
     // Step 2: Configure Standard Web Checkout Modal
     const options: any = {
@@ -167,9 +179,9 @@ export const processRazorpayPayment = async ({
       description: description,
       image: '/logo.jpeg',
       prefill: {
-        name: customerName,
-        email: customerEmail,
-        contact: customerPhone,
+        ...(customerName ? { name: customerName } : {}),
+        ...(customerEmail ? { email: customerEmail } : {}),
+        ...(cleanPhone ? { contact: cleanPhone } : {}),
       },
       theme: {
         color: '#D4AF37', // Gold Accent

@@ -117,6 +117,7 @@ export const AdminProductsManager: React.FC = () => {
       ...prod,
       image: imgUrl,
       imageUrl: imgUrl,
+      images: prod.images || [],
     });
     setShowAddModal(true);
   };
@@ -357,9 +358,9 @@ export const AdminProductsManager: React.FC = () => {
                 </div>
               </div>
 
-              {/* Product Image Upload & Live Preview */}
+              {/* Product Primary Image Upload & Live Preview */}
               <div className="space-y-2">
-                <label className="font-bold text-[#2C1E16] block uppercase mb-1">Product Media Image *</label>
+                <label className="font-bold text-[#2C1E16] block uppercase mb-1">Main Cover Image *</label>
 
                 {(formData.image || formData.imageUrl) ? (
                   <div className="flex items-center gap-4 p-3 bg-[#FAF6F0] rounded-xl border border-[#EFE8DB]">
@@ -370,7 +371,7 @@ export const AdminProductsManager: React.FC = () => {
                     />
                     <div className="flex-1 space-y-1">
                       <span className={`font-bold text-[10px] px-2 py-0.5 rounded-full ${isUploadingImage ? 'bg-[#B88B38]/15 text-[#B88B38]' : 'bg-[#2E6F40]/15 text-[#2E6F40]'}`}>
-                        {isUploadingImage ? '⏳ Uploading to Supabase Cloud...' : '✓ Live Image Attached'}
+                        {isUploadingImage ? '⏳ Uploading to Supabase Cloud...' : '✓ Cover Image Attached'}
                       </span>
                       <p className="text-[11px] text-[#7A6B5D] truncate max-w-xs">
                         {(formData.image || formData.imageUrl || '').startsWith('data:') ? 'Local Image File (Uploaded)' : (formData.image || formData.imageUrl)}
@@ -421,6 +422,81 @@ export const AdminProductsManager: React.FC = () => {
                       onChange={(e) => setFormData({ ...formData, image: e.target.value, imageUrl: e.target.value })}
                       className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2 rounded-lg text-[#2C1E16] text-xs"
                     />
+                  </div>
+                )}
+              </div>
+
+              {/* 📸 Additional Gallery Photos (Multiple Image Upload) */}
+              <div className="p-4 bg-[#FAF6F0] rounded-xl border border-[#EFE8DB] space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-serif font-bold text-sm text-[#2C1E16] flex items-center gap-1.5">
+                    <span>🖼️</span> Additional Gallery Photos (Multiple Images)
+                  </h4>
+                  <span className="text-[10px] font-bold text-[#B88B38] bg-white border border-[#EFE8DB] px-2 py-0.5 rounded-md">
+                    {(formData.images || []).length} Extra Photos
+                  </span>
+                </div>
+
+                {/* Multiple Files Upload Selector */}
+                <div>
+                  <label className="text-[11px] font-bold text-[#7A6B5D] block mb-1">
+                    Select Multiple Photos (Choose 2, 3, 4+ photos at once):
+                  </label>
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files || []);
+                      if (files.length === 0) return;
+
+                      files.forEach((file) => {
+                        const reader = new FileReader();
+                        reader.onloadend = async () => {
+                          const localPreview = reader.result as string;
+                          setFormData((prev) => ({
+                            ...prev,
+                            images: [...(prev.images || []), localPreview],
+                          }));
+
+                          try {
+                            const uploadedUrl = await uploadImageToSupabaseStorage(file, 'products');
+                            setFormData((prev) => ({
+                              ...prev,
+                              images: (prev.images || []).map((img) => (img === localPreview ? uploadedUrl : img)),
+                            }));
+                          } catch (err) {
+                            console.warn('Gallery image upload note:', err);
+                          }
+                        };
+                        reader.readAsDataURL(file);
+                      });
+                    }}
+                    className="w-full text-xs text-[#2C1E16] file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#2C1E16] file:text-white hover:file:bg-[#3D2C22] cursor-pointer"
+                  />
+                </div>
+
+                {/* Gallery Images Grid Preview */}
+                {(formData.images || []).length > 0 && (
+                  <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 pt-2">
+                    {(formData.images || []).map((imgUrl, idx) => (
+                      <div key={idx} className="relative group aspect-square rounded-lg overflow-hidden border border-[#EFE8DB] bg-white shadow-xs">
+                        <img src={imgUrl} alt={`Gallery ${idx + 1}`} className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setFormData({
+                              ...formData,
+                              images: (formData.images || []).filter((_, i) => i !== idx),
+                            })
+                          }
+                          className="absolute top-1 right-1 bg-red-600 text-white w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center opacity-90 hover:opacity-100 cursor-pointer shadow-xs"
+                          title="Remove Photo"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>

@@ -69,6 +69,7 @@ export interface CMSProduct {
   vesselDescription: string;
   imageUrl?: string;
   image?: string;
+  images?: string[];
 }
 
 export interface CMSCoupon {
@@ -513,6 +514,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               vesselDescription: p.short_description || 'Hand-poured in Italian frosted glass jar.',
               image: pImg,
               imageUrl: pImg,
+              images: Array.isArray(p.images) ? p.images.map((i: any) => typeof i === 'string' ? i : (i?.url || i?.image_url)).filter(Boolean) : [],
             };
           });
           setProducts(mapped);
@@ -621,6 +623,24 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     localStorage.setItem('tcl_cms_orders', JSON.stringify(orders));
   }, [orders]);
+
+  useEffect(() => {
+    const syncOrdersFromStorage = () => {
+      try {
+        const saved = localStorage.getItem('tcl_cms_orders');
+        if (saved) {
+          setOrders(JSON.parse(saved));
+        }
+      } catch (e) {}
+    };
+
+    window.addEventListener('tcl-orders-updated', syncOrdersFromStorage);
+    window.addEventListener('storage', syncOrdersFromStorage);
+    return () => {
+      window.removeEventListener('tcl-orders-updated', syncOrdersFromStorage);
+      window.removeEventListener('storage', syncOrdersFromStorage);
+    };
+  }, []);
 
   useEffect(() => {
     localStorage.setItem('tcl_cms_seo', JSON.stringify(seoSettings));

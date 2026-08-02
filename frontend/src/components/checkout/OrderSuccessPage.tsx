@@ -3,11 +3,34 @@ import { Button, Badge, SparklesIcon, useToast } from '../../design-system';
 
 export interface OrderSuccessPageProps {
   onReturnHome?: () => void;
+  orderDetails?: {
+    orderNumber: string;
+    email: string;
+    customerName?: string;
+    items: any[];
+    totalAmount: number;
+    isCOD: boolean;
+    shippingAddress?: string;
+  };
 }
 
-export const OrderSuccessPage: React.FC<OrderSuccessPageProps> = ({ onReturnHome }) => {
+export const OrderSuccessPage: React.FC<OrderSuccessPageProps> = ({ onReturnHome, orderDetails }) => {
   const { toast } = useToast();
-  const orderId = '#TCL-2026-8841';
+  const orderId = orderDetails?.orderNumber || '#TCL-2026-8841';
+  const totalAmount = orderDetails?.totalAmount || 0;
+  const isCOD = orderDetails?.isCOD ?? false;
+  const items = orderDetails?.items || [];
+  const customerEmail = orderDetails?.email || '';
+
+  // Delivery estimation date range (3 days from today)
+  const today = new Date();
+  const deliveryStart = new Date(today);
+  deliveryStart.setDate(today.getDate() + 2);
+  const deliveryEnd = new Date(today);
+  deliveryEnd.setDate(today.getDate() + 4);
+
+  const formatDate = (d: Date) =>
+    d.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
 
   return (
     <div className="w-full bg-[#FAF6F0] min-h-screen font-sans py-12 px-6 sm:px-12">
@@ -18,12 +41,16 @@ export const OrderSuccessPage: React.FC<OrderSuccessPageProps> = ({ onReturnHome
         </div>
 
         <div className="space-y-3">
-          <Badge variant="gold" icon={<SparklesIcon size={12} />}>ORDER CONFIRMED & FORMULATING</Badge>
+          <Badge variant={isCOD ? 'warning' : 'gold'} icon={<SparklesIcon size={12} />}>
+            {isCOD ? 'COD ORDER PLACED • PENDING DELIVERY' : 'ONLINE PAYMENT VERIFIED & ORDER CONFIRMED'}
+          </Badge>
           <h1 className="text-4xl sm:text-6xl font-serif font-extrabold text-[#2A1E17]">
             Thank You for Your Order!
           </h1>
           <p className="text-sm text-[#69574A] max-w-lg mx-auto font-light leading-relaxed">
-            Your luxury candle order has been received. Our master artisans are preparing your hand-poured soy formulations in our studio.
+            {isCOD
+              ? 'Your COD order has been received. Please pay cash upon courier delivery.'
+              : 'Your online payment has been verified. Our master artisans are preparing your hand-poured formulations.'}
           </p>
         </div>
 
@@ -33,10 +60,11 @@ export const OrderSuccessPage: React.FC<OrderSuccessPageProps> = ({ onReturnHome
             <div>
               <span className="text-xs text-[#8C7A6B] font-bold uppercase tracking-wider block">Order Confirmation Number</span>
               <span className="text-2xl font-serif font-bold text-[#2A1E17]">{orderId}</span>
+              {customerEmail && <span className="text-xs text-[#8C7A6B] block mt-0.5">Confirmation sent to {customerEmail}</span>}
             </div>
             <div className="text-left sm:text-right">
               <span className="text-xs text-[#8C7A6B] font-bold uppercase tracking-wider block">Estimated Delivery</span>
-              <span className="text-sm font-bold text-[#2E6F40]">August 1 - August 3, 2026</span>
+              <span className="text-sm font-bold text-[#2E6F40]">{formatDate(deliveryStart)} - {formatDate(deliveryEnd)}</span>
             </div>
           </div>
 
@@ -63,36 +91,42 @@ export const OrderSuccessPage: React.FC<OrderSuccessPageProps> = ({ onReturnHome
         {/* Order Summary Items */}
         <div className="p-6 bg-[#FAF6F0] border border-[#E5D9C5] rounded-md text-left space-y-4">
           <h3 className="font-serif font-bold text-base text-[#2A1E17] border-b border-[#E5D9C5] pb-2">
-            Formulations Included in Order
+            Formulations Included in Order ({items.length})
           </h3>
 
           <div className="space-y-3 text-xs">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">🕯️</span>
-                <div>
-                  <strong className="text-[#2A1E17] block">Velvet Rose & Smoked Amber</strong>
-                  <span className="text-[#8C7A6B]">12 oz Frosted Glass • Organic Wood Wick</span>
+            {items.length === 0 ? (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">🕯️</span>
+                  <div>
+                    <strong className="text-[#2A1E17] block">Artisanal Soy Candle Formulation</strong>
+                    <span className="text-[#8C7A6B]">12 oz Frosted Glass • Organic Wood Wick</span>
+                  </div>
                 </div>
+                <span className="font-bold text-[#2A1E17]">₹{totalAmount.toLocaleString('en-IN')}</span>
               </div>
-              <span className="font-bold text-[#2A1E17]">$78.00</span>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">🕯️</span>
-                <div>
-                  <strong className="text-[#2A1E17] block">French Bourbon Vanilla Bean</strong>
-                  <span className="text-[#8C7A6B]">16 oz 3-Wick Jar • Cotton Wick</span>
+            ) : (
+              items.map((item, idx) => (
+                <div key={item.id || idx} className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">🕯️</span>
+                    <div>
+                      <strong className="text-[#2A1E17] block">{item.quantity}x {item.name}</strong>
+                      <span className="text-[#8C7A6B]">{item.size || '12 oz Glass'} • {item.wick || 'Organic Wood Wick'}</span>
+                    </div>
+                  </div>
+                  <span className="font-bold text-[#2A1E17]">
+                    ₹{Math.round((item.price || 0) * (item.quantity || 1)).toLocaleString('en-IN')}
+                  </span>
                 </div>
-              </div>
-              <span className="font-bold text-[#2A1E17]">$94.00</span>
-            </div>
+              ))
+            )}
           </div>
 
           <div className="pt-3 border-t border-[#E5D9C5] flex items-center justify-between text-sm font-bold">
-            <span className="text-[#2A1E17]">Total Paid</span>
-            <span className="text-xl font-serif text-[#D4AF37]">$172.00</span>
+            <span className="text-[#2A1E17]">{isCOD ? 'Amount Due on Delivery (COD)' : 'Total Paid'}</span>
+            <span className="text-xl font-serif text-[#D4AF37]">₹{totalAmount.toLocaleString('en-IN')}</span>
           </div>
         </div>
 
@@ -106,7 +140,7 @@ export const OrderSuccessPage: React.FC<OrderSuccessPageProps> = ({ onReturnHome
               toast({ type: 'info', title: 'Preparing Receipt PDF...' });
             }}
           >
-            🖨️ Download Receipt PDF
+            🖨️ Print / Download Receipt
           </Button>
 
           <Button
