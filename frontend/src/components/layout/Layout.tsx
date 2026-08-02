@@ -97,6 +97,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, onNavigate, currentPag
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
         onViewFullCart={() => onNavigate?.('cart' as any)}
+        onCheckout={() => onNavigate?.('checkout' as any)}
       />
 
       {/* 6. Main Content Viewport */}

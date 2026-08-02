@@ -10,6 +10,7 @@ export interface CartDrawerUpgradeProps {
   isOpen: boolean;
   onClose: () => void;
   onViewFullCart?: () => void;
+  onCheckout?: () => void;
 }
 
 
@@ -17,6 +18,7 @@ export const CartDrawerUpgrade: React.FC<CartDrawerUpgradeProps> = ({
   isOpen,
   onClose,
   onViewFullCart,
+  onCheckout,
 }) => {
   const [items, setItems] = useState<CartItem[]>(() => {
     try {
@@ -66,7 +68,12 @@ export const CartDrawerUpgrade: React.FC<CartDrawerUpgradeProps> = ({
   };
 
   const handleRemove = (id: string) => {
-    setItems((prev) => prev.filter((i) => i.id !== id));
+    const updated = items.filter((i) => i.id !== id);
+    setItems(updated);
+    try {
+      localStorage.setItem('tcl_cart_items', JSON.stringify(updated));
+      window.dispatchEvent(new Event('tcl-cart-updated'));
+    } catch {}
     toast({ type: 'info', title: 'Item Removed' });
   };
 
@@ -82,7 +89,7 @@ export const CartDrawerUpgrade: React.FC<CartDrawerUpgradeProps> = ({
           <div className="flex items-center justify-between text-sm font-bold text-[#2A1E17]">
             <span>Subtotal</span>
             <span className="text-lg font-serif font-bold text-[#D4AF37]">
-              ${subtotal.toFixed(2)}
+              ₹{Math.round(subtotal)}
             </span>
           </div>
 
@@ -102,7 +109,12 @@ export const CartDrawerUpgrade: React.FC<CartDrawerUpgradeProps> = ({
               size="md"
               onClick={() => {
                 onClose();
-                toast({ type: 'luxury', title: 'Proceeding to Checkout...' });
+                if (onCheckout) {
+                  onCheckout();
+                } else {
+                  window.location.hash = '#checkout';
+                  window.dispatchEvent(new HashChangeEvent('hashchange'));
+                }
               }}
             >
               Checkout Now →
@@ -135,27 +147,31 @@ export const CartDrawerUpgrade: React.FC<CartDrawerUpgradeProps> = ({
                 key={item.id}
                 className="p-3 bg-[#FAF6F0] border border-[#E5D9C5] rounded-md flex items-center justify-between gap-3"
               >
-                <div className="w-12 h-12 bg-[#2A1E17] text-xl rounded-xs flex items-center justify-center border border-[#4A3B32] shrink-0">
-                  🕯️
+                <div className="w-12 h-12 bg-[#2A1E17] text-xl rounded-xs flex items-center justify-center border border-[#4A3B32] shrink-0 overflow-hidden">
+                  {item.image ? (
+                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                  ) : (
+                    '🕯️'
+                  )}
                 </div>
 
-                <div className="flex-1 space-y-0.5">
-                  <h5 className="text-xs font-bold text-[#2A1E17]">{item.name}</h5>
+                <div className="flex-1 space-y-0.5 min-w-0">
+                  <h5 className="text-xs font-bold text-[#2A1E17] truncate">{item.name}</h5>
                   <span className="text-[10px] text-[#8C7A6B] block">
-                    {item.size} • ${item.price.toFixed(2)}
+                    {item.size || '12 oz Glass'} • ₹{Math.round(item.price)}
                   </span>
                   <div className="flex items-center gap-2 pt-1">
                     <div className="flex items-center border border-[#E5D9C5] rounded-xs bg-[#FAF6F0]">
                       <button
                         onClick={() => handleUpdateQty(item.id, -1)}
-                        className="px-2 py-0.5 text-xs font-bold text-[#2A1E17]"
+                        className="px-2 py-0.5 text-xs font-bold text-[#2A1E17] hover:bg-[#E5D9C5]"
                       >
                         -
                       </button>
                       <span className="px-2 py-0.5 text-xs font-bold">{item.quantity}</span>
                       <button
                         onClick={() => handleUpdateQty(item.id, 1)}
-                        className="px-2 py-0.5 text-xs font-bold text-[#2A1E17]"
+                        className="px-2 py-0.5 text-xs font-bold text-[#2A1E17] hover:bg-[#E5D9C5]"
                       >
                         +
                       </button>
@@ -163,13 +179,13 @@ export const CartDrawerUpgrade: React.FC<CartDrawerUpgradeProps> = ({
                   </div>
                 </div>
 
-                <div className="text-right space-y-1">
+                <div className="text-right space-y-1 shrink-0">
                   <span className="text-xs font-bold text-[#2A1E17] block">
-                    ${(item.price * item.quantity).toFixed(2)}
+                    ₹{Math.round(item.price * item.quantity)}
                   </span>
                   <button
                     onClick={() => handleRemove(item.id)}
-                    className="text-[10px] text-[#B33A3A] font-bold hover:underline"
+                    className="text-[10px] text-[#B33A3A] font-bold hover:underline cursor-pointer"
                   >
                     Remove
                   </button>
