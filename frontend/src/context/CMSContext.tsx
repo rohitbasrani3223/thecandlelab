@@ -125,7 +125,7 @@ export interface CMSStaffUser {
   id: string;
   name: string;
   email: string;
-  role: 'Super Admin' | 'Inventory Manager' | 'Content Manager' | 'Marketing Manager';
+  role: 'Super Admin' | 'Inventory Manager' | 'Content Manager' | 'Marketing Manager' | 'Admin' | 'Support';
   active: boolean;
 }
 

@@ -25,6 +25,7 @@ export interface SelectedProductData {
   burnTime?: string;
   vesselDescription?: string;
   image?: string;
+  imageUrl?: string;
 }
 
 export interface ProductDetailsPageProps {
