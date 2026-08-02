@@ -204,7 +204,10 @@ export function App() {
                   onNavigateToShop={() => handleNavigate('shop')}
                 />
               ) : currentPage === 'cart' ? (
-                <FullCartPage onNavigateToShop={() => handleNavigate('shop')} />
+                <FullCartPage
+                  onNavigateToShop={() => handleNavigate('shop')}
+                  onNavigateToCheckout={() => handleNavigate('checkout')}
+                />
               ) : currentPage === 'wishlist' ? (
                 <WishlistPage onNavigateToShop={() => handleNavigate('shop')} />
               ) : currentPage === 'collections' ? (

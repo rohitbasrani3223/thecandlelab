@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StarIcon, HeartIcon } from '../../design-system';
 import type { ShopProduct } from './ProductListItem';
 
@@ -6,6 +6,7 @@ export interface ProductGridProps {
   products: ShopProduct[];
   onQuickView: (product: ShopProduct) => void;
   onSelectProduct?: (product: ShopProduct) => void;
+  onNavigateToCart?: () => void;
   wishlist: string[];
   onToggleWishlist: (id: string, name: string) => void;
 }
@@ -14,9 +15,11 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
   products,
   onQuickView,
   onSelectProduct,
+  onNavigateToCart,
   wishlist,
   onToggleWishlist,
 }) => {
+  const [cartAddedProduct, setCartAddedProduct] = useState<ShopProduct | null>(null);
   const handleProductClick = (prod: ShopProduct) => {
     if (onSelectProduct) {
       onSelectProduct(prod);
@@ -53,6 +56,9 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
       }
       localStorage.setItem('tcl_cart_items', JSON.stringify(existing));
       window.dispatchEvent(new Event('tcl-cart-updated'));
+      // Show mini cart-added notification
+      setCartAddedProduct(prod);
+      setTimeout(() => setCartAddedProduct(null), 3500);
     } catch (err) {
       console.error('Cart add error:', err);
     }
@@ -178,5 +184,73 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
         );
       })}
     </div>
+
+    {/* ─── Cart Added Notification (Bottom Right, Premium) ─── */}
+    {cartAddedProduct && (
+      <div
+        className="fixed bottom-6 right-6 z-50 w-80 bg-[#1C130E] border border-[#D4AF37]/40 rounded-2xl shadow-2xl overflow-hidden animate-slide-right font-sans"
+        style={{ animation: 'slideInRight 0.35s cubic-bezier(0.16,1,0.3,1)' }}
+      >
+        <style>{`
+          @keyframes slideInRight {
+            from { transform: translateX(110%); opacity: 0; }
+            to   { transform: translateX(0);    opacity: 1; }
+          }
+        `}</style>
+        {/* Gold top line */}
+        <div className="h-0.5 w-full bg-gradient-to-r from-[#D4AF37] via-[#F5D98F] to-[#D4AF37]" />
+        <div className="p-4 flex items-start gap-3">
+          {/* Product thumb */}
+          <div className="w-12 h-12 rounded-xl overflow-hidden border border-[#D4AF37]/30 shrink-0 bg-[#2A1E17] flex items-center justify-center">
+            {((cartAddedProduct as any).image || (cartAddedProduct as any).imageUrl) ? (
+              <img
+                src={(cartAddedProduct as any).image || (cartAddedProduct as any).imageUrl}
+                alt={cartAddedProduct.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="text-xl">🕯️</span>
+            )}
+          </div>
+          {/* Text */}
+          <div className="flex-1 min-w-0">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[#D4AF37]">✓ Added to Bag</p>
+            <p className="text-sm font-semibold text-white truncate mt-0.5">{cartAddedProduct.name}</p>
+            <p className="text-xs text-[#A89078] mt-0.5">₹{Math.round(cartAddedProduct.price)}</p>
+          </div>
+          {/* Close */}
+          <button
+            onClick={() => setCartAddedProduct(null)}
+            className="text-[#7A6B5D] hover:text-white transition-colors shrink-0 mt-0.5 cursor-pointer"
+          >
+            ✕
+          </button>
+        </div>
+        {/* CTA Buttons */}
+        <div className="px-4 pb-4 flex gap-2">
+          <button
+            onClick={() => setCartAddedProduct(null)}
+            className="flex-1 text-xs font-semibold text-[#D4AF37] border border-[#D4AF37]/40 rounded-lg py-2 hover:bg-[#D4AF37]/10 transition-colors cursor-pointer"
+          >
+            Continue Shopping
+          </button>
+          <button
+            onClick={() => {
+              setCartAddedProduct(null);
+              if (onNavigateToCart) {
+                onNavigateToCart();
+              } else {
+                window.location.hash = '#cart';
+                window.dispatchEvent(new HashChangeEvent('hashchange'));
+              }
+            }}
+            className="flex-1 text-xs font-bold bg-[#D4AF37] text-[#1C130E] rounded-lg py-2 hover:bg-[#F5D98F] transition-colors cursor-pointer"
+          >
+            View Cart →
+          </button>
+        </div>
+      </div>
+    )}
+  </>
   );
 };

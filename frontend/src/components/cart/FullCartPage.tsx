@@ -12,9 +12,10 @@ import { EmptyState, useToast } from '../../design-system';
 
 export interface FullCartPageProps {
   onNavigateToShop?: () => void;
+  onNavigateToCheckout?: () => void;
 }
 
-export const FullCartPage: React.FC<FullCartPageProps> = ({ onNavigateToShop }) => {
+export const FullCartPage: React.FC<FullCartPageProps> = ({ onNavigateToShop, onNavigateToCheckout }) => {
   const [items, setItems] = useState<CartItem[]>(() => {
     try {
       const saved = localStorage.getItem('tcl_cart_items');
@@ -210,9 +211,14 @@ export const FullCartPage: React.FC<FullCartPageProps> = ({ onNavigateToShop }) 
                 subtotal={subtotal}
                 discountAmount={discountAmount}
                 isFreeShipping={isFreeShipping}
-                onProceedToCheckout={() =>
-                  toast({ type: 'luxury', title: 'Redirecting to SSL Secure Checkout...' })
-                }
+                onProceedToCheckout={() => {
+                  if (onNavigateToCheckout) {
+                    onNavigateToCheckout();
+                  } else {
+                    window.location.hash = '#checkout';
+                    window.dispatchEvent(new HashChangeEvent('hashchange'));
+                  }
+                }}
               />
 
               <CouponCodeBox
