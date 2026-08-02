@@ -7,6 +7,7 @@ export interface WishlistItem {
   category: string;
   collection: string;
   price: number;
+  originalPrice?: number;
   rating: number;
   reviews: number;
   stockStatus: string;
@@ -22,6 +23,7 @@ export interface WishlistGridProps {
 export const WishlistGrid: React.FC<WishlistGridProps> = ({
   items,
   onMoveToCart,
+  onRemoveItem,
 }) => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 font-sans">
