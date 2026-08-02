@@ -99,7 +99,7 @@ export const BestSellers: React.FC<BestSellersProps> = () => {
                 {/* Vessel Image Container */}
                 <div className="relative h-64 bg-[#FAF6F0] flex items-center justify-center overflow-hidden">
                   <img
-                    src={prod.imageUrl || [
+                    src={prod.image || prod.imageUrl || [
                       'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80',
                       'https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=800&q=80',
                       'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=800&q=80',

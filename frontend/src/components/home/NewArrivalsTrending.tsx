@@ -52,7 +52,7 @@ export const NewArrivalsTrending: React.FC = () => {
                   {/* Visual Image Header */}
                   <div className="h-48 bg-[#FAF6F0] rounded-sm flex items-center justify-center relative overflow-hidden">
                     <img
-                      src={item.imageUrl || [
+                      src={item.image || item.imageUrl || [
                         'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=800&q=80',
                         'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80',
                         'https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=800&q=80'
