@@ -12,7 +12,7 @@ export interface ProductGridProps {
 
 export const ProductGrid: React.FC<ProductGridProps> = ({
   products,
-  onQuickView: _onQuickView,
+  onQuickView,
   onSelectProduct,
   wishlist,
   onToggleWishlist,
@@ -20,8 +20,41 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
   const handleProductClick = (prod: ShopProduct) => {
     if (onSelectProduct) {
       onSelectProduct(prod);
-    } else {
-      window.location.hash = '#pdp';
+    } else if (onQuickView) {
+      onQuickView(prod);
+    }
+  };
+
+  const handleAddToCartDirect = (prod: ShopProduct, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const inrPrice = Math.round(prod.price || 0);
+    const inrOriginal = prod.originalPrice ? Math.round(prod.originalPrice) : Math.round(inrPrice * 1.25);
+
+    const itemToAdd = {
+      id: prod.id,
+      name: prod.name,
+      category: prod.category || 'Scented Candles',
+      price: inrPrice,
+      originalPrice: inrOriginal,
+      image: (prod as any).image || (prod as any).imageUrl || '',
+      quantity: 1,
+      size: '12oz',
+      wick: 'Organic Wood Wick',
+    };
+
+    try {
+      const saved = localStorage.getItem('tcl_cart_items');
+      const existing = saved ? JSON.parse(saved) : [];
+      const index = existing.findIndex((i: any) => i.id === itemToAdd.id);
+      if (index > -1) {
+        existing[index].quantity += 1;
+      } else {
+        existing.push(itemToAdd);
+      }
+      localStorage.setItem('tcl_cart_items', JSON.stringify(existing));
+      window.dispatchEvent(new Event('tcl-cart-updated'));
+    } catch (err) {
+      console.error('Cart add error:', err);
     }
   };
 
@@ -29,10 +62,8 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 font-sans">
       {products.map((prod) => {
         const isWishlisted = wishlist.includes(prod.id);
-        const inrPrice = prod.price < 300 ? Math.round(prod.price * 19) : Math.round(prod.price);
-        const inrOriginal = prod.originalPrice
-          ? (prod.originalPrice < 300 ? Math.round(prod.originalPrice * 19) : Math.round(prod.originalPrice))
-          : Math.round(inrPrice * 1.25);
+        const inrPrice = Math.round(prod.price || 0);
+        const inrOriginal = prod.originalPrice ? Math.round(prod.originalPrice) : Math.round(inrPrice * 1.25);
         const discountAmount = inrOriginal - inrPrice;
 
         return (
@@ -45,11 +76,19 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
               onClick={() => handleProductClick(prod)}
               className="relative h-60 bg-[#F8F3EA] flex items-center justify-center cursor-pointer overflow-hidden rounded-t-2xl"
             >
-              <img
-                src={(prod as any).image || (prod as any).imageUrl || 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80'}
-                alt={prod.name}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              />
+              {((prod as any).image || (prod as any).imageUrl) ? (
+                <img
+                  src={(prod as any).image || (prod as any).imageUrl}
+                  alt={prod.name}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center bg-[#F4EDE0] gap-2">
+                  <span className="text-4xl">🕯️</span>
+                  <span className="text-xs font-semibold text-[#8C7A6B] text-center px-4">{prod.name}</span>
+                  <span className="text-[10px] text-[#A8957F]">No image yet</span>
+                </div>
+              )}
 
               {/* SAVE Discount Red Pill Badge */}
               <div className="absolute top-3 left-3 z-10">
@@ -124,7 +163,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
 
                 <div className="flex items-center gap-1.5">
                   <button
-                    onClick={() => handleProductClick(prod)}
+                    onClick={(e) => handleAddToCartDirect(prod, e)}
                     className="bg-[#B88B38] hover:bg-[#A3792E] text-white font-bold text-xs py-2 px-3.5 rounded-lg flex items-center gap-1.5 shadow-xs transition-all cursor-pointer shrink-0"
                   >
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

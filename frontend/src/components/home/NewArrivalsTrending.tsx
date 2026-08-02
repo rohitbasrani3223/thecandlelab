@@ -2,9 +2,57 @@ import React from 'react';
 import { Card, Button, Badge, StarIcon, useToast } from '../../design-system';
 import { useCMS } from '../../context/CMSContext';
 
-export const NewArrivalsTrending: React.FC = () => {
+export interface NewArrivalsTrendingProps {
+  onSelectProduct?: (product: any) => void;
+}
+
+export const NewArrivalsTrending: React.FC<NewArrivalsTrendingProps> = ({ onSelectProduct }) => {
   const { toast } = useToast();
   const { products, settings } = useCMS();
+
+  const handleProductClick = (prod: any) => {
+    try {
+      localStorage.setItem('tcl_selected_product', JSON.stringify(prod));
+    } catch {}
+    if (onSelectProduct) {
+      onSelectProduct(prod);
+    } else {
+      window.location.hash = '#pdp';
+    }
+  };
+
+  const handleAddToCart = (item: any, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const inrPrice = Math.round(item.price || 0);
+    const itemToAdd = {
+      id: item.id,
+      name: item.name,
+      category: item.category || 'Glass Jars',
+      price: inrPrice,
+      originalPrice: item.originalPrice ? Math.round(item.originalPrice) : Math.round(inrPrice * 1.25),
+      image: item.image || item.imageUrl || 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80',
+      quantity: 1,
+      size: '12oz',
+      wick: 'Organic Wood Wick',
+    };
+
+    try {
+      const saved = localStorage.getItem('tcl_cart_items');
+      const existing = saved ? JSON.parse(saved) : [];
+      const index = existing.findIndex((i: any) => i.id === itemToAdd.id);
+      if (index > -1) {
+        existing[index].quantity += 1;
+      } else {
+        existing.push(itemToAdd);
+      }
+      localStorage.setItem('tcl_cart_items', JSON.stringify(existing));
+      window.dispatchEvent(new Event('tcl-cart-updated'));
+    } catch (err) {
+      console.error('Cart add error:', err);
+    }
+
+    toast({ type: 'luxury', title: 'Added to Shopping Bag', description: item.name });
+  };
 
   // Filter products marked as isNew or isTrending
   const items = (products.filter((p) => p.isNew).length > 0
@@ -33,7 +81,8 @@ export const NewArrivalsTrending: React.FC = () => {
         {/* Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {items.map((item, idx) => {
-            const formattedPrice = `${settings.currencySymbol}${item.price}`;
+            const inrPrice = Math.round(item.price || 0);
+            const formattedPrice = `${settings.currencySymbol}${inrPrice}`;
             const badgeText = item.isNew ? 'NEW BATCH' : 'TRENDING';
 
             return (
@@ -41,7 +90,8 @@ export const NewArrivalsTrending: React.FC = () => {
                 key={item.id}
                 variant="bordered"
                 padding="lg"
-                className="bg-[#FAF6F0] group flex flex-col justify-between hover:shadow-card transition-all"
+                onClick={() => handleProductClick(item)}
+                className="bg-[#FAF6F0] group flex flex-col justify-between hover:shadow-card transition-all cursor-pointer"
               >
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
@@ -96,7 +146,7 @@ export const NewArrivalsTrending: React.FC = () => {
                   <Button
                     variant="primary"
                     size="sm"
-                    onClick={() => toast({ type: 'luxury', title: 'Added to Cart', description: item.name })}
+                    onClick={(e) => handleAddToCart(item, e)}
                   >
                     Quick Buy
                   </Button>

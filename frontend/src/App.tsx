@@ -249,7 +249,10 @@ export function App() {
               ) : currentPage === 'shop' ? (
                 <ShopPage onSelectProduct={handleSelectProduct} />
               ) : (
-                <HomePage />
+                <HomePage
+                  onNavigateToShop={() => handleNavigate('shop')}
+                  onSelectProduct={handleSelectProduct}
+                />
               )}
             </Suspense>
           </Layout>

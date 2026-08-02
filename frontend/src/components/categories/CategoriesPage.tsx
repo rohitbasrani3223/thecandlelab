@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Badge, SparklesIcon, Card, Button } from '../../design-system';
+import { useCMS } from '../../context/CMSContext';
 
 export interface CategoryItem {
   id: string;
@@ -17,10 +18,11 @@ export interface CategoryItem {
     price: number;
     image: string;
     badge?: string;
+    rawProduct?: any;
   }>;
 }
 
-const CATEGORIES_DATA: CategoryItem[] = [
+const FALLBACK_CATEGORIES_DATA: CategoryItem[] = [
   {
     id: 'glass-jars',
     name: 'Luxury Glass Jars',
@@ -39,115 +41,6 @@ const CATEGORIES_DATA: CategoryItem[] = [
         image: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?w=500&auto=format&fit=crop&q=80',
         badge: 'Best Seller',
       },
-      {
-        id: 'prod-2',
-        title: 'French Bourbon Vanilla',
-        fragrance: 'Madagascar Vanilla Bean, Bourbon, Caramel',
-        price: 1299,
-        image: 'https://images.unsplash.com/photo-1572726729207-a78d6fea73a7?w=500&auto=format&fit=crop&q=80',
-        badge: 'Signature',
-      },
-      {
-        id: 'prod-3',
-        title: 'Midnight Jasmine & Bergamot',
-        fragrance: 'Night-blooming Jasmine, Calabrian Bergamot',
-        price: 1399,
-        image: 'https://images.unsplash.com/photo-1602874801007-bd458bb1b8b6?w=500&auto=format&fit=crop&q=80',
-      },
-    ],
-  },
-  {
-    id: 'travel-tins',
-    name: 'Botanical Travel Tins',
-    slug: 'travel-tins',
-    description: 'Seamless brass and matte black travel tins. Take your signature sanctuary scent anywhere.',
-    count: '8 Formulations',
-    icon: '✨',
-    tag: 'Compact',
-    bannerImage: 'https://images.unsplash.com/photo-1602874801007-bd458bb1b8b6?w=1200&auto=format&fit=crop&q=80',
-    products: [
-      {
-        id: 'prod-4',
-        title: 'Eucalyptus & Wild Mint Tin',
-        fragrance: 'Blue Gum Eucalyptus, Spearmint, Peppermint',
-        price: 799,
-        image: 'https://images.unsplash.com/photo-1507652313519-d4e9174996dd?w=500&auto=format&fit=crop&q=80',
-        badge: 'Travel Ready',
-      },
-      {
-        id: 'prod-5',
-        title: 'Lavender & White Sage Tin',
-        fragrance: 'French Lavender, White Sage, Cedarwood',
-        price: 799,
-        image: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?w=500&auto=format&fit=crop&q=80',
-      },
-    ],
-  },
-  {
-    id: 'pillars',
-    name: 'Aromatherapy Pillars',
-    slug: 'pillars',
-    description: 'Unscented & essential oil pure beeswax pillars. Hand-poured without synthetic additives.',
-    count: '15 Formulations',
-    icon: '🌿',
-    tag: 'Pure Oils',
-    bannerImage: 'https://images.unsplash.com/photo-1572726729207-a78d6fea73a7?w=1200&auto=format&fit=crop&q=80',
-    products: [
-      {
-        id: 'prod-6',
-        title: 'Pure Beeswax Honey Pillar',
-        fragrance: 'Natural Honey, Sweet Wax',
-        price: 1199,
-        image: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?w=500&auto=format&fit=crop&q=80',
-        badge: '100% Pure',
-      },
-      {
-        id: 'prod-7',
-        title: 'Sandalwood & Palo Santo Pillar',
-        fragrance: 'Mysore Sandalwood, Palo Santo Smoke',
-        price: 1599,
-        image: 'https://images.unsplash.com/photo-1602874801007-bd458bb1b8b6?w=500&auto=format&fit=crop&q=80',
-      },
-    ],
-  },
-  {
-    id: 'diffusers',
-    name: 'Reed Diffusers & Ambient Oils',
-    slug: 'diffusers',
-    description: 'Flame-free continuous fragrance diffusion lasting up to 4 months in heavy amber glass bottles.',
-    count: '6 Formulations',
-    icon: '💧',
-    tag: 'Flame-Free',
-    bannerImage: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?w=1200&auto=format&fit=crop&q=80',
-    products: [
-      {
-        id: 'prod-8',
-        title: 'Smoked Leather & Tobacco Reed Diffuser',
-        fragrance: 'Tuscan Leather, Smoked Tobacco, Vetiver',
-        price: 1899,
-        image: 'https://images.unsplash.com/photo-1596435452227-886313d0130f?w=500&auto=format&fit=crop&q=80',
-        badge: 'Long Lasting',
-      },
-    ],
-  },
-  {
-    id: 'gift-boxes',
-    name: 'Bespoke Gift Sets',
-    slug: 'gift-boxes',
-    description: 'Curated gift boxes featuring custom candles, matte brass wick trimmers, and snuffer tools.',
-    count: '10 Sets',
-    icon: '🎁',
-    tag: 'Luxury Box',
-    bannerImage: 'https://images.unsplash.com/photo-1602874801007-bd458bb1b8b6?w=1200&auto=format&fit=crop&q=80',
-    products: [
-      {
-        id: 'prod-9',
-        title: 'The Royal Atelier Gift Box',
-        fragrance: '3 Signature Candles + Brass Accessories',
-        price: 3499,
-        image: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?w=500&auto=format&fit=crop&q=80',
-        badge: 'Gift Set',
-      },
     ],
   },
 ];
@@ -158,12 +51,58 @@ export interface CategoriesPageProps {
 }
 
 export const CategoriesPage: React.FC<CategoriesPageProps> = ({ onNavigateToShop, onSelectProduct }) => {
+  const { products: cmsProducts } = useCMS();
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('all');
 
-  const selectedCategory = CATEGORIES_DATA.find((c) => c.id === selectedCategoryId);
+  const categoriesList = useMemo(() => {
+    if (!cmsProducts || cmsProducts.length === 0) return FALLBACK_CATEGORIES_DATA;
+
+    const map = new Map<string, any[]>();
+    cmsProducts.forEach((p) => {
+      const catName = p.category || 'Glass Jars';
+      if (!map.has(catName)) map.set(catName, []);
+      map.get(catName)!.push(p);
+    });
+
+    const categoryIcons: Record<string, string> = {
+      'Glass Jars': '🕯️',
+      'Luxury Glass Jars': '🕯️',
+      'Travel Tins': '✨',
+      'Botanical Travel Tins': '✨',
+      'Pillars': '🌿',
+      'Aromatherapy Pillars': '🌿',
+      'Diffusers': '💧',
+      'Reed Diffusers & Ambient Oils': '💧',
+      'Gift Boxes': '🎁',
+      'Wax Melts': '⚡',
+      'Scented Candles': '🕯️',
+    };
+
+    return Array.from(map.entries()).map(([catName, prods], idx) => ({
+      id: `cat-${idx}`,
+      name: catName,
+      slug: catName.toLowerCase().replace(/\s+/g, '-'),
+      description: prods[0]?.vesselDescription || `Hand-poured ${catName} formulations with premium essential oils.`,
+      count: `${prods.length} Formulations`,
+      icon: categoryIcons[catName] || '🕯️',
+      tag: 'Artisanal',
+      bannerImage: prods[0]?.image || prods[0]?.imageUrl || 'https://images.unsplash.com/photo-1603006905003-be475563bc59?w=1200',
+      products: prods.map((p) => ({
+        id: p.id,
+        title: p.name,
+        fragrance: p.topNotes || p.scentProfile || 'Botanical Blend',
+        price: Math.round(p.price || 999),
+        image: p.image || p.imageUrl || 'https://images.unsplash.com/photo-1603006905003-be475563bc59?w=500',
+        badge: p.isBestSeller ? 'Best Seller' : p.isNew ? 'New Batch' : 'Signature',
+        rawProduct: p,
+      })),
+    }));
+  }, [cmsProducts]);
+
+  const selectedCategory = categoriesList.find((c) => c.id === selectedCategoryId);
 
   const handleProductClick = (prod: any, cat: CategoryItem) => {
-    const productData = {
+    const productData = prod.rawProduct || {
       id: prod.id,
       name: prod.title,
       price: prod.price,
@@ -172,6 +111,9 @@ export const CategoriesPage: React.FC<CategoriesPageProps> = ({ onNavigateToShop
       category: cat.name,
       image: prod.image,
     };
+    try {
+      localStorage.setItem('tcl_selected_product', JSON.stringify(productData));
+    } catch {}
     if (onSelectProduct) {
       onSelectProduct(productData);
     } else {
@@ -205,9 +147,9 @@ export const CategoriesPage: React.FC<CategoriesPageProps> = ({ onNavigateToShop
                 : 'bg-transparent text-[#69574A] hover:text-[#2A1E17] hover:bg-[#FAF6F0]'
             }`}
           >
-            All Categories ({CATEGORIES_DATA.length})
+            All Categories ({categoriesList.length})
           </button>
-          {CATEGORIES_DATA.map((cat) => (
+          {categoriesList.map((cat) => (
             <button
               key={cat.id}
               onClick={() => setSelectedCategoryId(cat.id)}
@@ -226,7 +168,7 @@ export const CategoriesPage: React.FC<CategoriesPageProps> = ({ onNavigateToShop
 
       {/* 3. Category Showcase Content */}
       <div className="max-w-7xl mx-auto px-6 sm:px-12 py-12 space-y-16">
-        {(selectedCategoryId === 'all' ? CATEGORIES_DATA : [selectedCategory!]).map((cat) => (
+        {(selectedCategoryId === 'all' ? categoriesList : [selectedCategory!]).map((cat) => (
           <div key={cat.id} id={cat.id} className="space-y-8 border-b border-[#E5D9C5] pb-12 last:border-b-0">
             {/* Category Header Card */}
             <div className="bg-[#F4EFE6] border border-[#E5D9C5] rounded-md p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-card">

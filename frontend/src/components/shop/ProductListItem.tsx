@@ -38,8 +38,8 @@ export const ProductListItem: React.FC<ProductListItemProps> = ({
   isWishlisted,
   onToggleWishlist,
 }) => {
-  const inrPrice = Math.round(product.price * 19);
-  const inrOriginal = product.originalPrice ? Math.round(product.originalPrice * 19) : null;
+  const inrPrice = Math.round(product.price || 0);
+  const inrOriginal = product.originalPrice ? Math.round(product.originalPrice) : null;
 
   const handleProductClick = () => {
     if (onSelectProduct) {

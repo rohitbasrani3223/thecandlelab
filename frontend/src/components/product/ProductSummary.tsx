@@ -25,8 +25,8 @@ export interface ProductSummaryProps {
 
 export const ProductSummary: React.FC<ProductSummaryProps> = ({ product, onAddToCart, onBuyNow }) => {
   const productName = product?.name || 'Velvet Rose & Smoked Amber';
-  const productPrice = product?.price ? Math.round(product.price < 300 ? product.price * 19 : product.price) : 1499;
-  const productOriginal = product?.originalPrice ? Math.round(product.originalPrice < 300 ? product.originalPrice * 19 : product.originalPrice) : Math.round(productPrice * 1.25);
+  const productPrice = product?.price ? Math.round(product.price) : 1499;
+  const productOriginal = product?.originalPrice ? Math.round(product.originalPrice) : Math.round(productPrice * 1.25);
   const rating = product?.rating || 4.95;
   const reviewsCount = product?.reviewsCount || 142;
   const topNotes = product?.topNotes || 'Calabrian Bergamot, Damask Rose';

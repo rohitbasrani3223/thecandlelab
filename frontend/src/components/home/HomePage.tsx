@@ -13,9 +13,10 @@ import { NewsletterSection } from './NewsletterSection';
 
 export interface HomePageProps {
   onNavigateToShop?: () => void;
+  onSelectProduct?: (product: any) => void;
 }
 
-export const HomePage: React.FC<HomePageProps> = ({ onNavigateToShop }) => {
+export const HomePage: React.FC<HomePageProps> = ({ onNavigateToShop, onSelectProduct }) => {
   const handleShopClick = () => {
     if (onNavigateToShop) {
       onNavigateToShop();
@@ -33,16 +34,16 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigateToShop }) => {
       <CategoryGrid onNavigateToShop={handleShopClick} />
 
       {/* 3. Featured Royal Collection */}
-      <FeaturedCollection />
+      <FeaturedCollection onSelectProduct={onSelectProduct} />
 
       {/* 4. Best Sellers */}
-      <BestSellers />
+      <BestSellers onSelectProduct={onSelectProduct} />
 
       {/* 5. Signature & Seasonal Collections Showcase */}
       <CollectionsShowcase />
 
       {/* 6. New Arrivals & Trending */}
-      <NewArrivalsTrending />
+      <NewArrivalsTrending onSelectProduct={onSelectProduct} />
 
       {/* 7. Scent Notes & Candle Care Guide */}
       <ScentNotesCareSection />

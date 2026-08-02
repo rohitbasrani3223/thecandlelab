@@ -843,6 +843,273 @@ export const AdminProductsManager: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* BULK IMAGE UPLOAD TAB */}
+      {activeSubTab === 'bulk' && (
+        <BulkImageUploadTab products={products} updateProduct={updateProduct} />
+      )}
     </div>
   );
 };
+
+// ─── Bulk Image Upload Component ─────────────────────────────────────────────
+
+interface BulkUploadResult {
+  fileName: string;
+  matchedProduct: string | null;
+  status: 'pending' | 'uploading' | 'done' | 'error' | 'no_match';
+  uploadedUrl?: string;
+  error?: string;
+}
+
+const BulkImageUploadTab: React.FC<{
+  products: import('../../context/CMSContext').CMSProduct[];
+  updateProduct: (id: string, updated: Partial<import('../../context/CMSContext').CMSProduct>) => void;
+}> = ({ products, updateProduct }) => {
+  const [results, setResults] = useState<BulkUploadResult[]>([]);
+  const [isRunning, setIsRunning] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+
+  const normalize = (s: string) =>
+    s.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+  const findMatchingProduct = (fileName: string) => {
+    const base = normalize(fileName.replace(/\.[^.]+$/, ''));
+    return products.find((p) => {
+      const pName = normalize(p.name);
+      return pName.includes(base) || base.includes(pName) || base.includes(normalize(p.id));
+    }) || null;
+  };
+
+  const handleFilesSelected = (files: FileList | null) => {
+    if (!files) return;
+    const arr = Array.from(files).filter((f) => f.type.startsWith('image/'));
+    setSelectedFiles(arr);
+    setResults(
+      arr.map((f) => ({
+        fileName: f.name,
+        matchedProduct: findMatchingProduct(f.name)?.name || null,
+        status: 'pending',
+      }))
+    );
+  };
+
+  const handleUploadAll = async () => {
+    if (selectedFiles.length === 0) return;
+    setIsRunning(true);
+
+    for (let i = 0; i < selectedFiles.length; i++) {
+      const file = selectedFiles[i];
+      const matched = findMatchingProduct(file.name);
+
+      setResults((prev) =>
+        prev.map((r, idx) =>
+          idx === i ? { ...r, status: matched ? 'uploading' : 'no_match' } : r
+        )
+      );
+
+      if (!matched) continue;
+
+      try {
+        // Upload to Supabase Storage
+        const cleanName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9_.-]/g, '_')}`;
+        const uploadUrl = `https://anaqrvrzbqhpgwjfpacx.supabase.co/storage/v1/object/product-images/${cleanName}`;
+        const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFuYXFydnJ6YnFocGd3amZwYWN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUyMzMzMzIsImV4cCI6MjEwMDgwOTMzMn0.NDzAvxZDP_TSlq1sXm1AID9xL8AzYl3QCA2LwH0TAhs';
+
+        let imageUrl: string;
+
+        const res = await fetch(uploadUrl, {
+          method: 'POST',
+          headers: {
+            'apikey': ANON_KEY,
+            'Authorization': `Bearer ${ANON_KEY}`,
+            'Content-Type': file.type,
+          },
+          body: file,
+        });
+
+        if (res.ok) {
+          imageUrl = `https://anaqrvrzbqhpgwjfpacx.supabase.co/storage/v1/object/public/product-images/${cleanName}`;
+        } else {
+          // Fallback: use base64 data URL
+          imageUrl = await new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.readAsDataURL(file);
+          });
+        }
+
+        // Update product in CMS state + Supabase DB
+        updateProduct(matched.id, { image: imageUrl, imageUrl });
+
+        // Also update in Supabase REST
+        await fetch(`https://anaqrvrzbqhpgwjfpacx.supabase.co/rest/v1/products?id=eq.${matched.id}`, {
+          method: 'PATCH',
+          headers: {
+            'apikey': ANON_KEY,
+            'Authorization': `Bearer ${ANON_KEY}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal',
+          },
+          body: JSON.stringify({ image_url: imageUrl }),
+        });
+
+        setResults((prev) =>
+          prev.map((r, idx) =>
+            idx === i ? { ...r, status: 'done', uploadedUrl: imageUrl, matchedProduct: matched.name } : r
+          )
+        );
+      } catch (err: any) {
+        setResults((prev) =>
+          prev.map((r, idx) =>
+            idx === i ? { ...r, status: 'error', error: err?.message || 'Upload failed' } : r
+          )
+        );
+      }
+    }
+    setIsRunning(false);
+  };
+
+  const statusColor: Record<string, string> = {
+    pending: 'bg-[#7A6B5D]/10 text-[#7A6B5D]',
+    uploading: 'bg-[#B88B38]/10 text-[#B88B38]',
+    done: 'bg-[#2E6F40]/15 text-[#2E6F40]',
+    error: 'bg-red-100 text-red-700',
+    no_match: 'bg-orange-100 text-orange-700',
+  };
+
+  const statusIcon: Record<string, string> = {
+    pending: '⏳',
+    uploading: '🔄',
+    done: '✅',
+    error: '❌',
+    no_match: '⚠️',
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="bg-white border border-[#EFE8DB] rounded-2xl p-6 shadow-subtle">
+        <h3 className="font-serif font-bold text-xl text-[#2C1E16] mb-1">📷 Bulk Image Upload</h3>
+        <p className="text-xs text-[#7A6B5D]">
+          Multiple product images ek saath upload karo. File naam se product auto-match hoga aur Supabase Storage + DB mein save ho jaayega.
+        </p>
+      </div>
+
+      {/* Upload Zone */}
+      <div
+        className={`border-2 border-dashed rounded-2xl p-10 text-center transition-all cursor-pointer ${
+          isDragging ? 'border-[#B88B38] bg-[#FFF8EC]' : 'border-[#D4C4A8] bg-[#FAF6F0] hover:border-[#B88B38] hover:bg-[#FFF8EC]'
+        }`}
+        onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+        onDragLeave={() => setIsDragging(false)}
+        onDrop={(e) => { e.preventDefault(); setIsDragging(false); handleFilesSelected(e.dataTransfer.files); }}
+        onClick={() => document.getElementById('bulk-image-input')?.click()}
+      >
+        <input
+          id="bulk-image-input"
+          type="file"
+          multiple
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => handleFilesSelected(e.target.files)}
+        />
+        <div className="space-y-3">
+          <span className="text-5xl">📸</span>
+          <p className="font-bold text-[#2C1E16] text-base">Click ya Drag & Drop karo multiple images</p>
+          <p className="text-xs text-[#8C7A6B]">
+            File naming tip: Product name se match karo (e.g., <code className="bg-[#EFE8DB] px-1 rounded">bouquet.jpg</code>, <code className="bg-[#EFE8DB] px-1 rounded">bloom-jar-candle.png</code>)
+          </p>
+        </div>
+      </div>
+
+      {/* Product Name Reference List */}
+      <div className="bg-white border border-[#EFE8DB] rounded-2xl p-5 shadow-subtle">
+        <h4 className="font-bold text-sm text-[#2C1E16] mb-3">📦 Products in Database ({products.length}) — File names yahan se match hongi:</h4>
+        <div className="flex flex-wrap gap-2">
+          {products.map((p) => (
+            <span key={p.id} className="text-[10px] font-mono bg-[#FAF6F0] border border-[#EFE8DB] px-2 py-1 rounded-md text-[#7A6B5D]">
+              {p.name}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* Selected Files Preview Table */}
+      {results.length > 0 && (
+        <div className="bg-white border border-[#EFE8DB] rounded-2xl shadow-subtle overflow-hidden">
+          <div className="p-5 border-b border-[#EFE8DB] flex items-center justify-between">
+            <h4 className="font-bold text-sm text-[#2C1E16]">
+              {results.length} Files Selected
+              <span className="ml-2 text-[10px] text-[#7A6B5D] font-normal">
+                ({results.filter((r) => r.matchedProduct).length} matched, {results.filter((r) => !r.matchedProduct).length} unmatched)
+              </span>
+            </h4>
+            <button
+              onClick={handleUploadAll}
+              disabled={isRunning}
+              className="bg-[#B88B38] text-white text-xs font-bold px-5 py-2 rounded-xl hover:bg-[#9A7230] transition-colors disabled:opacity-60 cursor-pointer disabled:cursor-not-allowed"
+            >
+              {isRunning ? '⏳ Uploading...' : `🚀 Upload All ${results.length} Images`}
+            </button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead className="bg-[#FAF6F0] border-b border-[#EFE8DB]">
+                <tr>
+                  <th className="text-left py-3 px-4 font-bold text-[#7A6B5D] uppercase tracking-wide">File Name</th>
+                  <th className="text-left py-3 px-4 font-bold text-[#7A6B5D] uppercase tracking-wide">Matched Product</th>
+                  <th className="text-left py-3 px-4 font-bold text-[#7A6B5D] uppercase tracking-wide">Status</th>
+                  <th className="text-left py-3 px-4 font-bold text-[#7A6B5D] uppercase tracking-wide">Preview</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#F2ECE1]">
+                {results.map((r, idx) => (
+                  <tr key={idx} className="hover:bg-[#FAF6F0]">
+                    <td className="py-3 px-4 font-mono text-[#2C1E16]">{r.fileName}</td>
+                    <td className="py-3 px-4">
+                      {r.matchedProduct ? (
+                        <span className="font-semibold text-[#2C1E16]">✅ {r.matchedProduct}</span>
+                      ) : (
+                        <span className="text-orange-600 font-semibold">⚠️ No Match</span>
+                      )}
+                    </td>
+                    <td className="py-3 px-4">
+                      <span className={`font-bold px-2 py-0.5 rounded-full text-[10px] ${statusColor[r.status]}`}>
+                        {statusIcon[r.status]} {r.status.toUpperCase().replace('_', ' ')}
+                      </span>
+                      {r.error && <p className="text-red-600 text-[10px] mt-0.5">{r.error}</p>}
+                    </td>
+                    <td className="py-3 px-4">
+                      {r.uploadedUrl && (
+                        <img
+                          src={r.uploadedUrl}
+                          alt={r.fileName}
+                          className="w-12 h-12 object-cover rounded-lg border border-[#EFE8DB]"
+                        />
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Done Summary */}
+      {!isRunning && results.some((r) => r.status === 'done') && (
+        <div className="bg-[#2E6F40]/10 border border-[#2E6F40]/30 rounded-2xl p-5 text-center">
+          <p className="font-bold text-[#2E6F40] text-base">
+            🎉 {results.filter((r) => r.status === 'done').length} Images Successfully Uploaded!
+          </p>
+          <p className="text-xs text-[#4A7C59] mt-1">
+            Sabhi products ki images Supabase Storage + Database mein save ho gayi hain. Page refresh karo to dekhein.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+};
+

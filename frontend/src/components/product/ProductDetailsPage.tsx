@@ -38,19 +38,43 @@ export const ProductDetailsPage: React.FC<ProductDetailsPageProps> = ({ product,
   const productName = product?.name || 'Velvet Rose & Smoked Amber';
 
   const handleAddToCart = (size: string, wick: string, qty: number) => {
+    const itemToAdd = {
+      id: product?.id || 'prod-1',
+      name: product?.name || 'Velvet Rose & Smoked Amber',
+      category: product?.category || 'Glass Jars',
+      price: product?.price ? Math.round(product.price) : 1499,
+      originalPrice: product?.originalPrice ? Math.round(product.originalPrice) : 1799,
+      image: product?.image || product?.imageUrl || 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80',
+      quantity: qty,
+      size,
+      wick,
+    };
+
+    try {
+      const saved = localStorage.getItem('tcl_cart_items');
+      const existing = saved ? JSON.parse(saved) : [];
+      const index = existing.findIndex((i: any) => i.id === itemToAdd.id && i.size === size);
+      if (index > -1) {
+        existing[index].quantity += qty;
+      } else {
+        existing.push(itemToAdd);
+      }
+      localStorage.setItem('tcl_cart_items', JSON.stringify(existing));
+      window.dispatchEvent(new Event('tcl-cart-updated'));
+    } catch (e) {
+      console.error('Cart update failed', e);
+    }
+
     toast({
       type: 'luxury',
       title: 'Added to Shopping Bag',
-      description: `${qty}x ${productName} (${size}, ${wick})`,
+      description: `${qty}x ${itemToAdd.name} (${size})`,
     });
   };
 
   const handleBuyNow = (size: string, wick: string, qty: number) => {
-    toast({
-      type: 'luxury',
-      title: 'Proceeding to Instant Checkout',
-      description: `Configured: ${qty}x ${productName} (${size} with ${wick})`,
-    });
+    handleAddToCart(size, wick, qty);
+    window.location.hash = '#checkout';
   };
 
   return (
@@ -80,7 +104,11 @@ export const ProductDetailsPage: React.FC<ProductDetailsPageProps> = ({ product,
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           {/* Left Column: Gallery */}
           <div className="lg:col-span-7">
-            <ProductGallery mainImage={product?.image || product?.imageUrl} />
+            <ProductGallery
+              mainImage={product?.image || product?.imageUrl}
+              images={(product as any)?.images || []}
+              productName={product?.name}
+            />
           </div>
 
           {/* Right Column: Purchase Summary */}

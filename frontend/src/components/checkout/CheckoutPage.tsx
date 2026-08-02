@@ -57,24 +57,42 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
   });
   const [payment, setPayment] = useState<PaymentData>(initialPayment);
 
-  const subtotal = 2798.0;
-  const discountAmount = 279.8; // 10% off
+  const [cartItems] = useState<any[]>(() => {
+    try {
+      const saved = localStorage.getItem('tcl_cart_items');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const subtotal = cartItems.length > 0
+    ? cartItems.reduce((sum, item) => sum + (item.price || 999) * (item.quantity || 1), 0)
+    : 1499;
+
+  const discountAmount = Math.round(subtotal * 0.1); // 10% off coupon
   const totalAmount = Math.max(1, Math.round(subtotal - discountAmount + shipping.price));
 
   const completeOrderSave = async (paymentId?: string, razorpayOrderId?: string) => {
     const isCOD = payment.method === 'cod';
     const orderNumber = razorpayOrderId ? `#${razorpayOrderId}` : `#TCL-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+
+    const itemsSummaryStr = cartItems.length > 0
+      ? cartItems.map((i) => `${i.quantity}x ${i.name} (${i.size || '12oz'})`).join(', ')
+      : '1x Velvet Rose & Smoked Amber (12oz)';
+
+    const orderItemsArr = cartItems.length > 0
+      ? cartItems.map((i) => ({ name: i.name, quantity: i.quantity, price: i.price }))
+      : [{ name: 'Velvet Rose & Smoked Amber', quantity: 1, price: 1499 }];
+
     const newOrder = {
       id: orderNumber,
       orderNumber,
       date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
       status: isCOD ? 'COD_PENDING' : 'PAID',
       badgeVariant: isCOD ? 'warning' : 'gold',
-      itemsSummary: 'Velvet Rose & Smoked Amber, French Bourbon Vanilla',
-      items: [
-        { name: 'Velvet Rose & Smoked Amber', quantity: 1, price: 1499 },
-        { name: 'French Bourbon Vanilla 3-Wick', quantity: 1, price: 1299 },
-      ],
+      itemsSummary: itemsSummaryStr,
+      items: orderItemsArr,
       totalAmount: `₹${totalAmount.toLocaleString('en-IN')}`,
       paymentMethod: isCOD ? 'Cash on Delivery (COD)' : 'Razorpay Online (UPI/Cards)',
       paymentId: paymentId || (isCOD ? 'COD_ORDER' : 'PAY_RAZORPAY_SUCCESS'),
@@ -103,6 +121,12 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
     } catch (e) {
       // Fallback local persistence completed
     }
+
+    // Clear cart upon successful checkout
+    try {
+      localStorage.removeItem('tcl_cart_items');
+      window.dispatchEvent(new Event('tcl-cart-updated'));
+    } catch {}
 
     setIsProcessing(false);
     toast({

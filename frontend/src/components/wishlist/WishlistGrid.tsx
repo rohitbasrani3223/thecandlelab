@@ -22,13 +22,12 @@ export interface WishlistGridProps {
 export const WishlistGrid: React.FC<WishlistGridProps> = ({
   items,
   onMoveToCart,
-  onRemoveItem,
 }) => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 font-sans">
       {items.map((item) => {
-        const inrPrice = Math.round(item.price * 19);
-        const inrOriginal = Math.round(inrPrice * 1.25);
+        const inrPrice = Math.round(item.price || 0);
+        const inrOriginal = item.originalPrice ? Math.round(item.originalPrice) : Math.round(inrPrice * 1.25);
         const discount = inrOriginal - inrPrice;
 
         return (

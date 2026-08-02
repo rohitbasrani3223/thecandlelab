@@ -6,16 +6,24 @@ type CategoryTab = 'all' | 'woody' | 'floral' | 'vanilla' | 'aromatherapy';
 
 export interface BestSellersProps {
   onNavigateToShop?: () => void;
+  onSelectProduct?: (product: any) => void;
 }
 
-export const BestSellers: React.FC<BestSellersProps> = () => {
+export const BestSellers: React.FC<BestSellersProps> = ({ onSelectProduct }) => {
   const [activeTab, setActiveTab] = useState<CategoryTab>('all');
   const [wishlist, setWishlist] = useState<string[]>([]);
   const { toast } = useToast();
   const { products, settings } = useCMS();
 
-  const handleProductClick = () => {
-    window.location.hash = '#pdp';
+  const handleProductClick = (prod: any) => {
+    try {
+      localStorage.setItem('tcl_selected_product', JSON.stringify(prod));
+    } catch {}
+    if (onSelectProduct) {
+      onSelectProduct(prod);
+    } else {
+      window.location.hash = '#pdp';
+    }
   };
 
   const toggleWishlist = (id: string, name: string, e: React.MouseEvent) => {
@@ -93,7 +101,7 @@ export const BestSellers: React.FC<BestSellersProps> = () => {
                 key={prod.id}
                 variant="bordered"
                 padding="none"
-                onClick={handleProductClick}
+                onClick={() => handleProductClick(prod)}
                 className="bg-[#FAF6F0] group flex flex-col justify-between overflow-hidden hover:shadow-hover hover:border-[#D4AF37] transition-all duration-300 relative cursor-pointer"
               >
                 {/* Vessel Image Container */}

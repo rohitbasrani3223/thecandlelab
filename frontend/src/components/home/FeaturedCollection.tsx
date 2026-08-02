@@ -2,7 +2,11 @@ import React, { useState } from 'react';
 import { Card, Button, Badge, HeartIcon, StarIcon, SparklesIcon, useToast } from '../../design-system';
 import { useCMS } from '../../context/CMSContext';
 
-export const FeaturedCollection: React.FC = () => {
+export interface FeaturedCollectionProps {
+  onSelectProduct?: (product: any) => void;
+}
+
+export const FeaturedCollection: React.FC<FeaturedCollectionProps> = ({ onSelectProduct }) => {
   const { toast } = useToast();
   const { products, settings } = useCMS();
   const [wishlist, setWishlist] = useState<string[]>([]);
@@ -15,6 +19,52 @@ export const FeaturedCollection: React.FC = () => {
       setWishlist([...wishlist, id]);
       toast({ type: 'luxury', title: 'Saved to Wishlist', description: name });
     }
+  };
+
+  const handleProductClick = (prod: any) => {
+    try {
+      localStorage.setItem('tcl_selected_product', JSON.stringify(prod));
+    } catch {}
+    if (onSelectProduct) {
+      onSelectProduct(prod);
+    } else {
+      window.location.hash = '#pdp';
+    }
+  };
+
+  const handleAddToCart = (prod: any, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const inrPrice = Math.round(prod.price || 0);
+    const inrOriginal = prod.originalPrice ? Math.round(prod.originalPrice) : Math.round(inrPrice * 1.25);
+
+    const itemToAdd = {
+      id: prod.id,
+      name: prod.name,
+      category: prod.category || 'Glass Jars',
+      price: inrPrice,
+      originalPrice: inrOriginal,
+      image: prod.image || prod.imageUrl || 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80',
+      quantity: 1,
+      size: '12oz',
+      wick: 'Organic Wood Wick',
+    };
+
+    try {
+      const saved = localStorage.getItem('tcl_cart_items');
+      const existing = saved ? JSON.parse(saved) : [];
+      const index = existing.findIndex((i: any) => i.id === itemToAdd.id);
+      if (index > -1) {
+        existing[index].quantity += 1;
+      } else {
+        existing.push(itemToAdd);
+      }
+      localStorage.setItem('tcl_cart_items', JSON.stringify(existing));
+      window.dispatchEvent(new Event('tcl-cart-updated'));
+    } catch (err) {
+      console.error('Cart add error:', err);
+    }
+
+    toast({ type: 'luxury', title: 'Added to Shopping Bag', description: prod.name });
   };
 
   // Get products marked as featured or top rated
@@ -41,15 +91,17 @@ export const FeaturedCollection: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {featuredList.map((prod) => {
             const isWishlisted = wishlist.includes(prod.id);
-            const formattedPrice = `${settings.currencySymbol}${prod.price}`;
-            const origPrice = prod.originalPrice ? `${settings.currencySymbol}${prod.originalPrice}` : null;
+            const inrPrice = Math.round(prod.price || 0);
+            const formattedPrice = `${settings.currencySymbol}${inrPrice}`;
+            const origPrice = prod.originalPrice ? `${settings.currencySymbol}${Math.round(prod.originalPrice)}` : null;
 
             return (
               <Card
                 key={prod.id}
                 variant="bordered"
                 padding="none"
-                className="bg-[#FAF6F0] group flex flex-col justify-between overflow-hidden hover:shadow-hover transition-all duration-300 relative"
+                onClick={() => handleProductClick(prod)}
+                className="bg-[#FAF6F0] group flex flex-col justify-between overflow-hidden hover:shadow-hover transition-all duration-300 relative cursor-pointer"
               >
                 {/* Product Image Container */}
                 <div className="relative h-64 bg-[#FAF6F0] flex items-center justify-center overflow-hidden">
@@ -72,7 +124,10 @@ export const FeaturedCollection: React.FC = () => {
 
                   {/* Wishlist Heart */}
                   <button
-                    onClick={() => toggleWishlist(prod.id, prod.name)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleWishlist(prod.id, prod.name);
+                    }}
                     className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-colors ${isWishlisted ? 'bg-[#B33A3A] text-white' : 'bg-[#1C130E]/50 text-white hover:bg-[#D4AF37] hover:text-[#1C130E]'}`}
                     aria-label="Wishlist"
                   >
@@ -112,7 +167,7 @@ export const FeaturedCollection: React.FC = () => {
                     <Button
                       variant="gold"
                       size="sm"
-                      onClick={() => toast({ type: 'luxury', title: 'Added to Cart', description: prod.name })}
+                      onClick={(e) => handleAddToCart(prod, e)}
                     >
                       Add to Cart
                     </Button>
