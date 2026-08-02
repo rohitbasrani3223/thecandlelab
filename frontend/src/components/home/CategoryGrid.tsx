@@ -36,7 +36,7 @@ const categories = [
     count: '6 Fragrances',
     icon: '💧',
     tag: 'Flame-Free',
-    image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1572726729207-a78d6fea73a7?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'gift-boxes',

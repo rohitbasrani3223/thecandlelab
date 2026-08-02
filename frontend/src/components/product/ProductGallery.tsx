@@ -10,8 +10,8 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({ mainImage }) => 
 
   const galleryImages = [
     { id: 1, label: 'Front Vessel', src: defaultSrc, isMain: true },
-    { id: 2, label: 'Unboxing Packaging', src: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&auto=format&fit=crop&q=80' },
-    { id: 3, label: 'Wick Flame Glow', src: 'https://images.unsplash.com/photo-1595425970377-c9703cf48b6d?w=800&auto=format&fit=crop&q=80' },
+    { id: 2, label: 'Unboxing Packaging', src: 'https://images.unsplash.com/photo-1572726729207-a78d6fea73a7?w=800&auto=format&fit=crop&q=80' },
+    { id: 3, label: 'Wick Flame Glow', src: 'https://images.unsplash.com/photo-1602874801007-bd458bb1b8b6?w=800&auto=format&fit=crop&q=80' },
     { id: 4, label: 'Botanical Ingredients', src: defaultSrc },
   ];
 

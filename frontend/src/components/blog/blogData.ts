@@ -58,7 +58,7 @@ export const BLOG_POSTS: BlogPost[] = [
     },
     publishedAt: 'July 18, 2026',
     readTime: '4 min read',
-    coverImage: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=1200&auto=format&fit=crop&q=80',
+    coverImage: 'https://images.unsplash.com/photo-1572726729207-a78d6fea73a7?w=1200&auto=format&fit=crop&q=80',
     tags: ['Candle Maintenance', 'Wick Care', 'Long Burn'],
   },
   {
@@ -79,7 +79,7 @@ export const BLOG_POSTS: BlogPost[] = [
     },
     publishedAt: 'July 10, 2026',
     readTime: '6 min read',
-    coverImage: 'https://images.unsplash.com/photo-1595425970377-c9703cf48b6d?w=1200&auto=format&fit=crop&q=80',
+    coverImage: 'https://images.unsplash.com/photo-1602874801007-bd458bb1b8b6?w=1200&auto=format&fit=crop&q=80',
     tags: ['Botanical Soy', 'Hand Poured', 'Sustainability'],
   },
   {

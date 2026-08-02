@@ -44,7 +44,7 @@ const CATEGORIES_DATA: CategoryItem[] = [
         title: 'French Bourbon Vanilla',
         fragrance: 'Madagascar Vanilla Bean, Bourbon, Caramel',
         price: 1299,
-        image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=500&auto=format&fit=crop&q=80',
+        image: 'https://images.unsplash.com/photo-1572726729207-a78d6fea73a7?w=500&auto=format&fit=crop&q=80',
         badge: 'Signature',
       },
       {
@@ -52,7 +52,7 @@ const CATEGORIES_DATA: CategoryItem[] = [
         title: 'Midnight Jasmine & Bergamot',
         fragrance: 'Night-blooming Jasmine, Calabrian Bergamot',
         price: 1399,
-        image: 'https://images.unsplash.com/photo-1595425970377-c9703cf48b6d?w=500&auto=format&fit=crop&q=80',
+        image: 'https://images.unsplash.com/photo-1602874801007-bd458bb1b8b6?w=500&auto=format&fit=crop&q=80',
       },
     ],
   },
@@ -64,14 +64,14 @@ const CATEGORIES_DATA: CategoryItem[] = [
     count: '8 Formulations',
     icon: '✨',
     tag: 'Compact',
-    bannerImage: 'https://images.unsplash.com/photo-1595425970377-c9703cf48b6d?w=1200&auto=format&fit=crop&q=80',
+    bannerImage: 'https://images.unsplash.com/photo-1602874801007-bd458bb1b8b6?w=1200&auto=format&fit=crop&q=80',
     products: [
       {
         id: 'prod-4',
         title: 'Eucalyptus & Wild Mint Tin',
         fragrance: 'Blue Gum Eucalyptus, Spearmint, Peppermint',
         price: 799,
-        image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=500&auto=format&fit=crop&q=80',
+        image: 'https://images.unsplash.com/photo-1507652313519-d4e9174996dd?w=500&auto=format&fit=crop&q=80',
         badge: 'Travel Ready',
       },
       {
@@ -91,7 +91,7 @@ const CATEGORIES_DATA: CategoryItem[] = [
     count: '15 Formulations',
     icon: '🌿',
     tag: 'Pure Oils',
-    bannerImage: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=1200&auto=format&fit=crop&q=80',
+    bannerImage: 'https://images.unsplash.com/photo-1572726729207-a78d6fea73a7?w=1200&auto=format&fit=crop&q=80',
     products: [
       {
         id: 'prod-6',
@@ -106,7 +106,7 @@ const CATEGORIES_DATA: CategoryItem[] = [
         title: 'Sandalwood & Palo Santo Pillar',
         fragrance: 'Mysore Sandalwood, Palo Santo Smoke',
         price: 1599,
-        image: 'https://images.unsplash.com/photo-1595425970377-c9703cf48b6d?w=500&auto=format&fit=crop&q=80',
+        image: 'https://images.unsplash.com/photo-1602874801007-bd458bb1b8b6?w=500&auto=format&fit=crop&q=80',
       },
     ],
   },
@@ -125,7 +125,7 @@ const CATEGORIES_DATA: CategoryItem[] = [
         title: 'Smoked Leather & Tobacco Reed Diffuser',
         fragrance: 'Tuscan Leather, Smoked Tobacco, Vetiver',
         price: 1899,
-        image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=500&auto=format&fit=crop&q=80',
+        image: 'https://images.unsplash.com/photo-1596435452227-886313d0130f?w=500&auto=format&fit=crop&q=80',
         badge: 'Long Lasting',
       },
     ],
@@ -138,7 +138,7 @@ const CATEGORIES_DATA: CategoryItem[] = [
     count: '10 Sets',
     icon: '🎁',
     tag: 'Luxury Box',
-    bannerImage: 'https://images.unsplash.com/photo-1595425970377-c9703cf48b6d?w=1200&auto=format&fit=crop&q=80',
+    bannerImage: 'https://images.unsplash.com/photo-1602874801007-bd458bb1b8b6?w=1200&auto=format&fit=crop&q=80',
     products: [
       {
         id: 'prod-9',

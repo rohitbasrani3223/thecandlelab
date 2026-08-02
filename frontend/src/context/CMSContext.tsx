@@ -226,7 +226,7 @@ const DEFAULT_COLLECTIONS: CMSCollection[] = [
     badge: 'ROMANTIC FLORALS',
     count: '8 Formulations',
     scents: 'Damask Rose, Wild Lavender, Jasmine',
-    image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&auto=format&fit=crop&q=80',
+    image: 'https://images.unsplash.com/photo-1572726729207-a78d6fea73a7?w=800&auto=format&fit=crop&q=80',
   },
   {
     id: 'vanilla-collection',
@@ -236,7 +236,7 @@ const DEFAULT_COLLECTIONS: CMSCollection[] = [
     badge: 'GOURMAND FAVORITES',
     count: '10 Formulations',
     scents: 'Madagascar Vanilla, Bourbon, Amber',
-    image: 'https://images.unsplash.com/photo-1595425970377-c9703cf48b6d?w=800&auto=format&fit=crop&q=80',
+    image: 'https://images.unsplash.com/photo-1602874801007-bd458bb1b8b6?w=800&auto=format&fit=crop&q=80',
   },
   {
     id: 'coffee-collection',
@@ -256,7 +256,7 @@ const DEFAULT_COLLECTIONS: CMSCollection[] = [
     badge: 'HOLIDAY EXCLUSIVE',
     count: '7 Formulations',
     scents: 'Ceylon Cinnamon, Clove, Smoked Fir',
-    image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&auto=format&fit=crop&q=80',
+    image: 'https://images.unsplash.com/photo-1507652313519-d4e9174996dd?w=800&auto=format&fit=crop&q=80',
   },
   {
     id: 'gift-boxes',
@@ -266,7 +266,7 @@ const DEFAULT_COLLECTIONS: CMSCollection[] = [
     badge: 'LUXURY GIFTING',
     count: '10 Sets',
     scents: 'Custom Candle Trios + Accessories',
-    image: 'https://images.unsplash.com/photo-1595425970377-c9703cf48b6d?w=800&auto=format&fit=crop&q=80',
+    image: 'https://images.unsplash.com/photo-1596435452227-886313d0130f?w=800&auto=format&fit=crop&q=80',
   },
   {
     id: 'luxury-glass-jars',
@@ -286,21 +286,21 @@ const DEFAULT_COLLECTIONS: CMSCollection[] = [
     badge: 'FLAME FREE',
     count: '9 Formulations',
     scents: 'Lavender, Rose Petals, Cardamom',
-    image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&auto=format&fit=crop&q=80',
+    image: 'https://images.unsplash.com/photo-1572726729207-a78d6fea73a7?w=800&auto=format&fit=crop&q=80',
   },
 ];
 
 const DEFAULT_PRODUCTS: CMSProduct[] = [
   { id: 'sp-1', name: 'Velvet Rose & Smoked Amber', category: 'Glass Jars', collection: 'Royal Gold', scentProfile: 'Floral Elegance', price: 1482, originalPrice: 1710, rating: 4.9, reviewsCount: 142, topNotes: 'Calabrian Bergamot, Pink Pepper', heartNotes: 'Damask Rose, Clove Bud', baseNotes: 'Smoked Amber, Oud Wood', burnTime: '65 Hours', inStock: true, isBestSeller: true, isFeatured: true, vesselDescription: 'Hand-poured in heavy Italian frosted glass with 24K gold foil branding.', image: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80', imageUrl: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80' },
-  { id: 'sp-2', name: 'French Bourbon Vanilla Bean', category: 'Glass Jars', collection: 'Royal Gold', scentProfile: 'Warm Vanilla', price: 1786, originalPrice: 2090, rating: 4.95, reviewsCount: 98, topNotes: 'Crushed Tonka, Sweet Almond', heartNotes: 'Bourbon Vanilla Pod', baseNotes: 'White Amber, Brown Sugar', burnTime: '80 Hours', inStock: true, isBestSeller: true, isFeatured: true, vesselDescription: 'Luxury 3-wick champagne gold vessel engineered for rich room diffusion.', image: 'https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=800&q=80', imageUrl: 'https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=800&q=80' },
-  { id: 'sp-3', name: 'Mysore Sandalwood & Cedar', category: 'Travel Tins', collection: 'Signature', scentProfile: 'Woody & Spiced', price: 798, originalPrice: 950, rating: 4.85, reviewsCount: 76, topNotes: 'Golden Cedar, Cypress', heartNotes: 'Mysore Sandalwood', baseNotes: 'Smoked Vetiver, Oakmoss', burnTime: '45 Hours', inStock: true, isNew: true, vesselDescription: 'Seamless brass travel tin with airtight botanical lid.', image: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=800&q=80', imageUrl: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=800&q=80' },
-  { id: 'sp-4', name: 'Bergamot & White Jasmine Bloom', category: 'Glass Jars', collection: 'Signature', scentProfile: 'Fresh Citrus', price: 1292, originalPrice: 1520, rating: 4.88, reviewsCount: 114, topNotes: 'Italian Citrus, Bergamot', heartNotes: 'White Jasmine, Neroli', baseNotes: 'Cashmere Wood, Musk', burnTime: '60 Hours', inStock: true, isFeatured: true, vesselDescription: 'Translucent ivory glass vessel with natural wood lid.', image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=800&q=80', imageUrl: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=800&q=80' },
-  { id: 'sp-5', name: 'Smoked Leather & Tobacco Oud', category: 'Glass Jars', collection: 'Autumn Woodfire', scentProfile: 'Woody & Spiced', price: 1634, originalPrice: 1950, rating: 4.98, reviewsCount: 312, topNotes: 'Cardamom, Cinnamon Bark', heartNotes: 'Smoked Tobacco Leaf', baseNotes: 'Rich Leather, Oud Wood', burnTime: '65 Hours', inStock: true, isBestSeller: true, isFeatured: true, vesselDescription: 'Obsidian matte black jar formulated for deep evening relaxation.', image: 'https://images.unsplash.com/photo-1595425970377-c9703cf48b6d?auto=format&fit=crop&w=800&q=80', imageUrl: 'https://images.unsplash.com/photo-1595425970377-c9703cf48b6d?auto=format&fit=crop&w=800&q=80' },
+  { id: 'sp-2', name: 'French Bourbon Vanilla Bean', category: 'Glass Jars', collection: 'Royal Gold', scentProfile: 'Warm Vanilla', price: 1786, originalPrice: 2090, rating: 4.95, reviewsCount: 98, topNotes: 'Crushed Tonka, Sweet Almond', heartNotes: 'Bourbon Vanilla Pod', baseNotes: 'White Amber, Brown Sugar', burnTime: '80 Hours', inStock: true, isBestSeller: true, isFeatured: true, vesselDescription: 'Luxury 3-wick champagne gold vessel engineered for rich room diffusion.', image: 'https://images.unsplash.com/photo-1596435452227-886313d0130f?auto=format&fit=crop&w=800&q=80', imageUrl: 'https://images.unsplash.com/photo-1596435452227-886313d0130f?auto=format&fit=crop&w=800&q=80' },
+  { id: 'sp-3', name: 'Mysore Sandalwood & Cedar', category: 'Travel Tins', collection: 'Signature', scentProfile: 'Woody & Spiced', price: 798, originalPrice: 950, rating: 4.85, reviewsCount: 76, topNotes: 'Golden Cedar, Cypress', heartNotes: 'Mysore Sandalwood', baseNotes: 'Smoked Vetiver, Oakmoss', burnTime: '45 Hours', inStock: true, isNew: true, vesselDescription: 'Seamless brass travel tin with airtight botanical lid.', image: 'https://images.unsplash.com/photo-1507652313519-d4e9174996dd?auto=format&fit=crop&w=800&q=80', imageUrl: 'https://images.unsplash.com/photo-1507652313519-d4e9174996dd?auto=format&fit=crop&w=800&q=80' },
+  { id: 'sp-4', name: 'Bergamot & White Jasmine Bloom', category: 'Glass Jars', collection: 'Signature', scentProfile: 'Fresh Citrus', price: 1292, originalPrice: 1520, rating: 4.88, reviewsCount: 114, topNotes: 'Italian Citrus, Bergamot', heartNotes: 'White Jasmine, Neroli', baseNotes: 'Cashmere Wood, Musk', burnTime: '60 Hours', inStock: true, isFeatured: true, vesselDescription: 'Translucent ivory glass vessel with natural wood lid.', image: 'https://images.unsplash.com/photo-1572726729207-a78d6fea73a7?auto=format&fit=crop&w=800&q=80', imageUrl: 'https://images.unsplash.com/photo-1572726729207-a78d6fea73a7?auto=format&fit=crop&w=800&q=80' },
+  { id: 'sp-5', name: 'Smoked Leather & Tobacco Oud', category: 'Glass Jars', collection: 'Autumn Woodfire', scentProfile: 'Woody & Spiced', price: 1634, originalPrice: 1950, rating: 4.98, reviewsCount: 312, topNotes: 'Cardamom, Cinnamon Bark', heartNotes: 'Smoked Tobacco Leaf', baseNotes: 'Rich Leather, Oud Wood', burnTime: '65 Hours', inStock: true, isBestSeller: true, isFeatured: true, vesselDescription: 'Obsidian matte black jar formulated for deep evening relaxation.', image: 'https://images.unsplash.com/photo-1602874801007-bd458bb1b8b6?auto=format&fit=crop&w=800&q=80', imageUrl: 'https://images.unsplash.com/photo-1602874801007-bd458bb1b8b6?auto=format&fit=crop&w=800&q=80' },
   { id: 'sp-6', name: 'Wild Lavender & Bergamot Bloom', category: 'Pillars', collection: 'Aromatherapy Series', scentProfile: 'Fresh Citrus', price: 1368, originalPrice: 1620, rating: 4.89, reviewsCount: 168, topNotes: 'Bergamot, Eucalyptus', heartNotes: 'French Lavender', baseNotes: 'White Sage, Cedar', burnTime: '70 Hours', inStock: true, vesselDescription: 'Pure beeswax aromatherapy pillar candle.', image: 'https://images.unsplash.com/photo-1570824104453-508955ab713e?auto=format&fit=crop&w=800&q=80', imageUrl: 'https://images.unsplash.com/photo-1570824104453-508955ab713e?auto=format&fit=crop&w=800&q=80' },
-  { id: 'sp-7', name: 'Midnight Fig & Honeyed Amber', category: 'Glass Jars', collection: 'Signature', scentProfile: 'Warm Vanilla', price: 1406, originalPrice: 1680, rating: 5.0, reviewsCount: 24, topNotes: 'Wild Fig, Plum Bloom', heartNotes: 'Honeyed Amber', baseNotes: 'Dark Cedar, Vanilla', burnTime: '60 Hours', inStock: true, isNew: true, vesselDescription: 'Obsidian matte jar with crackling wood wick.', image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=800&q=80', imageUrl: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=800&q=80' },
-  { id: 'sp-8', name: 'French Vanilla & Cinnamon Scented Jar', category: 'Scented Candles', collection: 'Vanilla Collection', scentProfile: 'Warm Vanilla', price: 899, originalPrice: 1199, rating: 4.9, reviewsCount: 128, topNotes: 'Vanilla Bean, Ceylon Cinnamon, Warm Amber', heartNotes: 'Madagascar Vanilla Pod', baseNotes: 'Bourbon Amber', burnTime: '65 Hours', inStock: true, isBestSeller: true, vesselDescription: 'Hand-poured in heavy Italian frosted glass jar with wood wick.', image: 'https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=800&q=80', imageUrl: 'https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=800&q=80' },
+  { id: 'sp-7', name: 'Midnight Fig & Honeyed Amber', category: 'Glass Jars', collection: 'Signature', scentProfile: 'Warm Vanilla', price: 1406, originalPrice: 1680, rating: 5.0, reviewsCount: 24, topNotes: 'Wild Fig, Plum Bloom', heartNotes: 'Honeyed Amber', baseNotes: 'Dark Cedar, Vanilla', burnTime: '60 Hours', inStock: true, isNew: true, vesselDescription: 'Obsidian matte jar with crackling wood wick.', image: 'https://images.unsplash.com/photo-1572726729207-a78d6fea73a7?auto=format&fit=crop&w=800&q=80', imageUrl: 'https://images.unsplash.com/photo-1572726729207-a78d6fea73a7?auto=format&fit=crop&w=800&q=80' },
+  { id: 'sp-8', name: 'French Vanilla & Cinnamon Scented Jar', category: 'Scented Candles', collection: 'Vanilla Collection', scentProfile: 'Warm Vanilla', price: 899, originalPrice: 1199, rating: 4.9, reviewsCount: 128, topNotes: 'Vanilla Bean, Ceylon Cinnamon, Warm Amber', heartNotes: 'Madagascar Vanilla Pod', baseNotes: 'Bourbon Amber', burnTime: '65 Hours', inStock: true, isBestSeller: true, vesselDescription: 'Hand-poured in heavy Italian frosted glass jar with wood wick.', image: 'https://images.unsplash.com/photo-1596435452227-886313d0130f?auto=format&fit=crop&w=800&q=80', imageUrl: 'https://images.unsplash.com/photo-1596435452227-886313d0130f?auto=format&fit=crop&w=800&q=80' },
   { id: 'sp-9', name: 'Amber & Oud Royal Glass Candle', category: 'Luxury Glass Jars', collection: 'Luxury Glass Jars', scentProfile: 'Woody & Spiced', price: 1299, originalPrice: 1499, rating: 5.0, reviewsCount: 94, topNotes: 'Golden Amber, Cambodian Oud, Sandalwood', heartNotes: 'Smoked Cedar', baseNotes: 'Resinous Musk', burnTime: '80 Hours', inStock: true, isBestSeller: true, isFeatured: true, vesselDescription: 'Heavy 14 oz frosted glass jar with pure gold leaf branding.', image: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80', imageUrl: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80' },
-  { id: 'sp-10', name: 'Rose Petals & Cardamom Wax Melts', category: 'Wax Melts', collection: 'Wax Melts', scentProfile: 'Floral Elegance', price: 499, originalPrice: 599, rating: 4.8, reviewsCount: 62, topNotes: 'Damask Rose, Spiced Cardamom, Soft Musk', heartNotes: 'Pink Rose Petals', baseNotes: 'White Amber', burnTime: '40 Hours', inStock: true, isNew: true, vesselDescription: 'Flame-free ambient essential oil wax melts pack.', image: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=800&q=80', imageUrl: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=800&q=80' },
+  { id: 'sp-10', name: 'Rose Petals & Cardamom Wax Melts', category: 'Wax Melts', collection: 'Wax Melts', scentProfile: 'Floral Elegance', price: 499, originalPrice: 599, rating: 4.8, reviewsCount: 62, topNotes: 'Damask Rose, Spiced Cardamom, Soft Musk', heartNotes: 'Pink Rose Petals', baseNotes: 'White Amber', burnTime: '40 Hours', inStock: true, isNew: true, vesselDescription: 'Flame-free ambient essential oil wax melts pack.', image: 'https://images.unsplash.com/photo-1507652313519-d4e9174996dd?auto=format&fit=crop&w=800&q=80', imageUrl: 'https://images.unsplash.com/photo-1507652313519-d4e9174996dd?auto=format&fit=crop&w=800&q=80' },
 ];
 
 const DEFAULT_COUPONS: CMSCoupon[] = [
@@ -329,7 +329,7 @@ const DEFAULT_CUSTOMERS: CMSCustomer[] = [
 
 const DEFAULT_MEDIA: CMSMediaItem[] = [
   { id: 'm-1', name: 'Hero Royal Reserve Jar', url: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?w=800', type: 'image', size: '1.4 MB' },
-  { id: 'm-2', name: 'Floral Rose Glass Banner', url: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800', type: 'image', size: '2.1 MB' },
+  { id: 'm-2', name: 'Floral Rose Glass Banner', url: 'https://images.unsplash.com/photo-1572726729207-a78d6fea73a7?w=800', type: 'image', size: '2.1 MB' },
 ];
 
 const DEFAULT_ORDERS: CMSOrder[] = [
@@ -393,7 +393,14 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [products, setProducts] = useState<CMSProduct[]>(() => {
     try {
       const saved = localStorage.getItem('tcl_cms_products');
-      return saved ? JSON.parse(saved) : DEFAULT_PRODUCTS;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const realDbItems = parsed.filter((p: CMSProduct) => !p.id.startsWith('sp-'));
+          if (realDbItems.length > 0) return realDbItems;
+        }
+      }
+      return DEFAULT_PRODUCTS;
     } catch {
       return DEFAULT_PRODUCTS;
     }
@@ -484,35 +491,49 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     async function loadBackendData() {
       try {
-        const res = await fetch(getApiUrl('products'));
-        if (res.ok) {
-          const json = await res.json();
-          const dbProducts = json.data || json;
-          if (Array.isArray(dbProducts) && dbProducts.length > 0) {
-            const mapped = dbProducts.map((p: any) => ({
-              id: String(p.id),
-              name: p.name || 'Artisanal Candle',
-              category: p.category?.name || p.category || 'Scented Candles',
-              collection: p.collection?.name || p.collection || 'Royal Gold',
-              scentProfile: p.tagline || p.scent_profile || 'Aromatherapy',
-              price: Number(p.price || 999),
-              originalPrice: Number(p.original_price || p.price || 1299),
-              rating: Number(p.rating || 4.9),
-              reviewsCount: Number(p.reviews_count || 12),
-              topNotes: p.top_notes || '',
-              heartNotes: p.heart_notes || '',
-              baseNotes: p.base_notes || '',
-              burnTime: p.burn_time_hours ? `${p.burn_time_hours} Hours` : (p.burn_time || ''),
-              inStock: p.status === 'ACTIVE' || p.in_stock === true || p.in_stock === undefined,
-              isBestSeller: p.is_bestseller ?? false,
-              isNew: p.is_new_arrival ?? false,
-              isFeatured: p.is_featured ?? false,
-              vesselDescription: p.short_description || p.vessel_description || '',
-              image: p.image_url || p.images?.[0]?.url || 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80',
-              imageUrl: p.image_url || p.images?.[0]?.url || 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80',
-            }));
-            setProducts(mapped);
+        // 1. Fetch directly from Supabase PostgreSQL REST API
+        let dbProducts = await supabaseFetch<any[]>('products');
+
+        // 2. Fallback to Laravel Render API if Supabase REST returns empty
+        if (!dbProducts || !Array.isArray(dbProducts) || dbProducts.length === 0) {
+          try {
+            const res = await fetch(getApiUrl('products'));
+            if (res.ok) {
+              const json = await res.json();
+              dbProducts = json.data || json;
+            }
+          } catch (e) {
+            console.warn('Render API fetch fallback note:', e);
           }
+        }
+
+        if (dbProducts && Array.isArray(dbProducts) && dbProducts.length > 0) {
+          const mapped = dbProducts.map((p: any) => ({
+            id: String(p.id),
+            name: p.name || 'Artisanal Candle',
+            category: p.category?.name || p.category || 'Scented Candles',
+            collection: p.collection?.name || p.collection || 'Royal Gold',
+            scentProfile: p.tagline || p.scent_profile || 'Aromatherapy',
+            price: Number(p.price || 999),
+            originalPrice: Number(p.original_price || p.price || 1299),
+            rating: Number(p.rating || 4.9),
+            reviewsCount: Number(p.reviews_count || 12),
+            topNotes: p.top_notes || '',
+            heartNotes: p.heart_notes || '',
+            baseNotes: p.base_notes || '',
+            burnTime: p.burn_time_hours ? `${p.burn_time_hours} Hours` : (p.burn_time || ''),
+            inStock: p.status === 'ACTIVE' || p.in_stock === true || p.in_stock === undefined,
+            isBestSeller: p.is_bestseller ?? false,
+            isNew: p.is_new_arrival ?? false,
+            isFeatured: p.is_featured ?? false,
+            vesselDescription: p.short_description || p.vessel_description || '',
+            image: p.image_url || p.images?.[0]?.url || 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80',
+            imageUrl: p.image_url || p.images?.[0]?.url || 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80',
+          }));
+          setProducts(mapped);
+          try {
+            localStorage.setItem('tcl_cms_products', JSON.stringify(mapped));
+          } catch {}
         }
 
         const dbOrders = await supabaseFetch<any[]>('orders');
@@ -571,6 +592,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         console.error('Failed to fetch live backend data:', err);
       }
     }
+
     loadBackendData();
   }, []);
 

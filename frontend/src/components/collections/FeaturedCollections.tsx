@@ -20,7 +20,7 @@ const featuredCollections = [
     count: '8 Formulations',
     scents: 'Damask Rose, Wild Lavender, Jasmine Bloom',
     badge: 'ROMANTIC FLORALS',
-    image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&auto=format&fit=crop&q=80',
+    image: 'https://images.unsplash.com/photo-1572726729207-a78d6fea73a7?w=800&auto=format&fit=crop&q=80',
   },
   {
     id: 'vanilla-collection',
@@ -30,7 +30,7 @@ const featuredCollections = [
     count: '10 Formulations',
     scents: 'Madagascar Vanilla, Bourbon, Caramel Amber',
     badge: 'GOURMAND FAVORITES',
-    image: 'https://images.unsplash.com/photo-1595425970377-c9703cf48b6d?w=800&auto=format&fit=crop&q=80',
+    image: 'https://images.unsplash.com/photo-1602874801007-bd458bb1b8b6?w=800&auto=format&fit=crop&q=80',
   },
   {
     id: 'coffee-collection',
@@ -50,7 +50,7 @@ const featuredCollections = [
     count: '7 Formulations',
     scents: 'Ceylon Cinnamon, Clove, Smoked Fir',
     badge: 'HOLIDAY EXCLUSIVE',
-    image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&auto=format&fit=crop&q=80',
+    image: 'https://images.unsplash.com/photo-1507652313519-d4e9174996dd?w=800&auto=format&fit=crop&q=80',
   },
   {
     id: 'gift-boxes',
@@ -60,7 +60,7 @@ const featuredCollections = [
     count: '10 Sets',
     scents: 'Custom Candle Trios + Brass Accessories',
     badge: 'LUXURY GIFTING',
-    image: 'https://images.unsplash.com/photo-1595425970377-c9703cf48b6d?w=800&auto=format&fit=crop&q=80',
+    image: 'https://images.unsplash.com/photo-1596435452227-886313d0130f?w=800&auto=format&fit=crop&q=80',
   },
   {
     id: 'luxury-jars',
@@ -80,7 +80,7 @@ const featuredCollections = [
     count: '9 Formulations',
     scents: 'Lavender, Rose Petals, Cardamom',
     badge: 'FLAME FREE',
-    image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&auto=format&fit=crop&q=80',
+    image: 'https://images.unsplash.com/photo-1572726729207-a78d6fea73a7?w=800&auto=format&fit=crop&q=80',
   },
 ];
 
