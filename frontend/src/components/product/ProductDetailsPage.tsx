@@ -3,10 +3,8 @@ import { ProductGallery } from './ProductGallery';
 import { ProductSummary } from './ProductSummary';
 import { FragrancePyramidSection } from './FragrancePyramidSection';
 import { ProductSpecsAccordion } from './ProductSpecsAccordion';
-import { FrequentlyBoughtTogether } from './FrequentlyBoughtTogether';
 import { ProductReviewsSection } from './ProductReviewsSection';
 import { RelatedProducts } from './RelatedProducts';
-import { StickyBuyBar } from './StickyBuyBar';
 import { useToast } from '../../design-system';
 
 export interface SelectedProductData {
