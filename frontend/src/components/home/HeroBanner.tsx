@@ -6,12 +6,12 @@ export const HeroBanner: React.FC = () => {
   const { hero } = useCMS();
 
   return (
-    <section className="relative bg-gradient-to-b from-[#FAF6F0] via-[#F4EFE6] to-[#FAF6F0] border-b border-[#E5D9C5] overflow-hidden py-12 sm:py-20 lg:py-24 font-sans">
+    <section className="relative w-full max-w-full bg-gradient-to-b from-[#FAF6F0] via-[#F4EFE6] to-[#FAF6F0] border-b border-[#E5D9C5] overflow-hidden py-10 sm:py-20 lg:py-24 font-sans">
       {/* Background Decorative Gold Radial Light */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-tr from-[#B88B38]/10 via-[#E6CA65]/15 to-transparent rounded-full blur-3xl pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-6 sm:px-12 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 relative z-10">
+        <div className="grid w-full grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
           {/* Left Content Column */}
           <div className="lg:col-span-7 space-y-6 sm:space-y-8 text-center lg:text-left">
             <div className="inline-flex items-center gap-2">
@@ -19,7 +19,7 @@ export const HeroBanner: React.FC = () => {
               <span className="hidden sm:inline-block text-xs uppercase tracking-widest text-[#8C7A6B] font-semibold">• 2026 Atelier Reserve</span>
             </div>
 
-            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-serif font-extrabold text-[#2A1E17] leading-[1.08] tracking-tight">
+            <h1 className="text-3xl sm:text-6xl lg:text-7xl font-serif font-extrabold text-[#2A1E17] leading-[1.08] tracking-tight">
               {hero.title}
             </h1>
 
@@ -78,7 +78,7 @@ export const HeroBanner: React.FC = () => {
 
           {/* Right Visual Image */}
           <div className="lg:col-span-5 flex justify-center">
-            <div className="relative w-full max-w-md aspect-3/4 rounded-2xl overflow-hidden shadow-card border border-[#EFE8DB] bg-[#F8F3EA] group">
+            <div className="relative w-full max-w-md aspect-[4/5] sm:aspect-3/4 rounded-2xl overflow-hidden shadow-card border border-[#EFE8DB] bg-[#F8F3EA] group">
               <img
                 src={hero.imageUrl}
                 alt="Luxury Soy Candle"

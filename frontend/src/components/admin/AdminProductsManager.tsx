@@ -92,10 +92,16 @@ export const AdminProductsManager: React.FC = () => {
     { id: 'bulk', label: 'Bulk Import/Export', icon: '📂' },
   ];
 
-  const handleSaveProduct = (e: React.FormEvent) => {
+  const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isUploadingImage) {
+      setSavedMsg('Image upload finishing, try again in a second...');
+      setTimeout(() => setSavedMsg(''), 3000);
+      return;
+    }
+
     if (editingProd) {
-      updateProduct(editingProd.id, formData);
+      await updateProduct(editingProd.id, formData);
       setEditingProd(null);
       setSavedMsg(`Product "${formData.name}" updated!`);
     } else {
@@ -103,7 +109,7 @@ export const AdminProductsManager: React.FC = () => {
         ...formData,
         id: `p-${Date.now()}`,
       };
-      addProduct(newProd);
+      await addProduct(newProd);
       setSavedMsg(`New product "${formData.name}" created!`);
     }
     setShowAddModal(false);
@@ -399,7 +405,7 @@ export const AdminProductsManager: React.FC = () => {
                             const localPreview = reader.result as string;
                             setFormData((prev) => ({ ...prev, image: localPreview, imageUrl: localPreview }));
                             try {
-                              const uploadedUrl = await uploadImageToSupabaseStorage(file, 'products');
+                              const uploadedUrl = await uploadImageToSupabaseStorage(file, 'product-images');
                               setFormData((prev) => ({ ...prev, image: uploadedUrl, imageUrl: uploadedUrl }));
                             } catch (err) {
                               console.warn('Cloud upload failed, using local preview:', err);
@@ -450,27 +456,35 @@ export const AdminProductsManager: React.FC = () => {
                       const files = Array.from(e.target.files || []);
                       if (files.length === 0) return;
 
-                      files.forEach((file) => {
-                        const reader = new FileReader();
-                        reader.onloadend = async () => {
-                          const localPreview = reader.result as string;
-                          setFormData((prev) => ({
-                            ...prev,
-                            images: [...(prev.images || []), localPreview],
-                          }));
+                      setIsUploadingImage(true);
+                      Promise.all(
+                        files.map(
+                          (file) =>
+                            new Promise<void>((resolve) => {
+                              const reader = new FileReader();
+                              reader.onloadend = async () => {
+                                const localPreview = reader.result as string;
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  images: [...(prev.images || []), localPreview],
+                                }));
 
-                          try {
-                            const uploadedUrl = await uploadImageToSupabaseStorage(file, 'products');
-                            setFormData((prev) => ({
-                              ...prev,
-                              images: (prev.images || []).map((img) => (img === localPreview ? uploadedUrl : img)),
-                            }));
-                          } catch (err) {
-                            console.warn('Gallery image upload note:', err);
-                          }
-                        };
-                        reader.readAsDataURL(file);
-                      });
+                                try {
+                                  const uploadedUrl = await uploadImageToSupabaseStorage(file, 'product-images');
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    images: (prev.images || []).map((img) => (img === localPreview ? uploadedUrl : img)),
+                                  }));
+                                } catch (err) {
+                                  console.warn('Gallery image upload note:', err);
+                                } finally {
+                                  resolve();
+                                }
+                              };
+                              reader.readAsDataURL(file);
+                            })
+                        )
+                      ).finally(() => setIsUploadingImage(false));
                     }}
                     className="w-full text-xs text-[#2C1E16] file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#2C1E16] file:text-white hover:file:bg-[#3D2C22] cursor-pointer"
                   />
@@ -630,9 +644,10 @@ export const AdminProductsManager: React.FC = () => {
                 </button>
                 <button
                   type="submit"
+                  disabled={isUploadingImage}
                   className="bg-[#B88B38] hover:bg-[#A3792E] text-white font-bold py-2.5 px-6 rounded-xl shadow-xs"
                 >
-                  {editingProd ? 'Save Changes' : 'Create Product'}
+                  {isUploadingImage ? 'Uploading Image...' : editingProd ? 'Save Changes' : 'Create Product'}
                 </button>
               </div>
             </form>
@@ -1017,7 +1032,7 @@ const BulkImageUploadTab: React.FC<{
         }
 
         // Update product in CMS state + Supabase DB
-        updateProduct(matched.id, { image: imageUrl, imageUrl });
+        await updateProduct(matched.id, { image: imageUrl, imageUrl });
 
         // Also update in Supabase REST
         await fetch(`https://anaqrvrzbqhpgwjfpacx.supabase.co/rest/v1/products?id=eq.${matched.id}`, {
@@ -1188,4 +1203,3 @@ const BulkImageUploadTab: React.FC<{
     </div>
   );
 };
-

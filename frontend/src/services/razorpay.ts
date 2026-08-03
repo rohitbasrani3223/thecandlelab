@@ -45,10 +45,10 @@ export const loadRazorpayScript = (): Promise<boolean> => {
  * Endpoint: POST /api/create-order
  */
 export const createRazorpayOrder = async (
-  amountInRupeesOrPaise: number,
+  amountInRupees: number,
   currency: string = 'INR'
 ): Promise<RazorpayOrderResponse> => {
-  const amountPaise = amountInRupeesOrPaise < 100 ? Math.round(amountInRupeesOrPaise * 100) : Math.round(amountInRupeesOrPaise);
+  const amountPaise = Math.round(amountInRupees * 100);
 
   try {
     const res = await fetch(getApiUrl('create-order'), {
@@ -58,7 +58,8 @@ export const createRazorpayOrder = async (
         'Accept': 'application/json',
       },
       body: JSON.stringify({
-        amount: amountInRupeesOrPaise,
+        amount: amountPaise,
+        amount_in_paise: amountPaise,
         currency,
       }),
     });

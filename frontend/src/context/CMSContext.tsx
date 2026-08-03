@@ -2,6 +2,9 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabaseFetch } from '../config/supabaseClient';
 import { getApiUrl } from '../config/api';
 
+const PRODUCTS_STORAGE_KEY = 'tcl_cms_products';
+const DIRTY_PRODUCTS_STORAGE_KEY = 'tcl_cms_products_dirty';
+
 export interface CMSStoreSettings {
   storeName: string;
   tagline: string;
@@ -142,9 +145,9 @@ export interface CMSContextType {
   addCollection: (col: CMSCollection) => void;
   deleteCollection: (id: string) => void;
   products: CMSProduct[];
-  addProduct: (prod: CMSProduct) => void;
-  updateProduct: (id: string, updated: Partial<CMSProduct>) => void;
-  deleteProduct: (id: string) => void;
+  addProduct: (prod: CMSProduct) => Promise<void>;
+  updateProduct: (id: string, updated: Partial<CMSProduct>) => Promise<void>;
+  deleteProduct: (id: string) => Promise<void>;
   coupons: CMSCoupon[];
   addCoupon: (coupon: CMSCoupon) => void;
   updateCoupon: (code: string, updated: Partial<CMSCoupon>) => void;
@@ -335,6 +338,136 @@ const DEFAULT_STAFF: CMSStaffUser[] = [
 
 const CMSContext = createContext<CMSContextType | undefined>(undefined);
 
+const readStoredProducts = (): CMSProduct[] => {
+  try {
+    const saved = localStorage.getItem(PRODUCTS_STORAGE_KEY);
+    const parsed = saved ? JSON.parse(saved) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+};
+
+const readDirtyProductIds = (): string[] => {
+  try {
+    const saved = localStorage.getItem(DIRTY_PRODUCTS_STORAGE_KEY);
+    const parsed = saved ? JSON.parse(saved) : [];
+    return Array.isArray(parsed) ? parsed.map(String) : [];
+  } catch {
+    return [];
+  }
+};
+
+const writeDirtyProductIds = (ids: string[]) => {
+  localStorage.setItem(DIRTY_PRODUCTS_STORAGE_KEY, JSON.stringify(Array.from(new Set(ids.map(String)))));
+};
+
+const markProductDirty = (id: string) => {
+  writeDirtyProductIds([...readDirtyProductIds(), id]);
+};
+
+const clearProductDirty = (id: string) => {
+  writeDirtyProductIds(readDirtyProductIds().filter((dirtyId) => dirtyId !== id));
+};
+
+const extractProductImages = (rawImages: any): string[] => {
+  if (!Array.isArray(rawImages)) return [];
+  return rawImages
+    .map((img) => {
+      if (typeof img === 'string') return img;
+      return img?.image_url || img?.url || img?.src || '';
+    })
+    .filter(Boolean);
+};
+
+const mapDbProductToCMS = (p: any): CMSProduct => {
+  const galleryImages = extractProductImages(p.images);
+  const primaryImage = p.image_url || p.thumbnail || galleryImages.find((_, index) => index === 0) || '';
+
+  return {
+    id: String(p.id),
+    name: (p.name || 'Artisanal Candle').trim(),
+    category: p.category?.name || p.main_category?.name || p.mainCategory?.name || p.tagline || 'Scented Candles',
+    collection: p.collection?.name || p.collection || 'Signature',
+    scentProfile: p.tagline || p.fragrance || 'Artisanal',
+    price: Number(p.price || 999),
+    originalPrice: Number(p.original_price || p.price || 1299),
+    rating: Number(p.rating || 4.9),
+    reviewsCount: Number(p.reviews_count || p.review_count || 12),
+    topNotes: p.top_notes || '',
+    heartNotes: p.heart_notes || '',
+    baseNotes: p.base_notes || '',
+    burnTime: p.burn_time || (p.burn_time_hours ? `${p.burn_time_hours} Hours` : '60 Hours'),
+    inStock: p.status ? p.status === 'ACTIVE' : p.is_active !== false,
+    isBestSeller: Boolean(p.is_bestseller ?? p.is_best_seller),
+    isNew: Boolean(p.is_new_arrival),
+    isFeatured: Boolean(p.is_featured),
+    vesselDescription: p.short_description || p.description || 'Hand-poured in Italian frosted glass jar.',
+    image: primaryImage,
+    imageUrl: primaryImage,
+    images: galleryImages,
+  };
+};
+
+const mergeRemoteWithDirtyLocal = (remoteProducts: CMSProduct[]) => {
+  const storedProducts = readStoredProducts();
+  const dirtyIds = new Set(readDirtyProductIds());
+  const merged = remoteProducts.map((remote) => {
+    const local = storedProducts.find((item) => String(item.id) === String(remote.id));
+    if (!local) return remote;
+
+    const localHasUnsyncedImage =
+      dirtyIds.has(remote.id) ||
+      Boolean((local.image || local.imageUrl) && (local.image || local.imageUrl) !== (remote.image || remote.imageUrl));
+
+    return localHasUnsyncedImage ? { ...remote, ...local } : remote;
+  });
+
+  storedProducts.forEach((local) => {
+    if (dirtyIds.has(local.id) && !merged.some((remote) => String(remote.id) === String(local.id))) {
+      merged.unshift(local);
+    }
+  });
+
+  return merged;
+};
+
+const buildProductDbPayload = (prod: CMSProduct | Partial<CMSProduct>, current?: CMSProduct) => {
+  const merged = { ...current, ...prod } as CMSProduct;
+  const imageUrl = merged.image || merged.imageUrl || '';
+  return {
+    name: merged.name,
+    slug: merged.name ? `${merged.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${String(merged.id || Date.now()).slice(-8)}` : undefined,
+    tagline: merged.scentProfile || merged.category || 'Artisanal Scented Candle',
+    short_description: merged.vesselDescription || 'Hand-poured in luxury glass jar.',
+    price: merged.price !== undefined ? Number(merged.price) : undefined,
+    original_price: merged.originalPrice !== undefined ? Number(merged.originalPrice) : undefined,
+    rating: merged.rating !== undefined ? Number(merged.rating) : undefined,
+    reviews_count: merged.reviewsCount !== undefined ? Number(merged.reviewsCount) : undefined,
+    review_count: merged.reviewsCount !== undefined ? Number(merged.reviewsCount) : undefined,
+    burn_time: merged.burnTime || undefined,
+    burn_time_hours: merged.burnTime ? Number(String(merged.burnTime).match(/\d+/)?.[0] || 60) : undefined,
+    is_bestseller: merged.isBestSeller !== undefined ? Boolean(merged.isBestSeller) : undefined,
+    is_new_arrival: merged.isNew !== undefined ? Boolean(merged.isNew) : undefined,
+    is_featured: merged.isFeatured !== undefined ? Boolean(merged.isFeatured) : undefined,
+    is_trending: Boolean(merged.isNew || merged.isBestSeller),
+    status: merged.inStock !== undefined ? (merged.inStock ? 'ACTIVE' : 'OUT_OF_STOCK') : undefined,
+    is_active: merged.inStock !== undefined ? Boolean(merged.inStock) : undefined,
+    image_url: imageUrl || undefined,
+    thumbnail: imageUrl || undefined,
+    images: merged.images?.length ? [imageUrl, ...merged.images].filter(Boolean) : imageUrl ? [imageUrl] : undefined,
+    top_notes: merged.topNotes || undefined,
+    heart_notes: merged.heartNotes || undefined,
+    base_notes: merged.baseNotes || undefined,
+    wax_type: 'Soy Wax',
+    wick_type: merged.burnTime ? 'Wooden Crackling Wick' : 'Cotton Wick',
+    weight_grams: 250,
+  };
+};
+
+const removeUndefinedValues = (payload: Record<string, any>) =>
+  Object.fromEntries(Object.entries(payload).filter(([, value]) => value !== undefined));
+
 export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [settings, setSettings] = useState<CMSStoreSettings>(() => {
     try {
@@ -374,13 +507,10 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [products, setProducts] = useState<CMSProduct[]>(() => {
     try {
-      const saved = localStorage.getItem('tcl_cms_products');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const realDbItems = parsed.filter((p: CMSProduct) => !p.id.startsWith('sp-'));
-          if (realDbItems.length > 0) return realDbItems;
-        }
+      const parsed = readStoredProducts();
+      if (parsed.length > 0) {
+        const realDbItems = parsed.filter((p) => !String(p.id).startsWith('sp-'));
+        if (realDbItems.length > 0) return realDbItems;
       }
       return DEFAULT_PRODUCTS;
     } catch {
@@ -473,53 +603,28 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     async function loadBackendData() {
       try {
-        // 1. Fetch directly from Supabase PostgreSQL REST API
-        let dbProducts = await supabaseFetch<any[]>('products');
+        let dbProducts: any[] | null = null;
 
-        // 2. Fallback to Laravel Render API if Supabase REST returns empty
-        if (!dbProducts || !Array.isArray(dbProducts) || dbProducts.length === 0) {
-          try {
-            const res = await fetch(getApiUrl('products'));
-            if (res.ok) {
-              const json = await res.json();
-              dbProducts = json.data || json;
-            }
-          } catch (e) {
-            console.warn('Render API fetch fallback note:', e);
+        try {
+          const res = await fetch(getApiUrl('products?per_page=100'));
+          if (res.ok) {
+            const json = await res.json();
+            const payload = json.data?.data || json.data || json;
+            dbProducts = Array.isArray(payload) ? payload : null;
           }
+        } catch (e) {
+          console.warn('Laravel product fetch note:', e);
+        }
+
+        if (!dbProducts || dbProducts.length === 0) {
+          dbProducts = await supabaseFetch<any[]>('products');
         }
 
         if (dbProducts && Array.isArray(dbProducts) && dbProducts.length > 0) {
-          const mapped = dbProducts.map((p: any) => {
-            // Only use real uploaded image_url — no fake Unsplash fallbacks
-            const pImg = p.image_url || '';
-            return {
-              id: String(p.id),
-              name: (p.name || 'Artisanal Candle').trim(),
-              category: p.category?.name || p.tagline || 'Scented Candles',
-              collection: p.collection?.name || p.collection || 'Signature',
-              scentProfile: p.tagline || 'Artisanal',
-              price: Number(p.price || 999),
-              originalPrice: Number(p.original_price || p.price || 1299),
-              rating: Number(p.rating || 4.9),
-              reviewsCount: Number(p.reviews_count || 12),
-              topNotes: p.top_notes || '',
-              heartNotes: p.heart_notes || '',
-              baseNotes: p.base_notes || '',
-              burnTime: p.burn_time_hours ? `${p.burn_time_hours} Hours` : '60 Hours',
-              inStock: p.status === 'ACTIVE' || p.status == null,
-              isBestSeller: Boolean(p.is_bestseller),
-              isNew: Boolean(p.is_new_arrival),
-              isFeatured: Boolean(p.is_featured),
-              vesselDescription: p.short_description || 'Hand-poured in Italian frosted glass jar.',
-              image: pImg,
-              imageUrl: pImg,
-              images: Array.isArray(p.images) ? p.images.map((i: any) => typeof i === 'string' ? i : (i?.url || i?.image_url)).filter(Boolean) : [],
-            };
-          });
+          const mapped = mergeRemoteWithDirtyLocal(dbProducts.map(mapDbProductToCMS));
           setProducts(mapped);
           try {
-            localStorage.setItem('tcl_cms_products', JSON.stringify(mapped));
+            localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(mapped));
           } catch { }
         }
 
@@ -601,7 +706,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [collections]);
 
   useEffect(() => {
-    localStorage.setItem('tcl_cms_products', JSON.stringify(products));
+    localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(products));
   }, [products]);
 
   useEffect(() => {
@@ -691,76 +796,99 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const addProduct = async (prod: CMSProduct) => {
     setProducts((prev) => [prod, ...prev]);
-    const cleanSlug = prod.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now();
+    localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify([prod, ...readStoredProducts().filter((p) => p.id !== prod.id)]));
+    markProductDirty(prod.id);
+
     try {
+      const payload = removeUndefinedValues(buildProductDbPayload(prod));
       const res = await supabaseFetch<any[]>('products', {
         method: 'POST',
-        body: {
-          name: prod.name,
-          slug: cleanSlug,
-          tagline: prod.scentProfile || prod.category || 'Artisanal Scented Candle',
-          short_description: prod.vesselDescription || 'Hand-poured in luxury glass jar.',
-          price: Number(prod.price),
-          original_price: Number(prod.originalPrice || prod.price),
-          rating: Number(prod.rating || 4.9),
-          reviews_count: Number(prod.reviewsCount || 10),
-          burn_time_hours: 60,
-          is_bestseller: Boolean(prod.isBestSeller),
-          is_new_arrival: Boolean(prod.isNew),
-          is_featured: Boolean(prod.isFeatured),
-          is_trending: Boolean(prod.isNew || prod.isBestSeller),
-          status: prod.inStock ? 'ACTIVE' : 'OUT_OF_STOCK',
-          image_url: prod.image || prod.imageUrl || null,
-          top_notes: prod.topNotes || '',
-          heart_notes: prod.heartNotes || '',
-          base_notes: prod.baseNotes || '',
-          wax_type: 'Soy Wax',
-          wick_type: prod.burnTime ? 'Wooden Crackling Wick' : 'Cotton Wick',
-          weight_grams: 250,
-        },
+        body: payload,
       });
       if (res && Array.isArray(res) && res[0] && res[0].id) {
         const realId = String(res[0].id);
         setProducts((prev) => prev.map((p) => (p.id === prod.id ? { ...p, id: realId } : p)));
+        clearProductDirty(prod.id);
+        return;
       }
     } catch (err) {
       console.warn('Supabase product insert note:', err);
     }
-  };
 
-  const updateProduct = (id: string, updated: Partial<CMSProduct>) => {
-    setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, ...updated } : p)));
-    const patchBody: Record<string, any> = {};
-    if (updated.name) patchBody.name = updated.name;
-    if (updated.price !== undefined) patchBody.price = updated.price;
-    if (updated.originalPrice !== undefined) patchBody.original_price = updated.originalPrice;
-    if (updated.inStock !== undefined) patchBody.status = updated.inStock ? 'ACTIVE' : 'OUT_OF_STOCK';
-    if (updated.isBestSeller !== undefined) patchBody.is_bestseller = updated.isBestSeller;
-    if (updated.isNew !== undefined) patchBody.is_new_arrival = updated.isNew;
-    if (updated.isFeatured !== undefined) patchBody.is_featured = updated.isFeatured;
-    if (updated.image || updated.imageUrl) patchBody.image_url = updated.image || updated.imageUrl;
-    if (updated.topNotes) patchBody.top_notes = updated.topNotes;
-    if (updated.heartNotes) patchBody.heart_notes = updated.heartNotes;
-    if (updated.baseNotes) patchBody.base_notes = updated.baseNotes;
-    if (updated.vesselDescription) patchBody.short_description = updated.vesselDescription;
-    if (updated.scentProfile) patchBody.tagline = updated.scentProfile;
-    if (updated.rating !== undefined) patchBody.rating = updated.rating;
-
-    if (Object.keys(patchBody).length > 0) {
-      supabaseFetch('products', {
-        method: 'PATCH',
-        query: `id=eq.${id}`,
-        body: patchBody,
-      }).catch(() => { });
+    try {
+      const res = await fetch(getApiUrl('products'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(removeUndefinedValues(buildProductDbPayload(prod))),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        const savedProduct = json.data ? mapDbProductToCMS(json.data) : prod;
+        setProducts((prev) => prev.map((p) => (p.id === prod.id ? savedProduct : p)));
+        clearProductDirty(prod.id);
+      }
+    } catch (err) {
+      console.warn('Laravel product insert note:', err);
     }
   };
 
-  const deleteProduct = (id: string) => {
+  const updateProduct = async (id: string, updated: Partial<CMSProduct>) => {
+    const current = products.find((p) => p.id === id) || readStoredProducts().find((p) => p.id === id);
+    const nextProduct = { ...current, ...updated, id } as CMSProduct;
+    setProducts((prev) => prev.map((p) => (p.id === id ? nextProduct : p)));
+    const storedProducts = readStoredProducts();
+    const nextStoredProducts = storedProducts.some((p) => p.id === id)
+      ? storedProducts.map((p) => (p.id === id ? nextProduct : p))
+      : [nextProduct, ...storedProducts];
+    localStorage.setItem(
+      PRODUCTS_STORAGE_KEY,
+      JSON.stringify(nextStoredProducts)
+    );
+    markProductDirty(id);
+
+    const patchBody = removeUndefinedValues(buildProductDbPayload(updated, current));
+
+    try {
+      const res = await supabaseFetch<any[]>('products', {
+        method: 'PATCH',
+        query: `id=eq.${id}`,
+        body: patchBody,
+      });
+      if (Array.isArray(res) ? res.length > 0 : Boolean(res)) {
+        clearProductDirty(id);
+        return;
+      }
+    } catch (err) {
+      console.warn('Supabase product update note:', err);
+    }
+
+    try {
+      const res = await fetch(getApiUrl(`products/${id}`), {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(patchBody),
+      });
+      if (res.ok) {
+        clearProductDirty(id);
+      }
+    } catch (err) {
+      console.warn('Laravel product update note:', err);
+    }
+  };
+
+  const deleteProduct = async (id: string) => {
     setProducts((prev) => prev.filter((p) => p.id !== id));
+    localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(readStoredProducts().filter((p) => p.id !== id)));
     supabaseFetch('products', {
       method: 'DELETE',
       query: `id=eq.${id}`,
     }).catch(() => { });
+
+    try {
+      await fetch(getApiUrl(`products/${id}`), { method: 'DELETE' });
+    } catch (err) {
+      console.warn('Laravel product delete note:', err);
+    }
   };
 
   const addCoupon = (coupon: CMSCoupon) => {
@@ -843,10 +971,16 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const updateOrderStatus = (id: string, status: string) => {
     setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status } : o)));
+    window.dispatchEvent(new Event('tcl-orders-updated'));
     supabaseFetch('orders', {
       method: 'PATCH',
       query: `order_number=eq.${id}`,
       body: { order_status: status.toUpperCase() },
+    }).catch(() => { });
+    fetch(getApiUrl(`orders/${encodeURIComponent(id)}/status`), {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ status }),
     }).catch(() => { });
   };
 

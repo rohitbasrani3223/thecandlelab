@@ -7,6 +7,6 @@ export * from './NewArrivalsTrending';
 export * from './ScentNotesCareSection';
 export * from './CustomerReviews';
 export * from './InstagramGallery';
-export * from './FAQSection';
+export * from './FaqSection';
 export * from './NewsletterSection';
 export * from './HomePage';

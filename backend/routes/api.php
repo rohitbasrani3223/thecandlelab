@@ -33,6 +33,9 @@ Route::post('/razorpay/verify-payment', [PaymentController::class, 'verifyPaymen
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{id}', [ProductController::class, 'show']);
 Route::post('/products', [ProductController::class, 'store']);
+Route::patch('/products/{id}', [ProductController::class, 'update']);
+Route::put('/products/{id}', [ProductController::class, 'update']);
+Route::delete('/products/{id}', [ProductController::class, 'destroy']);
 
 // Categories & Collections API
 Route::get('/categories', function () {
@@ -127,6 +130,7 @@ Route::post('/auth/social', function (Request $request) {
 // Orders API
 Route::get('/orders', [OrderController::class, 'index']);
 Route::post('/orders', [OrderController::class, 'store']);
+Route::patch('/orders/{id}/status', [OrderController::class, 'updateStatus']);
 
 // User Profile & Address Book API
 Route::get('/user/addresses', function (Request $request) {

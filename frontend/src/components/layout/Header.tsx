@@ -60,7 +60,7 @@ export const Header: React.FC<HeaderProps> = ({
     <header
       className={`sticky top-0 z-30 w-full transition-all duration-300 font-sans ${isScrolled ? 'bg-[#FAF6F0]/95 backdrop-blur-md shadow-card border-b border-[#E5D9C5]/80 py-2.5' : 'bg-[#FAF6F0] border-b border-[#E5D9C5] py-3.5'}`}
     >
-      <div className="max-w-7xl mx-auto px-6 sm:px-12 flex items-center justify-between gap-6">
+      <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-12 flex items-center justify-between gap-2 sm:gap-6">
         {/* Left Side: Logo & Navigation */}
         <div className="flex items-center gap-6 sm:gap-10">
           {/* Mobile Hamburger Button */}
@@ -138,7 +138,7 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Right Side: Action Icons */}
-        <div className="flex items-center gap-3 sm:gap-5">
+        <div className="flex shrink-0 items-center gap-1 sm:gap-5">
           {/* Search Trigger with Cmd+K Badge */}
           <button
             onClick={onOpenSearch}

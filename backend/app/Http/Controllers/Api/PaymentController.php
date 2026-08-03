@@ -26,8 +26,7 @@ class PaymentController extends Controller
                 ], 401);
             }
 
-            // Input amount can be passed as amountInRupees or direct paise amount
-            $rawAmount = $request->input('amount');
+            $rawAmount = $request->input('amount_in_paise', $request->input('amount'));
             if (!$rawAmount) {
                 return response()->json([
                     'success' => false,
@@ -35,10 +34,9 @@ class PaymentController extends Controller
                 ], 400);
             }
 
-            // Standardize amount to paise (Minimum 100 paise = ₹1.00)
-            $amountInPaise = is_float($rawAmount) || ($rawAmount < 100 && $request->input('inRupees', true))
-                ? (int) round($rawAmount * 100)
-                : (int) $rawAmount;
+            // Razorpay always expects the smallest currency unit (paise). The client
+            // sends amount_in_paise explicitly, avoiding ambiguous rupee/paise guesses.
+            $amountInPaise = (int) round($rawAmount);
 
             if ($amountInPaise < 100) {
                 return response()->json([

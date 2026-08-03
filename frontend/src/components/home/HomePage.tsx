@@ -8,7 +8,7 @@ import { NewArrivalsTrending } from './NewArrivalsTrending';
 import { ScentNotesCareSection } from './ScentNotesCareSection';
 import { CustomerReviews } from './CustomerReviews';
 import { InstagramGallery } from './InstagramGallery';
-import { FaqSection } from './FAQSection';
+import { FaqSection } from './FaqSection';
 import { NewsletterSection } from './NewsletterSection';
 
 export interface HomePageProps {

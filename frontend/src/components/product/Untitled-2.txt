@@ -1,0 +1,3 @@
+# 
+
+{"success":true,"data":{"id":"aa6789e4-f151-4990-859e-f24a34fe5f37","main_category_id":null,"sub_category_id":null,"collection_id":null,"name":"dw","slug":"dw-1785357098049","tagline":"Warm Vanilla","sku":null,"price":"1499.00","original_price":"1799.00","short_description":"Hand-poured in Italian frosted glass jar.","long_description":null,"wax_type":"Soy Wax","wick_type":"Wooden Crackling Wick","burn_time_hours":60,"weight_grams":250,"rating":"4.90","reviews_count":12,"status":"ACTIVE","is_featured":false,"is_bestseller":true,"is_new_arrival":true,"is_trending":false,"created_at":"2026-07-29T20:31:40.736203Z","updated_at":"2026-07-29T20:31:40.736203Z","main_category":null,"sub_category":null,"collection":null,"images":[],"inventory":null}}

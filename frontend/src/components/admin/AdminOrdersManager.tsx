@@ -8,6 +8,8 @@ export const AdminOrdersManager: React.FC = () => {
   const { orders, updateOrderStatus, addOrder, deleteOrder } = useCMS();
   const [savedMsg, setSavedMsg] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [shipmentOrder, setShipmentOrder] = useState<string | null>(null);
+  const [shipment, setShipment] = useState({ courier: 'Shiprocket', awb: '', pickupDate: '' });
   const [newOrder, setNewOrder] = useState({ customerName: '', email: '', items: '', totalAmount: 1499, paymentMethod: 'Razorpay UPI' });
 
   const [returnsList] = useState([
@@ -135,6 +137,44 @@ export const AdminOrdersManager: React.FC = () => {
         </div>
       )}
 
+      {shipmentOrder && (
+        <div className="fixed inset-0 z-50 bg-[#1C130E]/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              const awb = shipment.awb.trim() || `AWB${Date.now().toString().slice(-9)}`;
+              const shipmentRecords = JSON.parse(localStorage.getItem('tcl_shipments') || '{}');
+              shipmentRecords[shipmentOrder] = { ...shipment, awb, createdAt: new Date().toISOString() };
+              localStorage.setItem('tcl_shipments', JSON.stringify(shipmentRecords));
+              updateOrderStatus(shipmentOrder, 'Shipped');
+              window.dispatchEvent(new Event('tcl-orders-updated'));
+              setSavedMsg(`Shipment created for ${shipmentOrder}. AWB: ${awb}`);
+              setShipmentOrder(null);
+              setShipment({ courier: 'Shiprocket', awb: '', pickupDate: '' });
+              setTimeout(() => setSavedMsg(''), 4000);
+            }}
+            className="bg-white border border-[#EFE8DB] rounded-2xl max-w-md w-full p-6 space-y-4 shadow-card"
+          >
+            <div className="flex items-center justify-between border-b border-[#F2ECE1] pb-3">
+              <div><h3 className="font-serif font-bold text-lg text-[#2C1E16]">Create Shipment</h3><p className="text-[11px] text-[#7A6B5D]">Order {shipmentOrder}</p></div>
+              <button type="button" onClick={() => setShipmentOrder(null)} className="text-[#8C7A6B]">✕</button>
+            </div>
+            <label className="block text-xs font-bold text-[#2C1E16]">Courier
+              <select value={shipment.courier} onChange={(event) => setShipment({ ...shipment, courier: event.target.value })} className="mt-1 w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg">
+                <option>Shiprocket</option><option>Delhivery</option><option>Blue Dart</option><option>India Post</option>
+              </select>
+            </label>
+            <label className="block text-xs font-bold text-[#2C1E16]">AWB / Tracking Number
+              <input value={shipment.awb} onChange={(event) => setShipment({ ...shipment, awb: event.target.value })} placeholder="Leave blank to auto-generate" className="mt-1 w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg" />
+            </label>
+            <label className="block text-xs font-bold text-[#2C1E16]">Pickup date
+              <input type="date" value={shipment.pickupDate} onChange={(event) => setShipment({ ...shipment, pickupDate: event.target.value })} className="mt-1 w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg" />
+            </label>
+            <button type="submit" className="w-full bg-[#B88B38] text-white font-bold text-xs py-3 rounded-xl">Create Shipment & Mark Shipped</button>
+          </form>
+        </div>
+      )}
+
       {/* Dynamic Views */}
       {activeSubTab === 'orders' && (
         <div className="bg-white border border-[#EFE8DB] rounded-2xl overflow-hidden shadow-subtle space-y-4 p-4">
@@ -147,7 +187,8 @@ export const AdminOrdersManager: React.FC = () => {
               + Create Order
             </button>
           </div>
-          <table className="w-full text-left text-xs text-[#2C1E16]">
+          <div className="hidden md:block overflow-x-auto">
+          <table className="min-w-[820px] w-full text-left text-xs text-[#2C1E16]">
             <thead className="bg-[#F8F3EA] border-b border-[#EFE8DB] uppercase font-bold text-[10px] tracking-wider text-[#7A6B5D]">
               <tr>
                 <th className="p-4">Order ID</th>
@@ -197,6 +238,12 @@ export const AdminOrdersManager: React.FC = () => {
                       <option value="Cancelled">Cancelled</option>
                     </select>
                     <button
+                      onClick={() => setShipmentOrder(ord.id)}
+                      className="text-[#B88B38] font-bold hover:underline text-xs cursor-pointer"
+                    >
+                      Shipment
+                    </button>
+                    <button
                       onClick={() => {
                         deleteOrder(ord.id);
                         setSavedMsg(`Order ${ord.id} deleted.`);
@@ -211,6 +258,16 @@ export const AdminOrdersManager: React.FC = () => {
               ))}
             </tbody>
           </table>
+          </div>
+          <div className="space-y-3 md:hidden">
+            {orders.map((ord) => (
+              <article key={ord.id} className="rounded-xl border border-[#EFE8DB] bg-[#FAF6F0] p-4 space-y-3">
+                <div className="flex items-start justify-between gap-3"><div><p className="font-mono font-bold text-[#B88B38]">{ord.id}</p><p className="font-bold text-[#2C1E16]">{ord.customerName}</p><p className="text-[11px] text-[#7A6B5D] break-all">{ord.email}</p></div><span className="text-xs font-bold">₹{ord.totalAmount.toLocaleString('en-IN')}</span></div>
+                <p className="text-xs text-[#7A6B5D]">{ord.items}</p>
+                <div className="grid grid-cols-2 gap-2"><select value={ord.status} onChange={(event) => updateOrderStatus(ord.id, event.target.value)} className="bg-white border border-[#EFE8DB] p-2 rounded-lg text-xs"><option>Pending</option><option>Processing</option><option>Shipped</option><option>Delivered</option><option>Cancelled</option></select><button onClick={() => setShipmentOrder(ord.id)} className="rounded-lg border border-[#B88B38] text-[#B88B38] text-xs font-bold">Create shipment</button></div>
+              </article>
+            ))}
+          </div>
         </div>
       )}
 

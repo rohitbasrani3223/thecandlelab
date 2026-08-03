@@ -118,8 +118,8 @@ export const OrderReviewStep: React.FC<OrderReviewStepProps> = ({
         </div>
       </div>
 
-      <div className="flex items-center gap-4 pt-4">
-        <Button type="button" variant="outline" size="lg" onClick={onBack}>
+      <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 pt-4">
+        <Button type="button" variant="outline" size="lg" onClick={onBack} className="w-full sm:w-auto">
           ← Back to Payment
         </Button>
         <Button

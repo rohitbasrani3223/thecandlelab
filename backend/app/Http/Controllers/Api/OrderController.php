@@ -126,7 +126,7 @@ class OrderController extends Controller
             'status' => 'required|in:Processing,Shipped,Delivered,Cancelled',
         ]);
 
-        $order = Order::findOrFail($id);
+        $order = Order::where('id', $id)->orWhere('order_number', $id)->firstOrFail();
         $order->update(['status' => $request->status]);
 
         return response()->json([

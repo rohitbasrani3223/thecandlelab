@@ -57,6 +57,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
     description: 'Packed in heavy gold foil gift box.',
   });
   const [payment, setPayment] = useState<PaymentData>(initialPayment);
+  const [confirmedOrderNumber, setConfirmedOrderNumber] = useState('');
 
   const [cartItems] = useState<any[]>(() => {
     try {
@@ -99,6 +100,8 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
       shippingAddress: `${address.street}, ${address.apartment ? address.apartment + ', ' : ''}${address.city}, ${address.state} ${address.zip}`,
     };
 
+    setConfirmedOrderNumber(orderNumber);
+
     // 1. Direct Supabase PostgreSQL Database Insert
     try {
       await supabaseFetch('orders', {
@@ -119,19 +122,25 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
 
     // 2. Direct Backend API fetch fallback
     try {
-      await fetch(getApiUrl('orders'), {
+      const response = await fetch(getApiUrl('orders'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          order_number: orderNumber,
-          customer_name: `${address.firstName} ${address.lastName}`.trim() || 'Valued Customer',
-          customer_email: address.email || user?.email || '',
-          total_amount: totalAmount,
+          items: cartItems.map((item) => ({ product_id: item.id, quantity: item.quantity || 1 })),
+          shipping_address: {
+            fullName: `${address.firstName} ${address.lastName}`.trim() || 'Valued Customer',
+            email: address.email || user?.email || '',
+            phone: address.phone,
+            street: address.street,
+            apartment: address.apartment,
+            city: address.city,
+            state: address.state,
+            pincode: address.zip,
+          },
           payment_method: isCOD ? 'COD' : 'RAZORPAY',
-          order_status: isCOD ? 'Pending COD' : 'Paid',
-          shipping_address: `${address.street}, ${address.city}`,
         }),
       });
+      if (!response.ok) console.warn('Backend order storage failed; saved locally for admin sync.');
     } catch { }
 
     // 3. Client Local Storage Sync for zero-latency UI update
@@ -229,7 +238,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
     return (
       <OrderSuccessPage
         orderDetails={{
-          orderNumber: `#TCL-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+          orderNumber: confirmedOrderNumber,
           email: address.email || user?.email || '',
           customerName: `${address.firstName} ${address.lastName}`.trim() || 'Valued Customer',
           items: cartItems,
@@ -248,10 +257,10 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
       <CheckoutHeader currentStep={step as CheckoutStep} onStepClick={(s) => setStep(s)} />
 
       {/* Main Checkout Viewport */}
-      <div className="max-w-7xl mx-auto px-6 sm:px-12 py-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
           {/* Left Column: Active Step Form */}
-          <div className="lg:col-span-8 bg-[#FAF6F0] p-6 sm:p-8 rounded-md border border-[#E5D9C5] shadow-card">
+          <div className="lg:col-span-8 min-w-0 bg-[#FAF6F0] p-4 sm:p-8 rounded-md border border-[#E5D9C5] shadow-card">
             {step === 1 && (
               <AddressFormStep
                 initialData={address}
