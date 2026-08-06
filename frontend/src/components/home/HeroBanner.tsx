@@ -5,6 +5,13 @@ import { useCMS } from '../../context/CMSContext';
 export const HeroBanner: React.FC = () => {
   const { hero } = useCMS();
 
+  const heroTagline = hero.tagline || 'HANDCRAFTED BOTANICAL SOY CANDLES';
+  const heroTitle = hero.title || 'Illuminate Your Sanctuary With Pure Elegance';
+  const heroSubtitle = hero.subtitle || 'Artisanal soy wax candles infused with fine botanical essential oils, hand-poured in small luxury batches.';
+  const heroPrimaryBtn = hero.primaryBtnText || 'Explore Collections';
+  const heroSecondaryBtn = hero.secondaryBtnText || 'Our Atelier Story';
+  const heroImage = hero.imageUrl || 'https://images.unsplash.com/photo-1603006905003-be475563bc59?q=80&w=1200&auto=format&fit=crop';
+
   return (
     <section className="relative w-full max-w-full bg-gradient-to-b from-[#FAF6F0] via-[#F4EFE6] to-[#FAF6F0] border-b border-[#E5D9C5] overflow-hidden py-10 sm:py-20 lg:py-24 font-sans">
       {/* Background Decorative Gold Radial Light */}
@@ -15,16 +22,16 @@ export const HeroBanner: React.FC = () => {
           {/* Left Content Column */}
           <div className="lg:col-span-7 space-y-6 sm:space-y-8 text-center lg:text-left">
             <div className="inline-flex items-center gap-2">
-              <Badge variant="gold" icon={<SparklesIcon size={12} />}>{hero.tagline}</Badge>
+              <Badge variant="gold" icon={<SparklesIcon size={12} />}>{heroTagline}</Badge>
               <span className="hidden sm:inline-block text-xs uppercase tracking-widest text-[#8C7A6B] font-semibold">• 2026 Atelier Reserve</span>
             </div>
 
             <h1 className="text-3xl sm:text-6xl lg:text-7xl font-serif font-extrabold text-[#2A1E17] leading-[1.08] tracking-tight">
-              {hero.title}
+              {heroTitle}
             </h1>
 
             <p className="text-base sm:text-lg text-[#69574A] max-w-2xl mx-auto lg:mx-0 leading-relaxed font-light">
-              {hero.subtitle}
+              {heroSubtitle}
             </p>
 
             {/* CTAs */}
@@ -39,7 +46,7 @@ export const HeroBanner: React.FC = () => {
                   el?.scrollIntoView({ behavior: 'smooth' });
                 }}
               >
-                {hero.primaryBtnText}
+                {heroPrimaryBtn}
               </Button>
               <Button
                 variant="outline"
@@ -51,7 +58,7 @@ export const HeroBanner: React.FC = () => {
                   el?.scrollIntoView({ behavior: 'smooth' });
                 }}
               >
-                {hero.secondaryBtnText}
+                {heroSecondaryBtn}
               </Button>
             </div>
 
@@ -80,7 +87,7 @@ export const HeroBanner: React.FC = () => {
           <div className="lg:col-span-5 flex justify-center">
             <div className="relative w-full max-w-md aspect-[4/5] sm:aspect-3/4 rounded-2xl overflow-hidden shadow-card border border-[#EFE8DB] bg-[#F8F3EA] group">
               <img
-                src={hero.imageUrl}
+                src={heroImage}
                 alt="Luxury Soy Candle"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
               />
