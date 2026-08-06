@@ -48,11 +48,10 @@ export const AdminOrdersManager: React.FC = () => {
             <button
               key={tab.id}
               onClick={() => setActiveSubTab(tab.id)}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
-                isActive
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${isActive
                   ? 'bg-[#B88B38] text-white shadow-card'
                   : 'bg-white text-[#7A6B5D] border border-[#EFE8DB] hover:bg-[#F8F3EA] hover:text-[#2C1E16]'
-              }`}
+                }`}
             >
               <span>{tab.icon}</span>
               <span>{tab.label}</span>
@@ -188,81 +187,92 @@ export const AdminOrdersManager: React.FC = () => {
             </button>
           </div>
           <div className="hidden md:block overflow-x-auto">
-          <table className="min-w-[820px] w-full text-left text-xs text-[#2C1E16]">
-            <thead className="bg-[#F8F3EA] border-b border-[#EFE8DB] uppercase font-bold text-[10px] tracking-wider text-[#7A6B5D]">
-              <tr>
-                <th className="p-4">Order ID</th>
-                <th className="p-4">Customer</th>
-                <th className="p-4">Items Purchased</th>
-                <th className="p-4">Total Amount</th>
-                <th className="p-4">Payment Method</th>
-                <th className="p-4">Status</th>
-                <th className="p-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#F2ECE1]">
-              {orders.map((ord) => (
-                <tr key={ord.id} className="hover:bg-[#FAF6F0] transition-colors">
-                  <td className="p-4 font-mono font-bold text-[#B88B38]">{ord.id}</td>
-                  <td className="p-4">
-                    <strong className="block text-[#2C1E16]">{ord.customerName}</strong>
-                    <span className="text-[10px] text-[#7A6B5D]">{ord.email}</span>
-                  </td>
-                  <td className="p-4 text-xs">{ord.items}</td>
-                  <td className="p-4 font-bold text-[#2C1E16]">₹{ord.totalAmount.toLocaleString('en-IN')}.00</td>
-                  <td className="p-4 text-xs font-semibold text-[#7A6B5D]">{ord.paymentMethod}</td>
-                  <td className="p-4">
-                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                      ord.status === 'Delivered' ? 'bg-[#2E6F40]/10 text-[#2E6F40]' :
-                      ord.status === 'Shipped' ? 'bg-[#B88B38]/10 text-[#B88B38]' :
-                      ord.status === 'Processing' ? 'bg-blue-500/10 text-blue-600' :
-                      'bg-[#B93829]/10 text-[#B93829]'
-                    }`}>
-                      {ord.status}
-                    </span>
-                  </td>
-                  <td className="p-4 text-right space-x-2">
-                    <select
-                      value={ord.status}
-                      onChange={(e) => {
-                        updateOrderStatus(ord.id, e.target.value as any);
-                        setSavedMsg(`Order ${ord.id} status updated to ${e.target.value}!`);
-                        setTimeout(() => setSavedMsg(''), 3000);
-                      }}
-                      className="bg-[#F8F3EA] border border-[#EFE8DB] p-1 rounded-lg text-xs text-[#2C1E16] font-semibold cursor-pointer"
-                    >
-                      <option value="Pending">Pending</option>
-                      <option value="Processing">Processing</option>
-                      <option value="Shipped">Shipped</option>
-                      <option value="Delivered">Delivered</option>
-                      <option value="Cancelled">Cancelled</option>
-                    </select>
-                    <button
-                      onClick={() => setShipmentOrder(ord.id)}
-                      className="text-[#B88B38] font-bold hover:underline text-xs cursor-pointer"
-                    >
-                      Shipment
-                    </button>
-                    <button
-                      onClick={() => {
-                        deleteOrder(ord.id);
-                        setSavedMsg(`Order ${ord.id} deleted.`);
-                        setTimeout(() => setSavedMsg(''), 3000);
-                      }}
-                      className="text-[#B93829] font-bold hover:underline text-xs cursor-pointer"
-                    >
-                      Delete
-                    </button>
-                  </td>
+            <table className="min-w-[820px] w-full text-left text-xs text-[#2C1E16]">
+              <thead className="bg-[#F8F3EA] border-b border-[#EFE8DB] uppercase font-bold text-[10px] tracking-wider text-[#7A6B5D]">
+                <tr>
+                  <th className="p-4">Order ID</th>
+                  <th className="p-4">Date</th>
+                  <th className="p-4">Customer</th>
+                  <th className="p-4">Items Purchased</th>
+                  <th className="p-4">Total Amount</th>
+                  <th className="p-4">Payment Method</th>
+                  <th className="p-4">Status</th>
+                  <th className="p-4 text-right">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-[#F2ECE1]">
+                {orders.map((ord) => (
+                  <tr key={ord.id} className="hover:bg-[#FAF6F0] transition-colors">
+                    <td className="p-4 font-mono font-bold text-[#B88B38]">{ord.id}</td>
+                    <td className="p-4 text-[11px] text-[#7A6B5D] whitespace-nowrap font-medium">
+                      {ord.date || new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    </td>
+                    <td className="p-4">
+                      <strong className="block text-[#2C1E16]">{ord.customerName}</strong>
+                      <span className="text-[10px] text-[#7A6B5D]">{ord.email}</span>
+                    </td>
+                    <td className="p-4 text-xs">{ord.items}</td>
+                    <td className="p-4 font-bold text-[#2C1E16]">₹{ord.totalAmount.toLocaleString('en-IN')}.00</td>
+                    <td className="p-4 text-xs font-semibold text-[#7A6B5D]">{ord.paymentMethod}</td>
+                    <td className="p-4">
+                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${ord.status === 'Delivered' ? 'bg-[#2E6F40]/10 text-[#2E6F40]' :
+                          ord.status === 'Shipped' ? 'bg-[#B88B38]/10 text-[#B88B38]' :
+                            ord.status === 'Processing' ? 'bg-blue-500/10 text-blue-600' :
+                              'bg-[#B93829]/10 text-[#B93829]'
+                        }`}>
+                        {ord.status}
+                      </span>
+                    </td>
+                    <td className="p-4 text-right space-x-2">
+                      <select
+                        value={ord.status}
+                        onChange={(e) => {
+                          updateOrderStatus(ord.id, e.target.value as any);
+                          setSavedMsg(`Order ${ord.id} status updated to ${e.target.value}!`);
+                          setTimeout(() => setSavedMsg(''), 3000);
+                        }}
+                        className="bg-[#F8F3EA] border border-[#EFE8DB] p-1 rounded-lg text-xs text-[#2C1E16] font-semibold cursor-pointer"
+                      >
+                        <option value="Pending">Pending</option>
+                        <option value="Processing">Processing</option>
+                        <option value="Shipped">Shipped</option>
+                        <option value="Delivered">Delivered</option>
+                        <option value="Cancelled">Cancelled</option>
+                      </select>
+                      <button
+                        onClick={() => setShipmentOrder(ord.id)}
+                        className="text-[#B88B38] font-bold hover:underline text-xs cursor-pointer"
+                      >
+                        Shipment
+                      </button>
+                      <button
+                        onClick={() => {
+                          deleteOrder(ord.id);
+                          setSavedMsg(`Order ${ord.id} deleted.`);
+                          setTimeout(() => setSavedMsg(''), 3000);
+                        }}
+                        className="text-[#B93829] font-bold hover:underline text-xs cursor-pointer"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
           <div className="space-y-3 md:hidden">
             {orders.map((ord) => (
               <article key={ord.id} className="rounded-xl border border-[#EFE8DB] bg-[#FAF6F0] p-4 space-y-3">
-                <div className="flex items-start justify-between gap-3"><div><p className="font-mono font-bold text-[#B88B38]">{ord.id}</p><p className="font-bold text-[#2C1E16]">{ord.customerName}</p><p className="text-[11px] text-[#7A6B5D] break-all">{ord.email}</p></div><span className="text-xs font-bold">₹{ord.totalAmount.toLocaleString('en-IN')}</span></div>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="font-mono font-bold text-[#B88B38]">{ord.id}</p>
+                    <p className="text-[10px] text-[#7A6B5D]">{ord.date || new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+                    <p className="font-bold text-[#2C1E16]">{ord.customerName}</p>
+                    <p className="text-[11px] text-[#7A6B5D] break-all">{ord.email}</p>
+                  </div>
+                  <span className="text-xs font-bold">₹{ord.totalAmount.toLocaleString('en-IN')}</span>
+                </div>
                 <p className="text-xs text-[#7A6B5D]">{ord.items}</p>
                 <div className="grid grid-cols-2 gap-2"><select value={ord.status} onChange={(event) => updateOrderStatus(ord.id, event.target.value)} className="bg-white border border-[#EFE8DB] p-2 rounded-lg text-xs"><option>Pending</option><option>Processing</option><option>Shipped</option><option>Delivered</option><option>Cancelled</option></select><button onClick={() => setShipmentOrder(ord.id)} className="rounded-lg border border-[#B88B38] text-[#B88B38] text-xs font-bold">Create shipment</button></div>
               </article>

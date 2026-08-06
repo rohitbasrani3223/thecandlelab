@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useCMS } from '../../context/CMSContext';
 import type { CMSProduct } from '../../context/CMSContext';
 import { uploadImageToSupabaseStorage } from '../../config/supabaseClient';
+import { PRODUCT_IMAGE_PLACEHOLDER } from '../../config/placeholders';
+import { MediaLibraryPicker } from './MediaLibraryPicker';
 
 type ProductsSubTab =
   | 'products'
@@ -30,7 +32,7 @@ interface CollectionItem {
 
 export const AdminProductsManager: React.FC = () => {
   const [activeSubTab, setActiveSubTab] = useState<ProductsSubTab>('products');
-  const { products, addProduct, updateProduct, deleteProduct } = useCMS();
+  const { products, addProduct, updateProduct, deleteProduct, mediaItems, registerMediaAsset } = useCMS();
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingProd, setEditingProd] = useState<CMSProduct | null>(null);
   const [savedMsg, setSavedMsg] = useState('');
@@ -91,6 +93,13 @@ export const AdminProductsManager: React.FC = () => {
     { id: 'pricing', label: 'Pricing', icon: '🏷️' },
     { id: 'bulk', label: 'Bulk Import/Export', icon: '📂' },
   ];
+
+  const applyProductImage = (url: string, label: string) => {
+    setFormData((prev) => ({ ...prev, image: url, imageUrl: url }));
+    if (url && !url.startsWith('data:')) {
+      registerMediaAsset(label, url);
+    }
+  };
 
   const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -365,8 +374,14 @@ export const AdminProductsManager: React.FC = () => {
               </div>
 
               {/* Product Primary Image Upload & Live Preview */}
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <label className="font-bold text-[#2C1E16] block uppercase mb-1">Main Cover Image *</label>
+
+                <MediaLibraryPicker
+                  mediaItems={mediaItems}
+                  selectedUrl={formData.image || formData.imageUrl}
+                  onSelect={(url, assetName) => applyProductImage(url, assetName)}
+                />
 
                 {(formData.image || formData.imageUrl) ? (
                   <div className="flex items-center gap-4 p-3 bg-[#FAF6F0] rounded-xl border border-[#EFE8DB]">
@@ -406,7 +421,7 @@ export const AdminProductsManager: React.FC = () => {
                             setFormData((prev) => ({ ...prev, image: localPreview, imageUrl: localPreview }));
                             try {
                               const uploadedUrl = await uploadImageToSupabaseStorage(file, 'product-images');
-                              setFormData((prev) => ({ ...prev, image: uploadedUrl, imageUrl: uploadedUrl }));
+                              applyProductImage(uploadedUrl, file.name);
                             } catch (err) {
                               console.warn('Cloud upload failed, using local preview:', err);
                             } finally {
@@ -423,9 +438,9 @@ export const AdminProductsManager: React.FC = () => {
                     </div>
                     <input
                       type="text"
-                      placeholder="https://images.unsplash.com/..."
+                      placeholder="https://your-cdn.com/product.jpg"
                       value={formData.image || formData.imageUrl || ''}
-                      onChange={(e) => setFormData({ ...formData, image: e.target.value, imageUrl: e.target.value })}
+                      onChange={(e) => applyProductImage(e.target.value, formData.name || 'Product image')}
                       className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2 rounded-lg text-[#2C1E16] text-xs"
                     />
                   </div>
@@ -674,7 +689,7 @@ export const AdminProductsManager: React.FC = () => {
                   <td className="p-4">
                     <div className="flex items-center gap-3">
                       <img
-                        src={prod.image || prod.imageUrl || 'https://images.unsplash.com/photo-1603006905003-be475563bc59?w=800'}
+                        src={prod.image || prod.imageUrl || PRODUCT_IMAGE_PLACEHOLDER}
                         alt={prod.name}
                         className="w-10 h-10 object-cover rounded-lg border border-[#EFE8DB]"
                       />

@@ -1,4 +1,5 @@
 import React from 'react';
+import { PRODUCT_IMAGE_PLACEHOLDER } from '../../config/placeholders';
 import { ProductGallery } from './ProductGallery';
 import { ProductSummary } from './ProductSummary';
 import { FragrancePyramidSection } from './FragrancePyramidSection';
@@ -42,7 +43,7 @@ export const ProductDetailsPage: React.FC<ProductDetailsPageProps> = ({ product,
       category: product?.category || 'Glass Jars',
       price: product?.price ? Math.round(product.price) : 1499,
       originalPrice: product?.originalPrice ? Math.round(product.originalPrice) : 1799,
-      image: product?.image || product?.imageUrl || 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80',
+      image: product?.image || product?.imageUrl || PRODUCT_IMAGE_PLACEHOLDER,
       quantity: qty,
       size,
       wick,

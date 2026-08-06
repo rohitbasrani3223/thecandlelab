@@ -10,6 +10,33 @@ const headers = {
   'Prefer': 'return=representation',
 };
 
+export async function supabaseUpsertByKey(
+  table: string,
+  body: Record<string, unknown>,
+  onConflict: string
+): Promise<boolean> {
+  try {
+    const url = `${SUPABASE_URL}/rest/v1/${table}?on_conflict=${encodeURIComponent(onConflict)}`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        ...headers,
+        Prefer: 'resolution=merge-duplicates,return=representation',
+      },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error(`Supabase upsert error on ${table} [${res.status}]:`, errText);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.warn(`Supabase upsert failed on ${table}:`, err);
+    return false;
+  }
+}
+
 export async function supabaseFetch<T>(table: string, options: { method?: string; query?: string; body?: any } = {}): Promise<T | null> {
   try {
     const { method = 'GET', query = '', body } = options;

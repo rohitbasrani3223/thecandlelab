@@ -1,4 +1,5 @@
 import React from 'react';
+import { PRODUCT_IMAGE_PLACEHOLDER } from '../../config/placeholders';
 import { Button, Badge, StarIcon, HeartIcon, SparklesIcon } from '../../design-system';
 
 export interface ShopProduct {
@@ -57,7 +58,7 @@ export const ProductListItem: React.FC<ProductListItemProps> = ({
         className="w-full sm:w-48 h-48 bg-[#2A1E17] rounded-sm flex items-center justify-center relative overflow-hidden shrink-0 cursor-pointer"
       >
         <img
-          src={product.image || product.imageUrl || 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80'}
+          src={product.image || product.imageUrl || PRODUCT_IMAGE_PLACEHOLDER}
           alt={product.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />

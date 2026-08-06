@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { supabaseFetch } from '../config/supabaseClient';
 import { getApiUrl } from '../config/api';
+import { fetchCmsBundle, saveCmsBundle, type CmsRemoteBundle } from '../services/cmsRemote';
 
 const PRODUCTS_STORAGE_KEY = 'tcl_cms_products';
 const DIRTY_PRODUCTS_STORAGE_KEY = 'tcl_cms_products_dirty';
@@ -161,6 +162,7 @@ export interface CMSContextType {
   mediaItems: CMSMediaItem[];
   addMediaItem: (m: CMSMediaItem) => void;
   deleteMediaItem: (id: string) => void;
+  registerMediaAsset: (name: string, url: string, size?: string) => void;
   orders: CMSOrder[];
   addOrder: (order: CMSOrder) => void;
   updateOrderStatus: (id: string, status: string) => void;
@@ -196,123 +198,35 @@ const DEFAULT_SETTINGS: CMSStoreSettings = {
 };
 
 const DEFAULT_ANNOUNCEMENT: CMSAnnouncement = {
-  text: 'FREE SHIPPING ON ORDERS OVER ₹1,499 • USE CODE',
-  couponCode: 'LUXURY20',
-  discountText: 'FOR 20% OFF',
-  visible: true,
+  text: '',
+  couponCode: '',
+  discountText: '',
+  visible: false,
 };
 
 const DEFAULT_HERO: CMSHeroBanner = {
-  tagline: 'PREMIUM HOME FRAGRANCES',
-  title: 'Crafted to Glow, Designed to Inspire',
-  subtitle: 'Handcrafted luxury candles designed to fill your home with warmth, fragrance, and elegance. Pure soy & beeswax hand-poured in small batches.',
-  primaryBtnText: 'Shop All Fragrances',
-  secondaryBtnText: 'Take Scent Quiz',
-  imageUrl: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?w=1200&auto=format&fit=crop&q=80',
+  tagline: '',
+  title: 'The Candle Lab',
+  subtitle: '',
+  primaryBtnText: 'Shop Now',
+  secondaryBtnText: 'Learn More',
+  imageUrl: '',
 };
 
-const DEFAULT_COLLECTIONS: CMSCollection[] = [
-  {
-    id: 'scented-candles',
-    title: 'Scented Candles',
-    icon: '🕯️',
-    desc: 'Aromatherapy Infused 100% Pure Botanical Soy',
-    badge: 'LUXURY SOY RESERVE',
-    count: '12 Formulations',
-    scents: 'Velvet Rose, Smoked Amber, Bergamot',
-    image: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?w=800&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'floral-collection',
-    title: 'Floral Collection',
-    icon: '🌸',
-    desc: 'Hand-Poured Floral Bouquets of Rose & Lavender',
-    badge: 'ROMANTIC FLORALS',
-    count: '8 Formulations',
-    scents: 'Damask Rose, Wild Lavender, Jasmine',
-    image: 'https://images.unsplash.com/photo-1572726729207-a78d6fea73a7?w=800&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'vanilla-collection',
-    title: 'Vanilla Collection',
-    icon: '🍦',
-    desc: 'Warm Madagascar Vanilla Bean & Bourbon',
-    badge: 'GOURMAND FAVORITES',
-    count: '10 Formulations',
-    scents: 'Madagascar Vanilla, Bourbon, Amber',
-    image: 'https://images.unsplash.com/photo-1602874801007-bd458bb1b8b6?w=800&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'coffee-collection',
-    title: 'Coffee Collection',
-    icon: '☕',
-    desc: 'Rich Roasted Arabica & Dark Cacao Nibs',
-    badge: 'ENERGIZING AROMA',
-    count: '6 Formulations',
-    scents: 'Roasted Arabica, Dark Cacao, Hazelnut',
-    image: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?w=800&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'festive-collection',
-    title: 'Festive Collection',
-    icon: '🌲',
-    desc: 'Spiced Cinnamon Bark, Glowing Amber & Pine',
-    badge: 'HOLIDAY EXCLUSIVE',
-    count: '7 Formulations',
-    scents: 'Ceylon Cinnamon, Clove, Smoked Fir',
-    image: 'https://images.unsplash.com/photo-1507652313519-d4e9174996dd?w=800&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'gift-boxes',
-    title: 'Gift Boxes',
-    icon: '🎁',
-    desc: 'Curated Candle Sets + Brass Wick Trimmers',
-    badge: 'LUXURY GIFTING',
-    count: '10 Sets',
-    scents: 'Custom Candle Trios + Accessories',
-    image: 'https://images.unsplash.com/photo-1596435452227-886313d0130f?w=800&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'luxury-glass-jars',
-    title: 'Luxury Glass Jars',
-    icon: '🕯️',
-    desc: 'Heavy Italian Frosted Glass Vessels',
-    badge: 'ITALIAN GLASS',
-    count: '14 Formulations',
-    scents: 'Smoked Leather, Tobacco Oud, Vanilla',
-    image: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?w=800&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'wax-melts',
-    title: 'Wax Melts',
-    icon: '⚡',
-    desc: 'Flame-Free Ambient Essential Oil Melts',
-    badge: 'FLAME FREE',
-    count: '9 Formulations',
-    scents: 'Lavender, Rose Petals, Cardamom',
-    image: 'https://images.unsplash.com/photo-1572726729207-a78d6fea73a7?w=800&auto=format&fit=crop&q=80',
-  },
-];
+const DEFAULT_COLLECTIONS: CMSCollection[] = [];
 
 const DEFAULT_PRODUCTS: CMSProduct[] = [
 ];
 
-const DEFAULT_COUPONS: CMSCoupon[] = [
-  { code: 'LUXURY20', discountPercent: 20, description: '20% Off Storewide on Orders over ₹1,499', active: true },
-  { code: 'WELCOME15', discountPercent: 15, description: '15% Off VIP Welcome Discount', active: true },
-];
+const DEFAULT_COUPONS: CMSCoupon[] = [];
 
 const DEFAULT_PAGES_CONTENT: CMSPagesContent = {
-  aboutUs: 'At The Candle Lab, we blend botanical purity with timeless artisanal elegance. Every jar is hand-poured in small batches using 100% natural soy wax, lead-free cotton or crackling wooden wicks, and custom fragrance oils.',
-  shippingPolicy: 'Standard domestic shipping delivers in 3-5 business days. Complimentary white-glove shipping on all orders over ₹1,499. Orders dispatched within 24 hours.',
-  refundPolicy: 'We offer a 30-day hassle-free luxury return window. If your vessel arrives damaged or you are unsatisfied with the fragrance profile, contact support for instant replacement or refund.',
-  termsConditions: 'By purchasing from The Candle Lab, you agree to our standard boutique terms of service, safe burning guidelines, and privacy regulations.',
-  privacyPolicy: 'We respect your privacy. Customer data is encrypted with enterprise-grade SSL and is never sold or shared with third parties.',
-  faqList: [
-    { question: 'What wax do you use in your candles?', answer: 'We use 100% natural botanical soy wax blended with pure beeswax for clean, non-toxic, long-lasting burns.', category: 'Product Care' },
-    { question: 'How long do your candles burn?', answer: 'Our 12 oz luxury glass jars burn for up to 65 hours, while our 14 oz vessels burn for up to 80 hours.', category: 'Burn Specs' },
-    { question: 'How do I care for wooden wicks?', answer: 'Trim the wooden wick to 1/4 inch before every burn and allow the melted wax pool to reach the edges of the jar on first light.', category: 'Wick Care' },
-  ],
+  aboutUs: '',
+  shippingPolicy: '',
+  refundPolicy: '',
+  termsConditions: '',
+  privacyPolicy: '',
+  faqList: [],
 };
 
 const DEFAULT_CUSTOMERS: CMSCustomer[] = [
@@ -329,12 +243,7 @@ const DEFAULT_SEO: CMSSEOSetting[] = [
   { pageKey: 'shop', title: 'Shop All Candles & Wax Melts — The Candle Lab', description: 'Browse our complete collection of botanical soy candles, travel tins, and wax melts.', keywords: 'shop candles, scented candles' },
 ];
 
-const DEFAULT_STAFF: CMSStaffUser[] = [
-  { id: 'u-1', name: 'Super Admin', email: 'admin@thecandlelab.com', role: 'Super Admin', active: true },
-  { id: 'u-2', name: 'Rohit Basrani', email: 'rohit@thecandlelab.com', role: 'Super Admin', active: true },
-
-  { id: 'u-6', name: 'Support Desk', email: 'support@thecandlelab.com', role: 'Support', active: true },
-];
+const DEFAULT_STAFF: CMSStaffUser[] = [];
 
 const CMSContext = createContext<CMSContextType | undefined>(undefined);
 
@@ -380,9 +289,10 @@ const extractProductImages = (rawImages: any): string[] => {
     .filter(Boolean);
 };
 
-const mapDbProductToCMS = (p: any): CMSProduct => {
-  const galleryImages = extractProductImages(p.images);
-  const primaryImage = p.image_url || p.thumbnail || galleryImages.find((_, index) => index === 0) || '';
+const mapDbProductToCMS = (p: any, imageMap?: Map<string, string[]>): CMSProduct => {
+  const galleryFromTable = imageMap?.get(String(p.id)) || [];
+  const galleryImages = [...new Set([...galleryFromTable, ...extractProductImages(p.images)])];
+  const primaryImage = p.image_url || p.thumbnail || galleryImages[0] || '';
 
   return {
     id: String(p.id),
@@ -409,18 +319,30 @@ const mapDbProductToCMS = (p: any): CMSProduct => {
   };
 };
 
+const buildProductImageMap = (rows: any[] | null): Map<string, string[]> => {
+  const map = new Map<string, string[]>();
+  if (!rows) return map;
+  rows.forEach((row) => {
+    const productId = String(row.product_id);
+    const url = row.image_url;
+    if (!url) return;
+    const existing = map.get(productId) || [];
+    if (row.is_primary) {
+      map.set(productId, [url, ...existing.filter((item) => item !== url)]);
+    } else {
+      map.set(productId, [...existing, url]);
+    }
+  });
+  return map;
+};
+
 const mergeRemoteWithDirtyLocal = (remoteProducts: CMSProduct[]) => {
   const storedProducts = readStoredProducts();
   const dirtyIds = new Set(readDirtyProductIds());
   const merged = remoteProducts.map((remote) => {
     const local = storedProducts.find((item) => String(item.id) === String(remote.id));
-    if (!local) return remote;
-
-    const localHasUnsyncedImage =
-      dirtyIds.has(remote.id) ||
-      Boolean((local.image || local.imageUrl) && (local.image || local.imageUrl) !== (remote.image || remote.imageUrl));
-
-    return localHasUnsyncedImage ? { ...remote, ...local } : remote;
+    if (!local || !dirtyIds.has(remote.id)) return remote;
+    return { ...remote, ...local };
   });
 
   storedProducts.forEach((local) => {
@@ -468,42 +390,49 @@ const buildProductDbPayload = (prod: CMSProduct | Partial<CMSProduct>, current?:
 const removeUndefinedValues = (payload: Record<string, any>) =>
   Object.fromEntries(Object.entries(payload).filter(([, value]) => value !== undefined));
 
+const readLocalCmsSnapshot = (): CmsRemoteBundle | null => {
+  try {
+    const settingsRaw = localStorage.getItem('tcl_cms_settings');
+    const announcementRaw = localStorage.getItem('tcl_cms_announcement');
+    const heroRaw = localStorage.getItem('tcl_cms_hero');
+    const pagesRaw = localStorage.getItem('tcl_cms_pages_content');
+    const seoRaw = localStorage.getItem('tcl_cms_seo');
+    const collectionsRaw = localStorage.getItem('tcl_cms_collections');
+    const mediaRaw = localStorage.getItem('tcl_cms_media');
+
+    if (!settingsRaw && !heroRaw && !announcementRaw && !pagesRaw) return null;
+
+    return {
+      version: 1,
+      settings: settingsRaw ? JSON.parse(settingsRaw) : undefined,
+      announcement: announcementRaw ? JSON.parse(announcementRaw) : undefined,
+      hero: heroRaw ? JSON.parse(heroRaw) : undefined,
+      pagesContent: pagesRaw ? JSON.parse(pagesRaw) : undefined,
+      seoSettings: seoRaw ? JSON.parse(seoRaw) : undefined,
+      collections: collectionsRaw ? JSON.parse(collectionsRaw) : undefined,
+      mediaItems: mediaRaw ? JSON.parse(mediaRaw) : undefined,
+    };
+  } catch {
+    return null;
+  }
+};
+
 export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [settings, setSettings] = useState<CMSStoreSettings>(() => {
-    try {
-      const saved = localStorage.getItem('tcl_cms_settings');
-      return saved ? JSON.parse(saved) : DEFAULT_SETTINGS;
-    } catch {
-      return DEFAULT_SETTINGS;
-    }
-  });
+  const cmsSaveTimer = useRef<number | null>(null);
+  const allowCmsPersist = useRef(false);
+  const [cmsHydrated, setCmsHydrated] = useState(false);
 
-  const [announcement, setAnnouncement] = useState<CMSAnnouncement>(() => {
-    try {
-      const saved = localStorage.getItem('tcl_cms_announcement');
-      return saved ? JSON.parse(saved) : DEFAULT_ANNOUNCEMENT;
-    } catch {
-      return DEFAULT_ANNOUNCEMENT;
-    }
-  });
+  const markCmsEdited = () => {
+    allowCmsPersist.current = true;
+  };
 
-  const [hero, setHero] = useState<CMSHeroBanner>(() => {
-    try {
-      const saved = localStorage.getItem('tcl_cms_hero');
-      return saved ? JSON.parse(saved) : DEFAULT_HERO;
-    } catch {
-      return DEFAULT_HERO;
-    }
-  });
+  const [settings, setSettings] = useState<CMSStoreSettings>(DEFAULT_SETTINGS);
 
-  const [collections, setCollections] = useState<CMSCollection[]>(() => {
-    try {
-      const saved = localStorage.getItem('tcl_cms_collections');
-      return saved ? JSON.parse(saved) : DEFAULT_COLLECTIONS;
-    } catch {
-      return DEFAULT_COLLECTIONS;
-    }
-  });
+  const [announcement, setAnnouncement] = useState<CMSAnnouncement>(DEFAULT_ANNOUNCEMENT);
+
+  const [hero, setHero] = useState<CMSHeroBanner>(DEFAULT_HERO);
+
+  const [collections, setCollections] = useState<CMSCollection[]>(DEFAULT_COLLECTIONS);
 
   const [products, setProducts] = useState<CMSProduct[]>(() => {
     try {
@@ -527,14 +456,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   });
 
-  const [pagesContent, setPagesContent] = useState<CMSPagesContent>(() => {
-    try {
-      const saved = localStorage.getItem('tcl_cms_pages_content');
-      return saved ? JSON.parse(saved) : DEFAULT_PAGES_CONTENT;
-    } catch {
-      return DEFAULT_PAGES_CONTENT;
-    }
-  });
+  const [pagesContent, setPagesContent] = useState<CMSPagesContent>(DEFAULT_PAGES_CONTENT);
 
   const [customers, setCustomers] = useState<CMSCustomer[]>(() => {
     try {
@@ -545,14 +467,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   });
 
-  const [mediaItems, setMediaItems] = useState<CMSMediaItem[]>(() => {
-    try {
-      const saved = localStorage.getItem('tcl_cms_media');
-      return saved ? JSON.parse(saved) : DEFAULT_MEDIA;
-    } catch {
-      return DEFAULT_MEDIA;
-    }
-  });
+  const [mediaItems, setMediaItems] = useState<CMSMediaItem[]>(DEFAULT_MEDIA);
 
   const [orders, setOrders] = useState<CMSOrder[]>(() => {
     try {
@@ -563,14 +478,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   });
 
-  const [seoSettings, setSeoSettings] = useState<CMSSEOSetting[]>(() => {
-    try {
-      const saved = localStorage.getItem('tcl_cms_seo');
-      return saved ? JSON.parse(saved) : DEFAULT_SEO;
-    } catch {
-      return DEFAULT_SEO;
-    }
-  });
+  const [seoSettings, setSeoSettings] = useState<CMSSEOSetting[]>(DEFAULT_SEO);
 
   const [staffUsers, setStaffUsers] = useState<CMSStaffUser[]>(() => {
     try {
@@ -581,28 +489,38 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   });
 
-  const [totalRevenue, setTotalRevenue] = useState<number>(() => {
-    try {
-      const saved = localStorage.getItem('tcl_cms_revenue');
-      return saved ? Number(saved) : 148900;
-    } catch {
-      return 148900;
-    }
-  });
+  const [totalRevenue, setTotalRevenue] = useState<number>(0);
 
-  const [ordersCount, setOrdersCount] = useState<number>(() => {
-    try {
-      const saved = localStorage.getItem('tcl_cms_orders_count');
-      return saved ? Number(saved) : 112;
-    } catch {
-      return 112;
-    }
-  });
+  const [ordersCount, setOrdersCount] = useState<number>(0);
 
   // Initial sync from live Backend PostgreSQL Database API
   useEffect(() => {
     async function loadBackendData() {
       try {
+        const applyCmsBundle = (bundle: CmsRemoteBundle) => {
+          if (bundle.settings) setSettings(bundle.settings);
+          if (bundle.announcement) setAnnouncement(bundle.announcement);
+          if (bundle.hero) setHero(bundle.hero);
+          if (bundle.pagesContent) setPagesContent(bundle.pagesContent);
+          if (bundle.seoSettings?.length) setSeoSettings(bundle.seoSettings);
+          if (bundle.collections?.length) setCollections(bundle.collections);
+          if (bundle.mediaItems?.length) setMediaItems(bundle.mediaItems);
+        };
+
+        let cmsBundleFromServer = await fetchCmsBundle();
+        if (cmsBundleFromServer) {
+          applyCmsBundle(cmsBundleFromServer);
+          allowCmsPersist.current = true;
+        } else {
+          const localSnapshot = readLocalCmsSnapshot();
+          if (localSnapshot) {
+            applyCmsBundle(localSnapshot);
+            await saveCmsBundle(localSnapshot);
+            cmsBundleFromServer = localSnapshot;
+            allowCmsPersist.current = true;
+          }
+        }
+
         let dbProducts: any[] | null = null;
 
         try {
@@ -621,7 +539,11 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
 
         if (dbProducts && Array.isArray(dbProducts) && dbProducts.length > 0) {
-          const mapped = mergeRemoteWithDirtyLocal(dbProducts.map(mapDbProductToCMS));
+          const dbProductImages = await supabaseFetch<any[]>('product_images', {
+            query: 'select=product_id,image_url,is_primary,sort_order&order=sort_order.asc',
+          });
+          const imageMap = buildProductImageMap(dbProductImages);
+          const mapped = mergeRemoteWithDirtyLocal(dbProducts.map((p) => mapDbProductToCMS(p, imageMap)));
           setProducts(mapped);
           try {
             localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(mapped));
@@ -643,7 +565,12 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
 
         const dbCollections = await supabaseFetch<any[]>('collections');
-        if (dbCollections && Array.isArray(dbCollections) && dbCollections.length > 0) {
+        if (
+          dbCollections &&
+          Array.isArray(dbCollections) &&
+          dbCollections.length > 0 &&
+          !cmsBundleFromServer?.collections?.length
+        ) {
           const mappedCollections: CMSCollection[] = dbCollections.map((c) => ({
             id: String(c.id),
             title: c.name || c.title || 'Signature Collection',
@@ -652,7 +579,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             badge: 'ATELIER',
             count: '12 Items',
             scents: 'Vanilla, Rose & Amber',
-            image: c.banner_image || 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80',
+            image: c.banner_image || '',
           }));
           setCollections(mappedCollections);
         }
@@ -682,11 +609,37 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
       } catch (err) {
         console.error('Failed to fetch live backend data:', err);
+      } finally {
+        setCmsHydrated(true);
       }
     }
 
     loadBackendData();
   }, []);
+
+  // Push CMS content to Supabase so all visitors (incognito included) see the same data
+  useEffect(() => {
+    if (!cmsHydrated || !allowCmsPersist.current) return;
+
+    if (cmsSaveTimer.current) window.clearTimeout(cmsSaveTimer.current);
+    cmsSaveTimer.current = window.setTimeout(() => {
+      const bundle: CmsRemoteBundle = {
+        version: 1,
+        settings,
+        announcement,
+        hero,
+        pagesContent,
+        seoSettings,
+        collections,
+        mediaItems,
+      };
+      saveCmsBundle(bundle).catch(() => {});
+    }, 700);
+
+    return () => {
+      if (cmsSaveTimer.current) window.clearTimeout(cmsSaveTimer.current);
+    };
+  }, [cmsHydrated, settings, announcement, hero, pagesContent, seoSettings, collections, mediaItems]);
 
   // Sync state changes to localStorage
   useEffect(() => {
@@ -756,22 +709,37 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [staffUsers]);
 
   const updateSettings = (newSettings: Partial<CMSStoreSettings>) => {
+    markCmsEdited();
     setSettings((prev) => ({ ...prev, ...newSettings }));
   };
 
   const updateAnnouncement = (newAnn: Partial<CMSAnnouncement>) => {
+    markCmsEdited();
     setAnnouncement((prev) => ({ ...prev, ...newAnn }));
   };
 
   const updateHero = (newHero: Partial<CMSHeroBanner>) => {
+    markCmsEdited();
     setHero((prev) => ({ ...prev, ...newHero }));
   };
 
   const updateCollection = (id: string, updated: Partial<CMSCollection>) => {
+    markCmsEdited();
     setCollections((prev) => prev.map((c) => (c.id === id ? { ...c, ...updated } : c)));
+    supabaseFetch('collections', {
+      method: 'PATCH',
+      query: `id=eq.${id}`,
+      body: {
+        name: updated.title,
+        description: updated.desc,
+        banner_image: updated.image,
+        icon_symbol: updated.icon,
+      },
+    }).catch(() => { });
   };
 
   const addCollection = (col: CMSCollection) => {
+    markCmsEdited();
     setCollections((prev) => [...prev, col]);
     const cleanSlug = col.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now();
     supabaseFetch('collections', {
@@ -787,6 +755,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const deleteCollection = (id: string) => {
+    markCmsEdited();
     setCollections((prev) => prev.filter((c) => c.id !== id));
     supabaseFetch('collections', {
       method: 'DELETE',
@@ -917,6 +886,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updatePagesContent = (updated: Partial<CMSPagesContent>) => {
+    markCmsEdited();
     setPagesContent((prev) => ({ ...prev, ...updated }));
   };
 
@@ -945,16 +915,41 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }).catch(() => { });
   };
 
+  const registerMediaAsset = (name: string, url: string, size = '—') => {
+    if (!url || url.startsWith('data:')) return;
+    setMediaItems((prev) => {
+      if (prev.some((item) => item.url === url)) return prev;
+      markCmsEdited();
+      return [
+        {
+          id: `m-${Date.now()}`,
+          name: name || 'Uploaded asset',
+          url,
+          type: 'image',
+          size,
+        },
+        ...prev,
+      ];
+    });
+  };
+
   const addMediaItem = (m: CMSMediaItem) => {
+    markCmsEdited();
     setMediaItems((prev) => [m, ...prev]);
   };
 
   const deleteMediaItem = (id: string) => {
+    markCmsEdited();
     setMediaItems((prev) => prev.filter((m) => m.id !== id));
   };
 
   const addOrder = (order: CMSOrder) => {
-    setOrders((prev) => [order, ...prev]);
+    const orderWithDate = {
+      ...order,
+      date: order.date || new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
+    };
+    setOrders((prev) => [orderWithDate, ...prev]);
+    window.dispatchEvent(new Event('tcl-orders-updated'));
     supabaseFetch('orders', {
       method: 'POST',
       body: {
@@ -986,6 +981,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const deleteOrder = (id: string) => {
     setOrders((prev) => prev.filter((o) => o.id !== id));
+    window.dispatchEvent(new Event('tcl-orders-updated'));
     supabaseFetch('orders', {
       method: 'DELETE',
       query: `order_number=eq.${id}`,
@@ -993,6 +989,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updateSEO = (pageKey: string, updated: Partial<CMSSEOSetting>) => {
+    markCmsEdited();
     setSeoSettings((prev) => prev.map((s) => (s.pageKey === pageKey ? { ...s, ...updated } : s)));
   };
 
@@ -1051,6 +1048,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         mediaItems,
         addMediaItem,
         deleteMediaItem,
+        registerMediaAsset,
         orders,
         addOrder,
         updateOrderStatus,
