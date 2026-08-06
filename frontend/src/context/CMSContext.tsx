@@ -110,6 +110,7 @@ export interface CMSMediaItem {
 }
 
 export interface CMSOrder {
+  date: string;
   id: string;
   customerName: string;
   email: string;
@@ -553,6 +554,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const dbOrders = await supabaseFetch<any[]>('orders');
         if (dbOrders && Array.isArray(dbOrders) && dbOrders.length > 0) {
           const mappedOrders = dbOrders.map((o) => ({
+            date: o.created_at || o.created_on || new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
             id: String(o.order_number || o.id),
             customerName: o.customer_name || 'Valued Customer',
             email: o.customer_email || 'customer@example.com',

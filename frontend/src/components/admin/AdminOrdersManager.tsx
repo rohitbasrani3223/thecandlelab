@@ -80,6 +80,7 @@ export const AdminOrdersManager: React.FC = () => {
                   totalAmount: Number(newOrder.totalAmount),
                   paymentMethod: newOrder.paymentMethod,
                   status: 'Processing',
+                  date: ''
                 });
                 setShowAddModal(false);
                 setSavedMsg(`Order ${ordId} created!`);
