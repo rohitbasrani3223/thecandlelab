@@ -31,16 +31,26 @@ type Page = 'home' | 'shop' | 'collections' | 'categories' | 'blog' | 'blog-deta
 
 const VALID_PAGES: Page[] = ['home', 'shop', 'collections', 'categories', 'blog', 'blog-details', 'pdp', 'wishlist', 'cart', 'checkout', 'account', 'auth', 'about', 'contact', 'faq', 'privacy-policy', 'terms-conditions', 'shipping-policy', 'refund-policy', 'careers', 'admin'];
 
+const isAdminSubdomain = (): boolean => {
+  const hostname = window.location.hostname.toLowerCase();
+  return hostname.startsWith('admin.') || hostname.includes('admin-subdomain');
+};
+
 const getPageFromHash = (): Page => {
-  const path = window.location.pathname.toLowerCase();
-  if (path.startsWith('/admin')) {
+  // If request is from admin subdomain (e.g. admin.thecandlelab.in or admin.localhost), render admin page
+  if (isAdminSubdomain()) {
     return 'admin';
   }
+
+  const path = window.location.pathname.toLowerCase();
   const rawHash = window.location.hash.replace('#', '').trim().toLowerCase();
   const hash = rawHash.split('?')[0];
-  if (hash.startsWith('admin')) {
-    return 'admin';
+
+  // If request is on main store domain, block direct /admin or #admin access
+  if (path.startsWith('/admin') || hash.startsWith('admin')) {
+    return 'home';
   }
+
   if (VALID_PAGES.includes(hash as Page)) {
     return hash as Page;
   }
@@ -92,6 +102,14 @@ export function App() {
   }, [syncPageWithUrl]);
 
   const handleNavigate = (page: Page) => {
+    if (page === 'admin' && !isAdminSubdomain()) {
+      // Redirect to admin subdomain if trying to open admin from main domain
+      const targetAdminUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? `${window.location.protocol}//admin.localhost:${window.location.port}`
+        : 'https://admin.thecandlelab.in';
+      window.location.href = targetAdminUrl;
+      return;
+    }
     setCurrentPage(page);
     if (window.location.hash !== `#${page}`) {
       window.history.pushState({ page }, '', `#${page}`);

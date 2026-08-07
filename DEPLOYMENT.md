@@ -34,8 +34,16 @@ VITE_GOOGLE_CLIENT_ID=730161262814-p3cs07la1cstaq7l18umcmrngd66o7o4.apps.googleu
 VITE_RAZORPAY_KEY_ID=rzp_test_TJQHhC34WyD6WT
 ```
 
-### Step 4: Click Deploy
-Vercel will build and assign your site a custom domain (e.g. `https://thecandlelab.vercel.app`).
+### Step 5: Configure Admin Subdomain (`admin.thecandlelab.in`)
+1. In Vercel / Netlify Settings -> **Domains**:
+   - Add Domain 1: `thecandlelab.in` (Main Store)
+   - Add Domain 2: `admin.thecandlelab.in` (Admin Portal Subdomain)
+2. In DNS Provider (Cloudflare / Hostinger / GoDaddy):
+   - Add CNAME Record: `admin` -> `cname.vercel-dns.com` (or your VPS IP address).
+3. Update Backend environment variables:
+   ```env
+   SANCTUM_STATEFUL_DOMAINS=thecandlelab.in,admin.thecandlelab.in,thecandlelab.vercel.app
+   ```
 
 ---
 
