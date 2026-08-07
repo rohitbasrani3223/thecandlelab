@@ -395,7 +395,6 @@ const mergeRemoteWithDirtyLocal = (remoteProducts: CMSProduct[]) => {
 
 const buildProductDbPayload = (prod: CMSProduct | Partial<CMSProduct>, current?: CMSProduct) => {
   const merged = { ...current, ...prod } as CMSProduct;
-  const imageUrl = merged.image || merged.imageUrl || '';
   return {
     name: merged.name,
     slug: merged.name ? `${merged.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${String(merged.id || Date.now()).slice(-8)}` : undefined,
@@ -414,9 +413,6 @@ const buildProductDbPayload = (prod: CMSProduct | Partial<CMSProduct>, current?:
     is_trending: Boolean(merged.isNew || merged.isBestSeller),
     status: merged.inStock !== undefined ? (merged.inStock ? 'ACTIVE' : 'OUT_OF_STOCK') : undefined,
     is_active: merged.inStock !== undefined ? Boolean(merged.inStock) : undefined,
-    image_url: imageUrl || undefined,
-    thumbnail: imageUrl || undefined,
-    images: merged.images?.length ? [imageUrl, ...merged.images].filter(Boolean) : imageUrl ? [imageUrl] : undefined,
     top_notes: merged.topNotes || undefined,
     heart_notes: merged.heartNotes || undefined,
     base_notes: merged.baseNotes || undefined,
@@ -873,6 +869,21 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     markProductDirty(id);
 
     const patchBody = removeUndefinedValues(buildProductDbPayload(updated, current));
+
+    // If image changed, also upsert into product_images table
+    const newImageUrl = updated.image || updated.imageUrl || '';
+    if (newImageUrl && newImageUrl !== PRODUCT_IMAGE_PLACEHOLDER) {
+      supabaseFetch('product_images', {
+        method: 'POST',
+        query: 'on_conflict=product_id,is_primary',
+        body: {
+          product_id: id,
+          image_url: newImageUrl,
+          is_primary: true,
+          sort_order: 0,
+        },
+      }).catch(() => {});
+    }
 
     try {
       const res = await supabaseFetch<any[]>('products', {

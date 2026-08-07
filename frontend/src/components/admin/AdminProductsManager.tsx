@@ -1046,19 +1046,24 @@ const BulkImageUploadTab: React.FC<{
           });
         }
 
-        // Update product in CMS state + Supabase DB
+        // Update product in CMS state so image shows immediately
         await updateProduct(matched.id, { image: imageUrl, imageUrl });
 
-        // Also update in Supabase REST
-        await fetch(`https://anaqrvrzbqhpgwjfpacx.supabase.co/rest/v1/products?id=eq.${matched.id}`, {
-          method: 'PATCH',
+        // Save to product_images table (upsert primary image)
+        await fetch(`https://anaqrvrzbqhpgwjfpacx.supabase.co/rest/v1/product_images`, {
+          method: 'POST',
           headers: {
             'apikey': ANON_KEY,
             'Authorization': `Bearer ${ANON_KEY}`,
             'Content-Type': 'application/json',
-            'Prefer': 'return=minimal',
+            'Prefer': 'resolution=merge-duplicates',
           },
-          body: JSON.stringify({ image_url: imageUrl }),
+          body: JSON.stringify({
+            product_id: matched.id,
+            image_url: imageUrl,
+            is_primary: true,
+            sort_order: 0,
+          }),
         });
 
         setResults((prev) =>
