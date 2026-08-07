@@ -58,6 +58,11 @@ export const StorefrontProductCard: React.FC<StorefrontProductCardProps> = ({
         <img
           src={imageSrc}
           alt={product.name}
+          onError={(e) => {
+            if (!e.currentTarget.src.includes(PRODUCT_IMAGE_PLACEHOLDER)) {
+              e.currentTarget.src = PRODUCT_IMAGE_PLACEHOLDER;
+            }
+          }}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#1C130E]/50 via-transparent to-transparent opacity-60" />

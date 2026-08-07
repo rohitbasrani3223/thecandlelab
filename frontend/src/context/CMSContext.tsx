@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useRef } from 'r
 import { supabaseFetch } from '../config/supabaseClient';
 import { getApiUrl } from '../config/api';
 import { fetchCmsBundle, saveCmsBundle, type CmsRemoteBundle } from '../services/cmsRemote';
+import { PRODUCT_IMAGE_PLACEHOLDER } from '../config/placeholders';
 
 const PRODUCTS_STORAGE_KEY = 'tcl_cms_products';
 const DIRTY_PRODUCTS_STORAGE_KEY = 'tcl_cms_products_dirty';
@@ -311,11 +312,26 @@ const extractProductImages = (rawImages: any): string[] => {
     .filter(Boolean);
 };
 
+const resolveImageUrl = (url?: string): string => {
+  if (!url || typeof url !== 'string' || url.trim() === '' || url === 'null') {
+    return PRODUCT_IMAGE_PLACEHOLDER;
+  }
+  const cleanUrl = url.trim();
+  if (cleanUrl.startsWith('http://') || cleanUrl.startsWith('https://') || cleanUrl.startsWith('data:')) {
+    return cleanUrl;
+  }
+  if (cleanUrl.startsWith('/')) {
+    return cleanUrl;
+  }
+  return `/${cleanUrl}`;
+};
+
 const mapDbProductToCMS = (p: any, imageMap?: Map<string, string[]>): CMSProduct => {
   const galleryFromTable = imageMap?.get(String(p.id)) || [];
   const galleryImages = [...new Set([...galleryFromTable, ...extractProductImages(p.images)])];
-  const primaryImage = p.image_url || p.thumbnail || p.image || galleryImages[0] || '';
-  const finalImages = galleryImages.length > 0 ? galleryImages : primaryImage ? [primaryImage] : [];
+  const rawImage = p.image_url || p.thumbnail || p.image || galleryImages[0] || '';
+  const primaryImage = resolveImageUrl(rawImage);
+  const finalImages = galleryImages.length > 0 ? galleryImages.map(resolveImageUrl) : [primaryImage];
 
   return {
     id: String(p.id),

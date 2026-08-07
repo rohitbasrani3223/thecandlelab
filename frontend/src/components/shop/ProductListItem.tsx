@@ -60,6 +60,11 @@ export const ProductListItem: React.FC<ProductListItemProps> = ({
         <img
           src={product.image || product.imageUrl || PRODUCT_IMAGE_PLACEHOLDER}
           alt={product.name}
+          onError={(e) => {
+            if (!e.currentTarget.src.includes(PRODUCT_IMAGE_PLACEHOLDER)) {
+              e.currentTarget.src = PRODUCT_IMAGE_PLACEHOLDER;
+            }
+          }}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
 

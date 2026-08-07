@@ -1,5 +1,4 @@
-/** Shown when a product has no image in the database — never use random stock photos. */
-export const PRODUCT_IMAGE_PLACEHOLDER = '/logo.jpeg';
+export const PRODUCT_IMAGE_PLACEHOLDER = '/hero_candle.png';
 
 /** Shown when CMS hero/collection banners are not configured yet. */
 export const CMS_BANNER_PLACEHOLDER = '/logo.jpeg';
