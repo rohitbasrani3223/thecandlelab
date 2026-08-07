@@ -17,47 +17,68 @@ export const AdminCMSPagesManager: React.FC = () => {
   const [pagesForm, setPagesForm] = useState(pagesContent);
   const [savedMsg, setSavedMsg] = useState('');
 
-  // Local states for Contact, Blog, Careers, Terms
+  // Extended page states mapped into pagesContent
   const [contactData, setContactData] = useState({
-    email: 'care@thecandlelab.in',
-    phone: '+91 98765 43210',
-    address: '108 Artisan Avenue, Fragrance District, New Delhi, India 110001',
-    hours: 'Mon - Sat: 10:00 AM - 7:00 PM IST',
+    email: (pagesForm as any).contactEmail || 'care@thecandlelab.in',
+    phone: (pagesForm as any).contactPhone || '+91 98765 43210',
+    address: (pagesForm as any).contactAddress || '108 Artisan Avenue, Fragrance District, New Delhi, India 110001',
+    hours: (pagesForm as any).contactHours || 'Mon - Sat: 10:00 AM - 7:00 PM IST',
   });
 
   const [termsText, setTermsText] = useState(
-    'Welcome to The Candle Lab. By browsing or purchasing from our storefront, you agree to comply with our Terms & Conditions...'
+    pagesForm.termsConditions ||
+      'Welcome to The Candle Lab. By browsing or purchasing from our storefront, you agree to comply with our Terms & Conditions...'
   );
 
-  const [blogPosts, setBlogPosts] = useState([
-    {
-      id: '1',
-      title: 'The Art of Candle Care: Trimming Wicks & Tunneling Prevention',
-      author: 'Master Chandlers',
-      date: '2026-07-15',
-      status: 'Published',
-      excerpt: 'Discover essential candle maintenance tips to ensure an even burn and maximum scent throw.',
-    },
-    {
-      id: '2',
-      title: 'Aromatherapy & Mood: Selecting the Right Fragrance Notes',
-      author: 'Scent Specialist',
-      date: '2026-07-20',
-      status: 'Published',
-      excerpt: 'How French Lavender and Madagascar Vanilla influence relaxation and productivity.',
-    },
-  ]);
+  const [blogPosts, setBlogPosts] = useState(
+    (pagesForm as any).blogPosts || [
+      {
+        id: '1',
+        title: 'The Art of Candle Care: Trimming Wicks & Tunneling Prevention',
+        author: 'Master Chandlers',
+        date: '2026-07-15',
+        status: 'Published',
+        excerpt: 'Discover essential candle maintenance tips to ensure an even burn and maximum scent throw.',
+      },
+      {
+        id: '2',
+        title: 'Aromatherapy & Mood: Selecting the Right Fragrance Notes',
+        author: 'Scent Specialist',
+        date: '2026-07-20',
+        status: 'Published',
+        excerpt: 'How French Lavender and Madagascar Vanilla influence relaxation and productivity.',
+      },
+    ]
+  );
 
-  const [careers, setCareers] = useState([
-    { id: '1', role: 'Senior Fragrance Formulator', department: 'R&D', location: 'New Delhi', type: 'Full-Time' },
-    { id: '2', role: 'E-Commerce Growth Manager', department: 'Marketing', location: 'Remote / New Delhi', type: 'Full-Time' },
-  ]);
+  const [careers, setCareers] = useState(
+    (pagesForm as any).careers || [
+      { id: '1', role: 'Senior Fragrance Formulator', department: 'R&D', location: 'New Delhi', type: 'Full-Time' },
+      { id: '2', role: 'E-Commerce Growth Manager', department: 'Marketing', location: 'Remote / New Delhi', type: 'Full-Time' },
+    ]
+  );
 
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    updatePagesContent(pagesForm);
+  const saveAllCMSPages = (extraUpdates: Record<string, any> = {}) => {
+    const updatedPayload = {
+      ...pagesForm,
+      termsConditions: termsText,
+      contactEmail: contactData.email,
+      contactPhone: contactData.phone,
+      contactAddress: contactData.address,
+      contactHours: contactData.hours,
+      blogPosts,
+      careers,
+      ...extraUpdates,
+    };
+    setPagesForm(updatedPayload as any);
+    updatePagesContent(updatedPayload as any);
     setSavedMsg('CMS Content updated & published live!');
     setTimeout(() => setSavedMsg(''), 3000);
+  };
+
+  const handleSaveForm = (e: React.FormEvent) => {
+    e.preventDefault();
+    saveAllCMSPages();
   };
 
   const SUB_TABS: { id: CMSSubTab; label: string; icon: string }[] = [
@@ -112,12 +133,12 @@ export const AdminCMSPagesManager: React.FC = () => {
       {/* Tab Contents */}
       <div className="bg-white border border-[#EFE8DB] rounded-2xl p-6 sm:p-8 shadow-subtle">
         {activeSubTab === 'about' && (
-          <form onSubmit={handleSave} className="space-y-4">
+          <form onSubmit={handleSaveForm} className="space-y-4">
             <h3 className="font-serif font-bold text-lg text-[#2C1E16]">About Us Editorial Story</h3>
             <p className="text-xs text-[#7A6B5D]">Displayed on the About Us page detailing our artisanal origins and hand-pouring craft.</p>
             <textarea
               rows={8}
-              value={pagesForm.aboutUs}
+              value={pagesForm.aboutUs || ''}
               onChange={(e) => setPagesForm({ ...pagesForm, aboutUs: e.target.value })}
               className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-3.5 rounded-xl text-xs text-[#2C1E16] focus:outline-none focus:border-[#B88B38]"
             />
@@ -172,10 +193,7 @@ export const AdminCMSPagesManager: React.FC = () => {
               </div>
             </div>
             <button
-              onClick={() => {
-                setSavedMsg('Contact details updated!');
-                setTimeout(() => setSavedMsg(''), 3000);
-              }}
+              onClick={() => saveAllCMSPages()}
               className="bg-[#B88B38] hover:bg-[#A3792E] text-white font-bold text-xs py-2.5 px-6 rounded-xl shadow-xs transition-all cursor-pointer"
             >
               Update Contact Details →
@@ -184,11 +202,11 @@ export const AdminCMSPagesManager: React.FC = () => {
         )}
 
         {activeSubTab === 'privacy' && (
-          <form onSubmit={handleSave} className="space-y-4">
+          <form onSubmit={handleSaveForm} className="space-y-4">
             <h3 className="font-serif font-bold text-lg text-[#2C1E16]">Privacy Policy Overview</h3>
             <textarea
               rows={8}
-              value={pagesForm.privacyPolicy}
+              value={pagesForm.privacyPolicy || ''}
               onChange={(e) => setPagesForm({ ...pagesForm, privacyPolicy: e.target.value })}
               className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-3.5 rounded-xl text-xs text-[#2C1E16] focus:outline-none focus:border-[#B88B38]"
             />
@@ -202,11 +220,11 @@ export const AdminCMSPagesManager: React.FC = () => {
         )}
 
         {activeSubTab === 'shipping' && (
-          <form onSubmit={handleSave} className="space-y-4">
+          <form onSubmit={handleSaveForm} className="space-y-4">
             <h3 className="font-serif font-bold text-lg text-[#2C1E16]">Shipping & Delivery Policy</h3>
             <textarea
               rows={8}
-              value={pagesForm.shippingPolicy}
+              value={pagesForm.shippingPolicy || ''}
               onChange={(e) => setPagesForm({ ...pagesForm, shippingPolicy: e.target.value })}
               className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-3.5 rounded-xl text-xs text-[#2C1E16] focus:outline-none focus:border-[#B88B38]"
             />
@@ -220,11 +238,11 @@ export const AdminCMSPagesManager: React.FC = () => {
         )}
 
         {activeSubTab === 'refund' && (
-          <form onSubmit={handleSave} className="space-y-4">
+          <form onSubmit={handleSaveForm} className="space-y-4">
             <h3 className="font-serif font-bold text-lg text-[#2C1E16]">Refund & Return Policy</h3>
             <textarea
               rows={8}
-              value={pagesForm.refundPolicy}
+              value={pagesForm.refundPolicy || ''}
               onChange={(e) => setPagesForm({ ...pagesForm, refundPolicy: e.target.value })}
               className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-3.5 rounded-xl text-xs text-[#2C1E16] focus:outline-none focus:border-[#B88B38]"
             />
@@ -247,10 +265,7 @@ export const AdminCMSPagesManager: React.FC = () => {
               className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-3.5 rounded-xl text-xs text-[#2C1E16] focus:outline-none focus:border-[#B88B38]"
             />
             <button
-              onClick={() => {
-                setSavedMsg('Terms of Service updated!');
-                setTimeout(() => setSavedMsg(''), 3000);
-              }}
+              onClick={() => saveAllCMSPages()}
               className="bg-[#B88B38] hover:bg-[#A3792E] text-white font-bold text-xs py-2.5 px-6 rounded-xl shadow-xs transition-all cursor-pointer"
             >
               Update Terms of Service →
@@ -272,12 +287,12 @@ export const AdminCMSPagesManager: React.FC = () => {
                     title: 'New Scent Notes Guide 2026',
                     author: 'Editorial Team',
                     date: new Date().toISOString().split('T')[0],
-                    status: 'Draft',
+                    status: 'Published',
                     excerpt: 'Exploring the rich fragrance profiles of our autumn candle releases.',
                   };
-                  setBlogPosts([...blogPosts, newPost]);
-                  setSavedMsg('New article draft created!');
-                  setTimeout(() => setSavedMsg(''), 3000);
+                  const updatedBlog = [...blogPosts, newPost];
+                  setBlogPosts(updatedBlog);
+                  saveAllCMSPages({ blogPosts: updatedBlog });
                 }}
                 className="bg-[#B88B38] hover:bg-[#A3792E] text-white font-bold text-xs py-2 px-4 rounded-xl cursor-pointer"
               >
@@ -286,7 +301,7 @@ export const AdminCMSPagesManager: React.FC = () => {
             </div>
 
             <div className="space-y-3">
-              {blogPosts.map((post) => (
+              {blogPosts.map((post: any) => (
                 <div key={post.id} className="p-4 bg-[#FAF6F0] border border-[#EFE8DB] rounded-xl flex items-center justify-between text-xs">
                   <div>
                     <h4 className="font-bold text-[#2C1E16] text-sm">{post.title}</h4>
@@ -302,7 +317,11 @@ export const AdminCMSPagesManager: React.FC = () => {
                       {post.status}
                     </span>
                     <button
-                      onClick={() => setBlogPosts(blogPosts.filter((b) => b.id !== post.id))}
+                      onClick={() => {
+                        const updated = blogPosts.filter((b: any) => b.id !== post.id);
+                        setBlogPosts(updated);
+                        saveAllCMSPages({ blogPosts: updated });
+                      }}
                       className="text-[#B93829] hover:underline font-bold text-[11px] cursor-pointer"
                     >
                       Delete
@@ -330,9 +349,9 @@ export const AdminCMSPagesManager: React.FC = () => {
                     location: 'New Delhi',
                     type: 'Full-Time',
                   };
-                  setCareers([...careers, newRole]);
-                  setSavedMsg('New job listing added!');
-                  setTimeout(() => setSavedMsg(''), 3000);
+                  const updatedCareers = [...careers, newRole];
+                  setCareers(updatedCareers);
+                  saveAllCMSPages({ careers: updatedCareers });
                 }}
                 className="bg-[#B88B38] hover:bg-[#A3792E] text-white font-bold text-xs py-2 px-4 rounded-xl cursor-pointer"
               >
@@ -341,14 +360,18 @@ export const AdminCMSPagesManager: React.FC = () => {
             </div>
 
             <div className="space-y-3">
-              {careers.map((job) => (
+              {careers.map((job: any) => (
                 <div key={job.id} className="p-4 bg-[#FAF6F0] border border-[#EFE8DB] rounded-xl flex items-center justify-between text-xs">
                   <div>
                     <h4 className="font-bold text-[#2C1E16] text-sm">{job.role}</h4>
                     <span className="text-[#7A6B5D] text-[11px] block mt-0.5">{job.department} • {job.location} ({job.type})</span>
                   </div>
                   <button
-                    onClick={() => setCareers(careers.filter((c) => c.id !== job.id))}
+                    onClick={() => {
+                      const updated = careers.filter((c: any) => c.id !== job.id);
+                      setCareers(updated);
+                      saveAllCMSPages({ careers: updated });
+                    }}
                     className="text-[#B93829] hover:underline font-bold text-[11px] cursor-pointer"
                   >
                     Remove

@@ -32,7 +32,7 @@ interface CollectionItem {
 
 export const AdminProductsManager: React.FC = () => {
   const [activeSubTab, setActiveSubTab] = useState<ProductsSubTab>('products');
-  const { products, addProduct, updateProduct, deleteProduct, mediaItems, registerMediaAsset } = useCMS();
+  const { products, addProduct, updateProduct, deleteProduct, mediaItems, registerMediaAsset, addCollection } = useCMS();
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingProd, setEditingProd] = useState<CMSProduct | null>(null);
   const [savedMsg, setSavedMsg] = useState('');
@@ -165,6 +165,18 @@ export const AdminProductsManager: React.FC = () => {
     };
     setCollectionsList([...collectionsList, newCol]);
 
+    // Save to CMS collections store
+    addCollection({
+      id: newCol.id,
+      title: newColName,
+      desc: `Artisanal ${newColName} curated under ${newColParentCat}`,
+      icon: '✨',
+      badge: 'ARTISANAL',
+      count: '0 Products',
+      scents: newColParentCat,
+      image: '/hero_candle.png',
+    });
+
     // Also associate with parent category
     setCategoriesList((prev) =>
       prev.map((cat) => {
@@ -180,7 +192,8 @@ export const AdminProductsManager: React.FC = () => {
     setTimeout(() => setSavedMsg(''), 3000);
   };
 
-  const toggleProductInCategory = (catId: string, prodId: string) => {
+  const toggleProductInCategory = async (catId: string, prodId: string) => {
+    const targetCat = categoriesList.find((c) => c.id === catId);
     setCategoriesList((prev) =>
       prev.map((cat) => {
         if (cat.id === catId) {
@@ -193,9 +206,16 @@ export const AdminProductsManager: React.FC = () => {
         return cat;
       })
     );
+
+    if (targetCat) {
+      await updateProduct(prodId, { category: targetCat.name });
+      setSavedMsg(`Updated product category to "${targetCat.name}"!`);
+      setTimeout(() => setSavedMsg(''), 3000);
+    }
   };
 
-  const toggleProductInCollection = (colId: string, prodId: string) => {
+  const toggleProductInCollection = async (colId: string, prodId: string) => {
+    const targetCol = collectionsList.find((c) => c.id === colId);
     setCollectionsList((prev) =>
       prev.map((col) => {
         if (col.id === colId) {
@@ -208,6 +228,12 @@ export const AdminProductsManager: React.FC = () => {
         return col;
       })
     );
+
+    if (targetCol) {
+      await updateProduct(prodId, { collection: targetCol.name });
+      setSavedMsg(`Updated product collection to "${targetCol.name}"!`);
+      setTimeout(() => setSavedMsg(''), 3000);
+    }
   };
 
   return (
