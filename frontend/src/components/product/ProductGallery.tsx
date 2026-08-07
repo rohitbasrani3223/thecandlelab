@@ -10,24 +10,24 @@ export interface ProductGalleryProps {
 export const ProductGallery: React.FC<ProductGalleryProps> = ({ mainImage, images, productName }) => {
   const buildGallery = () => {
     const all: { id: number; label: string; src: string }[] = [];
+    const rawList = [mainImage, ...(images || [])].filter(
+      (url): url is string => Boolean(url) && typeof url === 'string' && url.trim() !== ''
+    );
+    const uniqueUrls = [...new Set(rawList)];
 
-    if (mainImage) {
-      all.push({ id: 1, label: 'Main View', src: mainImage });
-    }
-
-    if (images && images.length > 0) {
-      images.forEach((img, idx) => {
-        if (img && img !== mainImage) {
-          all.push({ id: idx + 10, label: `Angle ${idx + 2}`, src: img });
-        }
+    uniqueUrls.forEach((url, idx) => {
+      all.push({
+        id: idx + 1,
+        label: idx === 0 ? 'Main View' : `Angle ${idx + 1}`,
+        src: url,
       });
-    }
+    });
 
     if (all.length === 0) {
       all.push({
         id: 1,
         label: 'Main View',
-        src: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?w=1000&auto=format&fit=crop&q=80',
+        src: '/hero_candle.png',
       });
     }
 
@@ -38,12 +38,12 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({ mainImage, image
   const [selectedImage, setSelectedImage] = useState(galleryImages[0]);
   const [isZoomed, setIsZoomed] = useState(false);
 
-  // Sync selected image when mainImage prop changes (e.g. after Admin update)
+  // Sync selected image when mainImage or gallery changes
   useEffect(() => {
-    if (mainImage) {
-      setSelectedImage({ id: 1, label: 'Main View', src: mainImage });
+    if (galleryImages.length > 0) {
+      setSelectedImage(galleryImages[0]);
     }
-  }, [mainImage]);
+  }, [mainImage, JSON.stringify(images)]);
 
   const activeSrc = selectedImage?.src || mainImage || galleryImages[0]?.src;
 

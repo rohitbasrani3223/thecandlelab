@@ -816,10 +816,46 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }).catch(() => { });
   };
 
+  const syncProductImagesToSupabase = async (
+    productId: string,
+    mainImage?: string,
+    extraImages?: string[]
+  ) => {
+    if (!productId) return;
+    const all = [...new Set([mainImage, ...(extraImages || [])].filter((url): url is string => Boolean(url) && url !== PRODUCT_IMAGE_PLACEHOLDER))];
+    if (all.length === 0) return;
+
+    try {
+      // 1. Clear old records for clean sync
+      await supabaseFetch('product_images', {
+        method: 'DELETE',
+        query: `product_id=eq.${productId}`,
+      });
+
+      // 2. Insert clean list of gallery images
+      const rows = all.map((imgUrl, index) => ({
+        product_id: productId,
+        image_url: imgUrl,
+        is_primary: index === 0,
+        sort_order: index,
+      }));
+
+      await supabaseFetch('product_images', {
+        method: 'POST',
+        body: rows,
+      });
+    } catch (err) {
+      console.warn('Sync product_images error:', err);
+    }
+  };
+
   const addProduct = async (prod: CMSProduct) => {
     setProducts((prev) => [prod, ...prev]);
     localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify([prod, ...readStoredProducts().filter((p) => p.id !== prod.id)]));
     markProductDirty(prod.id);
+
+    // Sync gallery images to product_images table
+    syncProductImagesToSupabase(prod.id, prod.image || prod.imageUrl, prod.images);
 
     try {
       const payload = removeUndefinedValues(buildProductDbPayload(prod));
@@ -830,6 +866,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (res && Array.isArray(res) && res[0] && res[0].id) {
         const realId = String(res[0].id);
         setProducts((prev) => prev.map((p) => (p.id === prod.id ? { ...p, id: realId } : p)));
+        syncProductImagesToSupabase(realId, prod.image || prod.imageUrl, prod.images);
         clearProductDirty(prod.id);
         return;
       }
@@ -870,20 +907,12 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     const patchBody = removeUndefinedValues(buildProductDbPayload(updated, current));
 
-    // If image changed, also upsert into product_images table
-    const newImageUrl = updated.image || updated.imageUrl || '';
-    if (newImageUrl && newImageUrl !== PRODUCT_IMAGE_PLACEHOLDER) {
-      supabaseFetch('product_images', {
-        method: 'POST',
-        query: 'on_conflict=product_id,is_primary',
-        body: {
-          product_id: id,
-          image_url: newImageUrl,
-          is_primary: true,
-          sort_order: 0,
-        },
-      }).catch(() => {});
-    }
+    // Sync all gallery images to product_images table
+    syncProductImagesToSupabase(
+      id,
+      nextProduct.image || nextProduct.imageUrl,
+      nextProduct.images
+    );
 
     try {
       const res = await supabaseFetch<any[]>('products', {
