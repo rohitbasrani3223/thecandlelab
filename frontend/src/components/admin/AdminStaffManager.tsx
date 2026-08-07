@@ -15,9 +15,12 @@ export const AdminStaffManager: React.FC = () => {
   const { staffUsers, addStaffUser, deleteStaffUser, updateStaffUser } = useCMS();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showFormPassword, setShowFormPassword] = useState(false);
   const [role, setRole] = useState<'Super Admin' | 'Inventory Manager' | 'Content Manager' | 'Marketing Manager' | 'Admin' | 'Support'>('Super Admin');
   const [searchQuery, setSearchQuery] = useState('');
   const [savedMsg, setSavedMsg] = useState('');
+  const [visiblePasswords, setVisiblePasswords] = useState<Record<string, boolean>>({});
 
   const SUB_TABS: { id: StaffSubTab; label: string; icon: string; roleMatch?: string }[] = [
     { id: 'all', label: 'All Roles', icon: '👥' },
@@ -31,18 +34,24 @@ export const AdminStaffManager: React.FC = () => {
 
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !email) return;
+    if (!name || !email || !password) return;
     addStaffUser({
       id: `u-${Date.now()}`,
       name,
       email,
       role: role as any,
+      password: password,
       active: true,
     });
     setName('');
     setEmail('');
+    setPassword('');
     setSavedMsg(`Added ${name} as ${role}!`);
     setTimeout(() => setSavedMsg(''), 3000);
+  };
+
+  const togglePasswordVisibility = (id: string) => {
+    setVisiblePasswords((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
   const selectedTabObj = SUB_TABS.find((t) => t.id === activeSubTab);
@@ -142,6 +151,27 @@ export const AdminStaffManager: React.FC = () => {
             </div>
 
             <div>
+              <label className="font-bold text-[#2C1E16] block uppercase mb-1">Account Password *</label>
+              <div className="relative">
+                <input
+                  type={showFormPassword ? 'text' : 'password'}
+                  required
+                  placeholder="Set account password..."
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 pr-10 rounded-lg text-[#2C1E16] placeholder-[#8C7A6B]"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowFormPassword(!showFormPassword)}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-sm text-[#7A6B5D] hover:text-[#2C1E16] cursor-pointer"
+                >
+                  {showFormPassword ? '🙈' : '👁️'}
+                </button>
+              </div>
+            </div>
+
+            <div>
               <label className="font-bold text-[#2C1E16] block uppercase mb-1">Assigned Role *</label>
               <select
                 value={role}
@@ -188,6 +218,7 @@ export const AdminStaffManager: React.FC = () => {
                 <tr>
                   <th className="p-4">Staff Member</th>
                   <th className="p-4">Assigned Role</th>
+                  <th className="p-4">Access Password</th>
                   <th className="p-4">Status</th>
                   <th className="p-4 text-right">Action</th>
                 </tr>
@@ -211,6 +242,21 @@ export const AdminStaffManager: React.FC = () => {
                         <span className="bg-[#F8F3EA] border border-[#EFE8DB] px-2.5 py-1 rounded-lg">
                           {u.role}
                         </span>
+                      </td>
+                      <td className="p-4 font-mono text-xs">
+                        <div className="flex items-center gap-2">
+                          <span className="bg-[#F8F3EA] border border-[#EFE8DB] px-2.5 py-1 rounded-lg text-[#2C1E16] font-bold">
+                            {visiblePasswords[u.id] ? (u.password || 'admin123') : '••••••••'}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => togglePasswordVisibility(u.id)}
+                            title={visiblePasswords[u.id] ? 'Hide Password' : 'Show Password'}
+                            className="text-xs hover:scale-110 transition-transform cursor-pointer"
+                          >
+                            {visiblePasswords[u.id] ? '🙈' : '👁️'}
+                          </button>
+                        </div>
                       </td>
                       <td className="p-4">
                         <button
@@ -236,7 +282,7 @@ export const AdminStaffManager: React.FC = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={4} className="p-8 text-center text-xs text-[#8C7A6B]">
+                    <td colSpan={5} className="p-8 text-center text-xs text-[#8C7A6B]">
                       No staff members found matching this filter.
                     </td>
                   </tr>

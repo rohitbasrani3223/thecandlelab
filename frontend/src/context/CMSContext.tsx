@@ -132,6 +132,7 @@ export interface CMSStaffUser {
   name: string;
   email: string;
   role: 'Super Admin' | 'Inventory Manager' | 'Content Manager' | 'Marketing Manager' | 'Admin' | 'Support';
+  password?: string;
   active: boolean;
 }
 
@@ -220,100 +221,7 @@ const DEFAULT_COLLECTIONS: CMSCollection[] = [
   { id: 'col-3', title: 'Festive & Gift Atelier', icon: '🎁', desc: 'Exquisite gift sets wrapped in embossed gold-foil luxury boxes.', badge: 'GIFT BOX', count: '6 Sets', scents: 'Cinnamon, Amber & Saffron', image: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=600' }
 ];
 
-const DEFAULT_PRODUCTS: CMSProduct[] = [
-  {
-    id: 'prod-1',
-    name: 'Velvet Vanilla & Cashmere',
-    category: 'Signature Collection',
-    collection: 'Signature',
-    scentProfile: 'Warm Vanilla, Tonka & Amber',
-    price: 1299,
-    originalPrice: 1699,
-    rating: 4.9,
-    reviewsCount: 28,
-    topNotes: 'Madagascar Vanilla, Creamy Milk',
-    heartNotes: 'Warm Tonka Bean, Cashmere',
-    baseNotes: 'Golden Amber, Sandalwood',
-    burnTime: '65 Hours',
-    inStock: true,
-    isBestSeller: true,
-    isFeatured: true,
-    isNew: false,
-    vesselDescription: 'Hand-poured in a 12 oz matte ivory glass jar with crackling wooden wick.',
-    image: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?q=80&w=800',
-    imageUrl: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?q=80&w=800',
-    images: ['https://images.unsplash.com/photo-1603006905003-be475563bc59?q=80&w=800'],
-  },
-  {
-    id: 'prod-2',
-    name: 'Midnight Rose & Smoked Oud',
-    category: 'Luxury Collection',
-    collection: 'Luxury',
-    scentProfile: 'Damask Rose, Smoked Oud & Cedar',
-    price: 1499,
-    originalPrice: 1899,
-    rating: 5.0,
-    reviewsCount: 34,
-    topNotes: 'Damask Rose, Pink Pepper',
-    heartNotes: 'Smoked Oud, Clove',
-    baseNotes: 'Cedarwood, Dark Amber',
-    burnTime: '70 Hours',
-    inStock: true,
-    isBestSeller: true,
-    isFeatured: true,
-    isNew: true,
-    vesselDescription: 'Hand-poured in a 14 oz obsidian black glass vessel with gold leaf accent.',
-    image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?q=80&w=800',
-    imageUrl: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?q=80&w=800',
-    images: ['https://images.unsplash.com/photo-1572635196237-14b3f281503f?q=80&w=800'],
-  },
-  {
-    id: 'prod-3',
-    name: 'French Lavender & Wild Chamomile',
-    category: 'Aromatherapy',
-    collection: 'Aromatherapy',
-    scentProfile: 'Provence Lavender, Chamomile & Sage',
-    price: 999,
-    originalPrice: 1299,
-    rating: 4.8,
-    reviewsCount: 19,
-    topNotes: 'French Lavender, Bergamot',
-    heartNotes: 'Wild Chamomile, Sage',
-    baseNotes: 'White Musk, Cedar',
-    burnTime: '55 Hours',
-    inStock: true,
-    isBestSeller: false,
-    isFeatured: true,
-    isNew: true,
-    vesselDescription: 'Hand-poured in a 10 oz amber glass jar with natural cotton wick.',
-    image: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=800',
-    imageUrl: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=800',
-    images: ['https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=800'],
-  },
-  {
-    id: 'prod-4',
-    name: 'Spiced Saffron & Golden Amber',
-    category: 'Seasonal Collection',
-    collection: 'Festive',
-    scentProfile: 'Kashmiri Saffron, Cinnamon & Amber',
-    price: 1399,
-    originalPrice: 1799,
-    rating: 4.9,
-    reviewsCount: 22,
-    topNotes: 'Kashmiri Saffron, Cardamom',
-    heartNotes: 'Cinnamon Bark, Nutmeg',
-    baseNotes: 'Golden Amber, Vanilla',
-    burnTime: '65 Hours',
-    inStock: true,
-    isBestSeller: true,
-    isFeatured: true,
-    isNew: false,
-    vesselDescription: 'Hand-poured in an embossed gold tin with dual wooden crackling wicks.',
-    image: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?q=80&w=800',
-    imageUrl: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?q=80&w=800',
-    images: ['https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?q=80&w=800'],
-  }
-];
+const DEFAULT_PRODUCTS: CMSProduct[] = [];
 
 const DEFAULT_COUPONS: CMSCoupon[] = [];
 
@@ -340,7 +248,24 @@ const DEFAULT_SEO: CMSSEOSetting[] = [
   { pageKey: 'shop', title: 'Shop All Candles & Wax Melts — The Candle Lab', description: 'Browse our complete collection of botanical soy candles, travel tins, and wax melts.', keywords: 'shop candles, scented candles' },
 ];
 
-const DEFAULT_STAFF: CMSStaffUser[] = [];
+const DEFAULT_STAFF: CMSStaffUser[] = [
+  {
+    id: 'u-superadmin-01',
+    name: 'Master Super Admin',
+    email: 'admin@thecandlelab.com',
+    role: 'Super Admin',
+    password: 'admin123',
+    active: true,
+  },
+  {
+    id: 'u-admin-02',
+    name: 'Atelier Store Manager',
+    email: 'manager@thecandlelab.in',
+    role: 'Admin',
+    password: 'admin123',
+    active: true,
+  },
+];
 
 const CMSContext = createContext<CMSContextType | undefined>(undefined);
 
@@ -389,7 +314,8 @@ const extractProductImages = (rawImages: any): string[] => {
 const mapDbProductToCMS = (p: any, imageMap?: Map<string, string[]>): CMSProduct => {
   const galleryFromTable = imageMap?.get(String(p.id)) || [];
   const galleryImages = [...new Set([...galleryFromTable, ...extractProductImages(p.images)])];
-  const primaryImage = p.image_url || p.thumbnail || galleryImages[0] || '';
+  const primaryImage = p.image_url || p.thumbnail || p.image || galleryImages[0] || '';
+  const finalImages = galleryImages.length > 0 ? galleryImages : primaryImage ? [primaryImage] : [];
 
   return {
     id: String(p.id),
@@ -409,10 +335,10 @@ const mapDbProductToCMS = (p: any, imageMap?: Map<string, string[]>): CMSProduct
     isBestSeller: Boolean(p.is_bestseller ?? p.is_best_seller),
     isNew: Boolean(p.is_new_arrival),
     isFeatured: Boolean(p.is_featured),
-    vesselDescription: p.short_description || p.description || 'Hand-poured in Italian frosted glass jar.',
+    vesselDescription: p.short_description || p.description || 'Hand-poured in luxury glass jar.',
     image: primaryImage,
     imageUrl: primaryImage,
-    images: galleryImages,
+    images: finalImages,
   };
 };
 
@@ -580,7 +506,11 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [staffUsers, setStaffUsers] = useState<CMSStaffUser[]>(() => {
     try {
       const saved = localStorage.getItem('tcl_cms_staff');
-      return saved ? JSON.parse(saved) : DEFAULT_STAFF;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+      return DEFAULT_STAFF;
     } catch {
       return DEFAULT_STAFF;
     }
@@ -704,6 +634,19 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             tier: 'VIP Gold',
           }));
           setCustomers(mappedCustomers);
+        }
+
+        const dbAdmins = await supabaseFetch<any[]>('admins');
+        if (dbAdmins && Array.isArray(dbAdmins) && dbAdmins.length > 0) {
+          const mappedStaff: CMSStaffUser[] = dbAdmins.map((a) => ({
+            id: String(a.id),
+            name: a.full_name || a.name || 'Master Admin',
+            email: a.email || 'admin@thecandlelab.com',
+            role: (a.role === 'ADMIN' ? 'Admin' : (a.role || 'Super Admin')) as any,
+            password: '••••••••',
+            active: a.status ? a.status === 'ACTIVE' : (a.active ?? true),
+          }));
+          setStaffUsers(mappedStaff);
         }
       } catch (err) {
         console.error('Failed to fetch live backend data:', err);

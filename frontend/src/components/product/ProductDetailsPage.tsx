@@ -40,6 +40,19 @@ export const ProductDetailsPage: React.FC<ProductDetailsPageProps> = ({ product:
 
   // Always resolve the LIVE product object from CMS store so any updates in Admin immediately reflect on PDP
   const activeProduct = useMemo(() => {
+    // 1. Try resolving from URL hash query params (e.g. #pdp?id=prod-123)
+    const hashQuery = window.location.hash.split('?')[1];
+    const urlParams = new URLSearchParams(hashQuery || '');
+    const urlProductId = urlParams.get('id') || urlParams.get('slug');
+
+    if (urlProductId) {
+      const matchByUrlId = products.find(
+        (p) => String(p.id).toLowerCase() === String(urlProductId).toLowerCase()
+      );
+      if (matchByUrlId) return matchByUrlId;
+    }
+
+    // 2. Try resolving from passedProduct prop
     if (passedProduct?.id) {
       const match = products.find((p) => String(p.id) === String(passedProduct.id));
       if (match) return match;
@@ -50,6 +63,7 @@ export const ProductDetailsPage: React.FC<ProductDetailsPageProps> = ({ product:
       );
       if (matchByName) return matchByName;
     }
+
     return passedProduct || products[0] || null;
   }, [products, passedProduct]);
 

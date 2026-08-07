@@ -118,13 +118,20 @@ export function App() {
   };
 
   const handleSelectProduct = (product: any) => {
+    if (!product) return;
     setSelectedProduct(product);
     try {
       localStorage.setItem('tcl_selected_product', JSON.stringify(product));
     } catch (e) {
       console.error('Failed to save selected product', e);
     }
-    handleNavigate('pdp');
+    const productId = product.id || product.slug;
+    const targetHash = `#pdp?id=${encodeURIComponent(productId)}`;
+    setCurrentPage('pdp');
+    if (window.location.hash !== targetHash) {
+      window.history.pushState({ page: 'pdp', productId }, '', targetHash);
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleSelectArticle = (article: BlogPost) => {
