@@ -40,6 +40,10 @@ export interface CMSHeroBanner {
   primaryBtnText: string;
   secondaryBtnText: string;
   imageUrl: string;
+  featuredTitle?: string;
+  featuredSubtitle?: string;
+  featuredImage?: string;
+  layoutStyle?: 'centered-glass' | 'split-overlay' | 'full-bleed-minimal';
 }
 
 export interface CMSCollection {
@@ -213,7 +217,11 @@ const DEFAULT_HERO: CMSHeroBanner = {
   subtitle: 'Artisanal soy wax candles infused with fine botanical essential oils, hand-poured in small luxury batches.',
   primaryBtnText: 'Explore Collections',
   secondaryBtnText: 'Our Atelier Story',
-  imageUrl: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?q=80&w=1200&auto=format&fit=crop',
+  imageUrl: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?q=80&w=1600&auto=format&fit=crop',
+  featuredTitle: 'French Vanilla & Cinnamon',
+  featuredSubtitle: '12 oz Heavy Italian Glass • 65 Hours',
+  featuredImage: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?q=80&w=800&auto=format&fit=crop',
+  layoutStyle: 'centered-glass',
 };
 
 const DEFAULT_COLLECTIONS: CMSCollection[] = [

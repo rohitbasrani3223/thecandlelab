@@ -142,32 +142,95 @@ export const AdminHomepageCMS: React.FC = () => {
 
             {/* Hero Form */}
             <div className="pt-6 border-t border-[#EFE8DB] max-w-3xl space-y-4">
-              <h4 className="font-serif font-bold text-lg text-[#2C1E16]">Hero Banner Content</h4>
+              <h4 className="font-serif font-bold text-lg text-[#2C1E16]">Hero Banner & Background Photo Content</h4>
               <form onSubmit={handleHeroSubmit} className="space-y-4 text-xs">
+                {/* Layout Selector */}
                 <div>
-                  <label className="font-bold text-[#2C1E16] block uppercase mb-1">Tagline</label>
-                  <input
-                    type="text"
-                    value={heroForm.tagline}
-                    onChange={(e) => setHeroForm({ ...heroForm, tagline: e.target.value })}
+                  <label className="font-bold text-[#2C1E16] block uppercase mb-1.5">🖼️ Hero Layout Design Style</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <label className={`p-3 rounded-xl border flex items-center gap-2 cursor-pointer transition-all ${heroForm.layoutStyle === 'centered-glass' ? 'bg-[#FAF6F0] border-[#B88B38] font-bold text-[#2C1E16]' : 'bg-white border-[#EFE8DB] text-[#7A6B5D]'}`}>
+                      <input
+                        type="radio"
+                        name="layoutStyle"
+                        value="centered-glass"
+                        checked={heroForm.layoutStyle === 'centered-glass' || !heroForm.layoutStyle}
+                        onChange={() => setHeroForm({ ...heroForm, layoutStyle: 'centered-glass' })}
+                        className="accent-[#B88B38]"
+                      />
+                      <span>Centered Full-Bleed (scentandchill style)</span>
+                    </label>
+                    <label className={`p-3 rounded-xl border flex items-center gap-2 cursor-pointer transition-all ${heroForm.layoutStyle === 'split-overlay' ? 'bg-[#FAF6F0] border-[#B88B38] font-bold text-[#2C1E16]' : 'bg-white border-[#EFE8DB] text-[#7A6B5D]'}`}>
+                      <input
+                        type="radio"
+                        name="layoutStyle"
+                        value="split-overlay"
+                        checked={heroForm.layoutStyle === 'split-overlay'}
+                        onChange={() => setHeroForm({ ...heroForm, layoutStyle: 'split-overlay' })}
+                        className="accent-[#B88B38]"
+                      />
+                      <span>Split Glassmorphic Card Overlay</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="font-bold text-[#2C1E16] block uppercase mb-1">Tagline</label>
+                    <input
+                      type="text"
+                      value={heroForm.tagline}
+                      onChange={(e) => setHeroForm({ ...heroForm, tagline: e.target.value })}
+                      className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg text-[#2C1E16]"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold text-[#2C1E16] block uppercase mb-1">Main Heading</label>
+                    <input
+                      type="text"
+                      value={heroForm.title}
+                      onChange={(e) => setHeroForm({ ...heroForm, title: e.target.value })}
+                      className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg text-[#2C1E16] font-bold"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="font-bold text-[#2C1E16] block uppercase mb-1">Subtitle / Description</label>
+                  <textarea
+                    rows={2}
+                    value={heroForm.subtitle}
+                    onChange={(e) => setHeroForm({ ...heroForm, subtitle: e.target.value })}
                     className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg text-[#2C1E16]"
                   />
                 </div>
-                <div>
-                  <label className="font-bold text-[#2C1E16] block uppercase mb-1">Main Heading</label>
-                  <input
-                    type="text"
-                    value={heroForm.title}
-                    onChange={(e) => setHeroForm({ ...heroForm, title: e.target.value })}
-                    className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg text-[#2C1E16] font-bold text-sm"
-                  />
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="font-bold text-[#2C1E16] block uppercase mb-1">Primary CTA Button Label</label>
+                    <input
+                      type="text"
+                      value={heroForm.primaryBtnText}
+                      onChange={(e) => setHeroForm({ ...heroForm, primaryBtnText: e.target.value })}
+                      className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg text-[#2C1E16]"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold text-[#2C1E16] block uppercase mb-1">Secondary CTA Button Label</label>
+                    <input
+                      type="text"
+                      value={heroForm.secondaryBtnText}
+                      onChange={(e) => setHeroForm({ ...heroForm, secondaryBtnText: e.target.value })}
+                      className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg text-[#2C1E16]"
+                    />
+                  </div>
                 </div>
+
                 <div>
-                  <label className="font-bold text-[#2C1E16] block uppercase mb-1">📷 Upload Hero Banner Background Image</label>
+                  <label className="font-bold text-[#2C1E16] block uppercase mb-1">📷 Upload Hero Section Background Image Photo</label>
                   <div className="flex items-center gap-3">
                     {heroForm.imageUrl && (
-                      <div className="w-16 h-12 rounded-lg border border-[#EFE8DB] overflow-hidden shrink-0 bg-[#F8F3EA]">
-                        <img src={heroForm.imageUrl} alt="Banner Preview" className="w-full h-full object-cover" />
+                      <div className="w-20 h-14 rounded-lg border border-[#EFE8DB] overflow-hidden shrink-0 bg-[#F8F3EA]">
+                        <img src={heroForm.imageUrl} alt="Banner Background Preview" className="w-full h-full object-cover" />
                       </div>
                     )}
                     <input
@@ -187,11 +250,65 @@ export const AdminHomepageCMS: React.FC = () => {
                     />
                   </div>
                 </div>
+
+                {/* Glass Card Overlay Featured Candle Settings */}
+                <div className="pt-4 border-t border-[#EFE8DB] space-y-4">
+                  <h5 className="font-serif font-bold text-sm text-[#2C1E16]">✨ Featured Glassmorphic Card (Right Side Overlay)</h5>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="font-bold text-[#2C1E16] block uppercase mb-1">Featured Candle Title</label>
+                      <input
+                        type="text"
+                        value={heroForm.featuredTitle || ''}
+                        onChange={(e) => setHeroForm({ ...heroForm, featuredTitle: e.target.value })}
+                        placeholder="French Vanilla & Cinnamon"
+                        className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg text-[#2C1E16]"
+                      />
+                    </div>
+                    <div>
+                      <label className="font-bold text-[#2C1E16] block uppercase mb-1">Featured Candle Details</label>
+                      <input
+                        type="text"
+                        value={heroForm.featuredSubtitle || ''}
+                        onChange={(e) => setHeroForm({ ...heroForm, featuredSubtitle: e.target.value })}
+                        placeholder="12 oz Heavy Italian Glass • 65 Hours"
+                        className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg text-[#2C1E16]"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="font-bold text-[#2C1E16] block uppercase mb-1">📷 Featured Candle Image Photo</label>
+                    <div className="flex items-center gap-3">
+                      {heroForm.featuredImage && (
+                        <div className="w-16 h-16 rounded-lg border border-[#EFE8DB] overflow-hidden shrink-0 bg-[#F8F3EA]">
+                          <img src={heroForm.featuredImage} alt="Featured Candle Preview" className="w-full h-full object-cover" />
+                        </div>
+                      )}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                              setHeroForm({ ...heroForm, featuredImage: reader.result as string });
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                        className="w-full text-xs text-[#2C1E16] file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#B88B38] file:text-white hover:file:bg-[#A3792E] file:cursor-pointer cursor-pointer"
+                      />
+                    </div>
+                  </div>
+                </div>
+
                 <button
                   type="submit"
-                  className="bg-[#B88B38] text-white font-bold text-xs py-2 px-5 rounded-xl cursor-pointer"
+                  className="bg-[#B88B38] text-white font-bold text-xs py-2.5 px-6 rounded-xl cursor-pointer hover:bg-[#A3792E] transition-all shadow-card"
                 >
-                  Save Homepage Hero →
+                  Save Homepage Hero Changes →
                 </button>
               </form>
             </div>
