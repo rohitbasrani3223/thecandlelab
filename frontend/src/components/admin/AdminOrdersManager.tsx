@@ -248,9 +248,11 @@ export const AdminOrdersManager: React.FC = () => {
                       </button>
                       <button
                         onClick={() => {
-                          deleteOrder(ord.id);
-                          setSavedMsg(`Order ${ord.id} deleted.`);
-                          setTimeout(() => setSavedMsg(''), 3000);
+                          if (window.confirm(`Are you sure you want to delete Order ${ord.id}? This action cannot be undone.`)) {
+                            deleteOrder(ord.id);
+                            setSavedMsg(`Order ${ord.id} deleted.`);
+                            setTimeout(() => setSavedMsg(''), 3000);
+                          }
                         }}
                         className="text-[#B93829] font-bold hover:underline text-xs cursor-pointer"
                       >

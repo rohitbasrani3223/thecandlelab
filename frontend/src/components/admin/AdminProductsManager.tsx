@@ -37,6 +37,7 @@ export const AdminProductsManager: React.FC = () => {
   const [editingProd, setEditingProd] = useState<CMSProduct | null>(null);
   const [savedMsg, setSavedMsg] = useState('');
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<CMSProduct | null>(null);
 
   // Categories & Collections state with cross-mapping & LocalStorage persistence
   const defaultCategories: CategoryItem[] = [
@@ -726,6 +727,42 @@ export const AdminProductsManager: React.FC = () => {
         </div>
       )}
 
+      {/* Delete Confirmation Modal */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-[#EFE8DB] rounded-2xl max-w-md w-full p-6 space-y-4 shadow-card animate-fade-in">
+            <div className="flex items-center gap-3 text-red-600">
+              <span className="text-2xl">⚠️</span>
+              <h3 className="font-serif font-bold text-lg text-[#2C1E16]">Confirm Product Deletion</h3>
+            </div>
+            <p className="text-xs text-[#7A6B5D] leading-relaxed">
+              Kya aap sure hain ki aap <strong className="text-[#2C1E16]">"{deleteTarget.name}"</strong> product ko delete karna chahte hain? Yeh product database se permanent delete ho jayega.
+            </p>
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#EFE8DB]">
+              <button
+                type="button"
+                onClick={() => setDeleteTarget(null)}
+                className="px-4 py-2 text-xs font-bold text-[#7A6B5D] hover:bg-[#F8F3EA] rounded-xl cursor-pointer transition-colors"
+              >
+                Cancel / Do Not Delete
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  await deleteProduct(deleteTarget.id);
+                  setSavedMsg(`Product "${deleteTarget.name}" deleted.`);
+                  setDeleteTarget(null);
+                  setTimeout(() => setSavedMsg(''), 3000);
+                }}
+                className="bg-[#B93829] hover:bg-red-700 text-white font-bold text-xs py-2.5 px-5 rounded-xl shadow-xs cursor-pointer transition-colors"
+              >
+                Yes, Delete Product
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* PRODUCTS TAB */}
       {activeSubTab === 'products' && (
         <div className="bg-white border border-[#EFE8DB] rounded-2xl overflow-x-auto shadow-subtle">
@@ -774,7 +811,7 @@ export const AdminProductsManager: React.FC = () => {
                     <button onClick={() => startEdit(prod)} className="text-[#B88B38] font-bold hover:underline cursor-pointer">
                       Edit
                     </button>
-                    <button onClick={() => deleteProduct(prod.id)} className="text-[#B93829] font-bold hover:underline cursor-pointer">
+                    <button onClick={() => setDeleteTarget(prod)} className="text-[#B93829] font-bold hover:underline cursor-pointer">
                       Delete
                     </button>
                   </td>
