@@ -154,9 +154,9 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({ product, onAddTo
       <div className="space-y-2.5">
         <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#2A1E17]">
           <span>Select Vessel Size:</span>
-          <span className="text-[#D4AF37] font-normal">{selectedSizeLabel}</span>
+          <span className="text-[#D4AF37] font-normal hidden sm:inline">{selectedSizeLabel}</span>
         </div>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-1.5 sm:gap-3">
           {[
             { id: '8oz', label: '8 oz Tin', price: `₹${Math.round(productPrice * 0.7).toLocaleString('en-IN')}` },
             { id: '12oz', label: '12 oz Glass', price: `₹${productPrice.toLocaleString('en-IN')}`, popular: true },
@@ -165,19 +165,19 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({ product, onAddTo
             <button
               key={item.id}
               onClick={() => setSizeOption(item.id as any)}
-              className={`p-3 rounded-xl border text-center transition-all relative cursor-pointer ${
+              className={`p-2 sm:p-3 rounded-xl border text-center transition-all relative cursor-pointer ${
                 sizeOption === item.id
                   ? 'border-[#D4AF37] bg-[#FAF6F0] ring-2 ring-[#D4AF37]/40 shadow-xs'
                   : 'border-[#E5D9C5] bg-[#F4EFE6] hover:bg-[#FAF6F0]'
               }`}
             >
               {item.popular && (
-                <span className="absolute -top-2 right-2 bg-[#D4AF37] text-[#1C130E] text-[9px] font-bold px-1.5 py-0.5 rounded-full">
+                <span className="absolute -top-2 right-1 sm:right-2 bg-[#D4AF37] text-[#1C130E] text-[8px] sm:text-[9px] font-bold px-1 sm:px-1.5 py-0.5 rounded-full">
                   MOST LOVED
                 </span>
               )}
-              <span className="text-xs font-bold text-[#2A1E17] block">{item.label}</span>
-              <span className="text-[11px] text-[#8C7A6B]">{item.price}</span>
+              <span className="text-[11px] sm:text-xs font-bold text-[#2A1E17] block">{item.label}</span>
+              <span className="text-[10px] sm:text-[11px] text-[#8C7A6B]">{item.price}</span>
             </button>
           ))}
         </div>
@@ -188,7 +188,7 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({ product, onAddTo
         <span className="text-xs font-bold uppercase tracking-wider text-[#2A1E17] block">
           Select Wick Type:
         </span>
-        <div className="grid grid-cols-2 gap-3 text-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 text-xs">
           {[
             { title: 'Organic Wood Wick', desc: 'Crackling fireside sound', val: 'Organic Wood Wick (Crackling)' },
             { title: '100% Cotton Wick', desc: 'Silent flame diffusion', val: '100% Cotton Wick (Silent)' },
@@ -211,29 +211,46 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({ product, onAddTo
 
       {/* 3. Quantity & Primary CTA Buttons */}
       <div className="space-y-4 pt-2">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center border border-[#E5D9C5] rounded-xl bg-[#F4EFE6]">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <div className="flex items-center justify-between gap-3 shrink-0">
+            <div className="flex items-center border border-[#E5D9C5] rounded-xl bg-[#F4EFE6]">
+              <button
+                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                className="px-3.5 py-2.5 text-[#2A1E17] font-bold hover:bg-[#E5D9C5] transition-colors rounded-l-xl cursor-pointer"
+              >
+                -
+              </button>
+              <span className="px-4 py-2.5 font-bold text-[#2A1E17] text-sm font-mono min-w-[40px] text-center">
+                {quantity}
+              </span>
+              <button
+                onClick={() => setQuantity(quantity + 1)}
+                className="px-3.5 py-2.5 text-[#2A1E17] font-bold hover:bg-[#E5D9C5] transition-colors rounded-r-xl cursor-pointer"
+              >
+                +
+              </button>
+            </div>
+
             <button
-              onClick={() => setQuantity(Math.max(1, quantity - 1))}
-              className="px-3.5 py-2.5 text-[#2A1E17] font-bold hover:bg-[#E5D9C5] transition-colors rounded-l-xl cursor-pointer"
+              onClick={() => {
+                setIsWishlisted(!isWishlisted);
+                toast({
+                  type: isWishlisted ? 'info' : 'luxury',
+                  title: isWishlisted ? 'Removed from Wishlist' : 'Saved to Wishlist',
+                });
+              }}
+              className={`p-3.5 rounded-xl border border-[#E5D9C5] transition-colors cursor-pointer sm:hidden ${
+                isWishlisted ? 'bg-[#B33A3A] text-white' : 'bg-[#F4EFE6] text-[#2A1E17] hover:bg-[#E5D9C5]'
+              }`}
             >
-              -
-            </button>
-            <span className="px-4 py-2.5 font-bold text-[#2A1E17] text-sm font-mono min-w-[40px] text-center">
-              {quantity}
-            </span>
-            <button
-              onClick={() => setQuantity(quantity + 1)}
-              className="px-3.5 py-2.5 text-[#2A1E17] font-bold hover:bg-[#E5D9C5] transition-colors rounded-r-xl cursor-pointer"
-            >
-              +
+              <HeartIcon size={20} />
             </button>
           </div>
 
           <Button
             variant="gold"
             size="lg"
-            className="flex-1 text-sm font-bold shadow-md bg-[#B88B38] hover:bg-[#9E752C] text-white py-3.5 rounded-xl"
+            className="flex-1 text-xs sm:text-sm font-bold shadow-md bg-[#B88B38] hover:bg-[#9E752C] text-white py-3.5 rounded-xl"
             onClick={() => onAddToCart(selectedSizeLabel, selectedWick, quantity)}
           >
             Add to Shopping Bag — ₹{(currentPrice * quantity).toLocaleString('en-IN')}.00
@@ -247,7 +264,7 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({ product, onAddTo
                 title: isWishlisted ? 'Removed from Wishlist' : 'Saved to Wishlist',
               });
             }}
-            className={`p-3.5 rounded-xl border border-[#E5D9C5] transition-colors cursor-pointer ${
+            className={`hidden sm:flex p-3.5 rounded-xl border border-[#E5D9C5] transition-colors cursor-pointer ${
               isWishlisted ? 'bg-[#B33A3A] text-white' : 'bg-[#F4EFE6] text-[#2A1E17] hover:bg-[#E5D9C5]'
             }`}
           >

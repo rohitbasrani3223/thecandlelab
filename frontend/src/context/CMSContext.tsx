@@ -43,7 +43,7 @@ export interface CMSHeroBanner {
   featuredTitle?: string;
   featuredSubtitle?: string;
   featuredImage?: string;
-  layoutStyle?: 'centered-glass' | 'split-overlay' | 'full-bleed-minimal';
+  layoutStyle?: 'scentandchill' | 'glass-circle' | 'split-featured';
 }
 
 export interface CMSCollection {
@@ -221,7 +221,7 @@ const DEFAULT_HERO: CMSHeroBanner = {
   featuredTitle: 'French Vanilla & Cinnamon',
   featuredSubtitle: '12 oz Heavy Italian Glass • 65 Hours',
   featuredImage: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?q=80&w=800&auto=format&fit=crop',
-  layoutStyle: 'centered-glass',
+  layoutStyle: 'scentandchill',
 };
 
 const DEFAULT_COLLECTIONS: CMSCollection[] = [
@@ -766,6 +766,24 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem('tcl_cms_staff', JSON.stringify(staffUsers));
   }, [staffUsers]);
 
+  useEffect(() => {
+    const syncHeroFromStorage = () => {
+      try {
+        const saved = localStorage.getItem('tcl_cms_hero');
+        if (saved) {
+          setHero(JSON.parse(saved));
+        }
+      } catch (e) {}
+    };
+
+    window.addEventListener('tcl-hero-updated', syncHeroFromStorage);
+    window.addEventListener('storage', syncHeroFromStorage);
+    return () => {
+      window.removeEventListener('tcl-hero-updated', syncHeroFromStorage);
+      window.removeEventListener('storage', syncHeroFromStorage);
+    };
+  }, []);
+
   const updateSettings = (newSettings: Partial<CMSStoreSettings>) => {
     markCmsEdited();
     setSettings((prev) => ({ ...prev, ...newSettings }));
@@ -778,7 +796,14 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const updateHero = (newHero: Partial<CMSHeroBanner>) => {
     markCmsEdited();
-    setHero((prev) => ({ ...prev, ...newHero }));
+    setHero((prev) => {
+      const updated = { ...prev, ...newHero };
+      try {
+        localStorage.setItem('tcl_cms_hero', JSON.stringify(updated));
+        window.dispatchEvent(new CustomEvent('tcl-hero-updated', { detail: updated }));
+      } catch (e) {}
+      return updated;
+    });
   };
 
   const updateCollection = (id: string, updated: Partial<CMSCollection>) => {

@@ -285,14 +285,14 @@ export const AdminProductsManager: React.FC = () => {
       </div>
 
       {/* Sub Navigation Bar */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-[#EFE8DB] scrollbar-none">
+      <div className="flex items-center gap-2 overflow-x-auto flex-nowrap pb-2 border-b border-[#EFE8DB] max-w-full">
         {SUB_TABS.map((tab) => {
           const isActive = activeSubTab === tab.id;
           return (
             <button
               key={tab.id}
               onClick={() => setActiveSubTab(tab.id)}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
+              className={`shrink-0 px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
                 isActive
                   ? 'bg-[#B88B38] text-white shadow-card'
                   : 'bg-white text-[#7A6B5D] border border-[#EFE8DB] hover:bg-[#F8F3EA] hover:text-[#2C1E16]'
@@ -698,15 +698,15 @@ export const AdminProductsManager: React.FC = () => {
 
       {/* PRODUCTS TAB */}
       {activeSubTab === 'products' && (
-        <div className="bg-white border border-[#EFE8DB] rounded-2xl overflow-hidden shadow-subtle">
-          <table className="w-full text-left text-xs text-[#2C1E16]">
+        <div className="bg-white border border-[#EFE8DB] rounded-2xl overflow-x-auto shadow-subtle">
+          <table className="w-full min-w-[650px] text-left text-xs text-[#2C1E16]">
             <thead className="bg-[#F8F3EA] border-b border-[#EFE8DB] uppercase font-bold text-[10px] text-[#7A6B5D]">
               <tr>
-                <th className="p-4">Product Details</th>
-                <th className="p-4">Category & Collection</th>
-                <th className="p-4">Price</th>
-                <th className="p-4">Stock Status</th>
-                <th className="p-4 text-right">Actions</th>
+                <th className="p-4 whitespace-nowrap">Product Details</th>
+                <th className="p-4 whitespace-nowrap">Category & Collection</th>
+                <th className="p-4 whitespace-nowrap">Price</th>
+                <th className="p-4 whitespace-nowrap">Stock Status</th>
+                <th className="p-4 text-right whitespace-nowrap">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#F2ECE1]">
@@ -717,34 +717,34 @@ export const AdminProductsManager: React.FC = () => {
                       <img
                         src={prod.image || prod.imageUrl || PRODUCT_IMAGE_PLACEHOLDER}
                         alt={prod.name}
-                        className="w-10 h-10 object-cover rounded-lg border border-[#EFE8DB]"
+                        className="w-10 h-10 object-cover rounded-lg border border-[#EFE8DB] shrink-0"
                       />
-                      <div>
+                      <div className="min-w-0">
                         <strong className="block text-[#2C1E16]">{prod.name}</strong>
-                        <span className="text-[10px] text-[#7A6B5D]">{prod.scentProfile || 'Botanical Blend'}</span>
+                        <span className="text-[10px] text-[#7A6B5D] block truncate">{prod.scentProfile || 'Botanical Blend'}</span>
                       </div>
                     </div>
                   </td>
-                  <td className="p-4">
+                  <td className="p-4 whitespace-nowrap">
                     <span className="font-bold text-[#B88B38] block">{prod.category}</span>
-                    <span className="text-[10px] text-[#7A6B5D]">{prod.collection}</span>
+                    <span className="text-[10px] text-[#7A6B5D] block">{prod.collection}</span>
                   </td>
-                  <td className="p-4 font-mono font-bold">₹{prod.price}</td>
-                  <td className="p-4">
+                  <td className="p-4 font-mono font-bold whitespace-nowrap">₹{prod.price}</td>
+                  <td className="p-4 whitespace-nowrap">
                     <button
                       onClick={() => updateProduct(prod.id, { inStock: !prod.inStock })}
-                      className={`px-2.5 py-1 rounded-full text-[10px] font-bold cursor-pointer ${
+                      className={`px-2.5 py-1 rounded-full text-[10px] font-bold cursor-pointer whitespace-nowrap ${
                         prod.inStock ? 'bg-[#2E6F40]/10 text-[#2E6F40]' : 'bg-[#B93829]/10 text-[#B93829]'
                       }`}
                     >
                       {prod.inStock ? '✓ In Stock' : '✕ Out of Stock'}
                     </button>
                   </td>
-                  <td className="p-4 text-right space-x-2">
-                    <button onClick={() => startEdit(prod)} className="text-[#B88B38] font-bold hover:underline">
+                  <td className="p-4 text-right whitespace-nowrap space-x-2">
+                    <button onClick={() => startEdit(prod)} className="text-[#B88B38] font-bold hover:underline cursor-pointer">
                       Edit
                     </button>
-                    <button onClick={() => deleteProduct(prod.id)} className="text-[#B93829] font-bold hover:underline">
+                    <button onClick={() => deleteProduct(prod.id)} className="text-[#B93829] font-bold hover:underline cursor-pointer">
                       Delete
                     </button>
                   </td>

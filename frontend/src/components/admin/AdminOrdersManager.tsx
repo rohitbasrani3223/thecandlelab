@@ -187,8 +187,8 @@ export const AdminOrdersManager: React.FC = () => {
               + Create Order
             </button>
           </div>
-          <div className="hidden md:block overflow-x-auto">
-            <table className="min-w-[820px] w-full text-left text-xs text-[#2C1E16]">
+          <div className="overflow-x-auto max-w-full">
+            <table className="min-w-[750px] w-full text-left text-xs text-[#2C1E16]">
               <thead className="bg-[#F8F3EA] border-b border-[#EFE8DB] uppercase font-bold text-[10px] tracking-wider text-[#7A6B5D]">
                 <tr>
                   <th className="p-4">Order ID</th>

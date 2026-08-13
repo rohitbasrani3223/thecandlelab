@@ -16,6 +16,12 @@ export const AdminHomepageCMS: React.FC = () => {
   const [annForm, setAnnForm] = useState(announcement);
   const [savedMessage, setSavedMessage] = useState('');
 
+  React.useEffect(() => {
+    if (hero) {
+      setHeroForm(hero);
+    }
+  }, [hero]);
+
   // Local state for layout components
   const [sections, setSections] = useState([
     { id: 'hero', name: 'Hero Banner Carousel', enabled: true },
@@ -147,28 +153,39 @@ export const AdminHomepageCMS: React.FC = () => {
                 {/* Layout Selector */}
                 <div>
                   <label className="font-bold text-[#2C1E16] block uppercase mb-1.5">🖼️ Hero Layout Design Style</label>
-                  <div className="grid grid-cols-2 gap-3">
-                    <label className={`p-3 rounded-xl border flex items-center gap-2 cursor-pointer transition-all ${heroForm.layoutStyle === 'centered-glass' ? 'bg-[#FAF6F0] border-[#B88B38] font-bold text-[#2C1E16]' : 'bg-white border-[#EFE8DB] text-[#7A6B5D]'}`}>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <label className={`p-3 rounded-xl border flex items-center gap-2 cursor-pointer transition-all ${heroForm.layoutStyle === 'scentandchill' || !heroForm.layoutStyle ? 'bg-[#FAF6F0] border-[#B88B38] font-bold text-[#2C1E16]' : 'bg-white border-[#EFE8DB] text-[#7A6B5D]'}`}>
                       <input
                         type="radio"
                         name="layoutStyle"
-                        value="centered-glass"
-                        checked={heroForm.layoutStyle === 'centered-glass' || !heroForm.layoutStyle}
-                        onChange={() => setHeroForm({ ...heroForm, layoutStyle: 'centered-glass' })}
+                        value="scentandchill"
+                        checked={heroForm.layoutStyle === 'scentandchill' || !heroForm.layoutStyle}
+                        onChange={() => setHeroForm({ ...heroForm, layoutStyle: 'scentandchill' })}
                         className="accent-[#B88B38]"
                       />
-                      <span>Centered Full-Bleed (scentandchill style)</span>
+                      <span>1. Full Bleed & Ticker (scentandchill style)</span>
                     </label>
-                    <label className={`p-3 rounded-xl border flex items-center gap-2 cursor-pointer transition-all ${heroForm.layoutStyle === 'split-overlay' ? 'bg-[#FAF6F0] border-[#B88B38] font-bold text-[#2C1E16]' : 'bg-white border-[#EFE8DB] text-[#7A6B5D]'}`}>
+                    <label className={`p-3 rounded-xl border flex items-center gap-2 cursor-pointer transition-all ${heroForm.layoutStyle === 'glass-circle' ? 'bg-[#FAF6F0] border-[#B88B38] font-bold text-[#2C1E16]' : 'bg-white border-[#EFE8DB] text-[#7A6B5D]'}`}>
                       <input
                         type="radio"
                         name="layoutStyle"
-                        value="split-overlay"
-                        checked={heroForm.layoutStyle === 'split-overlay'}
-                        onChange={() => setHeroForm({ ...heroForm, layoutStyle: 'split-overlay' })}
+                        value="glass-circle"
+                        checked={heroForm.layoutStyle === 'glass-circle'}
+                        onChange={() => setHeroForm({ ...heroForm, layoutStyle: 'glass-circle' })}
                         className="accent-[#B88B38]"
                       />
-                      <span>Split Glassmorphic Card Overlay</span>
+                      <span>2. Centered Frosted Glass Oval Card</span>
+                    </label>
+                    <label className={`p-3 rounded-xl border flex items-center gap-2 cursor-pointer transition-all ${heroForm.layoutStyle === 'split-featured' ? 'bg-[#FAF6F0] border-[#B88B38] font-bold text-[#2C1E16]' : 'bg-white border-[#EFE8DB] text-[#7A6B5D]'}`}>
+                      <input
+                        type="radio"
+                        name="layoutStyle"
+                        value="split-featured"
+                        checked={heroForm.layoutStyle === 'split-featured'}
+                        onChange={() => setHeroForm({ ...heroForm, layoutStyle: 'split-featured' })}
+                        className="accent-[#B88B38]"
+                      />
+                      <span>3. Split Text + Product Card Overlay</span>
                     </label>
                   </div>
                 </div>
@@ -225,29 +242,106 @@ export const AdminHomepageCMS: React.FC = () => {
                   </div>
                 </div>
 
-                <div>
-                  <label className="font-bold text-[#2C1E16] block uppercase mb-1">📷 Upload Hero Section Background Image Photo</label>
-                  <div className="flex items-center gap-3">
-                    {heroForm.imageUrl && (
-                      <div className="w-20 h-14 rounded-lg border border-[#EFE8DB] overflow-hidden shrink-0 bg-[#F8F3EA]">
-                        <img src={heroForm.imageUrl} alt="Banner Background Preview" className="w-full h-full object-cover" />
+                {/* Recommended Image Dimensions Notice Box */}
+                <div className="bg-[#EFF6FF] border border-[#BFDBFE] p-3.5 rounded-xl text-xs text-[#1E40AF] space-y-1">
+                  <div className="flex items-center gap-2 font-bold">
+                    <span>📐 Recommended Dimensions:</span>
+                    <span className="text-[#1D4ED8]">1920 × 600 pixels (16:5 ratio) for best display</span>
+                  </div>
+                  <p className="text-[11px] text-[#3B82F6]">
+                    Minimum: 1200 × 400px | Maximum File Size: 10MB
+                  </p>
+                </div>
+
+                {/* Hero Section Background Image Upload & URL Manager */}
+                <div className="space-y-2">
+                  <label className="font-bold text-[#2C1E16] block uppercase text-xs">🖼️ Hero Section Background Image Photo</label>
+                  
+                  <div className="bg-[#F8FAFC] border border-[#E2E8F0] p-4 rounded-2xl space-y-3">
+                    {heroForm.imageUrl ? (
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-3 bg-white border border-[#CBD5E1] rounded-xl shadow-xs">
+                        <div className="flex items-center gap-3">
+                          <div className="w-24 h-16 rounded-lg overflow-hidden border border-[#E2E8F0] bg-[#F1F5F9] shrink-0">
+                            <img src={heroForm.imageUrl} alt="Hero Banner Preview" className="w-full h-full object-cover" />
+                          </div>
+                          <div>
+                            <strong className="text-xs text-[#1E293B] block">Current Hero Background Photo</strong>
+                            <span className="text-[10px] text-[#64748B] block truncate max-w-[200px] sm:max-w-[300px]">
+                              {heroForm.imageUrl.startsWith('data:') ? 'Custom Uploaded File' : heroForm.imageUrl}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 w-full sm:w-auto">
+                          <label className="bg-[#B88B38] hover:bg-[#A3792E] text-white font-bold text-xs py-2 px-3.5 rounded-xl cursor-pointer transition-colors shrink-0">
+                            📁 Change Photo
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  const reader = new FileReader();
+                                  reader.onloadend = () => {
+                                    setHeroForm({ ...heroForm, imageUrl: reader.result as string });
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              }}
+                            />
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => setHeroForm({ ...heroForm, imageUrl: '' })}
+                            className="bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-2 px-3.5 rounded-xl shadow-xs flex items-center gap-1 cursor-pointer transition-colors shrink-0"
+                          >
+                            <span>✕</span>
+                            <span>Remove Photo</span>
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="border-2 border-dashed border-[#CBD5E1] hover:border-[#B88B38] rounded-xl p-5 text-center bg-white transition-colors relative cursor-pointer group">
+                        <div className="space-y-2">
+                          <div className="w-10 h-10 bg-[#F1F5F9] text-[#64748B] rounded-full flex items-center justify-center mx-auto text-xl group-hover:scale-110 transition-transform">
+                            ☁️
+                          </div>
+                          <div className="text-xs text-[#334155]">
+                            <strong className="text-[#B88B38]">Click to upload photo</strong> or drag and drop file here
+                          </div>
+                          <p className="text-[10px] text-[#94A3B8]">PNG, JPG, JPEG, GIF, WebP (MAX 10MB) • Recommended: 1920 × 600px</p>
+                        </div>
+
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const reader = new FileReader();
+                              reader.onloadend = () => {
+                                setHeroForm({ ...heroForm, imageUrl: reader.result as string });
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        />
                       </div>
                     )}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          const reader = new FileReader();
-                          reader.onloadend = () => {
-                            setHeroForm({ ...heroForm, imageUrl: reader.result as string });
-                          };
-                          reader.readAsDataURL(file);
-                        }
-                      }}
-                      className="w-full text-xs text-[#2C1E16] file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#B88B38] file:text-white hover:file:bg-[#A3792E] file:cursor-pointer cursor-pointer"
-                    />
+
+                    {/* Image URL Direct Input Option */}
+                    <div className="flex items-center gap-2 pt-1">
+                      <span className="text-[11px] font-bold text-[#64748B] whitespace-nowrap">🔗 Or Image URL:</span>
+                      <input
+                        type="text"
+                        value={heroForm.imageUrl}
+                        onChange={(e) => setHeroForm({ ...heroForm, imageUrl: e.target.value })}
+                        placeholder="https://images.unsplash.com/photo-..."
+                        className="w-full bg-white border border-[#E2E8F0] px-3 py-1.5 rounded-lg text-xs font-mono text-[#334155]"
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -277,29 +371,94 @@ export const AdminHomepageCMS: React.FC = () => {
                     </div>
                   </div>
 
-                  <div>
-                    <label className="font-bold text-[#2C1E16] block uppercase mb-1">📷 Featured Candle Image Photo</label>
-                    <div className="flex items-center gap-3">
-                      {heroForm.featuredImage && (
-                        <div className="w-16 h-16 rounded-lg border border-[#EFE8DB] overflow-hidden shrink-0 bg-[#F8F3EA]">
-                          <img src={heroForm.featuredImage} alt="Featured Candle Preview" className="w-full h-full object-cover" />
+                  {/* Featured Candle Image Upload & URL Manager */}
+                  <div className="space-y-2">
+                    <label className="font-bold text-[#2C1E16] block uppercase text-xs">📷 Featured Candle Image Photo</label>
+                    
+                    <div className="bg-[#F8FAFC] border border-[#E2E8F0] p-4 rounded-2xl space-y-3">
+                      {heroForm.featuredImage ? (
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-3 bg-white border border-[#CBD5E1] rounded-xl shadow-xs">
+                          <div className="flex items-center gap-3">
+                            <div className="w-16 h-16 rounded-lg overflow-hidden border border-[#E2E8F0] bg-[#F1F5F9] shrink-0">
+                              <img src={heroForm.featuredImage} alt="Featured Candle Preview" className="w-full h-full object-cover" />
+                            </div>
+                            <div>
+                              <strong className="text-xs text-[#1E293B] block">Current Featured Candle Image</strong>
+                              <span className="text-[10px] text-[#64748B] block truncate max-w-[200px] sm:max-w-[300px]">
+                                {heroForm.featuredImage.startsWith('data:') ? 'Custom Uploaded File' : heroForm.featuredImage}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2 w-full sm:w-auto">
+                            <label className="bg-[#B88B38] hover:bg-[#A3792E] text-white font-bold text-xs py-2 px-3.5 rounded-xl cursor-pointer transition-colors shrink-0">
+                              📁 Change Photo
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    const reader = new FileReader();
+                                    reader.onloadend = () => {
+                                      setHeroForm({ ...heroForm, featuredImage: reader.result as string });
+                                    };
+                                    reader.readAsDataURL(file);
+                                  }
+                                }}
+                              />
+                            </label>
+                            <button
+                              type="button"
+                              onClick={() => setHeroForm({ ...heroForm, featuredImage: '' })}
+                              className="bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-2 px-3.5 rounded-xl shadow-xs flex items-center gap-1 cursor-pointer transition-colors shrink-0"
+                            >
+                              <span>✕</span>
+                              <span>Remove Photo</span>
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="border-2 border-dashed border-[#CBD5E1] hover:border-[#B88B38] rounded-xl p-4 text-center bg-white transition-colors relative cursor-pointer group">
+                          <div className="space-y-1.5">
+                            <div className="w-9 h-9 bg-[#F1F5F9] text-[#64748B] rounded-full flex items-center justify-center mx-auto text-lg group-hover:scale-110 transition-transform">
+                              ☁️
+                            </div>
+                            <div className="text-xs text-[#334155]">
+                              <strong className="text-[#B88B38]">Click to upload candle photo</strong> or drag file here
+                            </div>
+                          </div>
+
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                const reader = new FileReader();
+                                reader.onloadend = () => {
+                                  setHeroForm({ ...heroForm, featuredImage: reader.result as string });
+                                };
+                                reader.readAsDataURL(file);
+                              }
+                            }}
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                          />
                         </div>
                       )}
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            const reader = new FileReader();
-                            reader.onloadend = () => {
-                              setHeroForm({ ...heroForm, featuredImage: reader.result as string });
-                            };
-                            reader.readAsDataURL(file);
-                          }
-                        }}
-                        className="w-full text-xs text-[#2C1E16] file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#B88B38] file:text-white hover:file:bg-[#A3792E] file:cursor-pointer cursor-pointer"
-                      />
+
+                      {/* Image URL Direct Input Option */}
+                      <div className="flex items-center gap-2 pt-1">
+                        <span className="text-[11px] font-bold text-[#64748B] whitespace-nowrap">🔗 Or Image URL:</span>
+                        <input
+                          type="text"
+                          value={heroForm.featuredImage || ''}
+                          onChange={(e) => setHeroForm({ ...heroForm, featuredImage: e.target.value })}
+                          placeholder="https://images.unsplash.com/photo-..."
+                          className="w-full bg-white border border-[#E2E8F0] px-3 py-1.5 rounded-lg text-xs font-mono text-[#334155]"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>

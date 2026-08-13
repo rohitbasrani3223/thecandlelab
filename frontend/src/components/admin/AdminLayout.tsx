@@ -122,7 +122,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ onReturnToStore }) => 
       </div>
 
       {/* Main Viewport Content */}
-      <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto max-h-screen box-border max-w-full bg-[#FAF6F0]">
+      <main className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 overflow-y-auto max-h-screen box-border max-w-full bg-[#FAF6F0]">
         {activeTab === 'dashboard' && <AdminDashboard />}
         {activeTab === 'storefront' && <AdminHomepageCMS />}
         {activeTab === 'products' && <AdminProductsManager />}

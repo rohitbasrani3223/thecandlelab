@@ -219,12 +219,12 @@ export const Header: React.FC<HeaderProps> = ({
                   window.location.hash = '#auth';
                 }
               }}
-              className="bg-[#B88B38] hover:bg-[#A3792E] text-white font-bold rounded-full px-4 py-2 text-xs flex items-center gap-1.5 shadow-xs transition-all cursor-pointer active:scale-95"
+              className="bg-[#B88B38] hover:bg-[#A3792E] text-white font-bold rounded-full px-2.5 sm:px-4 py-2 text-xs flex items-center gap-1.5 shadow-xs transition-all cursor-pointer active:scale-95"
               aria-label="Sign in to your account"
               title="Sign In / Register"
             >
               <UserIcon size={14} />
-              <span>Login / Sign Up</span>
+              <span className="hidden sm:inline">Login / Sign Up</span>
             </button>
           )}
 
