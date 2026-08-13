@@ -668,6 +668,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       } catch (err) {
         console.error('Failed to fetch live backend data:', err);
       } finally {
+        allowCmsPersist.current = true;
         setCmsHydrated(true);
       }
     }
@@ -802,6 +803,16 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         localStorage.setItem('tcl_cms_hero', JSON.stringify(updated));
         window.dispatchEvent(new CustomEvent('tcl-hero-updated', { detail: updated }));
       } catch (e) {}
+      saveCmsBundle({
+        version: 1,
+        settings,
+        announcement,
+        hero: updated,
+        pagesContent,
+        seoSettings,
+        collections,
+        mediaItems,
+      }).catch(() => {});
       return updated;
     });
   };

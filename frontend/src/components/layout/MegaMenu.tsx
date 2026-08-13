@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button, Badge, SparklesIcon } from '../../design-system';
+import { useCMS } from '../../context/CMSContext';
 
 export interface MegaMenuProps {
   isOpen: boolean;
@@ -8,7 +9,7 @@ export interface MegaMenuProps {
   onNavigate?: (page: any) => void;
 }
 
-const COLLECTIONS_LIST = [
+const DEFAULT_COLLECTIONS_LIST = [
   {
     icon: '🕯️',
     title: 'SCENTED CANDLES',
@@ -60,7 +61,18 @@ const COLLECTIONS_LIST = [
 ];
 
 export const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, activeMenu, onNavigate }) => {
+  const { collections } = useCMS();
+
   if (!isOpen || !activeMenu) return null;
+
+  const displayCollections = collections.length > 0
+    ? collections.map((col) => ({
+        icon: col.icon || '✨',
+        title: col.title.toUpperCase(),
+        desc: col.desc || `Curated ${col.title} Collection`,
+        hash: '#collections',
+      }))
+    : DEFAULT_COLLECTIONS_LIST;
 
   const handleLinkClick = (e: React.MouseEvent, pageTarget: string = 'collections') => {
     e.preventDefault();
@@ -80,13 +92,13 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, activeMenu,
       >
         <div className="border-b border-[#F2ECE1] pb-2 mb-3 px-2 flex items-center justify-between">
           <span className="text-[10px] uppercase font-bold tracking-widest text-[#B88B38]">
-            CURATED COLLECTIONS ({COLLECTIONS_LIST.length})
+            CURATED COLLECTIONS ({displayCollections.length})
           </span>
           <span className="w-1.5 h-1.5 rounded-full bg-[#B88B38] animate-pulse"></span>
         </div>
 
         <div className="max-h-96 overflow-y-auto no-scrollbar space-y-1.5">
-          {COLLECTIONS_LIST.map((item, idx) => (
+          {displayCollections.map((item, idx) => (
             <a
               key={idx}
               href={item.hash}

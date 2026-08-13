@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCMS } from '../../context/CMSContext';
 import type { CMSProduct } from '../../context/CMSContext';
 import { uploadImageToSupabaseStorage } from '../../config/supabaseClient';
@@ -38,21 +38,51 @@ export const AdminProductsManager: React.FC = () => {
   const [savedMsg, setSavedMsg] = useState('');
   const [isUploadingImage, setIsUploadingImage] = useState(false);
 
-  // Categories & Collections state with cross-mapping
-  const [categoriesList, setCategoriesList] = useState<CategoryItem[]>([
+  // Categories & Collections state with cross-mapping & LocalStorage persistence
+  const defaultCategories: CategoryItem[] = [
     { id: 'cat-1', name: 'Scented Candles', icon: '🕯️', collections: ['French Vanilla Collection', 'Royal Amber & Oud'], productIds: [] },
     { id: 'cat-2', name: 'Luxury Glass Jars', icon: '🍷', collections: ['Royal Amber & Oud'], productIds: [] },
     { id: 'cat-3', name: 'Botanical Travel Tins', icon: '✨', collections: ['Botanical Gardens'], productIds: [] },
     { id: 'cat-4', name: 'Reed Diffusers & Oils', icon: '💧', collections: ['Festive Joy'], productIds: [] },
     { id: 'cat-5', name: 'Gift Boxes & Combos', icon: '🎁', collections: ['Festive Joy'], productIds: [] },
-  ]);
+  ];
 
-  const [collectionsList, setCollectionsList] = useState<CollectionItem[]>([
+  const defaultCollections: CollectionItem[] = [
     { id: 'col-1', name: 'French Vanilla Collection', parentCategory: 'Scented Candles', productIds: [] },
     { id: 'col-2', name: 'Royal Amber & Oud', parentCategory: 'Luxury Glass Jars', productIds: [] },
     { id: 'col-3', name: 'Botanical Gardens', parentCategory: 'Botanical Travel Tins', productIds: [] },
     { id: 'col-4', name: 'Festive Joy', parentCategory: 'Gift Boxes & Combos', productIds: [] },
-  ]);
+  ];
+
+  const [categoriesList, setCategoriesList] = useState<CategoryItem[]>(() => {
+    try {
+      const saved = localStorage.getItem('tcl_admin_categories');
+      return saved ? JSON.parse(saved) : defaultCategories;
+    } catch {
+      return defaultCategories;
+    }
+  });
+
+  const [collectionsList, setCollectionsList] = useState<CollectionItem[]>(() => {
+    try {
+      const saved = localStorage.getItem('tcl_admin_collections');
+      return saved ? JSON.parse(saved) : defaultCollections;
+    } catch {
+      return defaultCollections;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('tcl_admin_categories', JSON.stringify(categoriesList));
+    } catch (e) {}
+  }, [categoriesList]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('tcl_admin_collections', JSON.stringify(collectionsList));
+    } catch (e) {}
+  }, [collectionsList]);
 
   // Form states for adding Category/Collection
   const [newCatName, setNewCatName] = useState('');
