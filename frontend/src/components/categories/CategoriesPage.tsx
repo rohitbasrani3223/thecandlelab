@@ -130,8 +130,8 @@ export const CategoriesPage: React.FC<CategoriesPageProps> = ({
           </div>
         )}
 
-        {/* Main Categories Navigation Bar */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+        {/* Main Categories Tab Bar (Horizontal Scrollable) */}
+        <div className="w-full max-w-full min-w-0 flex items-center gap-2 sm:gap-3 overflow-x-auto pb-3 pt-1 border-b border-[#2C2018] no-scrollbar touch-pan-x -mx-4 px-4 sm:mx-0 sm:px-0">
           {mainCategories.map((c) => {
             const isSelected = c.id === currentCategory?.id;
             return (
@@ -142,7 +142,7 @@ export const CategoriesPage: React.FC<CategoriesPageProps> = ({
                   setSelectedCatId(c.id);
                   setSelectedSubId('');
                 }}
-                className={`px-5 py-2.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${
+                className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs font-medium whitespace-nowrap shrink-0 transition-all cursor-pointer ${
                   isSelected
                     ? 'bg-amber-600 text-stone-950 font-semibold shadow-lg'
                     : 'bg-[#1C130E] border border-[#2C2018] text-stone-300 hover:border-stone-600'
@@ -156,11 +156,11 @@ export const CategoriesPage: React.FC<CategoriesPageProps> = ({
 
         {/* Subcategories Tabs (if available) */}
         {availableSubs.length > 0 && (
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-[#2C2018]">
+          <div className="w-full max-w-full min-w-0 flex items-center gap-2 overflow-x-auto pb-2 border-b border-[#2C2018] no-scrollbar touch-pan-x -mx-4 px-4 sm:mx-0 sm:px-0">
             <button
               type="button"
               onClick={() => setSelectedSubId('')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-colors ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-mono whitespace-nowrap shrink-0 transition-colors cursor-pointer ${
                 selectedSubId === ''
                   ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
                   : 'text-stone-400 hover:text-stone-200'

@@ -60,27 +60,27 @@ export const Header: React.FC<HeaderProps> = ({
     <header
       className={`sticky top-0 z-30 w-full transition-all duration-300 font-sans ${isScrolled ? 'bg-[#FAF7F2]/95 backdrop-blur-md shadow-card border-b border-[#E5DAC7]/90 py-2.5' : 'bg-[#FAF7F2] border-b border-[#E5DAC7] py-3.5'}`}
     >
-      <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-12 flex items-center justify-between gap-2 sm:gap-6">
+      <div className="w-full max-w-7xl mx-auto px-2 sm:px-6 lg:px-12 flex items-center justify-between gap-1 sm:gap-6 min-w-0">
         {/* Left Side: Logo & Navigation */}
-        <div className="flex items-center gap-6 sm:gap-10">
+        <div className="flex items-center gap-2 sm:gap-10 min-w-0">
           {/* Mobile Hamburger Button */}
           <button
             onClick={onOpenMobileNav}
-            className="lg:hidden text-[#241812] hover:text-[#C5983A] p-1.5 rounded-md hover:bg-[#F5EEE4] transition-colors"
+            className="lg:hidden text-[#241812] hover:text-[#C5983A] p-2 rounded-lg hover:bg-[#F5EEE4] transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center shrink-0"
             aria-label="Open Navigation Menu"
           >
-            <MenuIcon size={24} />
+            <MenuIcon size={22} />
           </button>
 
           {/* Professional Brand Logo on Left */}
-          <a href="#home" onClick={(e) => handleNavClick(e, 'home')} className="flex items-center gap-3 shrink-0 group">
+          <a href="#home" onClick={(e) => handleNavClick(e, 'home')} className="flex items-center gap-2 sm:gap-3 shrink-0 group min-w-0">
             <img
               src="/logo.jpeg"
               alt="The Candle Lab Logo"
-              className="h-10 sm:h-12 w-auto object-contain rounded-md shadow-subtle group-hover:scale-105 transition-transform duration-300"
+              className="h-8 sm:h-12 w-auto object-contain rounded-md shadow-subtle group-hover:scale-105 transition-transform duration-300"
             />
             <div className="hidden sm:flex flex-col">
-              <span className="font-serif font-extrabold text-lg sm:text-xl tracking-wider text-[#241812] leading-none">
+              <span className="font-serif font-extrabold text-base sm:text-xl tracking-wider text-[#241812] leading-none">
                 THE CANDLE LAB
               </span>
               <span className="text-[9px] uppercase tracking-[0.22em] text-[#847262] font-semibold mt-0.5">
@@ -138,16 +138,16 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Right Side: Action Icons */}
-        <div className="flex shrink-0 items-center gap-1 sm:gap-4">
+        <div className="flex shrink-0 items-center gap-0.5 sm:gap-3">
           {/* Search Trigger with Cmd+K Badge */}
           <button
             onClick={onOpenSearch}
-            className="flex items-center gap-1.5 text-[#241812] hover:text-[#C5983A] p-2 rounded-full hover:bg-[#F5EEE4] transition-colors"
+            className="flex items-center justify-center text-[#241812] hover:text-[#C5983A] p-2 rounded-full hover:bg-[#F5EEE4] transition-colors min-h-[40px] min-w-[40px]"
             aria-label="Search products"
             title="Search (Cmd + K)"
           >
-            <SearchIcon size={20} />
-            <span className="hidden xl:inline-block text-[10px] font-mono font-bold bg-[#241812] text-[#FAF6F0] px-1.5 py-0.5 rounded-xs">
+            <SearchIcon size={19} />
+            <span className="hidden xl:inline-block text-[10px] font-mono font-bold bg-[#241812] text-[#FAF6F0] px-1.5 py-0.5 rounded-xs ml-1">
               ⌘K
             </span>
           </button>
@@ -159,12 +159,12 @@ export const Header: React.FC<HeaderProps> = ({
               e.preventDefault();
               onNavigate?.('wishlist' as any);
             }}
-            className="relative text-[#241812] hover:text-[#C5983A] p-2 rounded-full hover:bg-[#F5EEE4] transition-colors"
+            className="relative text-[#241812] hover:text-[#C5983A] p-2 rounded-full hover:bg-[#F5EEE4] transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center"
             aria-label="View Wishlist"
           >
-            <HeartIcon size={20} />
+            <HeartIcon size={19} />
             {wishlistCount > 0 && (
-              <span className="absolute top-1 right-1 bg-[#C5983A] text-[#180F0A] text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+              <span className="absolute top-1 right-1 bg-[#C5983A] text-[#180F0A] text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                 {wishlistCount}
               </span>
             )}
@@ -174,7 +174,7 @@ export const Header: React.FC<HeaderProps> = ({
           {isAuthenticated ? (
             <Dropdown
               trigger={
-                <div className="flex items-center gap-2 p-1.5 rounded-full hover:bg-[#F5EEE4] transition-colors cursor-pointer group">
+                <div className="flex items-center gap-1.5 p-1 sm:p-1.5 rounded-full hover:bg-[#F5EEE4] transition-colors cursor-pointer group min-h-[40px] min-w-[40px] justify-center">
                   {user?.avatar ? (
                     <img
                       src={user.avatar}
@@ -217,24 +217,24 @@ export const Header: React.FC<HeaderProps> = ({
                   window.location.hash = '#auth';
                 }
               }}
-              className="bg-[#241812] hover:bg-[#3E3027] text-[#FAF7F2] font-bold rounded-full px-3.5 sm:px-4 py-2 text-xs flex items-center gap-1.5 shadow-subtle border border-[#C5983A]/30 transition-all cursor-pointer active:scale-95"
+              className="bg-[#241812] hover:bg-[#3E3027] text-[#FAF7F2] font-bold rounded-full p-2 sm:px-3.5 sm:py-2 text-xs flex items-center justify-center gap-1.5 shadow-subtle border border-[#C5983A]/30 transition-all cursor-pointer active:scale-95 min-h-[40px] min-w-[40px] sm:min-w-0"
               aria-label="Sign in to your account"
               title="Sign In / Register"
             >
-              <UserIcon size={14} className="text-[#C5983A]" />
-              <span className="hidden sm:inline">Login / Sign Up</span>
+              <UserIcon size={15} className="text-[#C5983A]" />
+              <span className="hidden md:inline">Sign In</span>
             </button>
           )}
 
           {/* Cart Icon & Drawer Trigger */}
           <button
             onClick={onOpenCart}
-            className="relative bg-[#241812] text-[#FAF7F2] hover:bg-[#3E3027] px-3.5 py-2 rounded-full flex items-center gap-2 transition-all shadow-subtle border border-[#C5983A]/20"
+            className="relative bg-[#241812] text-[#FAF7F2] hover:bg-[#3E3027] px-2.5 sm:px-3.5 py-2 rounded-full flex items-center gap-1.5 sm:gap-2 transition-all shadow-subtle border border-[#C5983A]/20 min-h-[40px]"
             aria-label="Shopping Cart"
           >
-            <ShoppingBagIcon size={18} className="text-[#C5983A]" />
+            <ShoppingBagIcon size={17} className="text-[#C5983A]" />
             <span className="hidden sm:inline text-xs font-bold tracking-wider uppercase">Bag</span>
-            <span className="bg-[#C5983A] text-[#180F0A] text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+            <span className="bg-[#C5983A] text-[#180F0A] text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none">
               {cartCount}
             </span>
           </button>

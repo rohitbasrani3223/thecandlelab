@@ -17,7 +17,7 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Product::with(['mainCategory', 'subCategory', 'collections', 'images', 'variants.inventory'])
+        $query = Product::with(['mainCategory', 'subCategory', 'images', 'variants'])
             ->where('status', 'ACTIVE');
 
         // Filter by Main Category

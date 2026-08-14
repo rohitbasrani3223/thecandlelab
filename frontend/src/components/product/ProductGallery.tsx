@@ -66,7 +66,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
 
       {/* Thumbnails Row */}
       {allImages.length > 1 && (
-        <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-stone-800">
+        <div className="w-full max-w-full min-w-0 flex items-center gap-2.5 sm:gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-stone-800 touch-pan-x -mx-1 px-1 sm:mx-0 sm:px-0">
           {allImages.map((img, idx) => {
             const isSelected = img === selectedImage;
             return (

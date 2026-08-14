@@ -61,7 +61,7 @@ export const CollectionsPage: React.FC<CollectionsPageProps> = ({
     <div className="min-h-screen bg-[#140D09] text-[#FDFBF7] py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto space-y-10">
         {/* Collections Tab Bar */}
-        <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-none">
+        <div className="w-full max-w-full min-w-0 flex items-center gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-none touch-pan-x -mx-4 px-4 sm:mx-0 sm:px-0">
           {collections.map((col) => {
             const isSelected = col.id === currentCollection?.id;
             return (
@@ -69,7 +69,7 @@ export const CollectionsPage: React.FC<CollectionsPageProps> = ({
                 key={col.id}
                 type="button"
                 onClick={() => setSelectedColId(col.id)}
-                className={`flex items-center gap-2 px-5 py-3 rounded-2xl border text-xs font-medium whitespace-nowrap transition-all ${
+                className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl border text-xs font-medium whitespace-nowrap shrink-0 transition-all cursor-pointer ${
                   isSelected
                     ? 'bg-amber-600 border-amber-500 text-stone-950 font-semibold shadow-lg scale-105'
                     : 'bg-[#1C130E] border-[#2C2018] text-stone-300 hover:border-stone-600'

@@ -92,7 +92,7 @@ export const FeaturedCollection: React.FC<FeaturedCollectionProps> = ({ onSelect
         </div>
 
         {/* Products Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 w-full max-w-full min-w-0">
           {featuredList.map((prod) => {
             const isWishlisted = wishlist.includes(prod.id);
             const inrPrice = Math.round(prod.price || 0);

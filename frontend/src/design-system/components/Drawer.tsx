@@ -39,9 +39,9 @@ export const Drawer: React.FC<DrawerProps> = ({
   if (!isOpen) return null;
 
   const widthStyles = {
-    sm: 'w-72 max-w-[85vw]',
-    md: 'w-96 max-w-[90vw]',
-    lg: 'w-[480px] max-w-[92vw]',
+    sm: 'w-full max-w-[85vw] sm:w-72',
+    md: 'w-full max-w-[92vw] sm:w-96',
+    lg: 'w-full max-w-[95vw] sm:w-[480px]',
     full: 'w-full',
   };
 

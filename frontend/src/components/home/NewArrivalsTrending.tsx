@@ -68,12 +68,12 @@ export const NewArrivalsTrending: React.FC<NewArrivalsTrendingProps> = ({ onSele
     <section className="py-16 sm:py-24 bg-[#F5EEE4] border-b border-[#E5DAC7] font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 space-y-12">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 border-b border-[#E5DAC7] pb-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-2 sm:gap-4 border-b border-[#E5DAC7] pb-6 w-full max-w-full min-w-0">
           <div>
-            <span className="text-xs uppercase font-bold tracking-widest text-[#C5983A] block mb-1">
+            <span className="text-[11px] sm:text-xs uppercase font-bold tracking-widest text-[#C5983A] block mb-1">
               Fresh From Our Studio
             </span>
-            <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[#241812]">
+            <h2 className="text-2xl sm:text-4xl font-serif font-bold text-[#241812]">
               New Arrivals & Trending
             </h2>
           </div>

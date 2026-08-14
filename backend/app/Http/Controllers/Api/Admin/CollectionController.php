@@ -22,12 +22,9 @@ class CollectionController extends Controller
 
     public function publicIndex()
     {
-        $collections = Collection::with(['products' => function ($q) {
-            $q->where('status', 'ACTIVE')->with(['images', 'variants']);
-        }])
-        ->where('is_active', true)
-        ->orderBy('sort_order')
-        ->get();
+        $collections = Collection::where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
 
         return response()->json([
             'success' => true,
