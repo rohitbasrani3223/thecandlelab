@@ -1,113 +1,164 @@
 import React from 'react';
-import { useAuth } from '../../context/AuthContext';
 
 export type AdminTab =
   | 'dashboard'
-  | 'storefront'
   | 'products'
-  | 'content'
-  | 'cmspages'
-  | 'marketing'
-  | 'media'
-  | 'seo'
-  | 'customers'
+  | 'fragrances'
+  | 'categories'
+  | 'collections'
+  | 'attributes'
+  | 'inventory'
   | 'orders'
-  | 'payments'
+  | 'customers'
+  | 'hero'
+  | 'coupons'
+  | 'media'
+  | 'staff'
   | 'settings'
-  | 'staff';
+  | 'seo';
 
-export interface AdminSidebarProps {
+interface AdminSidebarProps {
   activeTab: AdminTab;
   onTabChange: (tab: AdminTab) => void;
-  onReturnToStore: () => void;
+  onLogout: () => void;
+  currentUser?: { name: string; email: string; role: string } | null;
+  isMobileOpen?: boolean;
+  onCloseMobile?: () => void;
 }
 
-const SIDEBAR_ITEMS: { id: AdminTab; label: string; icon: string }[] = [
-  { id: 'dashboard', label: 'Dashboard & Analytics', icon: '🏠' },
-  { id: 'storefront', label: 'Storefront Builder', icon: '🏪' },
-  { id: 'products', label: 'Products & Inventory', icon: '🕯️' },
-  { id: 'content', label: 'Content Management', icon: '🎨' },
-  { id: 'cmspages', label: 'CMS Pages & Policies', icon: '📄' },
-  { id: 'marketing', label: 'Marketing & Coupons', icon: '🎯' },
-  { id: 'media', label: 'Media Library', icon: '📷' },
-  { id: 'seo', label: 'SEO & Meta Tags', icon: '🔍' },
-  { id: 'customers', label: 'Customers CRM', icon: '👥' },
-  { id: 'orders', label: 'Orders & Shipping', icon: '📦' },
-  { id: 'payments', label: 'Payments & Taxes', icon: '💳' },
+const navItems: { id: AdminTab; label: string; icon: string; badge?: string; section?: string }[] = [
+  { id: 'dashboard', label: 'Dashboard', icon: '📊', section: 'Overview' },
+  { id: 'products', label: 'Products Catalog', icon: '🕯️', section: 'Catalog Management' },
+  { id: 'fragrances', label: 'Fragrance Library', icon: '🌸' },
+  { id: 'categories', label: 'Categories & Sub', icon: '📂' },
+  { id: 'collections', label: 'Marketing Collections', icon: '✨' },
+  { id: 'attributes', label: 'Sizes, Colors & Wicks', icon: '🏷️' },
+  { id: 'inventory', label: 'Stock & Inventory', icon: '📦' },
+  { id: 'orders', label: 'Orders & Fulfillment', icon: '🛍️', section: 'Sales & Store' },
+  { id: 'customers', label: 'Customer Directory', icon: '👥' },
+  { id: 'coupons', label: 'Coupons & Promos', icon: '🎟️' },
+  { id: 'hero', label: 'Hero & Announcements', icon: '🎨', section: 'Content & Settings' },
+  { id: 'media', label: 'Media Library', icon: '🖼️' },
+  { id: 'staff', label: 'Staff & Roles', icon: '🛡️' },
+  { id: 'seo', label: 'SEO & Metadata', icon: '🔍' },
   { id: 'settings', label: 'Store Settings', icon: '⚙️' },
-  { id: 'staff', label: 'User Roles & Access', icon: '👨‍💼' },
 ];
 
 export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   activeTab,
   onTabChange,
-  onReturnToStore,
+  onLogout,
+  currentUser,
+  isMobileOpen = false,
+  onCloseMobile,
 }) => {
-  const { logout } = useAuth();
+  const handleItemClick = (tab: AdminTab) => {
+    onTabChange(tab);
+    if (onCloseMobile) {
+      onCloseMobile();
+    }
+  };
 
   return (
-    <aside className="w-full lg:w-64 bg-[#1C130E] text-[#FAF6F0] flex flex-col justify-between h-full border-r border-[#3D2C22] shrink-0 font-sans">
-      <div className="p-5 space-y-6">
+    <>
+      {/* Mobile Backdrop Overlay */}
+      {isMobileOpen && (
+        <div
+          onClick={onCloseMobile}
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300"
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Sidebar Container */}
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 w-72 bg-[#1C130E] text-stone-300 flex flex-col h-screen border-r border-[#2C2018] shrink-0 transition-transform duration-300 ease-in-out lg:static lg:w-64 lg:translate-x-0 ${
+          isMobileOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
+        }`}
+      >
         {/* Brand Header */}
-        <div className="flex items-center gap-3 pb-4 border-b border-[#3D2C22]">
-          <img src="/logo.jpeg" alt="Logo" className="w-9 h-9 object-contain rounded-lg border border-[#B88B38]" />
-          <div>
-            <h2 className="font-serif font-extrabold text-sm tracking-wider text-[#FAF6F0]">THE CANDLE LAB</h2>
-            <span className="text-[9px] uppercase font-bold tracking-widest text-[#B88B38] block">ENTERPRISE CMS ADMIN</span>
+        <div className="p-4 sm:p-5 border-b border-[#2C2018] flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-lg">
+              🕯️
+            </div>
+            <div>
+              <h1 className="font-serif text-base text-[#FDFBF7] font-medium tracking-wide">The Candle Lab</h1>
+              <p className="text-[10px] uppercase tracking-widest text-amber-400/80 font-mono">Master Admin 4.0</p>
+            </div>
           </div>
+
+          {/* Close button on mobile */}
+          {onCloseMobile && (
+            <button
+              type="button"
+              onClick={onCloseMobile}
+              className="lg:hidden w-8 h-8 rounded-lg bg-[#251A13] border border-[#2C2018] flex items-center justify-center text-stone-400 hover:text-stone-100 text-sm"
+              title="Close Menu"
+            >
+              ✕
+            </button>
+          )}
         </div>
 
-        {/* Navigation Items */}
-        <nav className="space-y-1">
-          {SIDEBAR_ITEMS.map((item) => {
-            const isActive = activeTab === item.id;
-            return (
+      {/* Navigation List */}
+      <div className="flex-1 overflow-y-auto py-4 px-3 space-y-1 scrollbar-thin scrollbar-thumb-stone-800">
+        {navItems.map((item, idx) => {
+          const isFirstInSection = item.section && (idx === 0 || navItems[idx - 1]?.section !== item.section);
+          const isActive = activeTab === item.id;
+
+          return (
+            <React.Fragment key={item.id}>
+              {isFirstInSection && item.section && (
+                <div className="px-3 pt-4 pb-1 text-[10px] uppercase font-mono tracking-wider text-stone-300">
+                  {item.section}
+                </div>
+              )}
               <button
-                key={item.id}
-                onClick={() => onTabChange(item.id)}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                type="button"
+                onClick={() => handleItemClick(item.id)}
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-md text-xs font-medium transition-all ${
                   isActive
-                    ? 'bg-[#B88B38] text-white shadow-card'
-                    : 'text-[#C2AE90] hover:bg-[#2A1E17] hover:text-white'
+                    ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30 shadow-sm font-semibold'
+                    : 'text-stone-300 hover:bg-[#251A13] hover:text-[#FDFBF7]'
                 }`}
               >
-                <span className="text-sm">{item.icon}</span>
-                <span>{item.label}</span>
+                <div className="flex items-center gap-2.5">
+                  <span className="text-sm">{item.icon}</span>
+                  <span>{item.label}</span>
+                </div>
+                {item.badge && (
+                  <span className="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded font-mono">
+                    {item.badge}
+                  </span>
+                )}
               </button>
-            );
-          })}
-        </nav>
+            </React.Fragment>
+          );
+        })}
       </div>
 
-      {/* Footer Return & Logout Action */}
-      <div className="p-4 border-t border-[#3D2C22] space-y-2">
-        <div className="flex items-center gap-3">
-          <div className="w-7 h-7 rounded-full bg-[#B88B38] text-white font-bold flex items-center justify-center text-[10px]">
-            SA
+      {/* User Profile & Logout */}
+      <div className="p-4 border-t border-[#2C2018] bg-[#170F0B]">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-300 flex items-center justify-center text-xs font-serif font-bold">
+            {currentUser?.name?.charAt(0) || 'A'}
           </div>
-          <div className="text-[11px]">
-            <span className="font-bold text-white block">Super Admin</span>
-            <span className="text-[9px] text-[#8C7A6B]">admin@thecandlelab.in</span>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-medium text-[#FDFBF7] truncate">{currentUser?.name || 'Administrator'}</p>
+            <p className="text-[10px] text-stone-300 truncate">{currentUser?.role || 'Super Admin'}</p>
           </div>
         </div>
-
         <button
-          onClick={onReturnToStore}
-          className="w-full bg-[#2A1E17] hover:bg-[#3D2C22] text-[#B88B38] font-bold text-xs py-2 px-3 rounded-lg flex items-center justify-center gap-2 border border-[#B88B38]/40 transition-colors cursor-pointer"
+          type="button"
+          onClick={onLogout}
+          className="w-full flex items-center justify-center gap-2 px-3 py-1.5 text-xs text-red-400 hover:text-red-300 hover:bg-red-950/30 border border-red-900/30 rounded transition-colors"
         >
-          ← Return to Storefront
-        </button>
-
-        <button
-          onClick={() => {
-            logout();
-            onReturnToStore();
-          }}
-          className="w-full bg-red-950/40 hover:bg-red-900/60 text-red-300 font-bold text-xs py-2 px-3 rounded-lg flex items-center justify-center gap-2 border border-red-800/40 transition-colors cursor-pointer"
-        >
-          🔒 Logout Admin
+          <span>🚪</span>
+          <span>Sign Out</span>
         </button>
       </div>
     </aside>
+    </>
   );
 };

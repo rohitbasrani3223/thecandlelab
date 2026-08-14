@@ -1,145 +1,171 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { SearchIcon, CloseIcon, Chip, Badge, SparklesIcon } from '../../design-system';
+import React, { useState, useMemo } from 'react';
+import { useCMS, type CMSProduct } from '../../context/CMSContext';
 
-export interface SearchModalProps {
+interface SearchModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onProductClick: (product: CMSProduct) => void;
 }
 
-const popularSearches = [
-  'Bourbon Vanilla',
-  'Rose & Amber',
-  'Wood Wicks',
-  'Gift Sets',
-  'Aromatherapy',
-];
-
-const mockResults = [
-  { id: 1, title: 'Velvet Rose & Smoked Amber', category: 'Signature Glass', price: '$78.00', tag: 'Best Seller' },
-  { id: 2, title: 'Mysore Sandalwood & Cedar', category: 'Botanical Tin', price: '$42.00', tag: 'Limited' },
-  { id: 3, title: 'French Bourbon Vanilla Bean', category: 'Luxury 3-Wick', price: '$94.00', tag: 'Popular' },
-];
-
-export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
+export const SearchModal: React.FC<SearchModalProps> = ({
+  isOpen,
+  onClose,
+  onProductClick,
+}) => {
+  const { products, fragrances, mainCategories, collections } = useCMS();
   const [query, setQuery] = useState('');
-  const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 100);
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen]);
+  const searchResults = useMemo(() => {
+    if (!query.trim()) return [];
+    const q = query.toLowerCase().trim();
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) onClose();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
+    return products.filter((p) => {
+      const matchName = p.name.toLowerCase().includes(q);
+      const matchSku = p.sku?.toLowerCase().includes(q);
+      const matchCat = p.category?.toLowerCase().includes(q);
+      const matchSub = p.subCategory?.toLowerCase().includes(q);
+      const matchCol = p.collection?.toLowerCase().includes(q) || p.collections?.some((c) => c.toLowerCase().includes(q));
+      const matchFrag = p.scentProfile?.toLowerCase().includes(q) || p.topNotes?.toLowerCase().includes(q) || p.heartNotes?.toLowerCase().includes(q);
+      const matchDesc = p.shortDescription?.toLowerCase().includes(q) || p.longDescription?.toLowerCase().includes(q);
+
+      return matchName || matchSku || matchCat || matchSub || matchCol || matchFrag || matchDesc;
+    });
+  }, [products, query]);
 
   if (!isOpen) return null;
 
-  const filteredResults = query
-    ? mockResults.filter((r) => r.title.toLowerCase().includes(query.toLowerCase()) || r.category.toLowerCase().includes(query.toLowerCase()))
-    : mockResults;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-24 px-4 font-sans">
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-[#1C130E]/70 backdrop-blur-xs animate-fade-in"
-        onClick={onClose}
-        aria-hidden="true"
-      />
-
-      {/* Search Modal Dialog */}
-      <div className="relative w-full max-w-2xl bg-[#FAF6F0] border border-[#E5D9C5] rounded-md shadow-modal z-10 overflow-hidden animate-modal-zoom">
-        {/* Search Header Input */}
-        <div className="p-4 sm:p-5 border-b border-[#E5D9C5] bg-[#F4EFE6] flex items-center gap-3">
-          <SearchIcon size={22} className="text-[#D4AF37] shrink-0" />
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-start justify-center pt-20 px-4">
+      <div className="bg-[#1C130E] border border-amber-500/30 rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden animate-fadeIn">
+        {/* Search Input Box */}
+        <div className="p-4 border-b border-[#2C2018] flex items-center gap-3">
+          <span className="text-stone-400 text-lg">🔍</span>
           <input
-            ref={inputRef}
             type="text"
-            placeholder="Search luxury candles, notes, collections..."
+            autoFocus
+            placeholder="Search candles, fragrances, vanilla, oud, lavender, categories..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full bg-transparent text-[#2A1E17] placeholder-[#A68B75] text-base font-serif font-medium outline-none"
+            className="flex-1 bg-transparent text-sm text-[#FDFBF7] placeholder-stone-500 focus:outline-none"
           />
           {query && (
             <button
+              type="button"
               onClick={() => setQuery('')}
-              className="text-[#8C7A6B] hover:text-[#2A1E17] p-1 rounded-full hover:bg-[#E5D9C5]"
+              className="text-stone-400 hover:text-stone-200 text-xs px-2 py-1"
             >
-              <CloseIcon size={16} />
+              Clear
             </button>
           )}
           <button
+            type="button"
             onClick={onClose}
-            className="text-xs font-semibold uppercase tracking-wider text-[#8C7A6B] hover:text-[#2A1E17] px-2 py-1"
+            className="text-stone-400 hover:text-stone-200 text-xs px-2 py-1 bg-[#140D09] border border-[#2C2018] rounded"
           >
-            Esc
+            ESC
           </button>
         </div>
 
-        {/* Popular Tags */}
-        <div className="px-5 py-3 bg-[#FAF6F0] border-b border-[#E5D9C5] flex items-center gap-2 overflow-x-auto">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-[#8C7A6B] shrink-0">Popular:</span>
-          {popularSearches.map((term) => (
-            <Chip
-              key={term}
-              label={term}
-              onSelect={() => setQuery(term)}
-              className="text-xs py-1"
-            />
-          ))}
-        </div>
-
-        {/* Results Section */}
-        <div className="p-5 max-h-96 overflow-y-auto space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs uppercase font-bold tracking-wider text-[#8C7A6B]">
-              {query ? `Results for "${query}"` : 'Trending Products'}
-            </span>
-            <span className="text-[11px] text-[#8C7A6B]">{filteredResults.length} items</span>
-          </div>
-
-          {filteredResults.length === 0 ? (
-            <div className="py-8 text-center text-xs text-[#8C7A6B]">
-              No luxury candles found matching "{query}". Try searching for "Rose" or "Vanilla".
-            </div>
+        {/* Search Results */}
+        <div className="max-h-[60vh] overflow-y-auto p-4 space-y-4">
+          {query.trim() ? (
+            searchResults.length > 0 ? (
+              <div className="space-y-2">
+                <p className="text-[10px] font-mono uppercase text-stone-500">
+                  {searchResults.length} Results Found
+                </p>
+                <div className="divide-y divide-[#2C2018]">
+                  {searchResults.map((prod) => (
+                    <div
+                      key={prod.id}
+                      onClick={() => {
+                        onProductClick(prod);
+                        onClose();
+                      }}
+                      className="p-3 flex items-center gap-4 hover:bg-[#251A13] rounded-xl cursor-pointer transition-colors"
+                    >
+                      <img
+                        src={prod.image || prod.imageUrl}
+                        alt={prod.name}
+                        className="w-12 h-12 rounded-lg object-cover border border-[#2C2018] shrink-0"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-serif text-sm font-medium text-[#FDFBF7] truncate">
+                            {prod.name}
+                          </h4>
+                          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#140D09] text-amber-400">
+                            ₹{prod.price}
+                          </span>
+                        </div>
+                        <p className="text-xs text-stone-400 truncate mt-0.5">
+                          {prod.scentProfile || prod.tagline || prod.category}
+                        </p>
+                      </div>
+                      <span className="text-xs text-amber-500 font-mono">→</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="p-8 text-center text-stone-500 text-xs space-y-1">
+                <p className="text-base">🕯️</p>
+                <p>No creations match "{query}".</p>
+                <p className="text-[11px] text-stone-600">Try searching for "Vanilla", "Rose", "Oud", or "Lavender".</p>
+              </div>
+            )
           ) : (
-            <div className="space-y-2">
-              {filteredResults.map((item) => (
-                <a
-                  key={item.id}
-                  href={`#product-${item.id}`}
-                  onClick={onClose}
-                  className="flex items-center justify-between p-3 rounded-md bg-[#F4EFE6]/50 hover:bg-[#F4EFE6] border border-transparent hover:border-[#E5D9C5] transition-all group"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-sm bg-[#2A1E17] text-[#D4AF37] flex items-center justify-center font-serif font-bold text-sm shrink-0">
-                      🕯️
-                    </div>
-                    <div>
-                      <h5 className="text-sm font-semibold text-[#2A1E17] group-hover:text-[#D4AF37] transition-colors">
-                        {item.title}
-                      </h5>
-                      <span className="text-xs text-[#8C7A6B]">{item.category}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Badge variant="gold" size="sm" icon={<SparklesIcon size={10} />}>{item.tag}</Badge>
-                    <span className="text-xs font-bold text-[#2A1E17]">{item.price}</span>
-                  </div>
-                </a>
-              ))}
+            <div className="space-y-4">
+              {/* Popular Fragrance Searches */}
+              <div>
+                <p className="text-[10px] font-mono uppercase text-stone-500 mb-2">Popular Fragrance Accords</p>
+                <div className="flex flex-wrap gap-2">
+                  {fragrances.slice(0, 6).map((frag) => (
+                    <button
+                      key={frag.id}
+                      type="button"
+                      onClick={() => setQuery(frag.name.split('&')[0].trim())}
+                      className="text-xs px-3 py-1.5 rounded-lg bg-[#140D09] border border-[#2C2018] text-stone-300 hover:border-amber-500/40 hover:text-amber-300 transition-colors"
+                    >
+                      🌸 {frag.name.split('&')[0].trim()}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Categories Quick Links */}
+              <div>
+                <p className="text-[10px] font-mono uppercase text-stone-500 mb-2">Explore Categories</p>
+                <div className="flex flex-wrap gap-2">
+                  {mainCategories.map((cat) => (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => setQuery(cat.name)}
+                      className="text-xs px-3 py-1.5 rounded-lg bg-[#140D09] border border-[#2C2018] text-stone-300 hover:border-amber-500/40 hover:text-amber-300 transition-colors"
+                    >
+                      📂 {cat.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Collections Quick Links */}
+              <div>
+                <p className="text-[10px] font-mono uppercase text-stone-500 mb-2">Explore Collections</p>
+                <div className="flex flex-wrap gap-2">
+                  {collections.map((col) => (
+                    <button
+                      key={col.id}
+                      type="button"
+                      onClick={() => setQuery(col.name)}
+                      className="text-xs px-3 py-1.5 rounded-lg bg-[#140D09] border border-[#2C2018] text-stone-300 hover:border-amber-500/40 hover:text-amber-300 transition-colors"
+                    >
+                      {col.icon} {col.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           )}
         </div>

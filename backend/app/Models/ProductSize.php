@@ -6,11 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-class MainCategory extends Model
+class ProductSize extends Model
 {
     use HasFactory;
 
-    protected $table = 'main_categories';
+    protected $table = 'sizes';
     protected $keyType = 'string';
     public $incrementing = false;
 
@@ -18,19 +18,16 @@ class MainCategory extends Model
         'id',
         'name',
         'slug',
-        'description',
-        'image_url',
-        'banner_desktop',
-        'banner_mobile',
-        'meta_title',
-        'meta_description',
+        'unit',
+        'value',
         'is_active',
         'sort_order',
     ];
 
     protected $casts = [
-        'sort_order' => 'integer',
+        'value' => 'decimal:2',
         'is_active' => 'boolean',
+        'sort_order' => 'integer',
     ];
 
     protected static function boot()
@@ -46,13 +43,8 @@ class MainCategory extends Model
         });
     }
 
-    public function subCategories()
+    public function variants()
     {
-        return $this->hasMany(SubCategory::class, 'main_category_id')->orderBy('sort_order');
-    }
-
-    public function products()
-    {
-        return $this->hasMany(Product::class, 'main_category_id');
+        return $this->hasMany(ProductVariant::class, 'size_id');
     }
 }

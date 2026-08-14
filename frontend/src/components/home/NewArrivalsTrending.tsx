@@ -57,23 +57,27 @@ export const NewArrivalsTrending: React.FC<NewArrivalsTrendingProps> = ({ onSele
   // Filter products marked as isNew or isTrending
   const items = (products.filter((p) => p.isNew).length > 0
     ? products.filter((p) => p.isNew)
-    : products.filter((p) => p.rating >= 4.85)
-  ).slice(0, 3);
+    : products.filter((p) => (p.rating || 0) >= 4.85)
+  ).slice(0, 4);
+
+  if (items.length === 0) {
+    return null;
+  }
 
   return (
-    <section className="py-16 sm:py-24 bg-[#F4EFE6] border-b border-[#E5D9C5] font-sans">
-      <div className="max-w-7xl mx-auto px-6 sm:px-12 space-y-12">
+    <section className="py-16 sm:py-24 bg-[#F5EEE4] border-b border-[#E5DAC7] font-sans">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 space-y-12">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 border-b border-[#E5D9C5] pb-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 border-b border-[#E5DAC7] pb-6">
           <div>
-            <span className="text-xs uppercase font-bold tracking-widest text-[#D4AF37] block mb-1">
+            <span className="text-xs uppercase font-bold tracking-widest text-[#C5983A] block mb-1">
               Fresh From Our Studio
             </span>
-            <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[#2A1E17]">
+            <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[#241812]">
               New Arrivals & Trending
             </h2>
           </div>
-          <span className="text-xs font-semibold text-[#8C7A6B]">
+          <span className="text-xs font-semibold text-[#847262]">
             Poured in small limited batches weekly.
           </span>
         </div>
@@ -91,16 +95,16 @@ export const NewArrivalsTrending: React.FC<NewArrivalsTrendingProps> = ({ onSele
                 variant="bordered"
                 padding="lg"
                 onClick={() => handleProductClick(item)}
-                className="bg-[#FAF6F0] group flex flex-col justify-between hover:shadow-card transition-all cursor-pointer"
+                className="bg-[#FAF7F2] group flex flex-col justify-between hover:shadow-[0_16px_36px_rgba(36,24,18,0.11)] hover:border-[#C5983A] border border-[#E5DAC7] transition-all cursor-pointer rounded-2xl"
               >
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <Badge variant="gold" size="sm">{badgeText}</Badge>
-                    <span className="text-[11px] font-mono text-[#8C7A6B]">Limited Batch</span>
+                    <span className="text-[11px] font-mono text-[#847262]">Limited Batch</span>
                   </div>
 
                   {/* Visual Image Header */}
-                  <div className="h-48 bg-[#FAF6F0] rounded-sm flex items-center justify-center relative overflow-hidden">
+                  <div className="h-52 bg-[#F5EEE4] rounded-xl flex items-center justify-center relative overflow-hidden">
                     <img
                       src={item.image || item.imageUrl || [
                         'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80',
@@ -110,30 +114,30 @@ export const NewArrivalsTrending: React.FC<NewArrivalsTrendingProps> = ({ onSele
                       alt={item.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
-                    <div className="absolute top-2 right-2 flex items-center gap-1 bg-[#1C130E]/80 text-[#D4AF37] px-2 py-1 rounded-xs text-[10px] font-bold z-10 backdrop-blur-xs">
-                      <StarIcon size={12} className="fill-current text-[#D4AF37]" />
+                    <div className="absolute top-2 right-2 flex items-center gap-1 bg-[#180F0A]/85 text-[#DEB554] px-2 py-1 rounded-md text-[10px] font-bold z-10 backdrop-blur-xs border border-[#C5983A]/30">
+                      <StarIcon size={12} className="fill-current text-[#DEB554]" />
                       <span>{item.rating || 4.9}</span>
                     </div>
                   </div>
 
                   <div className="space-y-1.5">
-                    <h3 className="text-lg font-serif font-bold text-[#2A1E17] group-hover:text-[#D4AF37] transition-colors">
+                    <h3 className="text-lg font-serif font-bold text-[#241812] group-hover:text-[#C5983A] transition-colors">
                       {item.name}
                     </h3>
-                    <p className="text-xs text-[#8C7A6B]">{item.vesselDescription || item.category}</p>
-                    <p className="text-xs text-[#69574A] italic font-accent-luxury">
+                    <p className="text-xs text-[#847262]">{item.vesselDescription || item.category}</p>
+                    <p className="text-xs text-[#5E4E42] italic font-serif">
                       Notes: {item.topNotes || 'Bergamot'}, {item.heartNotes || 'Rose'}, {item.baseNotes || 'Amber'}
                     </p>
                   </div>
 
                   {/* Scent Intensity Scale */}
-                  <div className="pt-2 flex items-center justify-between text-xs text-[#8C7A6B]">
+                  <div className="pt-2 flex items-center justify-between text-xs text-[#847262]">
                     <span>Scent Intensity:</span>
                     <div className="flex items-center gap-1">
                       {[1, 2, 3, 4, 5].map((level) => (
                         <span
                           key={level}
-                          className={`w-2.5 h-2.5 rounded-full ${level <= 4 ? 'bg-[#D4AF37]' : 'bg-[#E5D9C5]'}`}
+                          className={`w-2.5 h-2.5 rounded-full ${level <= 4 ? 'bg-[#C5983A]' : 'bg-[#E5DAC7]'}`}
                           title={`Intensity ${level} of 5`}
                         />
                       ))}
@@ -141,10 +145,10 @@ export const NewArrivalsTrending: React.FC<NewArrivalsTrendingProps> = ({ onSele
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-[#E5D9C5] flex items-center justify-between mt-6">
-                  <span className="text-base font-bold text-[#2A1E17]">{formattedPrice}</span>
+                <div className="pt-4 border-t border-[#E5DAC7] flex items-center justify-between mt-6">
+                  <span className="text-base font-bold text-[#241812] font-serif">{formattedPrice}</span>
                   <Button
-                    variant="primary"
+                    variant="gold"
                     size="sm"
                     onClick={(e) => handleAddToCart(item, e)}
                   >

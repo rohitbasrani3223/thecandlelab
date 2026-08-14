@@ -1,100 +1,128 @@
 import React, { useState, useEffect } from 'react';
-import { Badge, SparklesIcon } from '../../design-system';
 
-export interface ProductGalleryProps {
-  mainImage?: string;
-  images?: string[]; // Extra product images from DB
-  productName?: string;
+interface ProductGalleryProps {
+  images: string[];
+  productName: string;
+  variantImage?: string;
 }
 
-export const ProductGallery: React.FC<ProductGalleryProps> = ({ mainImage, images, productName }) => {
-  const buildGallery = () => {
-    const all: { id: number; label: string; src: string }[] = [];
-    const rawList = [mainImage, ...(images || [])].filter(
-      (url): url is string => Boolean(url) && typeof url === 'string' && url.trim() !== ''
-    );
-    const uniqueUrls = [...new Set(rawList)];
+export const ProductGallery: React.FC<ProductGalleryProps> = ({
+  images,
+  productName,
+  variantImage,
+}) => {
+  const allImages = images && images.length > 0 ? images : ['https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=1000&q=80'];
+  const [selectedImage, setSelectedImage] = useState<string>(variantImage || allImages[0]);
+  const [isLightboxOpen, setIsLightboxOpen] = useState<boolean>(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number>(0);
 
-    uniqueUrls.forEach((url, idx) => {
-      all.push({
-        id: idx + 1,
-        label: idx === 0 ? 'Main View' : `Angle ${idx + 1}`,
-        src: url,
-      });
-    });
-
-    if (all.length === 0) {
-      all.push({
-        id: 1,
-        label: 'Main View',
-        src: '/hero_candle.png',
-      });
+  // If variant image changes externally, update active image
+  useEffect(() => {
+    if (variantImage) {
+      setSelectedImage(variantImage);
     }
+  }, [variantImage]);
 
-    return all;
+  const handleOpenLightbox = (index: number) => {
+    setLightboxIndex(index);
+    setIsLightboxOpen(true);
   };
 
-  const galleryImages = buildGallery();
-  const [selectedImage, setSelectedImage] = useState(galleryImages[0]);
-  const [isZoomed, setIsZoomed] = useState(false);
+  const handleNext = () => {
+    setLightboxIndex((prev) => (prev + 1) % allImages.length);
+  };
 
-  // Sync selected image when mainImage or gallery changes
-  useEffect(() => {
-    if (galleryImages.length > 0) {
-      setSelectedImage(galleryImages[0]);
-    }
-  }, [mainImage, JSON.stringify(images)]);
-
-  const activeSrc = selectedImage?.src || mainImage || galleryImages[0]?.src;
+  const handlePrev = () => {
+    setLightboxIndex((prev) => (prev - 1 + allImages.length) % allImages.length);
+  };
 
   return (
-    <div className="space-y-4 font-sans">
-      {/* Main Hero Preview Container with Luxury Sizing */}
-      <div className="relative w-full max-h-[460px] sm:max-h-[500px] h-[460px] bg-[#FAF6F0] rounded-2xl overflow-hidden border border-[#E5D9C5] shadow-md flex items-center justify-center group cursor-zoom-in">
+    <div className="space-y-4">
+      {/* Main Feature Image Container */}
+      <div className="relative group rounded-2xl overflow-hidden bg-[#140D09] border border-[#2C2018] aspect-square flex items-center justify-center">
         <img
-          src={activeSrc}
-          alt={productName || 'Luxury Candle'}
-          onClick={() => setIsZoomed(!isZoomed)}
-          className={`w-full h-full object-contain p-3 rounded-2xl transition-transform duration-500 ${
-            isZoomed ? 'scale-150 object-cover' : 'group-hover:scale-105'
-          }`}
+          src={selectedImage}
+          alt={productName}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 cursor-zoom-in"
+          onClick={() => {
+            const idx = allImages.indexOf(selectedImage);
+            handleOpenLightbox(idx >= 0 ? idx : 0);
+          }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#2A1E17]/20 via-transparent to-transparent pointer-events-none rounded-2xl" />
 
-        {/* View Badge */}
-        <div className="absolute top-4 left-4">
-          <Badge variant="gold" icon={<SparklesIcon size={12} />}>
-            {selectedImage?.label || 'ATELIER VIEW'}
-          </Badge>
-        </div>
-
-        {/* Zoom Cue */}
-        <div className="absolute bottom-4 right-4 bg-[#2A1E17]/80 text-[#FAF6F0] px-3 py-1.5 rounded-full text-xs backdrop-blur-md font-semibold tracking-wide border border-[#D4AF37]/30">
-          🔍 Click to {isZoomed ? 'Reset' : 'Zoom'}
-        </div>
+        {/* Zoom Overlay Prompt */}
+        <button
+          type="button"
+          onClick={() => {
+            const idx = allImages.indexOf(selectedImage);
+            handleOpenLightbox(idx >= 0 ? idx : 0);
+          }}
+          className="absolute bottom-4 right-4 bg-black/60 hover:bg-black/80 backdrop-blur-sm text-stone-200 px-3 py-1.5 rounded-lg text-xs font-mono flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+        >
+          <span>🔍</span>
+          <span>Expand View</span>
+        </button>
       </div>
 
       {/* Thumbnails Row */}
-      {galleryImages.length > 1 && (
-        <div className="flex items-center gap-3 overflow-x-auto pb-2">
-          {galleryImages.map((img) => (
-            <button
-              key={img.id}
-              onClick={() => setSelectedImage(img)}
-              className={`relative w-20 h-20 shrink-0 rounded-xl bg-[#FAF6F0] overflow-hidden border-2 transition-all cursor-pointer ${
-                selectedImage.id === img.id
-                  ? 'border-[#D4AF37] ring-2 ring-[#D4AF37]/40 shadow-sm scale-105'
-                  : 'border-[#E5D9C5] opacity-70 hover:opacity-100'
-              }`}
-            >
-              <img src={img.src} alt={img.label} className="w-full h-full object-cover" />
-            </button>
-          ))}
+      {allImages.length > 1 && (
+        <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-stone-800">
+          {allImages.map((img, idx) => {
+            const isSelected = img === selectedImage;
+            return (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => setSelectedImage(img)}
+                className={`relative w-20 h-20 rounded-xl overflow-hidden border-2 shrink-0 transition-all ${
+                  isSelected ? 'border-amber-500 shadow-md scale-95' : 'border-[#2C2018] opacity-70 hover:opacity-100'
+                }`}
+              >
+                <img src={img} alt={`${productName} thumbnail ${idx}`} className="w-full h-full object-cover" />
+              </button>
+            );
+          })}
         </div>
       )}
 
-      {galleryImages.length === 1 && (
-        <p className="text-center text-xs text-[#8C7A6B] italic font-serif">Hand-poured in artisanal luxury glass</p>
+      {/* Lightbox Modal */}
+      {isLightboxOpen && (
+        <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
+          <button
+            type="button"
+            onClick={() => setIsLightboxOpen(false)}
+            className="absolute top-6 right-6 text-stone-400 hover:text-stone-100 text-2xl font-mono"
+          >
+            ✕
+          </button>
+
+          <button
+            type="button"
+            onClick={handlePrev}
+            className="absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-stone-900/80 hover:bg-stone-800 text-stone-200 flex items-center justify-center text-xl"
+          >
+            ‹
+          </button>
+
+          <div className="max-w-4xl max-h-[85vh] flex flex-col items-center justify-center">
+            <img
+              src={allImages[lightboxIndex]}
+              alt={`${productName} fullscreen`}
+              className="max-w-full max-h-[80vh] object-contain rounded-xl shadow-2xl border border-stone-800"
+            />
+            <p className="text-xs font-mono text-stone-400 mt-3">
+              {lightboxIndex + 1} / {allImages.length}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleNext}
+            className="absolute right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-stone-900/80 hover:bg-stone-800 text-stone-200 flex items-center justify-center text-xl"
+          >
+            ›
+          </button>
+        </div>
       )}
     </div>
   );

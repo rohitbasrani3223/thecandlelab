@@ -1,69 +1,172 @@
 import React, { useState } from 'react';
-import { ChevronDownIcon } from '../../design-system';
+import { type CMSProduct } from '../../context/CMSContext';
 
-export interface ProductSpecsAccordionProps {
-  product?: {
-    name?: string;
-    vesselDescription?: string;
-    burnTime?: string;
-  } | null;
+interface ProductSpecsAccordionProps {
+  product: CMSProduct;
 }
 
 export const ProductSpecsAccordion: React.FC<ProductSpecsAccordionProps> = ({ product }) => {
-  const [openTab, setOpenTab] = useState<string | null>('story');
+  const [openSections, setOpenSections] = useState<string[]>(['description', 'specs', 'pyramid']);
 
-  const name = product?.name || 'Artisanal Soy Candle';
-  const desc = product?.vesselDescription || 'Hand-poured in luxury glass jar.';
-  const burnTime = product?.burnTime || '60 Hours';
+  const toggleSection = (key: string) => {
+    setOpenSections((prev) =>
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+    );
+  };
 
-  const tabs = [
-    {
-      id: 'story',
-      title: 'Olfactory Inspiration & Details',
-      content: `${name}: ${desc} Crafted in small batches by master candlemakers with clean ${burnTime} burn time performance.`,
+  // Build specs only from actual DB fields — no fallbacks
+  const specsMap: Record<string, string> = {};
+
+  if (product.productDetails) {
+    Object.assign(specsMap, product.productDetails);
+  } else {
+    if (product.waxType) specsMap['Wax Type'] = product.waxType;
+    if (product.burnTime) specsMap['Burn Time'] = product.burnTime;
+    if (product.burnTimeHours) specsMap['Burn Duration'] = `${product.burnTimeHours} Hours`;
+    if (product.wickType) specsMap['Wick'] = product.wickType;
+    if (product.vesselDescription) specsMap['Vessel'] = product.vesselDescription;
+    if (product.weightGrams) specsMap['Net Weight'] = `${product.weightGrams}g`;
+  }
+
+  const hasSpecs = Object.keys(specsMap).length > 0;
+
+  // Build fragrance notes sections only when DB data exists
+  const hasTopNotes = Boolean(product.topNotes?.trim());
+  const hasHeartNotes = Boolean(product.heartNotes?.trim());
+  const hasBaseNotes = Boolean(product.baseNotes?.trim());
+  const hasPyramid = hasTopNotes || hasHeartNotes || hasBaseNotes;
+
+  const hasDescription = Boolean(product.longDescription?.trim() || product.shortDescription?.trim());
+  const hasCare = Boolean(product.howToUse?.trim() || product.safetyInstructions?.trim());
+  const hasShipping = Boolean(product.whatsIncluded?.trim() || product.shippingReturns?.trim());
+
+  const sections = [
+    hasDescription && {
+      id: 'description',
+      title: 'Artisan Formulation & Olfactory Notes',
+      icon: '🕯️',
+      content: (
+        <div className="space-y-4 text-xs text-stone-300 leading-relaxed font-light">
+          <p>{product.longDescription || product.shortDescription}</p>
+          {product.shortDescription && product.longDescription && (
+            <p className="text-stone-400 italic font-serif text-sm border-l-2 border-amber-500/40 pl-3 py-1">
+              "{product.shortDescription}"
+            </p>
+          )}
+        </div>
+      ),
     },
-    {
-      id: 'ingredients',
-      title: 'Non-Toxic Ingredients & Wax Purity',
-      content: 'Made with 100% pure organic soy wax, phthalate-free fragrance oils, and wild-harvested botanical essential oils. Contains 0% paraffin, 0% synthetic petroleum dyes, and 0% parabens. 100% non-toxic for pets and children.',
+    hasSpecs && {
+      id: 'specs',
+      title: 'Product Specifications & Vessel Details',
+      icon: '📏',
+      content: (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          {Object.entries(specsMap).map(([key, val]) => (
+            <div key={key} className="p-3 rounded-lg bg-[#140D09] border border-[#2C2018]">
+              <span className="text-[10px] font-mono uppercase text-stone-500 block mb-0.5">
+                {key}
+              </span>
+              <span className="text-[#FDFBF7] font-medium">{String(val)}</span>
+            </div>
+          ))}
+        </div>
+      ),
     },
-    {
-      id: 'shipping',
-      title: 'Shipping & Free Returns Policy',
-      content: 'Orders ship within 24 hours. Free Express Shipping on orders over ₹1,499. Protected in heavy luxury gift packaging with custom foam inserts. Backed by our 30-Day Guarantee.',
+    hasPyramid && {
+      id: 'pyramid',
+      title: 'Fragrance Pyramid (Top, Heart, Base Notes)',
+      icon: '🌸',
+      content: (
+        <div className="space-y-3 text-xs">
+          {hasTopNotes && (
+            <div className="p-3.5 rounded-lg bg-[#140D09] border border-[#2C2018]">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-xs font-mono uppercase text-amber-400 font-semibold">Top Notes:</span>
+                <span className="text-[10px] text-stone-500">(First 15-30 Minutes)</span>
+              </div>
+              <p className="text-stone-300">{product.topNotes}</p>
+            </div>
+          )}
+          {hasHeartNotes && (
+            <div className="p-3.5 rounded-lg bg-[#140D09] border border-[#2C2018]">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-xs font-mono uppercase text-amber-400 font-semibold">Heart Notes:</span>
+                <span className="text-[10px] text-stone-500">(Core Scent Accord)</span>
+              </div>
+              <p className="text-stone-300">{product.heartNotes}</p>
+            </div>
+          )}
+          {hasBaseNotes && (
+            <div className="p-3.5 rounded-lg bg-[#140D09] border border-[#2C2018]">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-xs font-mono uppercase text-amber-400 font-semibold">Base Notes:</span>
+                <span className="text-[10px] text-stone-500">(Lasting Warmth & Trail)</span>
+              </div>
+              <p className="text-stone-300">{product.baseNotes}</p>
+            </div>
+          )}
+        </div>
+      ),
     },
-    {
+    hasCare && {
       id: 'care',
-      title: 'Candle Care & Wick Trimming Instructions',
-      content: 'Always trim the wood or cotton wick to 1/4 inch before relighting. Allow wax to melt fully to glass edges on first burn (2-3 hours) to prevent tunnelling. Do not burn for more than 4 consecutive hours.',
+      title: 'How to Use & Candle Care Ritual',
+      icon: '🔥',
+      content: (
+        <div className="space-y-3 text-xs text-stone-300 leading-relaxed font-light">
+          {product.howToUse && <p>{product.howToUse}</p>}
+          {product.safetyInstructions && (
+            <div className="p-3 rounded bg-amber-500/10 border border-amber-500/20 text-amber-300 text-[11px]">
+              ⚠️ {product.safetyInstructions}
+            </div>
+          )}
+        </div>
+      ),
     },
-  ];
+    hasShipping && {
+      id: 'shipping',
+      title: "What's Included & Shipping Policy",
+      icon: '📦',
+      content: (
+        <div className="space-y-2.5 text-xs text-stone-300">
+          {product.whatsIncluded && (
+            <p><span className="text-stone-400 font-medium">In the Box:</span> {product.whatsIncluded}</p>
+          )}
+          {product.shippingReturns && (
+            <p><span className="text-stone-400 font-medium">Shipping & Returns:</span> {product.shippingReturns}</p>
+          )}
+        </div>
+      ),
+    },
+  ].filter(Boolean) as { id: string; title: string; icon: string; content: React.ReactNode }[];
+
+  if (sections.length === 0) return null;
 
   return (
-    <div className="space-y-3 font-sans border-t border-[#E5D9C5] pt-8">
-      <h3 className="text-xs uppercase font-bold tracking-widest text-[#D4AF37]">
-        Product Specifications & Details
-      </h3>
-
-      <div className="space-y-2">
-        {tabs.map((tab) => (
-          <div key={tab.id} className="bg-[#FAF6F0] border border-[#E5D9C5] rounded-xl overflow-hidden transition-all">
+    <div className="space-y-3 pt-6 border-t border-[#2C2018]">
+      {sections.map((sec) => {
+        const isOpen = openSections.includes(sec.id);
+        return (
+          <div key={sec.id} className="rounded-xl bg-[#1C130E] border border-[#2C2018] overflow-hidden transition-all">
             <button
-              onClick={() => setOpenTab(openTab === tab.id ? null : tab.id)}
-              className="w-full text-left p-4 font-serif font-bold text-sm text-[#2A1E17] hover:text-[#D4AF37] flex items-center justify-between gap-4 transition-colors cursor-pointer"
+              type="button"
+              onClick={() => toggleSection(sec.id)}
+              className="w-full p-4 flex items-center justify-between text-left hover:bg-[#251A13] transition-colors"
             >
-              <span>{tab.title}</span>
-              <ChevronDownIcon size={16} className={`shrink-0 transition-transform ${openTab === tab.id ? 'rotate-180 text-[#D4AF37]' : ''}`} />
+              <div className="flex items-center gap-3">
+                <span className="text-base">{sec.icon}</span>
+                <span className="font-serif text-sm font-medium text-[#FDFBF7]">{sec.title}</span>
+              </div>
+              <span className="text-xs font-mono text-stone-400 transition-transform duration-200">
+                {isOpen ? '−' : '+'}
+              </span>
             </button>
 
-            {openTab === tab.id && (
-              <div className="px-4 pb-4 text-xs text-[#69574A] leading-relaxed border-t border-[#F4EFE6] pt-3 animate-fade-in font-sans">
-                {tab.content}
-              </div>
-            )}
+            {isOpen && <div className="p-4 pt-1 border-t border-[#2C2018]/50">{sec.content}</div>}
           </div>
-        ))}
-      </div>
+        );
+      })}
     </div>
   );
 };

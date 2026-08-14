@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class SubCategory extends Model
 {
@@ -19,6 +20,11 @@ class SubCategory extends Model
         'name',
         'slug',
         'description',
+        'image_url',
+        'banner_desktop',
+        'banner_mobile',
+        'meta_title',
+        'meta_description',
         'is_active',
         'sort_order',
     ];
@@ -27,6 +33,19 @@ class SubCategory extends Model
         'sort_order' => 'integer',
         'is_active' => 'boolean',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($model) {
+            if (empty($model->{$model->getKeyName()})) {
+                $model->{$model->getKeyName()} = (string) Str::uuid();
+            }
+            if (empty($model->slug)) {
+                $model->slug = Str::slug($model->name);
+            }
+        });
+    }
 
     public function mainCategory()
     {

@@ -77,11 +77,19 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
     const orderNumber = razorpayOrderId ? `#${razorpayOrderId}` : `#TCL-2026-${Math.floor(1000 + Math.random() * 9000)}`;
 
     const itemsSummaryStr = cartItems.length > 0
-      ? cartItems.map((i) => `${i.quantity}x ${i.name} (${i.size || '12oz'})`).join(', ')
-      : '1x Custom Artisanal Candle (12oz)';
+      ? cartItems.map((i) => `${i.quantity}x ${i.name} (${[i.fragrance, i.size, i.wickType || i.wick].filter(Boolean).join(' • ')})`).join(', ')
+      : '1x Custom Artisanal Candle';
 
     const orderItemsArr = cartItems.length > 0
-      ? cartItems.map((i) => ({ name: i.name, quantity: i.quantity, price: i.price }))
+      ? cartItems.map((i) => ({
+          name: i.name,
+          fragrance: i.fragrance,
+          size: i.size,
+          wickType: i.wickType || i.wick,
+          sku: i.sku,
+          quantity: i.quantity,
+          price: i.price,
+        }))
       : [{ name: 'Custom Artisanal Candle', quantity: 1, price: subtotal }];
 
     const newOrder = {

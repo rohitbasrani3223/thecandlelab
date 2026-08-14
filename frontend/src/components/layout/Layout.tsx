@@ -8,8 +8,9 @@ import { Footer } from './Footer';
 
 export interface LayoutProps {
   children?: React.ReactNode;
-  onNavigate?: (page: 'home' | 'shop' | 'collections' | 'pdp' | 'wishlist' | 'cart' | 'checkout' | 'account' | 'auth') => void;
+  onNavigate?: (page: any) => void;
   currentPage?: string;
+  onSelectProduct?: (product: any) => void;
 }
 
 export const Layout: React.FC<LayoutProps> = ({ children, onNavigate, currentPage = 'home' }) => {

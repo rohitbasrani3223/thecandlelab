@@ -4,6 +4,7 @@ import { Layout } from './components/layout';
 import { HomePage } from './components/home';
 import { AuthProvider } from './context/AuthContext';
 import { CMSProvider } from './context/CMSContext';
+import { CartProvider } from './context/CartContext';
 import { AuthModal, AuthPage } from './components/auth';
 import { BackToTopButton } from './components/common/BackToTopButton';
 import { ProductGridSkeleton } from './components/common/ProductSkeleton';
@@ -208,84 +209,92 @@ export function App() {
     <ToastProvider>
       <AuthProvider>
         <CMSProvider>
-          <AuthModal />
-          <Layout
-            currentPage={currentPage}
-            onNavigate={(p) => handleNavigate(p as Page)}
-          >
-            <Suspense
-              fallback={
-                <div className="max-w-7xl mx-auto px-6 py-16 font-sans space-y-6">
-                  <div className="text-center text-xs font-bold text-[#B88B38] uppercase tracking-widest animate-pulse">
-                    Loading Sanctuary Atelier...
-                  </div>
-                  <ProductGridSkeleton count={6} />
-                </div>
-              }
+          <CartProvider>
+            <AuthModal />
+            <Layout
+              currentPage={currentPage}
+              onNavigate={handleNavigate}
+              onSelectProduct={handleSelectProduct}
             >
-              {currentPage === 'account' ? (
-                <AccountPage
-                  onNavigateToWishlist={() => handleNavigate('wishlist')}
-                  onNavigateToShop={() => handleNavigate('shop')}
-                />
-              ) : currentPage === 'cart' ? (
-                <FullCartPage
-                  onNavigateToShop={() => handleNavigate('shop')}
-                  onNavigateToCheckout={() => handleNavigate('checkout')}
-                />
-              ) : currentPage === 'wishlist' ? (
-                <WishlistPage onNavigateToShop={() => handleNavigate('shop')} />
-              ) : currentPage === 'collections' ? (
-                <CollectionsPage onNavigateToShop={() => handleNavigate('shop')} />
-              ) : currentPage === 'categories' ? (
-                <CategoriesPage
-                  onNavigateToShop={() => handleNavigate('shop')}
-                  onSelectProduct={handleSelectProduct}
-                />
-              ) : currentPage === 'blog' ? (
-                <BlogListingPage onSelectArticle={handleSelectArticle} />
-              ) : currentPage === 'blog-details' ? (
-                <BlogDetailsPage
-                  article={selectedArticle}
-                  onNavigateToBlog={() => handleNavigate('blog')}
-                  onSelectArticle={handleSelectArticle}
-                />
-              ) : currentPage === 'about' ? (
-                <AboutPage
-                  onNavigateToShop={() => handleNavigate('shop')}
-                  onNavigateToContact={() => handleNavigate('contact')}
-                />
-              ) : currentPage === 'contact' ? (
-                <ContactPage onNavigateToFAQ={() => handleNavigate('faq')} />
-              ) : currentPage === 'faq' ? (
-                <FAQPage />
-              ) : currentPage === 'privacy-policy' ? (
-                <LegalPage type="privacy" />
-              ) : currentPage === 'terms-conditions' ? (
-                <LegalPage type="terms" />
-              ) : currentPage === 'shipping-policy' ? (
-                <LegalPage type="shipping" />
-              ) : currentPage === 'refund-policy' ? (
-                <LegalPage type="refund" />
-              ) : currentPage === 'careers' ? (
-                <CareersPage />
-              ) : currentPage === 'pdp' ? (
-                <ProductDetailsPage
-                  product={selectedProduct}
-                  onNavigateToShop={() => handleNavigate('shop')}
-                />
-              ) : currentPage === 'shop' ? (
-                <ShopPage onSelectProduct={handleSelectProduct} />
-              ) : (
-                <HomePage
-                  onNavigateToShop={() => handleNavigate('shop')}
-                  onSelectProduct={handleSelectProduct}
-                />
-              )}
-            </Suspense>
-          </Layout>
-          {/* Global Floating Back-to-Top Action Button */}
-          <BackToTopButton />
+              <Suspense
+                fallback={
+                  <div className="max-w-7xl mx-auto px-6 py-16 font-sans space-y-6">
+                    <div className="text-center text-xs font-bold text-[#B88B38] uppercase tracking-widest animate-pulse">
+                      Loading Sanctuary Atelier...
+                    </div>
+                    <ProductGridSkeleton count={8} />
+                  </div>
+                }
+              >
+                {currentPage === 'account' ? (
+                  <AccountPage onNavigateToShop={() => handleNavigate('shop')} />
+                ) : currentPage === 'cart' ? (
+                  <FullCartPage
+                    onNavigateToShop={() => handleNavigate('shop')}
+                    onNavigateToCheckout={() => handleNavigate('checkout')}
+                  />
+                ) : currentPage === 'wishlist' ? (
+                  <WishlistPage onNavigateToShop={() => handleNavigate('shop')} />
+                ) : currentPage === 'collections' ? (
+                  <CollectionsPage
+                    onNavigateToShop={() => handleNavigate('shop')}
+                    onSelectProduct={handleSelectProduct}
+                  />
+                ) : currentPage === 'categories' ? (
+                  <CategoriesPage
+                    onNavigateToShop={() => handleNavigate('shop')}
+                    onSelectProduct={handleSelectProduct}
+                  />
+                ) : currentPage === 'blog' ? (
+                  <BlogListingPage onSelectArticle={handleSelectArticle} />
+                ) : currentPage === 'blog-details' ? (
+                  <BlogDetailsPage
+                    article={selectedArticle}
+                    onNavigateToBlog={() => handleNavigate('blog')}
+                    onSelectArticle={handleSelectArticle}
+                  />
+                ) : currentPage === 'about' ? (
+                  <AboutPage
+                    onNavigateToShop={() => handleNavigate('shop')}
+                    onNavigateToContact={() => handleNavigate('contact')}
+                  />
+                ) : currentPage === 'contact' ? (
+                  <ContactPage onNavigateToFAQ={() => handleNavigate('faq')} />
+                ) : currentPage === 'faq' ? (
+                  <FAQPage />
+                ) : currentPage === 'privacy-policy' ? (
+                  <LegalPage type="privacy" />
+                ) : currentPage === 'terms-conditions' ? (
+                  <LegalPage type="terms" />
+                ) : currentPage === 'shipping-policy' ? (
+                  <LegalPage type="shipping" />
+                ) : currentPage === 'refund-policy' ? (
+                  <LegalPage type="refund" />
+                ) : currentPage === 'careers' ? (
+                  <CareersPage />
+                ) : currentPage === 'pdp' ? (
+                  <ProductDetailsPage
+                    product={selectedProduct}
+                    onNavigateToShop={() => handleNavigate('shop')}
+                  />
+                ) : currentPage === 'shop' ? (
+                  <ShopPage onSelectProduct={handleSelectProduct} />
+                ) : (
+                  <HomePage
+                    onNavigateToShop={(colId) => {
+                      if (colId) {
+                        handleNavigate('collections');
+                      } else {
+                        handleNavigate('shop');
+                      }
+                    }}
+                    onSelectProduct={handleSelectProduct}
+                  />
+                )}
+              </Suspense>
+            </Layout>
+            <BackToTopButton />
+          </CartProvider>
         </CMSProvider>
       </AuthProvider>
     </ToastProvider>

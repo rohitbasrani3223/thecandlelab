@@ -1,141 +1,120 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import { AdminLoginPage } from './AdminLoginPage';
-import { AdminSidebar } from './AdminSidebar';
-import type { AdminTab } from './AdminSidebar';
-import { AdminDashboard } from './AdminDashboard';
+import { AdminSidebar, type AdminTab } from './AdminSidebar';
 import { AdminProductsManager } from './AdminProductsManager';
+import { AdminFragranceManager } from './AdminFragranceManager';
+import { AdminCategoriesManager } from './AdminCategoriesManager';
 import { AdminCollectionsManager } from './AdminCollectionsManager';
-import { AdminHomepageCMS } from './AdminHomepageCMS';
-import { AdminMarketingCMS } from './AdminMarketingCMS';
-import { AdminStoreSettings } from './AdminStoreSettings';
-import { AdminPaymentsTaxes } from './AdminPaymentsTaxes';
+import { AdminAttributesManager } from './AdminAttributesManager';
 import { AdminOrdersManager } from './AdminOrdersManager';
 import { AdminCustomersCRM } from './AdminCustomersCRM';
+import { AdminMarketingCMS } from './AdminMarketingCMS';
+import { AdminHomepageCMS } from './AdminHomepageCMS';
 import { AdminMediaLibrary } from './AdminMediaLibrary';
-import { AdminSEOManager } from './AdminSEOManager';
 import { AdminStaffManager } from './AdminStaffManager';
-import { AdminCMSPagesManager } from './AdminCMSPagesManager';
+import { AdminStoreSettings } from './AdminStoreSettings';
+import { AdminSEOManager } from './AdminSEOManager';
+import { AdminDashboard } from './AdminDashboard';
 
 export interface AdminLayoutProps {
-  onReturnToStore: () => void;
+  onLogout?: () => void;
+  currentUser?: { name: string; email: string; role: string } | null;
+  onReturnToStore?: () => void;
 }
 
-const getTabFromHash = (): AdminTab => {
-  const hash = window.location.hash.replace('#', '').trim();
-  if (hash.includes('?')) {
-    const tab = hash.split('?')[1] as AdminTab;
-    const validTabs: AdminTab[] = [
-      'dashboard', 'storefront', 'products', 'content', 'cmspages',
-      'marketing', 'media', 'seo', 'customers', 'orders', 'payments',
-      'settings', 'staff'
-    ];
-    if (validTabs.includes(tab)) return tab;
-  }
-  return 'dashboard';
-};
-
-export const AdminLayout: React.FC<AdminLayoutProps> = ({ onReturnToStore }) => {
-  const { user, isAuthenticated } = useAuth();
-  const [activeTab, setActiveTab] = useState<AdminTab>(getTabFromHash);
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-
-  // Admin Auth Guard: Check if user has admin/staff role
-  const isAdminUser = isAuthenticated && (user?.role === 'admin' || user?.role === 'staff');
-  const [sessionAdminAccess, setSessionAdminAccess] = useState(false);
-
-  const hasAccess = isAdminUser || sessionAdminAccess;
+export const AdminLayout: React.FC<AdminLayoutProps> = ({
+  onLogout = () => {},
+  currentUser,
+}) => {
+  const [activeTab, setActiveTab] = useState<AdminTab>(() => {
+    return (localStorage.getItem('tcl_admin_active_tab') as AdminTab) || 'dashboard';
+  });
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
 
   useEffect(() => {
-    const handleHashChange = () => {
-      setActiveTab(getTabFromHash());
-    };
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
+    localStorage.setItem('tcl_admin_active_tab', activeTab);
+  }, [activeTab]);
 
-  const handleTabChange = (tab: AdminTab) => {
-    setActiveTab(tab);
-    window.location.hash = `#admin?${tab}`;
-    setIsMobileSidebarOpen(false);
+  // Tab label mapping for mobile header
+  const tabTitles: Record<AdminTab, { title: string; icon: string }> = {
+    dashboard: { title: 'Executive Overview', icon: '📊' },
+    products: { title: 'Products Catalog', icon: '🕯️' },
+    fragrances: { title: 'Fragrance Library', icon: '🌸' },
+    categories: { title: 'Categories & Subcategories', icon: '📂' },
+    collections: { title: 'Marketing Collections', icon: '✨' },
+    attributes: { title: 'Sizes, Colors & Wicks', icon: '🏷️' },
+    inventory: { title: 'Stock & Inventory', icon: '📦' },
+    orders: { title: 'Orders & Fulfillment', icon: '🛍️' },
+    customers: { title: 'Customer Directory', icon: '👥' },
+    hero: { title: 'Hero & Announcements', icon: '🎨' },
+    coupons: { title: 'Coupons & Promos', icon: '🎟️' },
+    media: { title: 'Media Library', icon: '🖼️' },
+    staff: { title: 'Staff & Roles', icon: '🛡️' },
+    seo: { title: 'SEO & Metadata', icon: '🔍' },
+    settings: { title: 'Store Settings', icon: '⚙️' },
   };
 
-  // If not authenticated as admin, show Admin Login Portal Page first!
-  if (!hasAccess) {
-    return (
-      <AdminLoginPage
-        onLoginSuccess={() => {
-          setSessionAdminAccess(true);
-        }}
-        onReturnToStore={onReturnToStore}
-      />
-    );
-  }
+  const currentTabInfo = tabTitles[activeTab] || { title: 'Master Admin', icon: '⚡' };
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen bg-[#FAF6F0] w-full max-w-full overflow-x-hidden font-sans box-border">
-      {/* Mobile Header Bar with Menu Toggle */}
-      <div className="lg:hidden bg-[#1C130E] text-[#FAF6F0] p-4 flex items-center justify-between sticky top-0 z-40 border-b border-[#3D2C22] shadow-md">
-        <div className="flex items-center gap-2.5">
-          <img src="/logo.jpeg" alt="Logo" className="w-8 h-8 object-contain rounded-lg border border-[#B88B38]" />
-          <div>
-            <h2 className="font-serif font-extrabold text-xs tracking-wider text-[#FAF6F0]">THE CANDLE LAB</h2>
-            <span className="text-[8px] uppercase font-bold tracking-widest text-[#B88B38]">ENTERPRISE CMS ADMIN</span>
+    <div className="min-h-screen bg-[#140D09] text-[#FDFBF7] flex flex-col lg:flex-row">
+      {/* Mobile Top Navigation Header */}
+      <header className="lg:hidden sticky top-0 z-30 bg-[#1C130E]/95 backdrop-blur-md border-b border-[#2C2018] px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <button
+            type="button"
+            onClick={() => setIsMobileMenuOpen(true)}
+            className="w-9 h-9 rounded-lg bg-[#251A13] border border-amber-500/30 text-amber-300 flex items-center justify-center text-lg hover:bg-amber-500/10 active:scale-95 transition-all shrink-0"
+            title="Open Menu"
+          >
+            ☰
+          </button>
+          <div className="min-w-0">
+            <h1 className="font-serif text-sm font-medium text-[#FDFBF7] truncate flex items-center gap-1.5">
+              <span>{currentTabInfo.icon}</span>
+              <span className="truncate">{currentTabInfo.title}</span>
+            </h1>
+            <p className="text-[9px] uppercase font-mono tracking-wider text-amber-500/90">The Candle Lab Admin</p>
           </div>
         </div>
 
         <button
-          onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
-          className="p-2 rounded-lg bg-[#2A1E17] border border-[#3D2C22] text-[#FAF6F0] hover:text-[#B88B38] transition-colors cursor-pointer"
+          type="button"
+          onClick={onLogout}
+          className="text-xs text-red-400 hover:text-red-300 px-2.5 py-1 rounded bg-red-950/20 border border-red-900/30 text-[10px] font-mono shrink-0"
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            {isMobileSidebarOpen ? (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-            ) : (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-            )}
-          </svg>
+          Sign Out
         </button>
-      </div>
+      </header>
 
-      {/* Desktop Sidebar & Mobile Backdrop Drawer */}
-      <div
-        className={`fixed inset-0 bg-black/60 z-50 lg:hidden transition-opacity ${
-          isMobileSidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-        }`}
-        onClick={() => setIsMobileSidebarOpen(false)}
+      {/* Sidebar (Desktop static / Mobile drawer) */}
+      <AdminSidebar
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        onLogout={onLogout}
+        currentUser={currentUser}
+        isMobileOpen={isMobileMenuOpen}
+        onCloseMobile={() => setIsMobileMenuOpen(false)}
       />
 
-      <div
-        className={`fixed lg:sticky top-0 left-0 z-50 lg:z-auto h-screen transition-transform duration-300 ${
-          isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-        }`}
-      >
-        <AdminSidebar
-          activeTab={activeTab}
-          onTabChange={handleTabChange}
-          onReturnToStore={() => {
-            setSessionAdminAccess(false);
-            onReturnToStore();
-          }}
-        />
-      </div>
-
-      {/* Main Viewport Content */}
-      <main className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 overflow-y-auto max-h-screen box-border max-w-full bg-[#FAF6F0]">
-        {activeTab === 'dashboard' && <AdminDashboard />}
-        {activeTab === 'storefront' && <AdminHomepageCMS />}
-        {activeTab === 'products' && <AdminProductsManager />}
-        {activeTab === 'content' && <AdminCollectionsManager />}
-        {activeTab === 'cmspages' && <AdminCMSPagesManager />}
-        {activeTab === 'marketing' && <AdminMarketingCMS />}
-        {activeTab === 'orders' && <AdminOrdersManager />}
-        {activeTab === 'customers' && <AdminCustomersCRM />}
-        {activeTab === 'media' && <AdminMediaLibrary />}
-        {activeTab === 'seo' && <AdminSEOManager />}
-        {activeTab === 'staff' && <AdminStaffManager />}
-        {activeTab === 'settings' && <AdminStoreSettings />}
-        {activeTab === 'payments' && <AdminPaymentsTaxes />}
+      {/* Main Content Area */}
+      <main className="flex-1 min-w-0 overflow-y-auto h-[calc(100vh-60px)] lg:h-screen p-4 sm:p-6 lg:p-8 w-full">
+        <div className="max-w-7xl mx-auto space-y-6">
+          {activeTab === 'dashboard' && <AdminDashboard onTabChange={setActiveTab as any} />}
+          {activeTab === 'products' && <AdminProductsManager />}
+          {activeTab === 'fragrances' && <AdminFragranceManager />}
+          {activeTab === 'categories' && <AdminCategoriesManager />}
+          {activeTab === 'collections' && <AdminCollectionsManager />}
+          {activeTab === 'attributes' && <AdminAttributesManager />}
+          {activeTab === 'inventory' && <AdminProductsManager />}
+          {activeTab === 'orders' && <AdminOrdersManager />}
+          {activeTab === 'customers' && <AdminCustomersCRM />}
+          {activeTab === 'hero' && <AdminHomepageCMS />}
+          {activeTab === 'coupons' && <AdminMarketingCMS />}
+          {activeTab === 'media' && <AdminMediaLibrary />}
+          {activeTab === 'staff' && <AdminStaffManager />}
+          {activeTab === 'seo' && <AdminSEOManager />}
+          {activeTab === 'settings' && <AdminStoreSettings />}
+        </div>
       </main>
     </div>
   );

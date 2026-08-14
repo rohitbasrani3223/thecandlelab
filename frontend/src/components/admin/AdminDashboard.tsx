@@ -10,7 +10,11 @@ type DashboardSubTab =
   | 'lowstock'
   | 'recent';
 
-export const AdminDashboard: React.FC = () => {
+export interface AdminDashboardProps {
+  onTabChange?: (tab: any) => void;
+}
+
+export const AdminDashboard: React.FC<AdminDashboardProps> = () => {
   const [activeSubTab, setActiveSubTab] = useState<DashboardSubTab>('analytics');
   const { totalRevenue, ordersCount, products, orders } = useCMS();
 
@@ -18,20 +22,17 @@ export const AdminDashboard: React.FC = () => {
 
   // Dynamic real metrics calculations from live database data
   const realOrders = orders && orders.length > 0 ? orders : [];
-  const calculatedRevenue = realOrders.length > 0 
-    ? realOrders.reduce((sum, o) => sum + Number(o.totalAmount || 0), 0)
-    : (totalRevenue || 148900);
-
-  const calculatedOrdersCount = realOrders.length > 0 ? realOrders.length : (ordersCount || 112);
-  const calculatedAOV = calculatedOrdersCount > 0 ? Math.round(calculatedRevenue / calculatedOrdersCount) : 1850;
+  const calculatedRevenue = realOrders.reduce((sum, o) => sum + Number(o.totalAmount || 0), 0) || totalRevenue || 0;
+  const calculatedOrdersCount = realOrders.length || ordersCount || 0;
+  const calculatedAOV = calculatedOrdersCount > 0 ? Math.round(calculatedRevenue / calculatedOrdersCount) : 0;
 
   const topProduct = products.find((p) => p.isBestSeller) || products[0];
-  const topFragranceName = topProduct ? topProduct.name : 'French Vanilla';
-  const topFragranceCategory = topProduct ? topProduct.category : 'Glass Jars';
+  const topFragranceName = topProduct ? topProduct.name : '';
+  const topFragranceCategory = topProduct ? topProduct.category : '';
 
-  const conversionRate = calculatedOrdersCount > 0 
+  const conversionRate = calculatedOrdersCount > 0
     ? `${((calculatedOrdersCount / (calculatedOrdersCount + 120)) * 100).toFixed(2)}%`
-    : '4.82%';
+    : '—';
 
   const SUB_TABS: { id: DashboardSubTab; label: string; icon: string }[] = [
     { id: 'analytics', label: 'Sales Analytics', icon: '📊' },
@@ -241,22 +242,24 @@ export const AdminDashboard: React.FC = () => {
             </div>
 
             <div className="space-y-3 text-xs">
-              {(realOrders.length > 0 ? realOrders.slice(0, 5) : [
-                { id: 'TCL-98241', customerName: 'Ananya Sharma', items: 'French Vanilla & Cinnamon', totalAmount: 1499, status: 'Processing' },
-                { id: 'TCL-98240', customerName: 'Vikramaditya Singh', items: 'Amber & Oud Royal Jar', totalAmount: 1299, status: 'Shipped' },
-                { id: 'TCL-98239', customerName: 'Priya Nair', items: 'Rose Petals Wax Melts', totalAmount: 499, status: 'Delivered' },
-              ]).map((ord: any) => (
-                <div key={ord.id} className="flex items-center justify-between p-3 bg-[#FAF6F0] rounded-xl border border-[#EFE8DB]">
-                  <div>
-                    <strong className="text-[#2C1E16] block">{ord.id} — {ord.customerName || ord.email}</strong>
-                    <span className="text-[10px] text-[#7A6B5D]">{ord.items || 'Artisanal Candle'}</span>
+              {realOrders.length === 0 ? (
+                <p className="text-center text-[#8C7A6B] py-6 italic">No orders yet. Orders placed on the storefront will appear here.</p>
+              ) : (
+                realOrders.slice(0, 5).map((ord: any) => (
+                  <div key={ord.id} className="flex items-center justify-between p-3 bg-[#FAF6F0] rounded-xl border border-[#EFE8DB]">
+                    <div>
+                      <strong className="text-[#2C1E16] block">{ord.id} — {ord.customerName || ord.email}</strong>
+                      {ord.items && (
+                        <span className="text-[10px] text-[#7A6B5D]">{ord.items}</span>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <strong className="text-[#2C1E16] block">₹{Number(ord.totalAmount).toLocaleString('en-IN')}</strong>
+                      <span className="text-[10px] font-bold text-[#2E6F40]">{ord.status}</span>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <strong className="text-[#2C1E16] block">₹{Number(ord.totalAmount).toLocaleString('en-IN')}</strong>
-                    <span className="text-[10px] font-bold text-[#2E6F40]">{ord.status}</span>
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
         </div>

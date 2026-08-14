@@ -5,147 +5,156 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\ProductImage;
+use App\Models\ProductVariant;
+use App\Models\Inventory;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
-    private array $productColumns = [
-        'name',
-        'slug',
-        'tagline',
-        'sku',
-        'price',
-        'original_price',
-        'image_url',
-        'thumbnail',
-        'short_description',
-        'long_description',
-        'description',
-        'wax_type',
-        'wick_type',
-        'burn_time',
-        'burn_time_hours',
-        'weight',
-        'weight_grams',
-        'fragrance',
-        'rating',
-        'review_count',
-        'reviews_count',
-        'stock',
-        'status',
-        'is_active',
-        'is_featured',
-        'is_bestseller',
-        'is_new_arrival',
-        'is_trending',
-        'top_notes',
-        'heart_notes',
-        'base_notes',
-    ];
-
-    private function productPayload(Request $request): array
-    {
-        return collect($request->only($this->productColumns))
-            ->filter(fn ($value, $key) => Schema::hasColumn('products', $key))
-            ->all();
-    }
-
-    private function imageUrlsFromRequest(Request $request): array
-    {
-        $urls = [];
-
-        if ($request->filled('image_url')) {
-            $urls[] = $request->input('image_url');
-        }
-
-        if ($request->filled('thumbnail')) {
-            $urls[] = $request->input('thumbnail');
-        }
-
-        if (is_array($request->input('images'))) {
-            $urls = array_merge($urls, $request->input('images'));
-        }
-
-        return collect($urls)
-            ->filter(fn ($url) => is_string($url) && trim($url) !== '')
-            ->unique()
-            ->values()
-            ->all();
-    }
-
-    private function syncProductImages(Product $product, array $imageUrls): void
-    {
-        if (count($imageUrls) === 0 || !Schema::hasTable('product_images')) {
-            return;
-        }
-
-        ProductImage::where('product_id', $product->id)->delete();
-
-        foreach ($imageUrls as $index => $imageUrl) {
-            ProductImage::create([
-                'product_id' => $product->id,
-                'image_url' => $imageUrl,
-                'alt_text' => $product->name,
-                'sort_order' => $index + 1,
-                'is_primary' => $index === 0,
-            ]);
-        }
-    }
-
-    private function productWithImages(Product $product): Product
-    {
-        return Schema::hasTable('product_images') ? $product->load('images') : $product;
-    }
-
-    private function freshProductWithImages(Product $product): Product
-    {
-        $freshProduct = $product->fresh();
-        return $freshProduct ? $this->productWithImages($freshProduct) : $product;
-    }
-
     /**
      * Display a listing of products with filtering, search, and sorting.
      */
     public function index(Request $request)
     {
-        $query = Product::with(['mainCategory', 'images', 'inventory'])->where('status', 'ACTIVE');
+        $query = Product::with(['mainCategory', 'subCategory', 'collections', 'images', 'variants.inventory'])
+            ->where('status', 'ACTIVE');
 
-        if ($request->has('category')) {
-            $query->whereHas('mainCategory', function ($q) use ($request) {
-                $q->where('slug', $request->category)->orWhere('id', $request->category);
+        // Filter by Main Category
+        if ($request->filled('category')) {
+            $cat = $request->category;
+            $query->where(function ($q) use ($cat) {
+                $q->where('main_category_id', $cat)
+                  ->orWhereHas('mainCategory', function ($mq) use ($cat) {
+                      $mq->where('slug', $cat)->orWhere('name', $cat);
+                  });
             });
         }
 
-        if ($request->has('search')) {
+        // Filter by Sub Category
+        if ($request->filled('sub_category')) {
+            $subCat = $request->sub_category;
+            $query->where(function ($q) use ($subCat) {
+                $q->where('sub_category_id', $subCat)
+                  ->orWhereHas('subCategory', function ($sq) use ($subCat) {
+                      $sq->where('slug', $subCat)->orWhere('name', $subCat);
+                  });
+            });
+        }
+
+        // Filter by Collection
+        if ($request->filled('collection')) {
+            $col = $request->collection;
+            $query->whereHas('collections', function ($q) use ($col) {
+                $q->where('collections.id', $col)
+                  ->orWhere('collections.slug', $col)
+                  ->orWhere('collections.name', $col);
+            });
+        }
+
+        // Filter by Fragrance
+        if ($request->filled('fragrance')) {
+            $frag = $request->fragrance;
+            $query->where(function ($q) use ($frag) {
+                $q->where('scent_profile', 'ILIKE', "%{$frag}%")
+                  ->orWhere('top_notes', 'ILIKE', "%{$frag}%")
+                  ->orWhereHas('variants', function ($vq) use ($frag) {
+                      $vq->where('fragrance_name', 'ILIKE', "%{$frag}%");
+                  });
+            });
+        }
+
+        // Filter by Size
+        if ($request->filled('size')) {
+            $size = $request->size;
+            $query->whereHas('variants', function ($q) use ($size) {
+                $q->where('size_name', 'ILIKE', "%{$size}%");
+            });
+        }
+
+        // Filter by Color
+        if ($request->filled('color')) {
+            $color = $request->color;
+            $query->whereHas('variants', function ($q) use ($color) {
+                $q->where('color_name', 'ILIKE', "%{$color}%");
+            });
+        }
+
+        // Price range filters
+        if ($request->filled('price_min')) {
+            $query->where('price', '>=', (float) $request->price_min);
+        }
+        if ($request->filled('price_max')) {
+            $query->where('price', '<=', (float) $request->price_max);
+        }
+
+        // In-stock only filter
+        if ($request->boolean('in_stock')) {
+            $query->where('status', 'ACTIVE');
+        }
+
+        // Minimum Rating filter
+        if ($request->filled('min_rating')) {
+            $query->where('rating', '>=', (float) $request->min_rating);
+        }
+
+        // Global Search across name, short_description, tagline, top_notes, scent_profile, category, and tags
+        if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'ILIKE', "%{$search}%")
                   ->orWhere('short_description', 'ILIKE', "%{$search}%")
-                  ->orWhere('tagline', 'ILIKE', "%{$search}%");
+                  ->orWhere('tagline', 'ILIKE', "%{$search}%")
+                  ->orWhere('scent_profile', 'ILIKE', "%{$search}%")
+                  ->orWhere('top_notes', 'ILIKE', "%{$search}%")
+                  ->orWhere('sku', 'ILIKE', "%{$search}%")
+                  ->orWhereHas('mainCategory', function ($cq) use ($search) {
+                      $cq->where('name', 'ILIKE', "%{$search}%");
+                  })
+                  ->orWhereHas('collections', function ($clq) use ($search) {
+                      $clq->where('name', 'ILIKE', "%{$search}%");
+                  });
             });
         }
 
-        if ($request->filter === 'new') {
+        // Merchandising filter flags
+        if ($request->filter === 'new' || $request->boolean('is_new')) {
             $query->where('is_new_arrival', true);
-        } elseif ($request->filter === 'bestsellers') {
+        } elseif ($request->filter === 'bestsellers' || $request->boolean('is_bestseller')) {
             $query->where('is_bestseller', true);
-        } elseif ($request->filter === 'trending') {
+        } elseif ($request->filter === 'trending' || $request->boolean('is_trending')) {
             $query->where('is_trending', true);
+        } elseif ($request->filter === 'featured' || $request->boolean('is_featured')) {
+            $query->where('is_featured', true);
         }
 
-        if ($request->sort === 'price_asc') {
-            $query->orderBy('price', 'asc');
-        } elseif ($request->sort === 'price_desc') {
-            $query->orderBy('price', 'desc');
-        } elseif ($request->sort === 'rating') {
-            $query->orderBy('rating', 'desc');
-        } else {
-            $query->orderBy('reviews_count', 'desc');
+        // Sorting
+        $sort = $request->get('sort', 'featured');
+        switch ($sort) {
+            case 'price_asc':
+            case 'price-asc':
+                $query->orderBy('price', 'asc');
+                break;
+            case 'price_desc':
+            case 'price-desc':
+                $query->orderBy('price', 'desc');
+                break;
+            case 'rating':
+                $query->orderBy('rating', 'desc');
+                break;
+            case 'newest':
+                $query->latest();
+                break;
+            case 'bestselling':
+                $query->orderBy('is_bestseller', 'desc')->orderBy('reviews_count', 'desc');
+                break;
+            default:
+                $query->orderBy('is_featured', 'desc')->latest();
+                break;
         }
 
-        $products = $query->paginate($request->get('per_page', 12));
+        $perPage = (int) $request->get('per_page', 24);
+        $products = $query->paginate($perPage);
 
         return response()->json([
             'success' => true,
@@ -158,7 +167,7 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-        $product = Product::with(['mainCategory', 'subCategory', 'collection', 'images', 'inventory'])
+        $product = Product::with(['mainCategory', 'subCategory', 'collections', 'images', 'variants.inventory'])
             ->where('id', $id)
             ->orWhere('slug', $id)
             ->firstOrFail();
@@ -179,31 +188,47 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:0',
         ]);
 
-        $payload = array_merge($validated, $this->productPayload($request));
+        $product = Product::create($request->all());
 
-        if (Schema::hasColumn('products', 'id') && !in_array(Schema::getColumnType('products', 'id'), ['integer', 'bigint'], true)) {
-            $payload['id'] = $payload['id'] ?? (string) Str::uuid();
+        // Sync Gallery Images
+        if ($request->has('images') && is_array($request->images)) {
+            foreach ($request->images as $index => $imgUrl) {
+                if ($imgUrl) {
+                    ProductImage::create([
+                        'product_id' => $product->id,
+                        'image_url' => $imgUrl,
+                        'is_primary' => $index === 0,
+                        'sort_order' => $index,
+                        'alt_text' => $product->name,
+                    ]);
+                }
+            }
         }
 
-        if (Schema::hasColumn('products', 'slug')) {
-            $payload['slug'] = $payload['slug'] ?? Str::slug($validated['name']) . '-' . Str::random(5);
+        // Sync Collections
+        if ($request->has('collection_ids') && is_array($request->collection_ids)) {
+            $product->collections()->sync($request->collection_ids);
         }
 
-        if (Schema::hasColumn('products', 'status')) {
-            $payload['status'] = $payload['status'] ?? 'ACTIVE';
+        // Sync Variants if provided
+        if ($request->has('variants') && is_array($request->variants)) {
+            foreach ($request->variants as $varData) {
+                $variant = ProductVariant::create(array_merge($varData, ['product_id' => $product->id]));
+                if (isset($varData['stock'])) {
+                    Inventory::create([
+                        'product_id' => $product->id,
+                        'variant_id' => $variant->id,
+                        'stock_quantity' => $varData['stock'],
+                        'status' => $varData['stock'] > 0 ? 'IN_STOCK' : 'OUT_OF_STOCK',
+                    ]);
+                }
+            }
         }
-
-        if (Schema::hasColumn('products', 'is_active')) {
-            $payload['is_active'] = $payload['is_active'] ?? true;
-        }
-
-        $product = Product::create($payload);
-        $this->syncProductImages($product, $this->imageUrlsFromRequest($request));
 
         return response()->json([
             'success' => true,
             'message' => 'Product created successfully',
-            'data' => $this->productWithImages($product),
+            'data' => $product->load(['mainCategory', 'subCategory', 'collections', 'images', 'variants']),
         ], 201);
     }
 
@@ -213,18 +238,51 @@ class ProductController extends Controller
     public function update(Request $request, $id)
     {
         $product = Product::findOrFail($id);
-        $payload = $this->productPayload($request);
+        $product->update($request->all());
 
-        if (!empty($payload)) {
-            $product->update($payload);
+        // Sync Gallery Images if provided
+        if ($request->has('images') && is_array($request->images)) {
+            ProductImage::where('product_id', $product->id)->delete();
+            foreach ($request->images as $index => $imgUrl) {
+                if ($imgUrl) {
+                    ProductImage::create([
+                        'product_id' => $product->id,
+                        'image_url' => $imgUrl,
+                        'is_primary' => $index === 0,
+                        'sort_order' => $index,
+                        'alt_text' => $product->name,
+                    ]);
+                }
+            }
         }
 
-        $this->syncProductImages($product, $this->imageUrlsFromRequest($request));
+        // Sync Collections if provided
+        if ($request->has('collection_ids') && is_array($request->collection_ids)) {
+            $product->collections()->sync($request->collection_ids);
+        }
+
+        // Sync Variants if provided
+        if ($request->has('variants') && is_array($request->variants)) {
+            ProductVariant::where('product_id', $product->id)->delete();
+            foreach ($request->variants as $varData) {
+                $variant = ProductVariant::create(array_merge($varData, ['product_id' => $product->id]));
+                if (isset($varData['stock'])) {
+                    Inventory::updateOrCreate(
+                        ['variant_id' => $variant->id],
+                        [
+                            'product_id' => $product->id,
+                            'stock_quantity' => $varData['stock'],
+                            'status' => $varData['stock'] > 0 ? 'IN_STOCK' : 'OUT_OF_STOCK',
+                        ]
+                    );
+                }
+            }
+        }
 
         return response()->json([
             'success' => true,
             'message' => 'Product updated successfully',
-            'data' => $this->freshProductWithImages($product),
+            'data' => $product->fresh(['mainCategory', 'subCategory', 'collections', 'images', 'variants.inventory']),
         ]);
     }
 
@@ -234,6 +292,7 @@ class ProductController extends Controller
     public function destroy($id)
     {
         $product = Product::findOrFail($id);
+        $product->collections()->detach();
         $product->delete();
 
         return response()->json([

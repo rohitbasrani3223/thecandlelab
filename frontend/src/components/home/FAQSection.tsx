@@ -28,15 +28,15 @@ export const FaqSection: React.FC = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <section className="py-16 sm:py-24 bg-[#F4EFE6] border-b border-[#E5D9C5] font-sans">
-      <div className="max-w-4xl mx-auto px-6 sm:px-12 space-y-12">
+    <section className="py-16 sm:py-24 bg-[#F5EEE4] border-b border-[#E5DAC7] font-sans">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-12 space-y-12">
         <div className="text-center space-y-3">
           <Badge variant="gold" icon={<SparklesIcon size={12} />}>CLEAR ANSWERS</Badge>
-          <h2 className="text-3xl sm:text-5xl font-serif font-bold text-[#2A1E17]">
+          <h2 className="text-3xl sm:text-5xl font-serif font-bold text-[#241812]">
             Frequently Asked Questions
           </h2>
-          <p className="text-sm text-[#69574A]">
-            Everything you need to know about our soy wax, wicks, and order delivery.
+          <p className="text-sm text-[#5E4E42]">
+            Everything you need to know about our organic soy wax, wood wicks, and atelier deliveries.
           </p>
         </div>
 
@@ -45,18 +45,18 @@ export const FaqSection: React.FC = () => {
           {faqs.map((faq, index) => (
             <div
               key={index}
-              className="bg-[#FAF6F0] rounded-md border border-[#E5D9C5] overflow-hidden shadow-xs transition-all"
+              className="bg-[#FAF7F2] rounded-2xl border border-[#E5DAC7] overflow-hidden shadow-subtle hover:border-[#C5983A]/60 transition-all"
             >
               <button
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                className="w-full text-left p-5 sm:p-6 font-serif font-bold text-base sm:text-lg text-[#2A1E17] hover:text-[#D4AF37] flex items-center justify-between gap-4 transition-colors"
+                className="w-full text-left p-5 sm:p-6 font-serif font-bold text-base sm:text-lg text-[#241812] hover:text-[#C5983A] flex items-center justify-between gap-4 transition-colors cursor-pointer"
               >
                 <span>{faq.question}</span>
-                <ChevronDownIcon size={18} className={`shrink-0 transition-transform ${openIndex === index ? 'rotate-180 text-[#D4AF37]' : ''}`} />
+                <ChevronDownIcon size={18} className={`shrink-0 transition-transform ${openIndex === index ? 'rotate-180 text-[#C5983A]' : ''}`} />
               </button>
 
               {openIndex === index && (
-                <div className="px-5 sm:px-6 pb-6 text-xs sm:text-sm text-[#69574A] leading-relaxed border-t border-[#F4EFE6] pt-4 animate-fade-in font-sans">
+                <div className="px-5 sm:px-6 pb-6 text-xs sm:text-sm text-[#5E4E42] leading-relaxed border-t border-[#E5DAC7]/60 pt-4 animate-fade-in font-sans">
                   {faq.answer}
                 </div>
               )}

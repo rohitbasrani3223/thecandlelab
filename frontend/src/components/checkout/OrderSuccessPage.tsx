@@ -96,31 +96,32 @@ export const OrderSuccessPage: React.FC<OrderSuccessPageProps> = ({ onReturnHome
 
           <div className="space-y-3 text-xs">
             {items.length === 0 ? (
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">🕯️</span>
-                  <div>
-                    <strong className="text-[#2A1E17] block">Artisanal Soy Candle Formulation</strong>
-                    <span className="text-[#8C7A6B]">12 oz Frosted Glass • Organic Wood Wick</span>
-                  </div>
-                </div>
-                <span className="font-bold text-[#2A1E17]">₹{totalAmount.toLocaleString('en-IN')}</span>
-              </div>
+              <p className="text-[#8C7A6B] italic text-center py-2">Order details not available.</p>
             ) : (
-              items.map((item, idx) => (
-                <div key={item.id || idx} className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">🕯️</span>
-                    <div>
-                      <strong className="text-[#2A1E17] block">{item.quantity}x {item.name}</strong>
-                      <span className="text-[#8C7A6B]">{item.size || '12 oz Glass'} • {item.wick || 'Organic Wood Wick'}</span>
+              items.map((item, idx) => {
+                const variantLabel = [item.fragrance, item.size, item.wickType || item.wick]
+                  .filter(Boolean)
+                  .join(' • ');
+                return (
+                  <div key={item.id || idx} className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">🕯️</span>
+                      <div>
+                        <strong className="text-[#2A1E17] block">{item.quantity}x {item.name}</strong>
+                        {variantLabel && (
+                          <span className="text-[#8C7A6B]">{variantLabel}</span>
+                        )}
+                        {item.sku && (
+                          <span className="text-[11px] font-mono text-[#B88B38] block">SKU: {item.sku}</span>
+                        )}
+                      </div>
                     </div>
+                    <span className="font-bold text-[#2A1E17]">
+                      ₹{Math.round((item.price || 0) * (item.quantity || 1)).toLocaleString('en-IN')}
+                    </span>
                   </div>
-                  <span className="font-bold text-[#2A1E17]">
-                    ₹{Math.round((item.price || 0) * (item.quantity || 1)).toLocaleString('en-IN')}
-                  </span>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
 

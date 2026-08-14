@@ -81,18 +81,21 @@ export const OrderReviewStep: React.FC<OrderReviewStepProps> = ({
 
         <div className="space-y-2 text-xs">
           {cartItems.length === 0 ? (
-            <p className="text-[#8C7A6B] italic">Custom Artisanal Soy Candle Formulation</p>
+            <p className="text-[#8C7A6B] italic">Your cart is empty.</p>
           ) : (
-            cartItems.map((item, idx) => (
-              <div key={item.id || idx} className="flex items-center justify-between">
-                <span className="text-[#2A1E17] font-medium">
-                  {item.quantity || 1}x {item.name} ({item.size || '12oz'})
-                </span>
-                <span className="font-bold text-[#2A1E17]">
-                  ₹{Math.round((item.price || 0) * (item.quantity || 1)).toLocaleString('en-IN')}
-                </span>
-              </div>
-            ))
+            cartItems.map((item, idx) => {
+              const variantLabel = [item.fragrance, item.size].filter(Boolean).join(' • ');
+              return (
+                <div key={item.id || idx} className="flex items-center justify-between">
+                  <span className="text-[#2A1E17] font-medium">
+                    {item.quantity || 1}x {item.name}{variantLabel ? ` (${variantLabel})` : ''}
+                  </span>
+                  <span className="font-bold text-[#2A1E17]">
+                    ₹{Math.round((item.price || 0) * (item.quantity || 1)).toLocaleString('en-IN')}
+                  </span>
+                </div>
+              );
+            })
           )}
         </div>
 

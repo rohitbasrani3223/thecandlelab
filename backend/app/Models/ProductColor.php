@@ -6,31 +6,26 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-class MainCategory extends Model
+class ProductColor extends Model
 {
     use HasFactory;
 
-    protected $table = 'main_categories';
+    protected $table = 'colors';
     protected $keyType = 'string';
     public $incrementing = false;
 
     protected $fillable = [
         'id',
         'name',
-        'slug',
-        'description',
-        'image_url',
-        'banner_desktop',
-        'banner_mobile',
-        'meta_title',
-        'meta_description',
+        'hex_code',
+        'swatch_image',
         'is_active',
         'sort_order',
     ];
 
     protected $casts = [
-        'sort_order' => 'integer',
         'is_active' => 'boolean',
+        'sort_order' => 'integer',
     ];
 
     protected static function boot()
@@ -40,19 +35,11 @@ class MainCategory extends Model
             if (empty($model->{$model->getKeyName()})) {
                 $model->{$model->getKeyName()} = (string) Str::uuid();
             }
-            if (empty($model->slug)) {
-                $model->slug = Str::slug($model->name);
-            }
         });
     }
 
-    public function subCategories()
+    public function variants()
     {
-        return $this->hasMany(SubCategory::class, 'main_category_id')->orderBy('sort_order');
-    }
-
-    public function products()
-    {
-        return $this->hasMany(Product::class, 'main_category_id');
+        return $this->hasMany(ProductVariant::class, 'color_id');
     }
 }

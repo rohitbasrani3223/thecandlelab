@@ -6,11 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-class MainCategory extends Model
+class Fragrance extends Model
 {
     use HasFactory;
 
-    protected $table = 'main_categories';
+    protected $table = 'fragrances';
     protected $keyType = 'string';
     public $incrementing = false;
 
@@ -18,19 +18,23 @@ class MainCategory extends Model
         'id',
         'name',
         'slug',
-        'description',
         'image_url',
-        'banner_desktop',
-        'banner_mobile',
-        'meta_title',
-        'meta_description',
+        'short_description',
+        'scent_profile',
+        'top_notes',
+        'heart_notes',
+        'base_notes',
+        'scent_family',
+        'intensity',
         'is_active',
         'sort_order',
+        'meta_title',
+        'meta_description',
     ];
 
     protected $casts = [
-        'sort_order' => 'integer',
         'is_active' => 'boolean',
+        'sort_order' => 'integer',
     ];
 
     protected static function boot()
@@ -41,18 +45,13 @@ class MainCategory extends Model
                 $model->{$model->getKeyName()} = (string) Str::uuid();
             }
             if (empty($model->slug)) {
-                $model->slug = Str::slug($model->name);
+                $model->slug = Str::slug($model->name) . '-' . Str::random(5);
             }
         });
     }
 
-    public function subCategories()
+    public function variants()
     {
-        return $this->hasMany(SubCategory::class, 'main_category_id')->orderBy('sort_order');
-    }
-
-    public function products()
-    {
-        return $this->hasMany(Product::class, 'main_category_id');
+        return $this->hasMany(ProductVariant::class, 'fragrance_id');
     }
 }

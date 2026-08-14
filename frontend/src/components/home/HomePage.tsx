@@ -12,16 +12,16 @@ import { FaqSection } from './FAQSection';
 import { NewsletterSection } from './NewsletterSection';
 
 export interface HomePageProps {
-  onNavigateToShop?: () => void;
+  onNavigateToShop?: (categoryId?: string) => void;
   onSelectProduct?: (product: any) => void;
 }
 
 export const HomePage: React.FC<HomePageProps> = ({ onNavigateToShop, onSelectProduct }) => {
-  const handleShopClick = () => {
+  const handleCategoryClick = (categoryId?: string) => {
     if (onNavigateToShop) {
-      onNavigateToShop();
+      onNavigateToShop(categoryId);
     } else {
-      window.location.hash = '#shop';
+      window.location.hash = '#categories';
     }
   };
 
@@ -30,8 +30,10 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigateToShop, onSelectPr
       {/* 1. Hero Banner */}
       <HeroBanner />
 
-      {/* 2. Category Highlights */}
-      <CategoryGrid onNavigateToShop={handleShopClick} />
+      {/* 2. Shop by Category (Clean, Simple & Attractive D2C Style) */}
+      <CategoryGrid onNavigateToShop={handleCategoryClick} />
+
+
 
       {/* 3. Featured Royal Collection */}
       <FeaturedCollection onSelectProduct={onSelectProduct} />

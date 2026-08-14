@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useCMS } from '../../context/CMSContext';
+import { AdminImageUploader } from './AdminImageUploader';
 
 type StorefrontSubTab =
   | 'homepage'
@@ -255,94 +256,13 @@ export const AdminHomepageCMS: React.FC = () => {
 
                 {/* Hero Section Background Image Upload & URL Manager */}
                 <div className="space-y-2">
-                  <label className="font-bold text-[#2C1E16] block uppercase text-xs">🖼️ Hero Section Background Image Photo</label>
-                  
-                  <div className="bg-[#F8FAFC] border border-[#E2E8F0] p-4 rounded-2xl space-y-3">
-                    {heroForm.imageUrl ? (
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-3 bg-white border border-[#CBD5E1] rounded-xl shadow-xs">
-                        <div className="flex items-center gap-3">
-                          <div className="w-24 h-16 rounded-lg overflow-hidden border border-[#E2E8F0] bg-[#F1F5F9] shrink-0">
-                            <img src={heroForm.imageUrl} alt="Hero Banner Preview" className="w-full h-full object-cover" />
-                          </div>
-                          <div>
-                            <strong className="text-xs text-[#1E293B] block">Current Hero Background Photo</strong>
-                            <span className="text-[10px] text-[#64748B] block truncate max-w-[200px] sm:max-w-[300px]">
-                              {heroForm.imageUrl.startsWith('data:') ? 'Custom Uploaded File' : heroForm.imageUrl}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-2 w-full sm:w-auto">
-                          <label className="bg-[#B88B38] hover:bg-[#A3792E] text-white font-bold text-xs py-2 px-3.5 rounded-xl cursor-pointer transition-colors shrink-0">
-                            📁 Change Photo
-                            <input
-                              type="file"
-                              accept="image/*"
-                              className="hidden"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) {
-                                  const reader = new FileReader();
-                                  reader.onloadend = () => {
-                                    setHeroForm({ ...heroForm, imageUrl: reader.result as string });
-                                  };
-                                  reader.readAsDataURL(file);
-                                }
-                              }}
-                            />
-                          </label>
-                          <button
-                            type="button"
-                            onClick={() => setHeroForm({ ...heroForm, imageUrl: '' })}
-                            className="bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-2 px-3.5 rounded-xl shadow-xs flex items-center gap-1 cursor-pointer transition-colors shrink-0"
-                          >
-                            <span>✕</span>
-                            <span>Remove Photo</span>
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="border-2 border-dashed border-[#CBD5E1] hover:border-[#B88B38] rounded-xl p-5 text-center bg-white transition-colors relative cursor-pointer group">
-                        <div className="space-y-2">
-                          <div className="w-10 h-10 bg-[#F1F5F9] text-[#64748B] rounded-full flex items-center justify-center mx-auto text-xl group-hover:scale-110 transition-transform">
-                            ☁️
-                          </div>
-                          <div className="text-xs text-[#334155]">
-                            <strong className="text-[#B88B38]">Click to upload photo</strong> or drag and drop file here
-                          </div>
-                          <p className="text-[10px] text-[#94A3B8]">PNG, JPG, JPEG, GIF, WebP (MAX 10MB) • Recommended: 1920 × 600px</p>
-                        </div>
-
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              const reader = new FileReader();
-                              reader.onloadend = () => {
-                                setHeroForm({ ...heroForm, imageUrl: reader.result as string });
-                              };
-                              reader.readAsDataURL(file);
-                            }
-                          }}
-                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                        />
-                      </div>
-                    )}
-
-                    {/* Image URL Direct Input Option */}
-                    <div className="flex items-center gap-2 pt-1">
-                      <span className="text-[11px] font-bold text-[#64748B] whitespace-nowrap">🔗 Or Image URL:</span>
-                      <input
-                        type="text"
-                        value={heroForm.imageUrl}
-                        onChange={(e) => setHeroForm({ ...heroForm, imageUrl: e.target.value })}
-                        placeholder="https://images.unsplash.com/photo-..."
-                        className="w-full bg-white border border-[#E2E8F0] px-3 py-1.5 rounded-lg text-xs font-mono text-[#334155]"
-                      />
-                    </div>
-                  </div>
+                  <AdminImageUploader
+                    value={heroForm.imageUrl || ''}
+                    onChange={(url) => setHeroForm((prev) => ({ ...prev, imageUrl: url }))}
+                    label="Hero Section Background Image Photo"
+                    aspectRatio="banner"
+                    helperText="Recommended: 1920 × 600px wide landscape photo"
+                  />
                 </div>
 
                 {/* Glass Card Overlay Featured Candle Settings */}

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { PRODUCT_IMAGE_PLACEHOLDER } from '../../config/placeholders';
 import { ProductGallery } from './ProductGallery';
 import { ProductSummary } from './ProductSummary';
@@ -6,53 +6,37 @@ import { FragrancePyramidSection } from './FragrancePyramidSection';
 import { ProductSpecsAccordion } from './ProductSpecsAccordion';
 import { ProductReviewsSection } from './ProductReviewsSection';
 import { RelatedProducts } from './RelatedProducts';
-import { useToast } from '../../design-system';
-import { useCMS } from '../../context/CMSContext';
-
-export interface SelectedProductData {
-  id?: string;
-  name?: string;
-  category?: string;
-  collection?: string;
-  scentProfile?: string;
-  price?: number;
-  originalPrice?: number;
-  rating?: number;
-  reviewsCount?: number;
-  topNotes?: string;
-  heartNotes?: string;
-  baseNotes?: string;
-  burnTime?: string;
-  vesselDescription?: string;
-  image?: string;
-  imageUrl?: string;
-  images?: string[];
-}
+import { useCMS, type CMSProduct, type CMSProductVariant } from '../../context/CMSContext';
 
 export interface ProductDetailsPageProps {
-  product?: SelectedProductData | null;
+  product?: any | null;
   onNavigateToShop?: () => void;
 }
 
-export const ProductDetailsPage: React.FC<ProductDetailsPageProps> = ({ product: passedProduct, onNavigateToShop }) => {
-  const { toast } = useToast();
+export const ProductDetailsPage: React.FC<ProductDetailsPageProps> = ({
+  product: passedProduct,
+  onNavigateToShop,
+}) => {
   const { products } = useCMS();
+  const [activeVariantImage, setActiveVariantImage] = useState<string | undefined>(undefined);
 
-  // Always resolve the LIVE product object from CMS store so any updates in Admin immediately reflect on PDP
-  const activeProduct = useMemo(() => {
-    // 1. Try resolving from URL hash query params (e.g. #pdp?id=prod-123)
+  // Always resolve the LIVE product object from CMS store
+  const activeProduct = useMemo<CMSProduct>(() => {
+    // 1. URL hash query params (e.g. #pdp?id=prod-123 or #pdp?slug=vanilla-candle)
     const hashQuery = window.location.hash.split('?')[1];
     const urlParams = new URLSearchParams(hashQuery || '');
     const urlProductId = urlParams.get('id') || urlParams.get('slug');
 
     if (urlProductId) {
-      const matchByUrlId = products.find(
-        (p) => String(p.id).toLowerCase() === String(urlProductId).toLowerCase()
+      const match = products.find(
+        (p) =>
+          String(p.id).toLowerCase() === String(urlProductId).toLowerCase() ||
+          p.slug?.toLowerCase() === String(urlProductId).toLowerCase()
       );
-      if (matchByUrlId) return matchByUrlId;
+      if (match) return match;
     }
 
-    // 2. Try resolving from passedProduct prop
+    // 2. Passed product prop
     if (passedProduct?.id) {
       const match = products.find((p) => String(p.id) === String(passedProduct.id));
       if (match) return match;
@@ -64,92 +48,71 @@ export const ProductDetailsPage: React.FC<ProductDetailsPageProps> = ({ product:
       if (matchByName) return matchByName;
     }
 
-    return passedProduct || products[0] || null;
+    return (passedProduct as CMSProduct) || products[0];
   }, [products, passedProduct]);
 
-  const productName = activeProduct?.name || 'Artisanal Soy Candle';
+  const productName = activeProduct?.name;
 
-  const handleAddToCart = (size: string, wick: string, qty: number) => {
-    const itemToAdd = {
-      id: activeProduct?.id || 'prod-1',
-      name: activeProduct?.name || 'Artisanal Soy Candle',
-      category: activeProduct?.category || 'Glass Jars',
-      price: activeProduct?.price ? Math.round(activeProduct.price) : 1499,
-      originalPrice: activeProduct?.originalPrice ? Math.round(activeProduct.originalPrice) : 1799,
-      image: activeProduct?.image || activeProduct?.imageUrl || PRODUCT_IMAGE_PLACEHOLDER,
-      quantity: qty,
-      size,
-      wick,
-    };
-
-    try {
-      const saved = localStorage.getItem('tcl_cart_items');
-      const existing = saved ? JSON.parse(saved) : [];
-      const index = existing.findIndex((i: any) => i.id === itemToAdd.id && i.size === size);
-      if (index > -1) {
-        existing[index].quantity += qty;
-      } else {
-        existing.push(itemToAdd);
-      }
-      localStorage.setItem('tcl_cart_items', JSON.stringify(existing));
-      window.dispatchEvent(new Event('tcl-cart-updated'));
-    } catch (e) {
-      console.error('Cart update failed', e);
+  const handleVariantChange = (_variant: CMSProductVariant | null, variantImage?: string) => {
+    if (variantImage) {
+      setActiveVariantImage(variantImage);
     }
-
-    toast({
-      type: 'luxury',
-      title: 'Added to Shopping Bag',
-      description: `${qty}x ${itemToAdd.name} (${size})`,
-    });
   };
 
-  const handleBuyNow = (size: string, wick: string, qty: number) => {
-    handleAddToCart(size, wick, qty);
+  const handleBuyNow = () => {
     window.location.hash = '#checkout';
   };
 
   return (
-    <div className="w-full bg-[#FAF6F0] min-h-screen font-sans pb-16">
+    <div className="w-full bg-[#140D09] text-[#FDFBF7] min-h-screen font-sans pb-20">
       {/* Breadcrumb Header */}
-      <div className="bg-[#F4EFE6] border-b border-[#E5D9C5] py-3.5 px-6 sm:px-12 text-xs text-[#8C7A6B]">
+      <div className="bg-[#1C130E] border-b border-[#2C2018] py-3.5 px-6 sm:px-12 text-xs text-stone-400">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <a href="#home" className="hover:text-[#D4AF37] transition-colors">
+            <a href="#home" className="hover:text-amber-400 transition-colors">
               Home
             </a>
             <span>/</span>
-            <button onClick={onNavigateToShop} className="hover:text-[#D4AF37] transition-colors cursor-pointer">
+            <button
+              onClick={onNavigateToShop}
+              className="hover:text-amber-400 transition-colors cursor-pointer"
+            >
               Shop All
             </button>
             <span>/</span>
-            <span className="text-[#2A1E17] font-bold">{productName}</span>
+            <span className="text-[#FDFBF7] font-medium truncate max-w-[200px] sm:max-w-md">
+              {productName}
+            </span>
           </div>
 
           <button
             onClick={onNavigateToShop}
-            className="hidden sm:inline-block text-xs font-bold uppercase tracking-wider text-[#D4AF37] hover:underline cursor-pointer"
+            className="hidden sm:inline-block text-xs font-mono uppercase tracking-wider text-amber-400 hover:underline cursor-pointer"
           >
-            ← Back to Shop Catalog
+            ← Back to Catalog
           </button>
         </div>
       </div>
 
       {/* Main Hero Section: Gallery + Purchase Summary */}
-      <div className="max-w-7xl mx-auto px-6 sm:px-12 py-10 sm:py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-          {/* Left Column: Compact Luxury Gallery */}
-          <div className="lg:col-span-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-10 lg:py-16">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-10 items-start">
+          {/* Left Column: Multi-Image Luxury Gallery */}
+          <div className="lg:col-span-6 relative lg:sticky lg:top-24 w-full">
             <ProductGallery
-              mainImage={activeProduct?.image || activeProduct?.imageUrl}
-              images={(activeProduct as any)?.images || []}
-              productName={activeProduct?.name}
+              images={activeProduct?.images && activeProduct.images.length > 0 ? activeProduct.images : [activeProduct?.image || activeProduct?.imageUrl || PRODUCT_IMAGE_PLACEHOLDER]}
+              productName={activeProduct?.name || ''}
+              variantImage={activeVariantImage}
             />
           </div>
 
           {/* Right Column: Dynamic Purchase Summary */}
-          <div className="lg:col-span-6">
-            <ProductSummary product={activeProduct} onAddToCart={handleAddToCart} onBuyNow={handleBuyNow} />
+          <div className="lg:col-span-6 bg-[#1C130E] p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl border border-[#2C2018] shadow-2xl">
+            <ProductSummary
+              product={activeProduct}
+              onVariantChange={handleVariantChange}
+              onBuyNow={handleBuyNow}
+            />
           </div>
         </div>
 

@@ -49,15 +49,27 @@ export async function supabaseFetch<T>(table: string, options: { method?: string
     });
 
     if (!res.ok) {
-      const errText = await res.text();
-      console.error(`Supabase DB query error on table ${table} [${res.status} ${res.statusText}]:`, errText);
+      // If 404 (table doesn't exist yet in remote schema), gracefully return null
+      if (res.status === 404) {
+        return null;
+      }
+      // If 400 and there was a query (e.g. order by non-existent column), retry without query
+      if (res.status === 400 && query && method === 'GET') {
+        const retryRes = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+          method: 'GET',
+          headers,
+        });
+        if (retryRes.ok) {
+          const retryData = await retryRes.json();
+          return retryData as T;
+        }
+      }
       return null;
     }
 
     const data = await res.json();
     return data as T;
   } catch (err) {
-    console.warn(`Supabase DB fetch failed on table ${table}:`, err);
     return null;
   }
 }

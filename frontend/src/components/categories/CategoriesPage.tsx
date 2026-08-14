@@ -1,249 +1,317 @@
 import React, { useState, useMemo } from 'react';
-import { Badge, SparklesIcon, Card, Button } from '../../design-system';
-import { useCMS } from '../../context/CMSContext';
+import { useCMS, type CMSProduct } from '../../context/CMSContext';
+import { ProductCard } from '../product/ProductCard';
 
-export interface CategoryItem {
-  id: string;
-  name: string;
-  slug: string;
-  description: string;
-  count: string;
-  icon: string;
-  tag: string;
-  bannerImage: string;
-  products: Array<{
-    id: string;
-    title: string;
-    fragrance: string;
-    price: number;
-    image: string;
-    badge?: string;
-    rawProduct?: any;
-  }>;
-}
-
-const FALLBACK_CATEGORIES_DATA: CategoryItem[] = [
-  {
-    id: 'glass-jars',
-    name: 'Luxury Glass Jars',
-    slug: 'glass-jars',
-    description: 'Heavy-base Italian frosted glass with hand-carved wooden lids. Designed for long, clean burns.',
-    count: '12 Formulations',
-    icon: '🕯️',
-    tag: 'Popular',
-    bannerImage: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?w=1200&auto=format&fit=crop&q=80',
-    products: [
-      {
-        id: 'prod-1',
-        title: 'Velvet Rose & Smoked Amber',
-        fragrance: 'Damask Rose, Oud Wood, Smoked Amber',
-        price: 1499,
-        image: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?w=500&auto=format&fit=crop&q=80',
-        badge: 'Best Seller',
-      },
-    ],
-  },
-];
-
-export interface CategoriesPageProps {
+interface CategoriesPageProps {
+  onProductClick?: (product: CMSProduct) => void;
+  onSelectProduct?: (product: CMSProduct) => void;
   onNavigateToShop?: () => void;
-  onSelectProduct?: (product: any) => void;
+  initialCategorySlug?: string;
 }
 
-export const CategoriesPage: React.FC<CategoriesPageProps> = ({ onNavigateToShop, onSelectProduct }) => {
-  const { products: cmsProducts } = useCMS();
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string>('all');
+export const CategoriesPage: React.FC<CategoriesPageProps> = ({
+  onProductClick,
+  onSelectProduct,
+  onNavigateToShop: _onNavigateToShop,
+  initialCategorySlug,
+}) => {
+  const { mainCategories, subCategories, fragrances, sizes, products } = useCMS();
 
-  const categoriesList = useMemo(() => {
-    if (!cmsProducts || cmsProducts.length === 0) return FALLBACK_CATEGORIES_DATA;
-
-    const map = new Map<string, any[]>();
-    cmsProducts.forEach((p) => {
-      const catName = p.category || 'Glass Jars';
-      if (!map.has(catName)) map.set(catName, []);
-      map.get(catName)!.push(p);
-    });
-
-    const categoryIcons: Record<string, string> = {
-      'Glass Jars': '🕯️',
-      'Luxury Glass Jars': '🕯️',
-      'Travel Tins': '✨',
-      'Botanical Travel Tins': '✨',
-      'Pillars': '🌿',
-      'Aromatherapy Pillars': '🌿',
-      'Diffusers': '💧',
-      'Reed Diffusers & Ambient Oils': '💧',
-      'Gift Boxes': '🎁',
-      'Wax Melts': '⚡',
-      'Scented Candles': '🕯️',
-    };
-
-    return Array.from(map.entries()).map(([catName, prods], idx) => ({
-      id: `cat-${idx}`,
-      name: catName,
-      slug: catName.toLowerCase().replace(/\s+/g, '-'),
-      description: prods[0]?.vesselDescription || `Hand-poured ${catName} formulations with premium essential oils.`,
-      count: `${prods.length} Formulations`,
-      icon: categoryIcons[catName] || '🕯️',
-      tag: 'Artisanal',
-      bannerImage: prods[0]?.image || prods[0]?.imageUrl || 'https://images.unsplash.com/photo-1603006905003-be475563bc59?w=1200',
-      products: prods.map((p) => ({
-        id: p.id,
-        title: p.name,
-        fragrance: p.topNotes || p.scentProfile || 'Botanical Blend',
-        price: Math.round(p.price || 999),
-        image: p.image || p.imageUrl || 'https://images.unsplash.com/photo-1603006905003-be475563bc59?w=500',
-        badge: p.isBestSeller ? 'Best Seller' : p.isNew ? 'New Batch' : 'Signature',
-        rawProduct: p,
-      })),
-    }));
-  }, [cmsProducts]);
-
-  const selectedCategory = categoriesList.find((c) => c.id === selectedCategoryId);
-
-  const handleProductClick = (prod: any, cat: CategoryItem) => {
-    const productData = prod.rawProduct || {
-      id: prod.id,
-      name: prod.title,
-      price: prod.price,
-      topNotes: prod.fragrance,
-      vesselDescription: cat.description,
-      category: cat.name,
-      image: prod.image,
-    };
-    try {
-      localStorage.setItem('tcl_selected_product', JSON.stringify(productData));
-    } catch {}
-    if (onSelectProduct) {
-      onSelectProduct(productData);
-    } else {
-      window.location.hash = '#pdp';
-    }
+  const handleProductSelect = (p: CMSProduct) => {
+    if (onSelectProduct) onSelectProduct(p);
+    else if (onProductClick) onProductClick(p);
   };
 
-  return (
-    <div className="w-full bg-[#FAF6F0] min-h-screen font-sans">
-      {/* 1. Header Hero Banner */}
-      <section className="bg-gradient-to-b from-[#2A1E17] to-[#1C130E] text-[#FAF6F0] py-16 sm:py-24 px-6 sm:px-12 text-center relative overflow-hidden border-b border-[#3D2C22]">
-        <div className="max-w-4xl mx-auto space-y-4 relative z-10">
-          <Badge variant="gold" icon={<SparklesIcon size={12} />}>CURATED CATEGORIES</Badge>
-          <h1 className="text-4xl sm:text-6xl font-serif font-bold tracking-tight text-[#FAF6F0]">
-            Artisanal Candle Categories
-          </h1>
-          <p className="text-sm sm:text-base text-[#E5D9C5] font-light max-w-2xl mx-auto leading-relaxed">
-            Discover our hand-poured soy glass jars, brass travel tins, pure beeswax pillars, ambient reed diffusers, and bespoke gift box sets.
-          </p>
-        </div>
-      </section>
+  // Active Main Category
+  const [selectedCatId, setSelectedCatId] = useState<string>(() => {
+    if (initialCategorySlug) {
+      const match = mainCategories.find((c) => c.slug === initialCategorySlug || c.name === initialCategorySlug);
+      if (match) return match.id;
+    }
+    return mainCategories[0]?.id || '';
+  });
 
-      {/* 2. Category Selector Filter Bar */}
-      <div className="bg-[#F4EFE6] border-b border-[#E5D9C5] sticky top-0 z-20 shadow-subtle">
-        <div className="max-w-7xl mx-auto px-6 sm:px-12 py-4 flex items-center gap-3 overflow-x-auto no-scrollbar">
-          <button
-            onClick={() => setSelectedCategoryId('all')}
-            className={`px-4 py-2 rounded-xs text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer ${
-              selectedCategoryId === 'all'
-                ? 'bg-[#2A1E17] text-[#D4AF37] shadow-card'
-                : 'bg-transparent text-[#69574A] hover:text-[#2A1E17] hover:bg-[#FAF6F0]'
-            }`}
-          >
-            All Categories ({categoriesList.length})
-          </button>
-          {categoriesList.map((cat) => (
+  // Active Subcategory
+  const [selectedSubId, setSelectedSubId] = useState<string>('');
+
+  // Facet Filters
+  const [selectedFragrance, setSelectedFragrance] = useState<string>('');
+  const [selectedSize, setSelectedSize] = useState<string>('');
+  const [priceMax, setPriceMax] = useState<number>(5000);
+  const [inStockOnly, setInStockOnly] = useState<boolean>(false);
+  const [sortBy, setSortBy] = useState<string>('featured');
+
+  const currentCategory = useMemo(
+    () => mainCategories.find((c) => c.id === selectedCatId) || mainCategories[0],
+    [mainCategories, selectedCatId]
+  );
+
+  const availableSubs = useMemo(
+    () => subCategories.filter((s) => s.mainCategoryId === currentCategory?.id),
+    [subCategories, currentCategory]
+  );
+
+  // Filter Products
+  const filteredProducts = useMemo(() => {
+    return products.filter((p) => {
+      // Main Category Match
+      const matchesCat = currentCategory
+        ? p.mainCategoryId === currentCategory.id || p.category === currentCategory.name
+        : true;
+
+      // Subcategory Match
+      const matchesSub = selectedSubId
+        ? p.subCategoryId === selectedSubId || p.subCategory === availableSubs.find((s) => s.id === selectedSubId)?.name
+        : true;
+
+      // Fragrance Match
+      const matchesFrag = selectedFragrance
+        ? p.scentProfile?.toLowerCase().includes(selectedFragrance.toLowerCase()) ||
+          p.availableFragranceIds?.includes(selectedFragrance) ||
+          p.variants?.some((v) => v.fragranceId === selectedFragrance || v.fragranceName?.toLowerCase().includes(selectedFragrance.toLowerCase()))
+        : true;
+
+      // Size Match
+      const matchesSize = selectedSize
+        ? p.availableSizeIds?.includes(selectedSize) ||
+          p.variants?.some((v) => v.sizeId === selectedSize || v.sizeName?.includes(selectedSize))
+        : true;
+
+      // Price Match
+      const matchesPrice = p.price <= priceMax;
+
+      // In Stock Match
+      const matchesStock = inStockOnly ? p.inStock : true;
+
+      return matchesCat && matchesSub && matchesFrag && matchesSize && matchesPrice && matchesStock;
+    }).sort((a, b) => {
+      if (sortBy === 'price_asc') return a.price - b.price;
+      if (sortBy === 'price_desc') return b.price - a.price;
+      if (sortBy === 'rating') return (b.rating || 0) - (a.rating || 0);
+      if (sortBy === 'newest') return (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0);
+      return (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0);
+    });
+  }, [
+    products,
+    currentCategory,
+    selectedSubId,
+    availableSubs,
+    selectedFragrance,
+    selectedSize,
+    priceMax,
+    inStockOnly,
+    sortBy,
+  ]);
+
+  return (
+    <div className="min-h-screen bg-[#140D09] text-[#FDFBF7] py-10 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto space-y-10">
+        {/* Category Hero Banner */}
+        {currentCategory && (
+          <div className="relative rounded-3xl overflow-hidden border border-[#2C2018] bg-[#1C130E] p-8 lg:p-12">
+            <div className="relative z-10 max-w-2xl space-y-3">
+              <span className="text-[11px] font-mono uppercase tracking-widest text-amber-400">
+                Atelier Catalog
+              </span>
+              <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-medium text-[#FDFBF7]">
+                {currentCategory.name}
+              </h1>
+              <p className="text-sm text-stone-400 leading-relaxed font-light">
+                {currentCategory.description || 'Explore our hand-poured olfactory creations formulated for serene spaces.'}
+              </p>
+            </div>
+            {currentCategory.imageUrl && (
+              <img
+                src={currentCategory.imageUrl}
+                alt={currentCategory.name}
+                className="absolute right-0 top-0 w-full md:w-1/2 h-full object-cover opacity-20 md:opacity-40"
+              />
+            )}
+          </div>
+        )}
+
+        {/* Main Categories Navigation Bar */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+          {mainCategories.map((c) => {
+            const isSelected = c.id === currentCategory?.id;
+            return (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => {
+                  setSelectedCatId(c.id);
+                  setSelectedSubId('');
+                }}
+                className={`px-5 py-2.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${
+                  isSelected
+                    ? 'bg-amber-600 text-stone-950 font-semibold shadow-lg'
+                    : 'bg-[#1C130E] border border-[#2C2018] text-stone-300 hover:border-stone-600'
+                }`}
+              >
+                {c.name}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Subcategories Tabs (if available) */}
+        {availableSubs.length > 0 && (
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-[#2C2018]">
             <button
-              key={cat.id}
-              onClick={() => setSelectedCategoryId(cat.id)}
-              className={`px-4 py-2 rounded-xs text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer flex items-center gap-2 ${
-                selectedCategoryId === cat.id
-                  ? 'bg-[#2A1E17] text-[#D4AF37] shadow-card'
-                  : 'bg-transparent text-[#69574A] hover:text-[#2A1E17] hover:bg-[#FAF6F0]'
+              type="button"
+              onClick={() => setSelectedSubId('')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-colors ${
+                selectedSubId === ''
+                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                  : 'text-stone-400 hover:text-stone-200'
               }`}
             >
-              <span>{cat.icon}</span>
-              <span>{cat.name}</span>
+              All Formulations
             </button>
-          ))}
-        </div>
-      </div>
-
-      {/* 3. Category Showcase Content */}
-      <div className="max-w-7xl mx-auto px-6 sm:px-12 py-12 space-y-16">
-        {(selectedCategoryId === 'all' ? categoriesList : [selectedCategory!]).map((cat) => (
-          <div key={cat.id} id={cat.id} className="space-y-8 border-b border-[#E5D9C5] pb-12 last:border-b-0">
-            {/* Category Header Card */}
-            <div className="bg-[#F4EFE6] border border-[#E5D9C5] rounded-md p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-card">
-              <div className="space-y-2 max-w-2xl">
-                <div className="flex items-center gap-3">
-                  <span className="text-3xl">{cat.icon}</span>
-                  <Badge variant="gold">{cat.tag}</Badge>
-                  <span className="text-xs text-[#8C7A6B] font-semibold">{cat.count}</span>
-                </div>
-                <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#2A1E17]">
-                  {cat.name}
-                </h2>
-                <p className="text-xs sm:text-sm text-[#69574A] font-light leading-relaxed">
-                  {cat.description}
-                </p>
-              </div>
-
-              {onNavigateToShop && (
-                <Button
-                  variant="gold"
-                  size="md"
-                  onClick={onNavigateToShop}
-                  className="shrink-0"
+            {availableSubs.map((sub) => {
+              const isSelected = sub.id === selectedSubId;
+              return (
+                <button
+                  key={sub.id}
+                  type="button"
+                  onClick={() => setSelectedSubId(sub.id)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-colors ${
+                    isSelected
+                      ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                      : 'text-stone-400 hover:text-stone-200'
+                  }`}
                 >
-                  Explore All {cat.name} →
-                </Button>
-              )}
-            </div>
-
-            {/* Category Products Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {cat.products.map((prod) => (
-                <Card
-                  key={prod.id}
-                  variant="bordered"
-                  padding="md"
-                  onClick={() => handleProductClick(prod, cat)}
-                  className="group bg-[#FAF6F0] space-y-4 hover:border-[#D4AF37] transition-all cursor-pointer"
-                >
-                  <div className="relative aspect-square overflow-hidden rounded-xs bg-[#F4EFE6]">
-                    <img
-                      src={prod.image}
-                      alt={prod.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    {prod.badge && (
-                      <div className="absolute top-2 left-2 z-10">
-                        <Badge variant="gold" size="sm">{prod.badge}</Badge>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="space-y-1">
-                    <h3 className="font-serif font-bold text-base text-[#2A1E17] group-hover:text-[#D4AF37] transition-colors">
-                      {prod.title}
-                    </h3>
-                    <p className="text-xs text-[#8C7A6B] italic">{prod.fragrance}</p>
-                    <p className="text-base font-bold text-[#2A1E17] pt-1">
-                      ₹{prod.price.toLocaleString('en-IN')}.00
-                    </p>
-                  </div>
-
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    fullWidth
-                    onClick={() => handleProductClick(prod, cat)}
-                  >
-                    View Product Details →
-                  </Button>
-                </Card>
-              ))}
-            </div>
+                  {sub.name}
+                </button>
+              );
+            })}
           </div>
-        ))}
+        )}
+
+        {/* Catalog Grid Layout with Facet Filters Sidebar */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
+          {/* Facet Filters Sidebar */}
+          <div className="bg-[#1C130E] p-6 rounded-2xl border border-[#2C2018] space-y-6">
+            <div className="flex items-center justify-between border-b border-[#2C2018] pb-3">
+              <h3 className="font-serif text-sm font-medium text-[#FDFBF7]">Filters</h3>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedFragrance('');
+                  setSelectedSize('');
+                  setPriceMax(5000);
+                  setInStockOnly(false);
+                }}
+                className="text-[10px] font-mono text-amber-400 hover:text-amber-300"
+              >
+                Reset All
+              </button>
+            </div>
+
+            {/* Fragrance Filter */}
+            <div className="space-y-2">
+              <label className="block text-xs font-mono uppercase text-stone-400">Fragrance</label>
+              <select
+                value={selectedFragrance}
+                onChange={(e) => setSelectedFragrance(e.target.value)}
+                className="w-full bg-[#140D09] border border-[#2C2018] rounded-lg p-2 text-xs text-[#FDFBF7]"
+              >
+                <option value="">All Fragrances</option>
+                {fragrances.map((f) => (
+                  <option key={f.id} value={f.id}>
+                    {f.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Size Filter */}
+            <div className="space-y-2">
+              <label className="block text-xs font-mono uppercase text-stone-400">Size</label>
+              <select
+                value={selectedSize}
+                onChange={(e) => setSelectedSize(e.target.value)}
+                className="w-full bg-[#140D09] border border-[#2C2018] rounded-lg p-2 text-xs text-[#FDFBF7]"
+              >
+                <option value="">All Sizes</option>
+                {sizes.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Price Range */}
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs">
+                <span className="font-mono uppercase text-stone-400">Max Price</span>
+                <span className="font-mono text-amber-400">₹{priceMax}</span>
+              </div>
+              <input
+                type="range"
+                min="500"
+                max="5000"
+                step="100"
+                value={priceMax}
+                onChange={(e) => setPriceMax(parseInt(e.target.value))}
+                className="w-full accent-amber-500 bg-[#140D09] rounded-lg"
+              />
+            </div>
+
+            {/* In Stock Toggle */}
+            <label className="flex items-center gap-2 cursor-pointer text-xs text-stone-300">
+              <input
+                type="checkbox"
+                checked={inStockOnly}
+                onChange={(e) => setInStockOnly(e.target.checked)}
+                className="rounded bg-[#140D09] border-[#2C2018] text-amber-500"
+              />
+              <span>In Stock Only</span>
+            </label>
+          </div>
+
+          {/* Product Grid & Sorting */}
+          <div className="lg:col-span-3 space-y-6">
+            <div className="flex items-center justify-between gap-4 bg-[#1C130E] p-3.5 rounded-xl border border-[#2C2018]">
+              <span className="text-xs font-mono text-stone-400">
+                Showing {filteredProducts.length} Creations
+              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-stone-400">Sort by:</span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="bg-[#140D09] border border-[#2C2018] rounded-lg px-3 py-1 text-xs text-[#FDFBF7]"
+                >
+                  <option value="featured">Featured First</option>
+                  <option value="newest">New Arrivals</option>
+                  <option value="price_asc">Price: Low to High</option>
+                  <option value="price_desc">Price: High to Low</option>
+                  <option value="rating">Highest Rated</option>
+                </select>
+              </div>
+            </div>
+
+            {filteredProducts.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredProducts.map((prod) => (
+                  <ProductCard
+                    key={prod.id}
+                    product={prod}
+                    onProductClick={handleProductSelect}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="p-12 text-center bg-[#1C130E] rounded-2xl border border-[#2C2018] space-y-2">
+                <p className="text-2xl">🕯️</p>
+                <p className="font-serif text-base text-[#FDFBF7]">No creations match your filter criteria.</p>
+                <p className="text-xs text-stone-400">Try adjusting your filters or search keywords.</p>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,36 +1,46 @@
 export const colors = {
   ivory: {
-    50: '#FCFAF7',
+    50: '#FDFBF8',
     100: '#FAF6F0',
     200: '#F5EEE4',
     300: '#EFE4D3',
   },
   cream: {
-    50: '#F9F7F2',
+    50: '#FAF7F2',
     100: '#F4EFE6',
     200: '#EBE2D3',
     300: '#DFD2BD',
   },
   beige: {
     100: '#F3EBDD',
-    200: '#E5D9C5',
-    300: '#D4C3AA',
+    200: '#E5DAC7',
+    300: '#D6C7AF',
     400: '#C2AE90',
   },
   brown: {
-    500: '#A68B75',
-    600: '#8C7A6B',
-    700: '#69574A',
-    800: '#4A3B32',
-    900: '#2A1E17',
-    950: '#1C130E',
+    500: '#A28B77',
+    600: '#847262',
+    700: '#5E4E42',
+    800: '#3E3027',
+    900: '#241812',
+    950: '#180F0A',
   },
   gold: {
-    300: '#F5E6A3',
-    400: '#E6CA65',
-    500: '#D4AF37',
-    600: '#C5A059',
-    700: '#A38038',
+    300: '#F3E4A0',
+    400: '#DEB554',
+    500: '#C5983A',
+    600: '#A87D29',
+    700: '#8C651F',
+  },
+  terracotta: {
+    soft: '#F9ECE7',
+    DEFAULT: '#BA6648',
+    dark: '#964B31',
+  },
+  sage: {
+    soft: '#EEF3ED',
+    DEFAULT: '#6B7B69',
+    dark: '#4D5B4B',
   },
   status: {
     success: {
@@ -55,10 +65,12 @@ export const colors = {
     },
   },
   gradients: {
-    gold: 'linear-gradient(135deg, #E6CA65 0%, #D4AF37 50%, #C5A059 100%)',
-    espresso: 'linear-gradient(135deg, #4A3B32 0%, #2A1E17 100%)',
+    gold: 'linear-gradient(135deg, #DEB554 0%, #C5983A 50%, #A87D29 100%)',
+    espresso: 'linear-gradient(135deg, #3E3027 0%, #241812 100%)',
     ivoryGlow: 'linear-gradient(180deg, #FAF6F0 0%, #F4EFE6 100%)',
-    shimmer: 'linear-gradient(90deg, #EBE2D3 25%, #FCFAF7 50%, #EBE2D3 75%)',
+    shimmer: 'linear-gradient(90deg, #EBE2D3 25%, #FDFBF8 50%, #EBE2D3 75%)',
+    warmTerracotta: 'linear-gradient(135deg, #F9ECE7 0%, #FAF6F0 100%)',
+    botanicalSage: 'linear-gradient(135deg, #EEF3ED 0%, #FAF6F0 100%)',
   },
 } as const;
 

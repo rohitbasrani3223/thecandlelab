@@ -1,5 +1,6 @@
 export * from './HeroBanner';
 export * from './CategoryGrid';
+export * from './ExploreCollections';
 export * from './FeaturedCollection';
 export * from './BestSellers';
 export * from './CollectionsShowcase';
@@ -10,3 +11,4 @@ export * from './InstagramGallery';
 export * from './FAQSection';
 export * from './NewsletterSection';
 export * from './HomePage';
+

@@ -15,29 +15,37 @@ class ProductVariant extends Model
     public $incrementing = false;
 
     protected $fillable = [
+        'id',
         'product_id',
         'sku',
         'title',
-        'mrp',
-        'selling_price',
+        'fragrance_id',
+        'fragrance_name',
+        'size_id',
+        'size_name',
+        'color_id',
+        'color_name',
+        'color_code',
+        'wick_type_id',
+        'wick_type_name',
+        'price',
+        'original_price',
         'cost_price',
-        'discount_percent',
+        'stock',
+        'low_stock_threshold',
+        'image_url',
         'is_default',
         'status',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'mrp' => 'decimal:2',
-            'selling_price' => 'decimal:2',
-            'cost_price' => 'decimal:2',
-            'discount_percent' => 'integer',
-            'is_default' => 'boolean',
-            'created_at' => 'datetime',
-            'updated_at' => 'datetime',
-        ];
-    }
+    protected $casts = [
+        'price' => 'decimal:2',
+        'original_price' => 'decimal:2',
+        'cost_price' => 'decimal:2',
+        'stock' => 'integer',
+        'low_stock_threshold' => 'integer',
+        'is_default' => 'boolean',
+    ];
 
     protected static function boot()
     {
@@ -46,12 +54,35 @@ class ProductVariant extends Model
             if (empty($model->{$model->getKeyName()})) {
                 $model->{$model->getKeyName()} = (string) Str::uuid();
             }
+            if (empty($model->sku)) {
+                $model->sku = 'SKU-' . strtoupper(Str::random(8));
+            }
         });
     }
 
     public function product()
     {
         return $this->belongsTo(Product::class, 'product_id');
+    }
+
+    public function fragrance()
+    {
+        return $this->belongsTo(Fragrance::class, 'fragrance_id');
+    }
+
+    public function size()
+    {
+        return $this->belongsTo(ProductSize::class, 'size_id');
+    }
+
+    public function color()
+    {
+        return $this->belongsTo(ProductColor::class, 'color_id');
+    }
+
+    public function wickType()
+    {
+        return $this->belongsTo(WickType::class, 'wick_type_id');
     }
 
     public function inventory()

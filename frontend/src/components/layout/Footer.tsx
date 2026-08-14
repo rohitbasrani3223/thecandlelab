@@ -22,19 +22,19 @@ export const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="bg-[#1C130E] text-[#FAF6F0] border-t border-[#3D2C22] font-sans pt-16 pb-8">
-      <div className="max-w-7xl mx-auto px-6 sm:px-12 space-y-16">
+    <footer className="bg-[#180F0A] text-[#FAF7F2] border-t border-[#3E3027] font-sans pt-16 pb-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 space-y-16">
         {/* Top Newsletter & Brand Statement */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center bg-[#2A1E17] p-8 sm:p-12 rounded-md border border-[#4A3B32] shadow-card">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center bg-[#241812] p-8 sm:p-12 rounded-3xl border border-[#3E3027] shadow-[0_16px_36px_rgba(24,15,10,0.2)]">
           <div className="lg:col-span-6 space-y-3">
-            <div className="flex items-center gap-2 text-[#D4AF37] text-xs uppercase font-bold tracking-widest">
+            <div className="flex items-center gap-2 text-[#DEB554] text-xs uppercase font-bold tracking-widest">
               <SparklesIcon size={14} />
               <span>THE CANDLE CLUB VIP</span>
             </div>
-            <h3 className="font-serif font-bold text-2xl sm:text-3xl text-[#FAF6F0]">
+            <h3 className="font-serif font-bold text-2xl sm:text-3xl text-[#FAF7F2]">
               Receive 15% Off Your First Order
             </h3>
-            <p className="text-xs text-[#E5D9C5] leading-relaxed max-w-lg">
+            <p className="text-xs text-[#E5DAC7] leading-relaxed max-w-lg">
               Subscribe to unlock private vault releases, seasonal scent previews, and exclusive candle care tutorials.
             </p>
           </div>
@@ -46,10 +46,10 @@ export const Footer: React.FC = () => {
                 placeholder="Enter your email address..."
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="bg-[#1C130E] text-[#FAF6F0] border-[#4A3B32] placeholder-[#8C7A6B] focus:border-[#D4AF37]"
+                className="bg-[#180F0A] text-[#FAF7F2] border-[#3E3027] placeholder-[#847262] focus:border-[#C5983A]"
               />
             </div>
-            <Button type="submit" variant="gold" size="md" className="shrink-0">
+            <Button type="submit" variant="gold" size="md" className="shrink-0 font-bold">
               Join Club
             </Button>
           </form>
@@ -60,22 +60,22 @@ export const Footer: React.FC = () => {
           {/* Brand Info */}
           <div className="col-span-2 space-y-4">
             <div className="flex items-center gap-3">
-              <img src="/logo.jpeg" alt="The Candle Lab Logo" className="h-10 w-auto object-contain rounded-xs border border-[#4A3B32]" />
-              <span className="font-serif font-extrabold text-xl tracking-wider text-[#FAF6F0]">
+              <img src="/logo.jpeg" alt="The Candle Lab Logo" className="h-10 w-auto object-contain rounded-md border border-[#3E3027]" />
+              <span className="font-serif font-extrabold text-xl tracking-wider text-[#FAF7F2]">
                 THE CANDLE LAB
               </span>
             </div>
 
-            <p className="text-[#C2AE90] leading-relaxed max-w-sm">
+            <p className="text-[#D6C7AF] leading-relaxed max-w-sm text-xs">
               {settings.footerText || 'Artisanal hand-poured soy candles crafted in small batches using 100% natural botanical oils and lead-free cotton wicks.'}
             </p>
-            <div className="flex items-center gap-3 pt-2 text-[#E5D9C5]">
+            <div className="flex items-center gap-3 pt-2 text-[#E5DAC7]">
               {settings.socialLinks?.instagram && (
                 <a
                   href={settings.socialLinks.instagram}
                   target="_blank"
                   rel="noreferrer"
-                  className="w-8 h-8 rounded-full bg-[#2A1E17] border border-[#4A3B32] flex items-center justify-center hover:text-[#D4AF37] hover:border-[#D4AF37] transition-colors"
+                  className="w-8 h-8 rounded-full bg-[#241812] border border-[#3E3027] flex items-center justify-center hover:text-[#DEB554] hover:border-[#DEB554] transition-colors"
                   aria-label="Instagram"
                   title="Instagram"
                 >
@@ -87,7 +87,7 @@ export const Footer: React.FC = () => {
                   href={settings.socialLinks.facebook}
                   target="_blank"
                   rel="noreferrer"
-                  className="w-8 h-8 rounded-full bg-[#2A1E17] border border-[#4A3B32] flex items-center justify-center hover:text-[#D4AF37] hover:border-[#D4AF37] transition-colors"
+                  className="w-8 h-8 rounded-full bg-[#241812] border border-[#3E3027] flex items-center justify-center hover:text-[#DEB554] hover:border-[#DEB554] transition-colors"
                   aria-label="Facebook"
                   title="Facebook"
                 >
@@ -99,7 +99,7 @@ export const Footer: React.FC = () => {
                   href={settings.socialLinks.pinterest}
                   target="_blank"
                   rel="noreferrer"
-                  className="w-8 h-8 rounded-full bg-[#2A1E17] border border-[#4A3B32] flex items-center justify-center hover:text-[#D4AF37] hover:border-[#D4AF37] transition-colors"
+                  className="w-8 h-8 rounded-full bg-[#241812] border border-[#3E3027] flex items-center justify-center hover:text-[#DEB554] hover:border-[#DEB554] transition-colors"
                   aria-label="Pinterest"
                   title="Pinterest"
                 >
@@ -111,7 +111,7 @@ export const Footer: React.FC = () => {
                   href={settings.socialLinks.whatsapp}
                   target="_blank"
                   rel="noreferrer"
-                  className="w-8 h-8 rounded-full bg-[#2A1E17] border border-[#4A3B32] flex items-center justify-center hover:text-[#D4AF37] hover:border-[#D4AF37] transition-colors"
+                  className="w-8 h-8 rounded-full bg-[#241812] border border-[#3E3027] flex items-center justify-center hover:text-[#DEB554] hover:border-[#DEB554] transition-colors"
                   aria-label="WhatsApp"
                   title="WhatsApp"
                 >
@@ -123,51 +123,51 @@ export const Footer: React.FC = () => {
 
           {/* Column 1: Shop */}
           <div className="space-y-3">
-            <h4 className="text-xs uppercase font-bold tracking-widest text-[#D4AF37]">Shop Collections</h4>
-            <ul className="space-y-2 text-[#C2AE90]">
-              <li><a href="#shop" className="hover:text-[#FAF6F0] transition-colors">Scented Candles</a></li>
-              <li><a href="#collections" className="hover:text-[#FAF6F0] transition-colors">Curated Collections</a></li>
-              <li><a href="#categories" className="hover:text-[#FAF6F0] transition-colors">Category Showcase</a></li>
-              <li><a href="#shop" className="hover:text-[#FAF6F0] transition-colors">Luxury Glass Jars</a></li>
-              <li><a href="#shop" className="hover:text-[#FAF6F0] transition-colors">Bespoke Gift Boxes</a></li>
+            <h4 className="text-xs uppercase font-bold tracking-widest text-[#DEB554]">Shop Collections</h4>
+            <ul className="space-y-2 text-[#D6C7AF]">
+              <li><a href="#shop" className="hover:text-[#FAF7F2] transition-colors">Scented Candles</a></li>
+              <li><a href="#collections" className="hover:text-[#FAF7F2] transition-colors">Curated Collections</a></li>
+              <li><a href="#categories" className="hover:text-[#FAF7F2] transition-colors">Category Showcase</a></li>
+              <li><a href="#shop" className="hover:text-[#FAF7F2] transition-colors">Luxury Glass Jars</a></li>
+              <li><a href="#shop" className="hover:text-[#FAF7F2] transition-colors">Bespoke Gift Boxes</a></li>
             </ul>
           </div>
 
           {/* Column 2: Our Brand */}
           <div className="space-y-3">
-            <h4 className="text-xs uppercase font-bold tracking-widest text-[#D4AF37]">About The Lab</h4>
-            <ul className="space-y-2 text-[#C2AE90]">
-              <li><a href="#about" className="hover:text-[#FAF6F0] transition-colors">About Us</a></li>
-              <li><a href="#blog" className="hover:text-[#FAF6F0] transition-colors">Atelier Gazette & Journal</a></li>
-              <li><a href="#careers" className="hover:text-[#FAF6F0] transition-colors">Careers & Hiring</a></li>
-              <li><a href="#contact" className="hover:text-[#FAF6F0] transition-colors">Press & PR</a></li>
+            <h4 className="text-xs uppercase font-bold tracking-widest text-[#DEB554]">About The Lab</h4>
+            <ul className="space-y-2 text-[#D6C7AF]">
+              <li><a href="#about" className="hover:text-[#FAF7F2] transition-colors">About Us</a></li>
+              <li><a href="#blog" className="hover:text-[#FAF7F2] transition-colors">Atelier Gazette & Journal</a></li>
+              <li><a href="#careers" className="hover:text-[#FAF7F2] transition-colors">Careers & Hiring</a></li>
+              <li><a href="#contact" className="hover:text-[#FAF7F2] transition-colors">Press & PR</a></li>
             </ul>
           </div>
 
           {/* Column 3: Customer Care */}
           <div className="space-y-3">
-            <h4 className="text-xs uppercase font-bold tracking-widest text-[#D4AF37]">Customer Support</h4>
-            <ul className="space-y-2 text-[#C2AE90]">
-              <li><a href="#shipping-policy" className="hover:text-[#FAF6F0] transition-colors">Shipping Policy</a></li>
-              <li><a href="#refund-policy" className="hover:text-[#FAF6F0] transition-colors">Refund & Returns Policy</a></li>
-              <li><a href="#faq" className="hover:text-[#FAF6F0] transition-colors">FAQ & Help Center</a></li>
-              <li><a href="#contact" className="hover:text-[#FAF6F0] transition-colors">Contact Concierge</a></li>
-              <li><a href="#account" className="hover:text-[#FAF6F0] transition-colors">Order Tracking</a></li>
+            <h4 className="text-xs uppercase font-bold tracking-widest text-[#DEB554]">Customer Support</h4>
+            <ul className="space-y-2 text-[#D6C7AF]">
+              <li><a href="#shipping-policy" className="hover:text-[#FAF7F2] transition-colors">Shipping Policy</a></li>
+              <li><a href="#refund-policy" className="hover:text-[#FAF7F2] transition-colors">Refund & Returns Policy</a></li>
+              <li><a href="#faq" className="hover:text-[#FAF7F2] transition-colors">FAQ & Help Center</a></li>
+              <li><a href="#contact" className="hover:text-[#FAF7F2] transition-colors">Contact Concierge</a></li>
+              <li><a href="#account" className="hover:text-[#FAF7F2] transition-colors">Order Tracking</a></li>
             </ul>
           </div>
         </div>
 
         {/* Bottom Copyright Bar & Legal Links */}
-        <div className="pt-8 border-t border-[#3D2C22] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#8C7A6B]">
+        <div className="pt-8 border-t border-[#3E3027] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#847262]">
           <div>
             © {new Date().getFullYear()} The Candle Lab. All rights reserved. Crafted for Luxury & Serenity.
           </div>
           <div className="flex items-center gap-4 text-[11px]">
-            <a href="#privacy-policy" className="hover:text-[#FAF6F0]">Privacy Policy</a>
+            <a href="#privacy-policy" className="hover:text-[#FAF7F2]">Privacy Policy</a>
             <span>•</span>
-            <a href="#terms-conditions" className="hover:text-[#FAF6F0]">Terms & Conditions</a>
+            <a href="#terms-conditions" className="hover:text-[#FAF7F2]">Terms & Conditions</a>
             <span>•</span>
-            <a href="#shipping-policy" className="hover:text-[#FAF6F0]">Shipping Policy</a>
+            <a href="#shipping-policy" className="hover:text-[#FAF7F2]">Shipping Policy</a>
           </div>
         </div>
       </div>
