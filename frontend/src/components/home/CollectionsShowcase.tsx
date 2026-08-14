@@ -1,11 +1,19 @@
 import React from 'react';
 import { Button, Badge, SparklesIcon } from '../../design-system';
+import { useCMS } from '../../context/CMSContext';
 
 export interface CollectionsShowcaseProps {
   onNavigateToShop?: () => void;
 }
 
 export const CollectionsShowcase: React.FC<CollectionsShowcaseProps> = ({ onNavigateToShop }) => {
+  const { collections } = useCMS();
+
+  // If no collections have been created yet by the user in Admin, do not render hardcoded mock collections
+  if (!collections || collections.length === 0) {
+    return null;
+  }
+
   const handleShopClick = () => {
     if (onNavigateToShop) {
       onNavigateToShop();

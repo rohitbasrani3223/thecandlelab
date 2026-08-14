@@ -38,10 +38,12 @@ export const RegisterForm: React.FC = () => {
       if (res.success) {
         toast({
           type: 'success',
-          title: 'Account Created',
-          description: 'A 6-digit OTP verification code has been dispatched to your email & phone.',
+          title: 'Account Created Successfully!',
+          description: `Welcome to The Candle Lab, ${name}! You are now signed in.`,
         });
-        setAuthViewMode('verify-otp');
+        if (window.location.hash === '#auth') {
+          window.location.hash = '#account';
+        }
       } else {
         toast({
           type: 'error',

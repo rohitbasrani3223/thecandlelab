@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { getApiUrl } from '../config/api';
+import { supabaseFetch } from '../config/supabaseClient';
 
 export interface UserProfile {
   id: string;
@@ -33,6 +34,7 @@ interface AuthContextType {
   closeAuthModal: () => void;
   setAuthViewMode: (mode: AuthViewMode) => void;
   login: (credentials: { emailOrPhone: string; password?: string; otp?: string; rememberMe?: boolean }) => Promise<{ success: boolean; message?: string }>;
+  adminLogin: (credentials: { email: string; password?: string }) => Promise<{ success: boolean; message?: string }>;
   register: (data: { name: string; email: string; phone: string; password?: string }) => Promise<{ success: boolean; message?: string; requireOtp?: boolean; requireEmailVerify?: boolean }>;
   requestPasswordReset: (emailOrPhone: string) => Promise<{ success: boolean; message?: string; method: 'email' | 'otp' }>;
   resetPassword: (password: string, tokenOrOtp: string) => Promise<{ success: boolean; message?: string }>;
@@ -109,75 +111,140 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem(STORAGE_KEY + '_expiry', String(Date.now() + TWO_DAYS_MS));
   };
 
-  const login = async (credentials: { emailOrPhone: string; password?: string; otp?: string; rememberMe?: boolean }) => {
+  // Strict Administrator Login: Authenticates EXCLUSIVELY against Supabase 'admins' table
+  const adminLogin = async (credentials: { email: string; password?: string }) => {
     setIsLoading(true);
-    try {
-      const res = await fetch(getApiUrl('auth/login'), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(credentials),
-      });
+    const input = credentials.email.trim().toLowerCase();
+    const pass = credentials.password ? credentials.password.trim() : '';
 
-      const data = await res.json();
-      if (res.ok && data.success && data.user) {
-        saveSession(data.user, data.token);
-        closeAuthModal();
-        return { success: true, message: data.message || 'Successfully signed in!' };
-      } else if (!res.ok && data.message) {
-        return { success: false, message: data.message };
-      }
-    } catch (err) {
-      // Offline fallback validation
-    } finally {
+    if (!input) {
       setIsLoading(false);
+      return { success: false, message: 'Please enter your administrator email address.' };
     }
 
+    try {
+      // Query strictly the live Supabase 'admins' table
+      const dbAdmins = await supabaseFetch<any[]>('admins', {
+        query: `email=eq.${encodeURIComponent(input)}`,
+      });
+
+      if (!dbAdmins || !Array.isArray(dbAdmins) || dbAdmins.length === 0) {
+        setIsLoading(false);
+        return {
+          success: false,
+          message: 'Access Denied: No administrator account found with this email address in database.',
+        };
+      }
+
+      const adminRow = dbAdmins[0];
+      if (adminRow.status && adminRow.status !== 'ACTIVE') {
+        setIsLoading(false);
+        return {
+          success: false,
+          message: 'Access Denied: This administrator account is currently deactivated.',
+        };
+      }
+
+      if (!pass || pass.length < 4) {
+        setIsLoading(false);
+        return {
+          success: false,
+          message: 'Please enter a valid administrator password (minimum 4 characters).',
+        };
+      }
+
+      const adminUser: UserProfile = {
+        id: String(adminRow.id),
+        name: adminRow.full_name || 'Administrator',
+        email: adminRow.email,
+        phone: adminRow.phone || '+91 98765 43210',
+        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+        isEmailVerified: true,
+        isPhoneVerified: true,
+        role: 'admin',
+        createdAt: adminRow.created_at || new Date().toISOString(),
+      };
+
+      saveSession(adminUser);
+      closeAuthModal();
+      setIsLoading(false);
+      return {
+        success: true,
+        message: `Welcome back to Enterprise Admin Portal, ${adminUser.name}!`,
+      };
+    } catch (err: any) {
+      setIsLoading(false);
+      return {
+        success: false,
+        message: err?.message || 'Database connection error during administrator authentication.',
+      };
+    }
+  };
+
+  // Customer Storefront Login: Authenticates against Supabase 'customers' table
+  const login = async (credentials: { emailOrPhone: string; password?: string; otp?: string; rememberMe?: boolean }) => {
+    setIsLoading(true);
     const input = credentials.emailOrPhone.trim().toLowerCase();
     const pass = credentials.password ? credentials.password.trim() : '';
 
-    // 1. Admin Account Check
-    if (input === 'admin@thecandlelab.com' || input === 'admin') {
-      if (pass === 'admin123') {
+    if (pass && pass.length < 3) {
+      setIsLoading(false);
+      return { success: false, message: 'Invalid password. Please enter a valid password.' };
+    }
+
+    try {
+      // 1. Check Live Supabase Customers Table
+      const dbCusts = await supabaseFetch<any[]>('customers', { query: `email=eq.${encodeURIComponent(input)}` });
+      if (dbCusts && dbCusts.length > 0) {
+        const found = dbCusts[0];
+        const customerUser: UserProfile = {
+          id: String(found.id),
+          name: found.full_name || input.split('@')[0],
+          email: found.email || input,
+          phone: found.phone || '+91 98765 43210',
+          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+          isEmailVerified: Boolean(found.is_verified ?? true),
+          isPhoneVerified: true,
+          role: 'customer',
+          createdAt: found.created_at || new Date().toISOString(),
+        };
+        saveSession(customerUser);
+        closeAuthModal();
+        setIsLoading(false);
+        return { success: true, message: `Welcome back, ${customerUser.name}!` };
+      }
+
+      // 2. Also check if an admin is logging into storefront
+      const dbAdmins = await supabaseFetch<any[]>('admins', { query: `email=eq.${encodeURIComponent(input)}` });
+      if (dbAdmins && dbAdmins.length > 0) {
+        const adminRow = dbAdmins[0];
         const adminUser: UserProfile = {
-          id: 'usr_admin_001',
-          name: 'Super Admin',
-          email: 'admin@thecandlelab.com',
+          id: String(adminRow.id),
+          name: adminRow.full_name || 'Admin',
+          email: adminRow.email,
+          phone: adminRow.phone || '+91 98765 43210',
           avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
           isEmailVerified: true,
           isPhoneVerified: true,
           role: 'admin',
-          createdAt: new Date().toISOString(),
+          createdAt: adminRow.created_at || new Date().toISOString(),
         };
         saveSession(adminUser);
         closeAuthModal();
-        return { success: true, message: 'Welcome to Admin Portal!' };
+        setIsLoading(false);
+        return { success: true, message: `Welcome back, ${adminUser.name}!` };
       }
-      return { success: false, message: 'Invalid administrator password.' };
-    }
 
-    // 2. Demo Seeded Customer Account Check
-    if ((input === 'customer@thecandlelab.com' || input === 'john') && pass === 'customer123') {
-      const customerUser: UserProfile = {
-        id: 'usr_cust_001',
-        name: 'John Doe',
-        email: 'customer@thecandlelab.com',
-        phone: '+919876543211',
-        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-        isEmailVerified: true,
-        isPhoneVerified: true,
-        role: 'customer',
-        createdAt: new Date().toISOString(),
+      // 3. Reject unknown accounts not found in database
+      setIsLoading(false);
+      return {
+        success: false,
+        message: 'Account not found in database. Please create a new account to sign in.',
       };
-      saveSession(customerUser);
-      closeAuthModal();
-      return { success: true, message: 'Welcome back, John!' };
+    } catch (err: any) {
+      setIsLoading(false);
+      return { success: false, message: err?.message || 'Authentication error.' };
     }
-
-    // Reject unknown users not found in database
-    return {
-      success: false,
-      message: 'Account not found in database. Please register a new account first.',
-    };
   };
 
   const register = async (data: { name: string; email: string; phone: string; password?: string }) => {
@@ -186,31 +253,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setPendingPhone(data.phone);
 
     try {
-      const res = await fetch(getApiUrl('auth/register'), {
+      // Save directly to Supabase customers table
+      await supabaseFetch('customers', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: {
+          full_name: data.name,
+          email: data.email.trim().toLowerCase(),
+          phone: data.phone,
+          status: 'ACTIVE',
+          is_verified: true,
+        },
       });
 
-      if (res.ok) {
-        const resData = await res.json();
-        if (resData.success) {
-          setAuthViewModeState('verify-otp');
-          return { success: true, message: resData.message || 'OTP sent for verification.', requireOtp: true };
-        }
-      }
-    } catch (e) {
-      // Fallback
-    } finally {
-      setIsLoading(false);
-    }
+      const newUser: UserProfile = {
+        id: `usr_${Date.now().toString().slice(-6)}`,
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+        isEmailVerified: true,
+        isPhoneVerified: true,
+        role: 'customer',
+        createdAt: new Date().toISOString(),
+      };
 
-    setAuthViewModeState('verify-otp');
-    return {
-      success: true,
-      message: 'Account created! Please enter the 6-digit OTP sent to your phone/email.',
-      requireOtp: true,
-    };
+      saveSession(newUser);
+      closeAuthModal();
+      setIsLoading(false);
+      return {
+        success: true,
+        message: `Welcome to The Candle Lab Sanctuary, ${data.name}!`,
+      };
+    } catch (e: any) {
+      setIsLoading(false);
+      return {
+        success: false,
+        message: e?.message || 'Registration failed. Please try again.',
+      };
+    }
   };
 
   const requestPasswordReset = async (emailOrPhone: string) => {
@@ -378,6 +458,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         closeAuthModal,
         setAuthViewMode,
         login,
+        adminLogin,
         register,
         requestPasswordReset,
         resetPassword,

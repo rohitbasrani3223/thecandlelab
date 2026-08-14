@@ -11,11 +11,11 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
   onLoginSuccess,
   onReturnToStore,
 }) => {
-  const { login } = useAuth();
+  const { adminLogin } = useAuth();
   const { toast } = useToast();
 
-  const [email, setEmail] = useState('  ');
-  const [password, setPassword] = useState('admin123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
@@ -38,24 +38,13 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
     return Object.keys(errs).length === 0;
   };
 
-  const handleFillDemo = () => {
-    setEmail('admin@thecandlelab.com');
-    setPassword('admin123');
-    setErrors({});
-    toast({
-      type: 'info',
-      title: 'Demo Credentials Loaded',
-      description: 'Prefilled admin credentials: admin@thecandlelab.com / admin123',
-    });
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
 
     setIsSubmitting(true);
     try {
-      const res = await login({ emailOrPhone: email, password, rememberMe: true });
+      const res = await adminLogin({ email, password });
       if (res.success) {
         toast({
           type: 'success',
@@ -178,13 +167,6 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
                 <label className="font-medium text-slate-300 flex items-center gap-1.5">
                   <span className="text-blue-400 text-xs">🔒</span> Password
                 </label>
-                <button
-                  type="button"
-                  onClick={handleFillDemo}
-                  className="text-[11px] text-blue-400 hover:text-blue-300 font-semibold transition-colors cursor-pointer p-0.5 active:scale-95"
-                >
-                  ⚡ Autofill Demo
-                </button>
               </div>
               <div className="relative">
                 <input

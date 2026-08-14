@@ -1,7 +1,10 @@
 // Supabase Client for The Candle Lab E-Commerce Platform
 
-export const SUPABASE_URL = 'https://anaqrvrzbqhpgwjfpacx.supabase.co';
-export const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFuYXFydnJ6YnFocGd3amZwYWN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUyMzMzMzIsImV4cCI6MjEwMDgwOTMzMn0.NDzAvxZDP_TSlq1sXm1AID9xL8AzYl3QCA2LwH0TAhs';
+export const SUPABASE_URL: string =
+  import.meta.env.VITE_SUPABASE_URL || 'https://anaqrvrzbqhpgwjfpacx.supabase.co';
+
+export const SUPABASE_ANON_KEY: string =
+  import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
 const headers = {
   'apikey': SUPABASE_ANON_KEY,

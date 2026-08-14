@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext';
 import { AdminSidebar, type AdminTab } from './AdminSidebar';
+import { AdminLoginPage } from './AdminLoginPage';
 import { AdminProductsManager } from './AdminProductsManager';
 import { AdminFragranceManager } from './AdminFragranceManager';
 import { AdminCategoriesManager } from './AdminCategoriesManager';
@@ -22,9 +24,11 @@ export interface AdminLayoutProps {
 }
 
 export const AdminLayout: React.FC<AdminLayoutProps> = ({
-  onLogout = () => {},
-  currentUser,
+  onLogout,
+  currentUser: propUser,
+  onReturnToStore,
 }) => {
+  const { user: authUser, isAuthenticated, logout } = useAuth();
   const [activeTab, setActiveTab] = useState<AdminTab>(() => {
     return (localStorage.getItem('tcl_admin_active_tab') as AdminTab) || 'dashboard';
   });
@@ -33,6 +37,25 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
   useEffect(() => {
     localStorage.setItem('tcl_admin_active_tab', activeTab);
   }, [activeTab]);
+
+  const handleLogout = () => {
+    logout();
+    if (onLogout) {
+      onLogout();
+    }
+  };
+
+  const effectiveUser = propUser || (authUser ? { name: authUser.name || 'Administrator', email: authUser.email || 'admin@thecandlelab.com', role: authUser.role || 'Super Admin' } : null);
+
+  // If user is not authenticated as admin/staff, render Admin Login Page
+  if (!isAuthenticated || (authUser && authUser.role !== 'admin' && authUser.role !== 'staff')) {
+    return (
+      <AdminLoginPage
+        onLoginSuccess={() => setActiveTab('dashboard')}
+        onReturnToStore={onReturnToStore}
+      />
+    );
+  }
 
   // Tab label mapping for mobile header
   const tabTitles: Record<AdminTab, { title: string; icon: string }> = {
@@ -79,8 +102,8 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
 
         <button
           type="button"
-          onClick={onLogout}
-          className="text-xs text-red-400 hover:text-red-300 px-2.5 py-1 rounded bg-red-950/20 border border-red-900/30 text-[10px] font-mono shrink-0"
+          onClick={handleLogout}
+          className="text-xs text-red-400 hover:text-red-300 px-2.5 py-1 rounded bg-red-950/20 border border-red-900/30 text-[10px] font-mono shrink-0 cursor-pointer"
         >
           Sign Out
         </button>
@@ -90,8 +113,8 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
       <AdminSidebar
         activeTab={activeTab}
         onTabChange={setActiveTab}
-        onLogout={onLogout}
-        currentUser={currentUser}
+        onLogout={handleLogout}
+        currentUser={effectiveUser}
         isMobileOpen={isMobileMenuOpen}
         onCloseMobile={() => setIsMobileMenuOpen(false)}
       />

@@ -393,9 +393,9 @@ export interface CMSContextType {
   seoSettings: CMSSEOSetting[];
   updateSEO: (pageKey: string, updated: Partial<CMSSEOSetting>) => void;
   staffUsers: CMSStaffUser[];
-  addStaffUser: (u: CMSStaffUser) => void;
-  updateStaffUser: (id: string, updated: Partial<CMSStaffUser>) => void;
-  deleteStaffUser: (id: string) => void;
+  addStaffUser: (u: CMSStaffUser) => Promise<void> | void;
+  updateStaffUser: (id: string, updated: Partial<CMSStaffUser>) => Promise<void> | void;
+  deleteStaffUser: (id: string) => Promise<void> | void;
   ordersCount: number;
   totalRevenue: number;
   incrementRevenue: (amount: number) => void;
@@ -1244,27 +1244,27 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [mainCategories, setMainCategories] = useState<CMSMainCategory[]>(() => {
     try {
       const saved = localStorage.getItem(MAIN_CATEGORIES_STORAGE_KEY);
-      return saved ? JSON.parse(saved) : DEFAULT_MAIN_CATEGORIES;
+      return saved ? JSON.parse(saved) : [];
     } catch {
-      return DEFAULT_MAIN_CATEGORIES;
+      return [];
     }
   });
 
   const [subCategories, setSubCategories] = useState<CMSSubCategory[]>(() => {
     try {
       const saved = localStorage.getItem(SUB_CATEGORIES_STORAGE_KEY);
-      return saved ? JSON.parse(saved) : DEFAULT_SUB_CATEGORIES;
+      return saved ? JSON.parse(saved) : [];
     } catch {
-      return DEFAULT_SUB_CATEGORIES;
+      return [];
     }
   });
 
   const [collections, setCollections] = useState<CMSCollection[]>(() => {
     try {
       const saved = localStorage.getItem(COLLECTIONS_STORAGE_KEY);
-      return saved ? JSON.parse(saved) : DEFAULT_COLLECTIONS;
+      return saved ? JSON.parse(saved) : [];
     } catch {
-      return DEFAULT_COLLECTIONS;
+      return [];
     }
   });
 
@@ -1411,7 +1411,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
         // Fetch Main Categories
         const dbCategories = await supabaseFetch<any[]>('main_categories');
-        if (dbCategories && Array.isArray(dbCategories) && dbCategories.length > 0) {
+        if (dbCategories && Array.isArray(dbCategories)) {
           setMainCategories(
             dbCategories.map((c) => ({
               id: String(c.id),
@@ -1427,11 +1427,13 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               sortOrder: c.sort_order ?? 0,
             }))
           );
+        } else {
+          setMainCategories([]);
         }
 
         // Fetch Sub Categories
         const dbSubCategories = await supabaseFetch<any[]>('sub_categories');
-        if (dbSubCategories && Array.isArray(dbSubCategories) && dbSubCategories.length > 0) {
+        if (dbSubCategories && Array.isArray(dbSubCategories)) {
           setSubCategories(
             dbSubCategories.map((s) => ({
               id: String(s.id),
@@ -1448,11 +1450,13 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               sortOrder: s.sort_order ?? 0,
             }))
           );
+        } else {
+          setSubCategories([]);
         }
 
         // Fetch Collections
         const dbCollections = await supabaseFetch<any[]>('collections');
-        if (dbCollections && Array.isArray(dbCollections) && dbCollections.length > 0) {
+        if (dbCollections && Array.isArray(dbCollections)) {
           setCollections(
             dbCollections.map((col) => ({
               id: String(col.id),
@@ -1477,6 +1481,8 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               sortOrder: col.sort_order ?? 0,
             }))
           );
+        } else {
+          setCollections([]);
         }
 
         // Fetch Orders
@@ -1522,6 +1528,28 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             active: cp.is_active !== false,
           }));
           setCoupons(mappedCoupons);
+        }
+
+        // Fetch Admins & Staff from Supabase 'admins' table
+        const dbAdmins = await supabaseFetch<any[]>('admins', { query: 'order=created_at.desc' });
+        if (dbAdmins && Array.isArray(dbAdmins) && dbAdmins.length > 0) {
+          const roleMap: Record<string, CMSStaffUser['role']> = {
+            'SUPER_ADMIN': 'Super Admin',
+            'ADMIN': 'Admin',
+            'INVENTORY_MANAGER': 'Inventory Manager',
+            'CONTENT_MANAGER': 'Content Manager',
+            'MARKETING_MANAGER': 'Marketing Manager',
+            'SUPPORT': 'Support',
+          };
+          const mappedAdmins: CMSStaffUser[] = dbAdmins.map((adm) => ({
+            id: String(adm.id),
+            name: adm.full_name || 'Staff Member',
+            email: adm.email,
+            role: roleMap[adm.role] || 'Admin',
+            active: adm.status === 'ACTIVE',
+            password: adm.password_hash || '••••••••',
+          }));
+          setStaffUsers(mappedAdmins);
         }
 
         // Fetch Products with Images and Variants
@@ -1667,10 +1695,23 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
   };
 
+  // Generate valid standard RFC4122 UUID for PostgreSQL compatibility
+  const generateUUID = (): string => {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+      return crypto.randomUUID();
+    }
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+      const r = (Math.random() * 16) | 0;
+      const v = c === 'x' ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
+    });
+  };
+
   // Fragrance Mutations
   const addFragrance = async (f: Partial<CMSFragrance>) => {
+    const newFragId = f.id && f.id.length >= 32 ? f.id : generateUUID();
     const newFrag: CMSFragrance = {
-      id: `fr-${Date.now()}`,
+      id: newFragId,
       name: f.name || 'New Fragrance',
       slug: f.slug || (f.name || 'new-fragrance').toLowerCase().replace(/[^a-z0-9]+/g, '-'),
       imageUrl: f.imageUrl,
@@ -1748,8 +1789,9 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Sizes Mutations
   const addSize = async (s: Partial<CMSSize>) => {
+    const newId = s.id && s.id.length >= 32 ? s.id : generateUUID();
     const newSize: CMSSize = {
-      id: `sz-${Date.now()}`,
+      id: newId,
       name: s.name || '200g',
       slug: s.slug || (s.name || '200g').toLowerCase().replace(/[^a-z0-9]+/g, '-'),
       unit: s.unit || 'g',
@@ -1758,30 +1800,43 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       sortOrder: s.sortOrder ?? (sizes.length + 1),
     };
     setSizes((prev) => [...prev, newSize]);
-    supabaseFetch('sizes', {
-      method: 'POST',
-      body: { name: newSize.name, slug: newSize.slug, unit: newSize.unit, value: newSize.value, is_active: newSize.isActive, sort_order: newSize.sortOrder },
-    }).catch(() => {});
+    try {
+      await supabaseFetch('sizes', {
+        method: 'POST',
+        body: { id: newId, name: newSize.name, slug: newSize.slug, unit: newSize.unit, value: newSize.value, is_active: newSize.isActive, sort_order: newSize.sortOrder },
+      });
+    } catch (err) {
+      console.warn('Size insert note:', err);
+    }
   };
 
   const updateSize = async (id: string, updated: Partial<CMSSize>) => {
     setSizes((prev) => prev.map((s) => (s.id === id ? { ...s, ...updated } : s)));
-    supabaseFetch('sizes', {
-      method: 'PATCH',
-      query: `id=eq.${id}`,
-      body: { name: updated.name, slug: updated.slug, unit: updated.unit, value: updated.value, is_active: updated.isActive, sort_order: updated.sortOrder },
-    }).catch(() => {});
+    try {
+      await supabaseFetch('sizes', {
+        method: 'PATCH',
+        query: `id=eq.${id}`,
+        body: { name: updated.name, slug: updated.slug, unit: updated.unit, value: updated.value, is_active: updated.isActive, sort_order: updated.sortOrder },
+      });
+    } catch (err) {
+      console.warn('Size update note:', err);
+    }
   };
 
   const deleteSize = async (id: string) => {
     setSizes((prev) => prev.filter((s) => s.id !== id));
-    supabaseFetch('sizes', { method: 'DELETE', query: `id=eq.${id}` }).catch(() => {});
+    try {
+      await supabaseFetch('sizes', { method: 'DELETE', query: `id=eq.${id}` });
+    } catch (err) {
+      console.warn('Size delete note:', err);
+    }
   };
 
   // Colors Mutations
   const addColor = async (c: Partial<CMSColor>) => {
+    const newId = c.id && c.id.length >= 32 ? c.id : generateUUID();
     const newColor: CMSColor = {
-      id: `cl-${Date.now()}`,
+      id: newId,
       name: c.name || 'Ivory',
       hexCode: c.hexCode || '#FAF6F0',
       swatchImage: c.swatchImage,
@@ -1789,30 +1844,43 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       sortOrder: c.sortOrder ?? (colors.length + 1),
     };
     setColors((prev) => [...prev, newColor]);
-    supabaseFetch('colors', {
-      method: 'POST',
-      body: { name: newColor.name, hex_code: newColor.hexCode, swatch_image: newColor.swatchImage, is_active: newColor.isActive, sort_order: newColor.sortOrder },
-    }).catch(() => {});
+    try {
+      await supabaseFetch('colors', {
+        method: 'POST',
+        body: { id: newId, name: newColor.name, hex_code: newColor.hexCode, swatch_image: newColor.swatchImage, is_active: newColor.isActive, sort_order: newColor.sortOrder },
+      });
+    } catch (err) {
+      console.warn('Color insert note:', err);
+    }
   };
 
   const updateColor = async (id: string, updated: Partial<CMSColor>) => {
     setColors((prev) => prev.map((c) => (c.id === id ? { ...c, ...updated } : c)));
-    supabaseFetch('colors', {
-      method: 'PATCH',
-      query: `id=eq.${id}`,
-      body: { name: updated.name, hex_code: updated.hexCode, swatch_image: updated.swatchImage, is_active: updated.isActive, sort_order: updated.sortOrder },
-    }).catch(() => {});
+    try {
+      await supabaseFetch('colors', {
+        method: 'PATCH',
+        query: `id=eq.${id}`,
+        body: { name: updated.name, hex_code: updated.hexCode, swatch_image: updated.swatchImage, is_active: updated.isActive, sort_order: updated.sortOrder },
+      });
+    } catch (err) {
+      console.warn('Color update note:', err);
+    }
   };
 
   const deleteColor = async (id: string) => {
     setColors((prev) => prev.filter((c) => c.id !== id));
-    supabaseFetch('colors', { method: 'DELETE', query: `id=eq.${id}` }).catch(() => {});
+    try {
+      await supabaseFetch('colors', { method: 'DELETE', query: `id=eq.${id}` });
+    } catch (err) {
+      console.warn('Color delete note:', err);
+    }
   };
 
   // Wick Types Mutations
   const addWickType = async (w: Partial<CMSWickType>) => {
+    const newId = w.id && w.id.length >= 32 ? w.id : generateUUID();
     const newWick: CMSWickType = {
-      id: `wk-${Date.now()}`,
+      id: newId,
       name: w.name || 'Wood Wick',
       description: w.description || 'Crackling wood wick',
       additionalPrice: w.additionalPrice || 0,
@@ -1820,30 +1888,43 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       sortOrder: w.sortOrder ?? (wickTypes.length + 1),
     };
     setWickTypes((prev) => [...prev, newWick]);
-    supabaseFetch('wick_types', {
-      method: 'POST',
-      body: { name: newWick.name, description: newWick.description, additional_price: newWick.additionalPrice, is_active: newWick.isActive, sort_order: newWick.sortOrder },
-    }).catch(() => {});
+    try {
+      await supabaseFetch('wick_types', {
+        method: 'POST',
+        body: { id: newId, name: newWick.name, description: newWick.description, additional_price: newWick.additionalPrice, is_active: newWick.isActive, sort_order: newWick.sortOrder },
+      });
+    } catch (err) {
+      console.warn('Wick insert note:', err);
+    }
   };
 
   const updateWickType = async (id: string, updated: Partial<CMSWickType>) => {
     setWickTypes((prev) => prev.map((w) => (w.id === id ? { ...w, ...updated } : w)));
-    supabaseFetch('wick_types', {
-      method: 'PATCH',
-      query: `id=eq.${id}`,
-      body: { name: updated.name, description: updated.description, additional_price: updated.additionalPrice, is_active: updated.isActive, sort_order: updated.sortOrder },
-    }).catch(() => {});
+    try {
+      await supabaseFetch('wick_types', {
+        method: 'PATCH',
+        query: `id=eq.${id}`,
+        body: { name: updated.name, description: updated.description, additional_price: updated.additionalPrice, is_active: updated.isActive, sort_order: updated.sortOrder },
+      });
+    } catch (err) {
+      console.warn('Wick update note:', err);
+    }
   };
 
   const deleteWickType = async (id: string) => {
     setWickTypes((prev) => prev.filter((w) => w.id !== id));
-    supabaseFetch('wick_types', { method: 'DELETE', query: `id=eq.${id}` }).catch(() => {});
+    try {
+      await supabaseFetch('wick_types', { method: 'DELETE', query: `id=eq.${id}` });
+    } catch (err) {
+      console.warn('Wick delete note:', err);
+    }
   };
 
   // Main Categories Mutations
   const addMainCategory = async (cat: Partial<CMSMainCategory>) => {
+    const newId = cat.id && cat.id.length >= 32 ? cat.id : generateUUID();
     const newCat: CMSMainCategory = {
-      id: `cat-${Date.now()}`,
+      id: newId,
       name: cat.name || 'New Category',
       slug: cat.slug || (cat.name || 'new-category').toLowerCase().replace(/[^a-z0-9]+/g, '-'),
       description: cat.description || '',
@@ -1856,41 +1937,50 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       sortOrder: cat.sortOrder ?? (mainCategories.length + 1),
     };
     setMainCategories((prev) => [...prev, newCat]);
-    supabaseFetch('main_categories', {
-      method: 'POST',
-      body: {
-        name: newCat.name,
-        slug: newCat.slug,
-        description: newCat.description,
-        image_url: newCat.imageUrl,
-        banner_desktop: newCat.bannerDesktop,
-        banner_mobile: newCat.bannerMobile,
-        meta_title: newCat.metaTitle,
-        meta_description: newCat.metaDescription,
-        is_active: newCat.isActive,
-        sort_order: newCat.sortOrder,
-      },
-    }).catch(() => {});
+    try {
+      await supabaseFetch('main_categories', {
+        method: 'POST',
+        body: {
+          id: newId,
+          name: newCat.name,
+          slug: newCat.slug,
+          description: newCat.description,
+          image_url: newCat.imageUrl,
+          banner_desktop: newCat.bannerDesktop,
+          banner_mobile: newCat.bannerMobile,
+          meta_title: newCat.metaTitle,
+          meta_description: newCat.metaDescription,
+          is_active: newCat.isActive,
+          sort_order: newCat.sortOrder,
+        },
+      });
+    } catch (err) {
+      console.warn('Category insert note:', err);
+    }
   };
 
   const updateMainCategory = async (id: string, updated: Partial<CMSMainCategory>) => {
     setMainCategories((prev) => prev.map((c) => (c.id === id ? { ...c, ...updated } : c)));
-    supabaseFetch('main_categories', {
-      method: 'PATCH',
-      query: `id=eq.${id}`,
-      body: {
-        name: updated.name,
-        slug: updated.slug,
-        description: updated.description,
-        image_url: updated.imageUrl,
-        banner_desktop: updated.bannerDesktop,
-        banner_mobile: updated.bannerMobile,
-        meta_title: updated.metaTitle,
-        meta_description: updated.metaDescription,
-        is_active: updated.isActive,
-        sort_order: updated.sortOrder,
-      },
-    }).catch(() => {});
+    try {
+      await supabaseFetch('main_categories', {
+        method: 'PATCH',
+        query: `id=eq.${id}`,
+        body: {
+          name: updated.name,
+          slug: updated.slug,
+          description: updated.description,
+          image_url: updated.imageUrl,
+          banner_desktop: updated.bannerDesktop,
+          banner_mobile: updated.bannerMobile,
+          meta_title: updated.metaTitle,
+          meta_description: updated.metaDescription,
+          is_active: updated.isActive,
+          sort_order: updated.sortOrder,
+        },
+      });
+    } catch (err) {
+      console.warn('Category update note:', err);
+    }
   };
 
   const deleteMainCategory = async (id: string): Promise<{ success: boolean; message?: string }> => {
@@ -1902,15 +1992,20 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       };
     }
     setMainCategories((prev) => prev.filter((c) => c.id !== id));
-    supabaseFetch('main_categories', { method: 'DELETE', query: `id=eq.${id}` }).catch(() => {});
+    try {
+      await supabaseFetch('main_categories', { method: 'DELETE', query: `id=eq.${id}` });
+    } catch (err) {
+      console.warn('Category delete note:', err);
+    }
     return { success: true };
   };
 
   // Sub Categories Mutations
   const addSubCategory = async (sub: Partial<CMSSubCategory>) => {
+    const newId = sub.id && sub.id.length >= 32 ? sub.id : generateUUID();
     const parentCat = mainCategories.find((c) => c.id === sub.mainCategoryId);
     const newSub: CMSSubCategory = {
-      id: `sc-${Date.now()}`,
+      id: newId,
       mainCategoryId: sub.mainCategoryId || (mainCategories[0]?.id ?? '11111111-1111-1111-1111-111111111111'),
       mainCategoryName: parentCat?.name,
       name: sub.name || 'New Subcategory',
@@ -1925,43 +2020,52 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       sortOrder: sub.sortOrder ?? (subCategories.length + 1),
     };
     setSubCategories((prev) => [...prev, newSub]);
-    supabaseFetch('sub_categories', {
-      method: 'POST',
-      body: {
-        main_category_id: newSub.mainCategoryId,
-        name: newSub.name,
-        slug: newSub.slug,
-        description: newSub.description,
-        image_url: newSub.imageUrl,
-        banner_desktop: newSub.bannerDesktop,
-        banner_mobile: newSub.bannerMobile,
-        meta_title: newSub.metaTitle,
-        meta_description: newSub.metaDescription,
-        is_active: newSub.isActive,
-        sort_order: newSub.sortOrder,
-      },
-    }).catch(() => {});
+    try {
+      await supabaseFetch('sub_categories', {
+        method: 'POST',
+        body: {
+          id: newId,
+          main_category_id: newSub.mainCategoryId,
+          name: newSub.name,
+          slug: newSub.slug,
+          description: newSub.description,
+          image_url: newSub.imageUrl,
+          banner_desktop: newSub.bannerDesktop,
+          banner_mobile: newSub.bannerMobile,
+          meta_title: newSub.metaTitle,
+          meta_description: newSub.metaDescription,
+          is_active: newSub.isActive,
+          sort_order: newSub.sortOrder,
+        },
+      });
+    } catch (err) {
+      console.warn('Subcategory insert note:', err);
+    }
   };
 
   const updateSubCategory = async (id: string, updated: Partial<CMSSubCategory>) => {
     setSubCategories((prev) => prev.map((s) => (s.id === id ? { ...s, ...updated } : s)));
-    supabaseFetch('sub_categories', {
-      method: 'PATCH',
-      query: `id=eq.${id}`,
-      body: {
-        main_category_id: updated.mainCategoryId,
-        name: updated.name,
-        slug: updated.slug,
-        description: updated.description,
-        image_url: updated.imageUrl,
-        banner_desktop: updated.bannerDesktop,
-        banner_mobile: updated.bannerMobile,
-        meta_title: updated.metaTitle,
-        meta_description: updated.metaDescription,
-        is_active: updated.isActive,
-        sort_order: updated.sortOrder,
-      },
-    }).catch(() => {});
+    try {
+      await supabaseFetch('sub_categories', {
+        method: 'PATCH',
+        query: `id=eq.${id}`,
+        body: {
+          main_category_id: updated.mainCategoryId,
+          name: updated.name,
+          slug: updated.slug,
+          description: updated.description,
+          image_url: updated.imageUrl,
+          banner_desktop: updated.bannerDesktop,
+          banner_mobile: updated.bannerMobile,
+          meta_title: updated.metaTitle,
+          meta_description: updated.metaDescription,
+          is_active: updated.isActive,
+          sort_order: updated.sortOrder,
+        },
+      });
+    } catch (err) {
+      console.warn('Subcategory update note:', err);
+    }
   };
 
   const deleteSubCategory = async (id: string): Promise<{ success: boolean; message?: string }> => {
@@ -1973,14 +2077,19 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       };
     }
     setSubCategories((prev) => prev.filter((s) => s.id !== id));
-    supabaseFetch('sub_categories', { method: 'DELETE', query: `id=eq.${id}` }).catch(() => {});
+    try {
+      await supabaseFetch('sub_categories', { method: 'DELETE', query: `id=eq.${id}` });
+    } catch (err) {
+      console.warn('Subcategory delete note:', err);
+    }
     return { success: true };
   };
 
   // Collections Mutations
   const addCollection = async (col: Partial<CMSCollection>) => {
+    const newId = col.id && col.id.length >= 32 ? col.id : generateUUID();
     const newCol: CMSCollection = {
-      id: col.id || `col-${Date.now()}`,
+      id: newId,
       name: col.name || col.title || 'New Collection',
       title: col.title || col.name || 'New Collection',
       slug: col.slug || (col.title || col.name || 'new-col').toLowerCase().replace(/[^a-z0-9]+/g, '-'),
@@ -2001,22 +2110,27 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       productIds: col.productIds || [],
     };
     setCollections((prev) => [...prev, newCol]);
-    supabaseFetch('collections', {
-      method: 'POST',
-      body: {
-        name: newCol.name,
-        slug: newCol.slug,
-        description: newCol.description,
-        banner_image: newCol.bannerImage,
-        image_url: newCol.imageUrl,
-        icon_symbol: newCol.icon,
-        collection_type: newCol.collectionType,
-        rule_conditions: newCol.ruleConditions,
-        is_featured: newCol.isFeatured,
-        is_active: newCol.isActive,
-        sort_order: newCol.sortOrder,
-      },
-    }).catch(() => {});
+    try {
+      await supabaseFetch('collections', {
+        method: 'POST',
+        body: {
+          id: newId,
+          name: newCol.name,
+          slug: newCol.slug,
+          description: newCol.description,
+          banner_image: newCol.bannerImage,
+          image_url: newCol.imageUrl,
+          icon_symbol: newCol.icon,
+          collection_type: newCol.collectionType,
+          rule_conditions: newCol.ruleConditions,
+          is_featured: newCol.isFeatured,
+          is_active: newCol.isActive,
+          sort_order: newCol.sortOrder,
+        },
+      });
+    } catch (err) {
+      console.warn('Collection insert note:', err);
+    }
   };
 
   const updateCollection = async (id: string, updated: Partial<CMSCollection>) => {
@@ -2034,28 +2148,36 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           : c
       )
     );
-    supabaseFetch('collections', {
-      method: 'PATCH',
-      query: `id=eq.${id}`,
-      body: {
-        name: updated.name || updated.title,
-        slug: updated.slug,
-        description: updated.description || updated.desc,
-        banner_image: updated.bannerImage || updated.image,
-        image_url: updated.imageUrl,
-        icon_symbol: updated.icon,
-        collection_type: updated.collectionType,
-        rule_conditions: updated.ruleConditions,
-        is_featured: updated.isFeatured,
-        is_active: updated.isActive,
-        sort_order: updated.sortOrder,
-      },
-    }).catch(() => {});
+    try {
+      await supabaseFetch('collections', {
+        method: 'PATCH',
+        query: `id=eq.${id}`,
+        body: {
+          name: updated.name || updated.title,
+          slug: updated.slug,
+          description: updated.description || updated.desc,
+          banner_image: updated.bannerImage || updated.image,
+          image_url: updated.imageUrl,
+          icon_symbol: updated.icon,
+          collection_type: updated.collectionType,
+          rule_conditions: updated.ruleConditions,
+          is_featured: updated.isFeatured,
+          is_active: updated.isActive,
+          sort_order: updated.sortOrder,
+        },
+      });
+    } catch (err) {
+      console.warn('Collection update note:', err);
+    }
   };
 
   const deleteCollection = async (id: string) => {
     setCollections((prev) => prev.filter((c) => c.id !== id));
-    supabaseFetch('collections', { method: 'DELETE', query: `id=eq.${id}` }).catch(() => {});
+    try {
+      await supabaseFetch('collections', { method: 'DELETE', query: `id=eq.${id}` });
+    } catch (err) {
+      console.warn('Collection delete note:', err);
+    }
   };
 
   const assignProductsToCollection = async (colId: string, productIds: string[]) => {
@@ -2128,7 +2250,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Products Mutations
   const addProduct = async (prod: CMSProduct) => {
-    const realId = prod.id && !prod.id.startsWith('p-') ? prod.id : `fa${Date.now()}${Math.floor(Math.random() * 1000)}`;
+    const realId = prod.id && prod.id.length >= 32 ? prod.id : generateUUID();
     const newProduct: CMSProduct = {
       ...prod,
       id: realId,
@@ -2445,10 +2567,79 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const updateSEO = (pageKey: string, updated: Partial<CMSSEOSetting>) =>
     setSeoSettings((prev) => prev.map((s) => (s.pageKey === pageKey ? { ...s, ...updated } : s)));
 
-  const addStaffUser = (u: CMSStaffUser) => setStaffUsers((prev) => [u, ...prev]);
-  const updateStaffUser = (id: string, updated: Partial<CMSStaffUser>) =>
+  const addStaffUser = async (u: CMSStaffUser) => {
+    const newId = u.id && u.id.length >= 32 ? u.id : generateUUID();
+    const userWithId: CMSStaffUser = { ...u, id: newId };
+    setStaffUsers((prev) => [userWithId, ...prev]);
+
+    const roleReverseMap: Record<string, string> = {
+      'Super Admin': 'SUPER_ADMIN',
+      'Admin': 'ADMIN',
+      'Inventory Manager': 'INVENTORY_MANAGER',
+      'Content Manager': 'CONTENT_MANAGER',
+      'Marketing Manager': 'MARKETING_MANAGER',
+      'Support': 'SUPPORT',
+    };
+
+    try {
+      await supabaseFetch('admins', {
+        method: 'POST',
+        body: {
+          id: newId,
+          email: u.email.trim().toLowerCase(),
+          full_name: u.name,
+          phone: '+919876543210',
+          password_hash: u.password || 'admin123',
+          role: roleReverseMap[u.role] || 'ADMIN',
+          status: u.active ? 'ACTIVE' : 'INACTIVE',
+        },
+      });
+    } catch (err) {
+      console.warn('Admin insert error:', err);
+    }
+  };
+
+  const updateStaffUser = async (id: string, updated: Partial<CMSStaffUser>) => {
     setStaffUsers((prev) => prev.map((u) => (u.id === id ? { ...u, ...updated } : u)));
-  const deleteStaffUser = (id: string) => setStaffUsers((prev) => prev.filter((u) => u.id !== id));
+
+    const roleReverseMap: Record<string, string> = {
+      'Super Admin': 'SUPER_ADMIN',
+      'Admin': 'ADMIN',
+      'Inventory Manager': 'INVENTORY_MANAGER',
+      'Content Manager': 'CONTENT_MANAGER',
+      'Marketing Manager': 'MARKETING_MANAGER',
+      'Support': 'SUPPORT',
+    };
+
+    try {
+      const body: any = {};
+      if (updated.name) body.full_name = updated.name;
+      if (updated.email) body.email = updated.email.trim().toLowerCase();
+      if (updated.role) body.role = roleReverseMap[updated.role] || updated.role;
+      if (updated.active !== undefined) body.status = updated.active ? 'ACTIVE' : 'INACTIVE';
+      if (updated.password) body.password_hash = updated.password;
+
+      await supabaseFetch('admins', {
+        method: 'PATCH',
+        query: `id=eq.${id}`,
+        body,
+      });
+    } catch (err) {
+      console.warn('Admin update error:', err);
+    }
+  };
+
+  const deleteStaffUser = async (id: string) => {
+    setStaffUsers((prev) => prev.filter((u) => u.id !== id));
+    try {
+      await supabaseFetch('admins', {
+        method: 'DELETE',
+        query: `id=eq.${id}`,
+      });
+    } catch (err) {
+      console.warn('Admin delete error:', err);
+    }
+  };
 
   const incrementRevenue = (amount: number) => {
     setTotalRevenue((prev) => prev + amount);
