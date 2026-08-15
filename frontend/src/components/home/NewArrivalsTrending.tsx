@@ -57,10 +57,10 @@ export const NewArrivalsTrending: React.FC<NewArrivalsTrendingProps> = ({ onSele
   // Filter products marked as isNew or isTrending
   const items = (products.filter((p) => p.isNew).length > 0
     ? products.filter((p) => p.isNew)
-    : products.filter((p) => (p.rating || 0) >= 4.85)
+    : products
   ).slice(0, 4);
 
-  if (items.length === 0) {
+  if (products.length === 0) {
     return null;
   }
 
@@ -84,7 +84,7 @@ export const NewArrivalsTrending: React.FC<NewArrivalsTrendingProps> = ({ onSele
 
         {/* Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {items.map((item, idx) => {
+          {items.map((item) => {
             const inrPrice = Math.round(item.price || 0);
             const formattedPrice = `${settings.currencySymbol}${inrPrice}`;
             const badgeText = item.isNew ? 'NEW BATCH' : 'TRENDING';
@@ -106,11 +106,7 @@ export const NewArrivalsTrending: React.FC<NewArrivalsTrendingProps> = ({ onSele
                   {/* Visual Image Header */}
                   <div className="h-52 bg-[#F5EEE4] rounded-xl flex items-center justify-center relative overflow-hidden">
                     <img
-                      src={item.image || item.imageUrl || [
-                        'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80',
-                        'https://images.unsplash.com/photo-1572726729207-a78d6fea73a7?auto=format&fit=crop&w=800&q=80',
-                        'https://images.unsplash.com/photo-1602874801007-bd458bb1b8b6?auto=format&fit=crop&w=800&q=80'
-                      ][idx % 3]}
+                      src={item.image || item.imageUrl || item.images?.[0] || 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80'}
                       alt={item.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />

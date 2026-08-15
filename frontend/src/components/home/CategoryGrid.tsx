@@ -9,32 +9,57 @@ export interface CategoryGridProps {
 export const CategoryGrid: React.FC<CategoryGridProps> = ({ onNavigateToShop }) => {
   const { products, mainCategories } = useCMS();
 
-  // Show ONLY real categories that exist in mainCategories in Supabase
+  // Show real categories from mainCategories or derive dynamically from live products
   const displayCategories = useMemo(() => {
-    if (!mainCategories || mainCategories.length === 0) return [];
+    if (mainCategories && mainCategories.length > 0) {
+      return mainCategories
+        .filter((c) => c.isActive !== false)
+        .map((cat) => {
+          const prods = (products || []).filter(
+            (p) => p.mainCategoryId === cat.id || p.category === cat.name
+          );
+          const validPrices = prods
+            .map((p) => Number(p.price))
+            .filter((price) => !isNaN(price) && price > 0);
+          const minPrice = validPrices.length > 0 ? Math.min(...validPrices) : 0;
+          const fallbackImg = prods.find((p) => p.image || p.imageUrl)?.image || prods[0]?.imageUrl || 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=85';
 
-    return mainCategories
-      .filter((c) => c.isActive !== false)
-      .map((cat) => {
-        const prods = (products || []).filter(
-          (p) => p.mainCategoryId === cat.id
-        );
+          return {
+            id: cat.id,
+            name: cat.name,
+            subtitle: cat.description || `${prods.length} artisanal formulation${prods.length === 1 ? '' : 's'}`,
+            count: `${prods.length} Product${prods.length === 1 ? '' : 's'}`,
+            price: minPrice > 0 ? `From ₹${Math.round(minPrice)}` : '',
+            image: cat.imageUrl || cat.bannerDesktop || fallbackImg,
+            tag: prods.some((p) => p.isBestSeller) ? 'Bestseller' : undefined,
+          };
+        });
+    }
+
+    // Derive dynamically from active products so nothing disappears
+    if (products && products.length > 0) {
+      const uniqueCats = Array.from(new Set(products.map((p) => p.category || 'Scented Candles')));
+      return uniqueCats.map((catName) => {
+        const prods = products.filter((p) => (p.category || 'Scented Candles') === catName);
         const validPrices = prods
           .map((p) => Number(p.price))
           .filter((price) => !isNaN(price) && price > 0);
         const minPrice = validPrices.length > 0 ? Math.min(...validPrices) : 0;
-        const fallbackImg = prods.find((p) => p.image || p.imageUrl)?.image || prods[0]?.imageUrl || 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=85';
+        const fallbackImg = prods[0]?.image || prods[0]?.imageUrl || 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=85';
 
         return {
-          id: cat.id,
-          name: cat.name,
-          subtitle: cat.description || `${prods.length} artisanal formulation${prods.length === 1 ? '' : 's'}`,
+          id: catName,
+          name: catName,
+          subtitle: `${prods.length} handcrafted candle${prods.length === 1 ? '' : 's'}`,
           count: `${prods.length} Product${prods.length === 1 ? '' : 's'}`,
           price: minPrice > 0 ? `From ₹${Math.round(minPrice)}` : '',
-          image: cat.imageUrl || cat.bannerDesktop || fallbackImg,
+          image: fallbackImg,
           tag: prods.some((p) => p.isBestSeller) ? 'Bestseller' : undefined,
         };
       });
+    }
+
+    return [];
   }, [products, mainCategories]);
 
   const handleCategoryClick = (catNameOrId: string) => {

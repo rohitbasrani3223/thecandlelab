@@ -434,10 +434,10 @@ const DEFAULT_HERO: CMSHeroBanner = {
   subtitle: 'Artisanal soy wax candles infused with fine botanical essential oils, hand-poured in small luxury batches.',
   primaryBtnText: 'Explore Collections',
   secondaryBtnText: 'Our Atelier Story',
-  imageUrl: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?q=80&w=1600&auto=format&fit=crop',
+  imageUrl: '/hero_candle.png',
   featuredTitle: 'French Vanilla & Cinnamon',
   featuredSubtitle: '200g Heavy Italian Glass • 65 Hours',
-  featuredImage: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?q=80&w=800&auto=format&fit=crop',
+  featuredImage: '/hero_candle.png',
 };
 
 export const DEFAULT_FRAGRANCES: CMSFragrance[] = [];
@@ -452,9 +452,30 @@ export const DEFAULT_PRODUCTS: CMSProduct[] = [];
 const CMSContext = createContext<CMSContextType | undefined>(undefined);
 
 export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [settings, setSettings] = useState<CMSStoreSettings>(DEFAULT_SETTINGS);
-  const [announcement, setAnnouncement] = useState<CMSAnnouncement>(DEFAULT_ANNOUNCEMENT);
-  const [hero, setHero] = useState<CMSHeroBanner>(DEFAULT_HERO);
+  const [settings, setSettings] = useState<CMSStoreSettings>(() => {
+    try {
+      const saved = localStorage.getItem('tcl_settings');
+      return saved ? JSON.parse(saved) : DEFAULT_SETTINGS;
+    } catch {
+      return DEFAULT_SETTINGS;
+    }
+  });
+  const [announcement, setAnnouncement] = useState<CMSAnnouncement>(() => {
+    try {
+      const saved = localStorage.getItem('tcl_announcement');
+      return saved ? JSON.parse(saved) : DEFAULT_ANNOUNCEMENT;
+    } catch {
+      return DEFAULT_ANNOUNCEMENT;
+    }
+  });
+  const [hero, setHero] = useState<CMSHeroBanner>(() => {
+    try {
+      const saved = localStorage.getItem('tcl_hero');
+      return saved ? JSON.parse(saved) : DEFAULT_HERO;
+    } catch {
+      return DEFAULT_HERO;
+    }
+  });
 
   const [fragrances, setFragrances] = useState<CMSFragrance[]>(() => {
     try {
@@ -546,6 +567,18 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [ordersCount, setOrdersCount] = useState<number>(0);
 
   // Sync to LocalStorage
+  useEffect(() => {
+    localStorage.setItem('tcl_settings', JSON.stringify(settings));
+  }, [settings]);
+
+  useEffect(() => {
+    localStorage.setItem('tcl_announcement', JSON.stringify(announcement));
+  }, [announcement]);
+
+  useEffect(() => {
+    localStorage.setItem('tcl_hero', JSON.stringify(hero));
+  }, [hero]);
+
   useEffect(() => {
     localStorage.setItem(FRAGRANCES_STORAGE_KEY, JSON.stringify(fragrances));
   }, [fragrances]);
@@ -870,7 +903,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               rating: Number(p.rating || 4.9),
               reviewsCount: Number(p.reviews_count || 12),
               mainCategoryId: p.main_category_id ? String(p.main_category_id) : undefined,
-              category: p.tagline || '',
+              category: p.category || (p.tagline ? p.tagline : 'Scented Soy Candles'),
               subCategoryId: p.sub_category_id ? String(p.sub_category_id) : undefined,
               collectionIds: p.collection_id ? [String(p.collection_id)] : [],
               collection: '',
@@ -892,18 +925,18 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               safetyInstructions: p.safety_instructions,
               whatsIncluded: p.whats_included,
               shippingReturns: p.shipping_returns,
-              inStock: p.status === 'ACTIVE',
+              inStock: p.status ? p.status.toUpperCase() !== 'OUT_OF_STOCK' : true,
               isBestSeller: Boolean(p.is_bestseller),
               isNew: Boolean(p.is_newarrival),
               isFeatured: Boolean(p.is_featured),
               isTrending: Boolean(p.is_trending),
               isLimitedEdition: Boolean(p.is_limited_edition),
-              hasFragranceOption: Boolean(p.has_fragrance_option),
-              hasSizeOption: Boolean(p.has_size_option),
-              hasColorOption: Boolean(p.has_color_option),
-              hasWickOption: Boolean(p.has_wick_option),
-              hasGiftPackaging: Boolean(p.has_gift_packaging),
-              hasCustomMessage: Boolean(p.has_custom_message),
+              hasFragranceOption: p.has_fragrance_option !== null && p.has_fragrance_option !== undefined ? Boolean(p.has_fragrance_option) : true,
+              hasSizeOption: p.has_size_option !== null && p.has_size_option !== undefined ? Boolean(p.has_size_option) : true,
+              hasColorOption: p.has_color_option !== null && p.has_color_option !== undefined ? Boolean(p.has_color_option) : true,
+              hasWickOption: p.has_wick_option !== null && p.has_wick_option !== undefined ? Boolean(p.has_wick_option) : true,
+              hasGiftPackaging: p.has_gift_packaging !== null && p.has_gift_packaging !== undefined ? Boolean(p.has_gift_packaging) : true,
+              hasCustomMessage: p.has_custom_message !== null && p.has_custom_message !== undefined ? Boolean(p.has_custom_message) : false,
               availableFragranceIds: Array.isArray(p.available_fragrance_ids) ? p.available_fragrance_ids.map(String) : [],
               availableSizeIds: Array.isArray(p.available_size_ids) ? p.available_size_ids.map(String) : [],
               availableColorIds: Array.isArray(p.available_color_ids) ? p.available_color_ids.map(String) : [],
@@ -919,7 +952,21 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             };
           });
 
-          setProducts(mapped);
+          setProducts((prev) => {
+            const map = new Map<string, CMSProduct>();
+            prev.forEach((p) => map.set(p.id, p));
+            mapped.forEach((p) => {
+              const existing = map.get(p.id) || Array.from(map.values()).find(
+                (x) => x.name.toLowerCase() === p.name.toLowerCase() || (x.sku && x.sku === p.sku)
+              );
+              if (existing) {
+                map.set(existing.id, { ...existing, ...p });
+              } else {
+                map.set(p.id, p);
+              }
+            });
+            return Array.from(map.values());
+          });
         }
       } catch (err) {
         console.warn('Initial data hydration notice:', err);
@@ -1205,10 +1252,6 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           slug: newCat.slug,
           description: newCat.description,
           image_url: newCat.imageUrl,
-          banner_desktop: newCat.bannerDesktop,
-          banner_mobile: newCat.bannerMobile,
-          meta_title: newCat.metaTitle,
-          meta_description: newCat.metaDescription,
           is_active: newCat.isActive,
           sort_order: newCat.sortOrder,
         },
@@ -1229,10 +1272,6 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           slug: updated.slug,
           description: updated.description,
           image_url: updated.imageUrl,
-          banner_desktop: updated.bannerDesktop,
-          banner_mobile: updated.bannerMobile,
-          meta_title: updated.metaTitle,
-          meta_description: updated.metaDescription,
           is_active: updated.isActive,
           sort_order: updated.sortOrder,
         },
@@ -1288,11 +1327,6 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           name: newSub.name,
           slug: newSub.slug,
           description: newSub.description,
-          image_url: newSub.imageUrl,
-          banner_desktop: newSub.bannerDesktop,
-          banner_mobile: newSub.bannerMobile,
-          meta_title: newSub.metaTitle,
-          meta_description: newSub.metaDescription,
           is_active: newSub.isActive,
           sort_order: newSub.sortOrder,
         },
@@ -1313,11 +1347,6 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           name: updated.name,
           slug: updated.slug,
           description: updated.description,
-          image_url: updated.imageUrl,
-          banner_desktop: updated.bannerDesktop,
-          banner_mobile: updated.bannerMobile,
-          meta_title: updated.metaTitle,
-          meta_description: updated.metaDescription,
           is_active: updated.isActive,
           sort_order: updated.sortOrder,
         },
@@ -1377,14 +1406,9 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           name: newCol.name,
           slug: newCol.slug,
           description: newCol.description,
-          banner_image: newCol.bannerImage,
-          image_url: newCol.imageUrl,
+          banner_image: newCol.bannerImage || newCol.image,
           icon_symbol: newCol.icon,
-          collection_type: newCol.collectionType,
-          rule_conditions: newCol.ruleConditions,
           is_featured: newCol.isFeatured,
-          is_active: newCol.isActive,
-          sort_order: newCol.sortOrder,
         },
       });
     } catch (err) {
@@ -1412,17 +1436,12 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         method: 'PATCH',
         query: `id=eq.${id}`,
         body: {
-          name: updated.name || updated.title,
+          name: updated.name,
           slug: updated.slug,
-          description: updated.description || updated.desc,
+          description: updated.description,
           banner_image: updated.bannerImage || updated.image,
-          image_url: updated.imageUrl,
           icon_symbol: updated.icon,
-          collection_type: updated.collectionType,
-          rule_conditions: updated.ruleConditions,
           is_featured: updated.isFeatured,
-          is_active: updated.isActive,
-          sort_order: updated.sortOrder,
         },
       });
     } catch (err) {
@@ -1455,71 +1474,113 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
-  // Product Images sync helper
-  const syncProductImages = async (productId: string, primaryImage?: string, extraImages?: string[]) => {
-    if (!productId) return;
-    const all = [...new Set([primaryImage, ...(extraImages || [])].filter((url): url is string => Boolean(url) && url !== PRODUCT_IMAGE_PLACEHOLDER))];
-    if (all.length === 0) return;
-
+  // Product Images & Variants Persistence Helpers
+  const syncProductImages = async (productId: string, primaryImage?: string, gallery?: string[]) => {
     try {
+      const allUrls = Array.from(new Set([primaryImage, ...(gallery || [])].filter(Boolean) as string[]));
       await supabaseFetch('product_images', { method: 'DELETE', query: `product_id=eq.${productId}` });
-      const rows = all.map((url, idx) => ({
-        product_id: productId,
-        image_url: url,
-        is_primary: idx === 0,
-        sort_order: idx,
-      }));
-      await supabaseFetch('product_images', { method: 'POST', body: rows });
+      if (allUrls.length > 0) {
+        const rows = allUrls.map((url, idx) => ({
+          id: generateUUID(),
+          product_id: productId,
+          image_url: url,
+          is_primary: idx === 0,
+          sort_order: idx,
+        }));
+        await supabaseFetch('product_images', { method: 'POST', body: rows });
+      }
     } catch (err) {
-      console.warn('Sync product images note:', err);
+      console.warn('Product images sync note:', err);
     }
   };
 
-  // Product Variants sync helper
   const syncProductVariants = async (productId: string, variants?: CMSProductVariant[]) => {
-    if (!productId || !variants || variants.length === 0) return;
     try {
       await supabaseFetch('product_variants', { method: 'DELETE', query: `product_id=eq.${productId}` });
-      const rows = variants.map((v) => ({
-        product_id: productId,
-        sku: v.sku || `SKU-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-        title: v.title,
-        fragrance_id: v.fragranceId,
-        fragrance_name: v.fragranceName,
-        size_id: v.sizeId,
-        size_name: v.sizeName,
-        color_id: v.colorId,
-        color_name: v.colorName,
-        color_code: v.colorCode,
-        wick_type_id: v.wickTypeId,
-        wick_type_name: v.wickTypeName,
-        price: v.price,
-        original_price: v.originalPrice,
-        stock: v.stock ?? 50,
-        low_stock_threshold: v.lowStockThreshold ?? 5,
-        image_url: v.imageUrl,
-        is_default: v.isDefault ?? false,
-        status: v.status || 'ACTIVE',
-      }));
-      await supabaseFetch('product_variants', { method: 'POST', body: rows });
+      if (variants && variants.length > 0) {
+        const rows = variants.map((v, idx) => ({
+          id: v.id && v.id.length >= 32 ? v.id : generateUUID(),
+          product_id: productId,
+          sku: v.sku || `SKU-${productId.slice(0, 4)}-${idx + 1}`,
+          title: v.title || v.fragranceName || v.sizeName || `Variant ${idx + 1}`,
+          fragrance_id: v.fragranceId && v.fragranceId.length >= 32 ? v.fragranceId : null,
+          fragrance_name: v.fragranceName,
+          size_id: v.sizeId && v.sizeId.length >= 32 ? v.sizeId : null,
+          size_name: v.sizeName,
+          color_id: v.colorId && v.colorId.length >= 32 ? v.colorId : null,
+          color_name: v.colorName,
+          color_code: v.colorCode,
+          wick_type_id: v.wickTypeId && v.wickTypeId.length >= 32 ? v.wickTypeId : null,
+          wick_type_name: v.wickTypeName,
+          price: v.price || 999,
+          original_price: v.originalPrice || v.price || 1299,
+          stock: v.stock ?? 50,
+          image_url: v.imageUrl,
+          is_default: v.isDefault ?? (idx === 0),
+          status: v.status || 'ACTIVE',
+        }));
+        await supabaseFetch('product_variants', { method: 'POST', body: rows });
+      }
     } catch (err) {
-      console.warn('Sync variants note:', err);
+      console.warn('Product variants sync note:', err);
     }
   };
 
   // Products Mutations
-  const addProduct = async (prod: CMSProduct) => {
-    const realId = prod.id && prod.id.length >= 32 ? prod.id : generateUUID();
+  const addProduct = async (product: Partial<CMSProduct>) => {
+    const realId = product.id && product.id.length >= 32 ? product.id : generateUUID();
     const newProduct: CMSProduct = {
-      ...prod,
       id: realId,
-      slug: prod.slug || prod.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + String(Date.now()).slice(-4),
+      name: product.name || 'New Product',
+      slug: product.slug || (product.name || 'new-product').toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+      tagline: product.tagline || '',
+      sku: product.sku || `TCL-${realId.slice(0, 6)}`,
+      price: product.price || 999,
+      originalPrice: product.originalPrice || product.price || 1299,
+      rating: product.rating || 4.9,
+      reviewsCount: product.reviewsCount || 0,
+      mainCategoryId: product.mainCategoryId,
+      category: product.category || 'Scented Soy Candles',
+      subCategoryId: product.subCategoryId,
+      collectionIds: product.collectionIds || [],
+      collection: product.collection || '',
+      collections: product.collections || [],
+      scentProfile: product.scentProfile || '',
+      topNotes: product.topNotes || '',
+      heartNotes: product.heartNotes || '',
+      baseNotes: product.baseNotes || '',
+      burnTime: product.burnTime || '60 Hours',
+      burnTimeHours: product.burnTimeHours || 60,
+      waxType: product.waxType || '100% Botanical Soy Wax',
+      wickType: product.wickType || 'Organic Wood Crackling Wick',
+      weightGrams: product.weightGrams || 250,
+      vesselDescription: product.vesselDescription || 'Hand-poured in Italian frosted glass jar.',
+      shortDescription: product.shortDescription || '',
+      longDescription: product.longDescription || '',
+      inStock: product.inStock ?? true,
+      isBestSeller: product.isBestSeller || false,
+      isNew: product.isNew || false,
+      isFeatured: product.isFeatured || false,
+      isTrending: product.isTrending || false,
+      isLimitedEdition: product.isLimitedEdition || false,
+      hasFragranceOption: product.hasFragranceOption ?? true,
+      hasSizeOption: product.hasSizeOption ?? true,
+      hasColorOption: product.hasColorOption ?? false,
+      hasWickOption: product.hasWickOption ?? true,
+      hasGiftPackaging: product.hasGiftPackaging ?? true,
+      hasCustomMessage: product.hasCustomMessage ?? false,
+      availableFragranceIds: product.availableFragranceIds || [],
+      availableSizeIds: product.availableSizeIds || [],
+      availableColorIds: product.availableColorIds || [],
+      availableWickTypeIds: product.availableWickTypeIds || [],
+      image: product.image || product.imageUrl || product.images?.[0] || '',
+      imageUrl: product.image || product.imageUrl || product.images?.[0] || '',
+      images: product.images && product.images.length > 0 ? product.images : [product.image || product.imageUrl || ''],
+      variants: product.variants || [],
     };
 
     setProducts((prev) => [newProduct, ...prev]);
-
-    // Sync gallery images and variants
-    syncProductImages(realId, newProduct.image || newProduct.imageUrl, newProduct.images);
+    syncProductImages(realId, newProduct.image, newProduct.images);
     syncProductVariants(realId, newProduct.variants);
 
     try {
@@ -1527,8 +1588,9 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         method: 'POST',
         body: {
           id: realId,
-          main_category_id: newProduct.mainCategoryId,
-          sub_category_id: newProduct.subCategoryId,
+          main_category_id: newProduct.mainCategoryId && newProduct.mainCategoryId.length >= 32 ? newProduct.mainCategoryId : null,
+          sub_category_id: newProduct.subCategoryId && newProduct.subCategoryId.length >= 32 ? newProduct.subCategoryId : null,
+          collection_id: newProduct.collectionIds?.[0] && newProduct.collectionIds[0].length >= 32 ? newProduct.collectionIds[0] : null,
           name: newProduct.name,
           slug: newProduct.slug,
           tagline: newProduct.tagline || newProduct.scentProfile,
@@ -1537,43 +1599,27 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           original_price: newProduct.originalPrice,
           short_description: newProduct.shortDescription || newProduct.vesselDescription,
           long_description: newProduct.longDescription,
-          product_details: newProduct.productDetails,
-          fragrance_pyramid: newProduct.fragrancePyramid,
-          top_notes: newProduct.topNotes,
-          heart_notes: newProduct.heartNotes,
-          base_notes: newProduct.baseNotes,
-          scent_profile: newProduct.scentProfile,
           wax_type: newProduct.waxType,
           wick_type: newProduct.wickType,
-          burn_time: newProduct.burnTime,
           burn_time_hours: newProduct.burnTimeHours,
           weight_grams: newProduct.weightGrams,
-          how_to_use: newProduct.howToUse,
-          safety_instructions: newProduct.safetyInstructions,
-          whats_included: newProduct.whatsIncluded,
-          shipping_returns: newProduct.shippingReturns,
           rating: newProduct.rating || 4.9,
           reviews_count: newProduct.reviewsCount || 0,
           status: newProduct.inStock ? 'ACTIVE' : 'OUT_OF_STOCK',
-          is_featured: newProduct.isFeatured || false,
-          is_bestseller: newProduct.isBestSeller || false,
-          is_new_arrival: newProduct.isNew || false,
-          is_trending: newProduct.isTrending || false,
-          is_limited_edition: newProduct.isLimitedEdition || false,
-          has_fragrance_option: newProduct.hasFragranceOption ?? true,
-          has_size_option: newProduct.hasSizeOption ?? true,
-          has_color_option: newProduct.hasColorOption ?? false,
-          has_wick_option: newProduct.hasWickOption ?? true,
-          has_gift_packaging: newProduct.hasGiftPackaging ?? true,
-          has_custom_message: newProduct.hasCustomMessage ?? false,
+          is_featured: Boolean(newProduct.isFeatured),
+          is_bestseller: Boolean(newProduct.isBestSeller),
+          is_newarrival: Boolean(newProduct.isNew),
+          is_trending: Boolean(newProduct.isTrending),
+          has_fragrance_option: Boolean(newProduct.hasFragranceOption),
+          has_size_option: Boolean(newProduct.hasSizeOption),
+          has_color_option: Boolean(newProduct.hasColorOption),
+          has_wick_option: Boolean(newProduct.hasWickOption),
+          has_gift_packaging: Boolean(newProduct.hasGiftPackaging),
+          has_custom_message: Boolean(newProduct.hasCustomMessage),
           available_fragrance_ids: newProduct.availableFragranceIds || [],
           available_size_ids: newProduct.availableSizeIds || [],
           available_color_ids: newProduct.availableColorIds || [],
           available_wick_type_ids: newProduct.availableWickTypeIds || [],
-          collection_ids: newProduct.collectionIds || [],
-          meta_title: newProduct.metaTitle,
-          meta_description: newProduct.metaDescription,
-          meta_keywords: newProduct.metaKeywords,
         },
       });
     } catch (err) {
@@ -1595,8 +1641,9 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         method: 'PATCH',
         query: `id=eq.${id}`,
         body: {
-          main_category_id: merged.mainCategoryId,
-          sub_category_id: merged.subCategoryId,
+          main_category_id: merged.mainCategoryId && merged.mainCategoryId.length >= 32 ? merged.mainCategoryId : null,
+          sub_category_id: merged.subCategoryId && merged.subCategoryId.length >= 32 ? merged.subCategoryId : null,
+          collection_id: merged.collectionIds?.[0] && merged.collectionIds[0].length >= 32 ? merged.collectionIds[0] : null,
           name: merged.name,
           slug: merged.slug,
           tagline: merged.tagline || merged.scentProfile,
@@ -1605,43 +1652,27 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           original_price: merged.originalPrice,
           short_description: merged.shortDescription || merged.vesselDescription,
           long_description: merged.longDescription,
-          product_details: merged.productDetails,
-          fragrance_pyramid: merged.fragrancePyramid,
-          top_notes: merged.topNotes,
-          heart_notes: merged.heartNotes,
-          base_notes: merged.baseNotes,
-          scent_profile: merged.scentProfile,
           wax_type: merged.waxType,
           wick_type: merged.wickType,
-          burn_time: merged.burnTime,
           burn_time_hours: merged.burnTimeHours,
           weight_grams: merged.weightGrams,
-          how_to_use: merged.howToUse,
-          safety_instructions: merged.safetyInstructions,
-          whats_included: merged.whatsIncluded,
-          shipping_returns: merged.shippingReturns,
           rating: merged.rating,
           reviews_count: merged.reviewsCount,
           status: merged.inStock ? 'ACTIVE' : 'OUT_OF_STOCK',
-          is_featured: merged.isFeatured,
-          is_bestseller: merged.isBestSeller,
-          is_new_arrival: merged.isNew,
-          is_trending: merged.isTrending,
-          is_limited_edition: merged.isLimitedEdition,
-          has_fragrance_option: merged.hasFragranceOption,
-          has_size_option: merged.hasSizeOption,
-          has_color_option: merged.hasColorOption,
-          has_wick_option: merged.hasWickOption,
-          has_gift_packaging: merged.hasGiftPackaging,
-          has_custom_message: merged.hasCustomMessage,
-          available_fragrance_ids: merged.availableFragranceIds,
-          available_size_ids: merged.availableSizeIds,
-          available_color_ids: merged.availableColorIds,
-          available_wick_type_ids: merged.availableWickTypeIds,
-          collection_ids: merged.collectionIds,
-          meta_title: merged.metaTitle,
-          meta_description: merged.metaDescription,
-          meta_keywords: merged.metaKeywords,
+          is_featured: Boolean(merged.isFeatured),
+          is_bestseller: Boolean(merged.isBestSeller),
+          is_newarrival: Boolean(merged.isNew),
+          is_trending: Boolean(merged.isTrending),
+          has_fragrance_option: Boolean(merged.hasFragranceOption),
+          has_size_option: Boolean(merged.hasSizeOption),
+          has_color_option: Boolean(merged.hasColorOption),
+          has_wick_option: Boolean(merged.hasWickOption),
+          has_gift_packaging: Boolean(merged.hasGiftPackaging),
+          has_custom_message: Boolean(merged.hasCustomMessage),
+          available_fragrance_ids: merged.availableFragranceIds || [],
+          available_size_ids: merged.availableSizeIds || [],
+          available_color_ids: merged.availableColorIds || [],
+          available_wick_type_ids: merged.availableWickTypeIds || [],
         },
       });
     } catch (err) {

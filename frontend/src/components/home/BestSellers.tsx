@@ -40,9 +40,9 @@ export const BestSellers: React.FC<BestSellersProps> = ({ onSelectProduct }) => 
   // Filter products from CMS for BestSellers
   const bestSellerList = products.filter((p) => p.isBestSeller).length > 0
     ? products.filter((p) => p.isBestSeller)
-    : products.filter((p) => (p.rating || 0) >= 4.85);
+    : products;
 
-  if (bestSellerList.length === 0) {
+  if (products.length === 0) {
     return null;
   }
 
@@ -111,12 +111,7 @@ export const BestSellers: React.FC<BestSellersProps> = ({ onSelectProduct }) => 
                 {/* Vessel Image Container */}
                 <div className="relative h-64 bg-[#F5EEE4] flex items-center justify-center overflow-hidden">
                   <img
-                    src={prod.image || prod.imageUrl || [
-                      'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80',
-                      'https://images.unsplash.com/photo-1572726729207-a78d6fea73a7?auto=format&fit=crop&w=800&q=80',
-                      'https://images.unsplash.com/photo-1602874801007-bd458bb1b8b6?auto=format&fit=crop&w=800&q=80',
-                      'https://images.unsplash.com/photo-1507652313519-d4e9174996dd?auto=format&fit=crop&w=800&q=80'
-                    ][idx % 4]}
+                    src={prod.image || prod.imageUrl || prod.images?.[0] || 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80'}
                     alt={prod.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />

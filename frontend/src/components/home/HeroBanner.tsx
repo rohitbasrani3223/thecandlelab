@@ -19,7 +19,9 @@ export const HeroBanner: React.FC = () => {
   const heroSubtitle = hero.subtitle || 'Artisanal soy wax candles infused with fine botanical essential oils, hand-poured in small luxury batches.';
   const heroPrimaryBtn = hero.primaryBtnText || 'Explore Collections';
   const heroSecondaryBtn = hero.secondaryBtnText || 'Our Atelier Story';
-  const heroBgImage = hero.imageUrl || 'https://images.unsplash.com/photo-1603006905003-be475563bc59?q=80&w=1600&auto=format&fit=crop';
+  const heroBgImage = (hero.imageUrl && !hero.imageUrl.includes('unsplash.com/photo-1603006905003'))
+    ? hero.imageUrl
+    : '/hero_candle.png';
 
   return (
     <section className="relative w-full max-w-full bg-[#140D09] border-b border-[#3D2C22] overflow-hidden py-16 sm:py-28 lg:py-32 font-sans text-white">
@@ -33,11 +35,11 @@ export const HeroBanner: React.FC = () => {
         <img
           src={heroBgImage}
           alt="Atelier Sanctuary"
-          className="w-full h-full object-cover opacity-65 filter brightness-90 contrast-105"
+          className="w-full h-full object-cover opacity-85 filter brightness-95 contrast-105"
         />
-        {/* Luxury Vignette & Subtle Dim Overlay for Crisp Contrast */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#140D09]/75 via-[#140D09]/45 to-[#140D09]/85" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#140D09]/60 via-transparent to-[#140D09]/60" />
+        {/* Luxury Vignette & Subtle Contrast Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#140D09]/60 via-[#140D09]/20 to-[#140D09]/75" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#140D09]/40 via-transparent to-[#140D09]/40" />
       </div>
 
       {/* 2. Floating Gold Flame Ambient Glow */}

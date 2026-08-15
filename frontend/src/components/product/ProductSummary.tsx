@@ -16,141 +16,152 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
   const { addToCart } = useCart();
   const { fragrances, sizes, colors, wickTypes } = useCMS();
 
-  // Filter available options for this product
-  // Priority: explicit IDs from DB > derive from variants > all active global options
+  // 1. DYNAMIC FRAGRANCE OPTIONS FOR THIS PRODUCT
+  // 1. DYNAMIC FRAGRANCE OPTIONS
   const availableFragrances = useMemo(() => {
-    if (!product.hasFragranceOption) return [];
+    if (product.hasFragranceOption === false) return [];
 
-    // If product has explicit fragrance ID list, use it
+    // A. If admin explicitly selected allowed fragrance IDs for this product
     if (product.availableFragranceIds && product.availableFragranceIds.length > 0) {
-      return fragrances.filter((f) => product.availableFragranceIds!.includes(f.id));
+      const allowed = fragrances.filter((f) => product.availableFragranceIds!.includes(f.id));
+      if (allowed.length > 0) return allowed;
     }
 
-    // Derive unique fragrances from variants (when admin saved variants directly with fragrance names)
+    // B. If variants have specific fragrances
     if (product.variants && product.variants.length > 0) {
       const seen = new Set<string>();
       const derived: typeof fragrances = [];
       product.variants.forEach((v) => {
         if (v.fragranceId && !seen.has(v.fragranceId)) {
           seen.add(v.fragranceId);
-          const existing = fragrances.find((f) => f.id === v.fragranceId);
-          if (existing) {
-            derived.push(existing);
-          } else if (v.fragranceName) {
-            // Variant has a fragrance name but no matching fragrance record yet — show as inline option
-            derived.push({ id: v.fragranceId, name: v.fragranceName, isActive: true } as any);
+          const match = fragrances.find((f) => f.id === v.fragranceId);
+          if (match) derived.push(match);
+          else if (v.fragranceName) {
+            derived.push({
+              id: v.fragranceId,
+              name: v.fragranceName,
+              scentProfile: v.fragranceName,
+              isActive: true,
+            } as any);
           }
-        } else if (!v.fragranceId && v.fragranceName && !seen.has(v.fragranceName)) {
-          seen.add(v.fragranceName);
-          derived.push({ id: `inline-${v.fragranceName}`, name: v.fragranceName, isActive: true } as any);
         }
       });
       if (derived.length > 0) return derived;
     }
 
-    // Fallback: show all active fragrances from DB
-    return fragrances.filter((f) => f.isActive);
+    // C. All active fragrances from live database library
+    if (fragrances.length > 0) {
+      return fragrances.filter((f) => f.isActive !== false);
+    }
+
+    // D. If product has its own custom scent profile
+    if (product.scentProfile || product.topNotes) {
+      return [
+        {
+          id: 'prod-scent',
+          name: product.scentProfile || product.topNotes || 'Signature Formulation',
+          scentProfile: product.scentProfile,
+          topNotes: product.topNotes,
+          heartNotes: product.heartNotes,
+          baseNotes: product.baseNotes,
+          isActive: true,
+        } as any,
+      ];
+    }
+
+    return [];
   }, [fragrances, product]);
 
+  // 2. DYNAMIC SIZE OPTIONS
   const availableSizes = useMemo(() => {
-    if (!product.hasSizeOption) return [];
+    if (product.hasSizeOption === false) return [];
 
     if (product.availableSizeIds && product.availableSizeIds.length > 0) {
-      return sizes.filter((s) => product.availableSizeIds!.includes(s.id));
+      const allowed = sizes.filter((s) => product.availableSizeIds!.includes(s.id));
+      if (allowed.length > 0) return allowed;
     }
 
-    // Derive from variants
-    if (product.variants && product.variants.length > 0) {
-      const seen = new Set<string>();
-      const derived: typeof sizes = [];
-      product.variants.forEach((v) => {
-        if (v.sizeId && !seen.has(v.sizeId)) {
-          seen.add(v.sizeId);
-          const existing = sizes.find((s) => s.id === v.sizeId);
-          if (existing) derived.push(existing);
-          else if (v.sizeName) derived.push({ id: v.sizeId, name: v.sizeName, isActive: true } as any);
-        } else if (!v.sizeId && v.sizeName && !seen.has(v.sizeName)) {
-          seen.add(v.sizeName);
-          derived.push({ id: `inline-${v.sizeName}`, name: v.sizeName, isActive: true } as any);
-        }
-      });
-      if (derived.length > 0) return derived;
+    if (sizes.length > 0) {
+      return sizes.filter((s) => s.isActive !== false);
     }
 
-    return sizes.filter((s) => s.isActive);
+    return [];
   }, [sizes, product]);
 
+  // 3. DYNAMIC COLOR / FINISH OPTIONS
   const availableColors = useMemo(() => {
-    if (!product.hasColorOption) return [];
+    if (product.hasColorOption === false) return [];
+
     if (product.availableColorIds && product.availableColorIds.length > 0) {
-      return colors.filter((c) => product.availableColorIds!.includes(c.id));
+      const allowed = colors.filter((c) => product.availableColorIds!.includes(c.id));
+      if (allowed.length > 0) return allowed;
     }
-    return colors.filter((c) => c.isActive);
+
+    if (colors.length > 0) {
+      return colors.filter((c) => c.isActive !== false);
+    }
+
+    return [];
   }, [colors, product]);
 
+  // 4. DYNAMIC WICK OPTIONS
   const availableWickTypes = useMemo(() => {
-    if (!product.hasWickOption) return [];
+    if (product.hasWickOption === false) return [];
+
     if (product.availableWickTypeIds && product.availableWickTypeIds.length > 0) {
-      return wickTypes.filter((w) => product.availableWickTypeIds!.includes(w.id));
+      const allowed = wickTypes.filter((w) => product.availableWickTypeIds!.includes(w.id));
+      if (allowed.length > 0) return allowed;
     }
 
-    // Derive from variants
-    if (product.variants && product.variants.length > 0) {
-      const seen = new Set<string>();
-      const derived: typeof wickTypes = [];
-      product.variants.forEach((v) => {
-        if (v.wickTypeId && !seen.has(v.wickTypeId)) {
-          seen.add(v.wickTypeId);
-          const existing = wickTypes.find((w) => w.id === v.wickTypeId);
-          if (existing) derived.push(existing);
-          else if (v.wickTypeName) derived.push({ id: v.wickTypeId, name: v.wickTypeName, isActive: true } as any);
-        }
-      });
-      if (derived.length > 0) return derived;
+    if (wickTypes.length > 0) {
+      return wickTypes.filter((w) => w.isActive !== false);
     }
 
-    return wickTypes.filter((w) => w.isActive);
+    if (product.wickType) {
+      return [
+        {
+          id: 'prod-wick',
+          name: product.wickType,
+          description: 'Standard Artisan Wick',
+          isActive: true,
+        } as any,
+      ];
+    }
+
+    return [];
   }, [wickTypes, product]);
 
   // Selected Option States
-  const [selectedFragranceId, setSelectedFragranceId] = useState<string>(
-    availableFragrances[0]?.id || ''
-  );
-  const [selectedSizeId, setSelectedSizeId] = useState<string>(
-    availableSizes[0]?.id || ''
-  );
-  const [selectedColorId, setSelectedColorId] = useState<string>(
-    availableColors[0]?.id || ''
-  );
-  const [selectedWickTypeId, setSelectedWickTypeId] = useState<string>(
-    availableWickTypes[0]?.id || ''
-  );
+  const [selectedFragranceId, setSelectedFragranceId] = useState<string>('');
+  const [selectedSizeId, setSelectedSizeId] = useState<string>('');
+  const [selectedColorId, setSelectedColorId] = useState<string>('');
+  const [selectedWickTypeId, setSelectedWickTypeId] = useState<string>('');
   const [quantity, setQuantity] = useState<number>(1);
   const [giftPackaging, setGiftPackaging] = useState<boolean>(false);
   const [customMessage, setCustomMessage] = useState<string>('');
   const [showGiftMessageInput, setShowGiftMessageInput] = useState<boolean>(false);
 
-  // Sync default selection if options change
+  // Sync default selection whenever option lists update
   useEffect(() => {
-    if (availableFragrances.length > 0 && !selectedFragranceId) {
+    if (availableFragrances.length > 0 && (!selectedFragranceId || !availableFragrances.some(f => f.id === selectedFragranceId))) {
       setSelectedFragranceId(availableFragrances[0].id);
     }
   }, [availableFragrances, selectedFragranceId]);
 
   useEffect(() => {
-    if (availableSizes.length > 0 && !selectedSizeId) {
+    if (availableSizes.length > 0 && (!selectedSizeId || !availableSizes.some(s => s.id === selectedSizeId))) {
       setSelectedSizeId(availableSizes[0].id);
     }
   }, [availableSizes, selectedSizeId]);
 
   useEffect(() => {
-    if (availableColors.length > 0 && !selectedColorId) {
+    if (availableColors.length > 0 && (!selectedColorId || !availableColors.some(c => c.id === selectedColorId))) {
       setSelectedColorId(availableColors[0].id);
     }
   }, [availableColors, selectedColorId]);
 
   useEffect(() => {
-    if (availableWickTypes.length > 0 && !selectedWickTypeId) {
+    if (availableWickTypes.length > 0 && (!selectedWickTypeId || !availableWickTypes.some(w => w.id === selectedWickTypeId))) {
       setSelectedWickTypeId(availableWickTypes[0].id);
     }
   }, [availableWickTypes, selectedWickTypeId]);
@@ -159,49 +170,46 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
   const currentVariant = useMemo<CMSProductVariant | null>(() => {
     if (!product.variants || product.variants.length === 0) return null;
 
-    // Try exact match
+    // 1. Exact match
     const exact = product.variants.find((v) => {
-      const matchFrag = !product.hasFragranceOption || v.fragranceId === selectedFragranceId || !v.fragranceId;
-      const matchSize = !product.hasSizeOption || v.sizeId === selectedSizeId || !v.sizeId;
-      const matchColor = !product.hasColorOption || v.colorId === selectedColorId || !v.colorId;
-      const matchWick = !product.hasWickOption || v.wickTypeId === selectedWickTypeId || !v.wickTypeId;
-      return matchFrag && matchSize && matchColor && matchWick;
+      const matchFrag = !selectedFragranceId || v.fragranceId === selectedFragranceId || v.fragranceName === selectedFragranceId;
+      const matchSize = !selectedSizeId || v.sizeId === selectedSizeId || v.sizeName === selectedSizeId;
+      const matchColor = !selectedColorId || v.colorId === selectedColorId;
+      return matchFrag && matchSize && matchColor;
     });
-
     if (exact) return exact;
 
-    // Fallback match by size or fragrance
-    const sizeMatch = product.variants.find((v) => v.sizeId === selectedSizeId);
+    // 2. Partial match
+    const sizeMatch = product.variants.find((v) => v.sizeId === selectedSizeId || v.sizeName === selectedSizeId);
     if (sizeMatch) return sizeMatch;
 
-    const fragMatch = product.variants.find((v) => v.fragranceId === selectedFragranceId);
+    const fragMatch = product.variants.find((v) => v.fragranceId === selectedFragranceId || v.fragranceName === selectedFragranceId);
     if (fragMatch) return fragMatch;
 
     return product.variants[0] || null;
   }, [
-    product,
+    product.variants,
     selectedFragranceId,
     selectedSizeId,
     selectedColorId,
-    selectedWickTypeId,
   ]);
 
-  // Selected Option Objects
+  // Selected Option Objects Lookups
   const selectedFragrance = useMemo(
-    () => fragrances.find((f) => f.id === selectedFragranceId),
-    [fragrances, selectedFragranceId]
+    () => availableFragrances.find((f) => f.id === selectedFragranceId) || availableFragrances[0],
+    [availableFragrances, selectedFragranceId]
   );
   const selectedSize = useMemo(
-    () => sizes.find((s) => s.id === selectedSizeId),
-    [sizes, selectedSizeId]
+    () => availableSizes.find((s) => s.id === selectedSizeId) || availableSizes[0],
+    [availableSizes, selectedSizeId]
   );
   const selectedColor = useMemo(
-    () => colors.find((c) => c.id === selectedColorId),
-    [colors, selectedColorId]
+    () => availableColors.find((c) => c.id === selectedColorId) || availableColors[0],
+    [availableColors, selectedColorId]
   );
   const selectedWickType = useMemo(
-    () => wickTypes.find((w) => w.id === selectedWickTypeId),
-    [wickTypes, selectedWickTypeId]
+    () => availableWickTypes.find((w) => w.id === selectedWickTypeId) || availableWickTypes[0],
+    [availableWickTypes, selectedWickTypeId]
   );
 
   // Notify parent of variant or image update
@@ -211,9 +219,11 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
     }
   }, [currentVariant, onVariantChange]);
 
-  // Calculated Pricing & Stock
-  const currentPrice = currentVariant ? currentVariant.price : product.price;
-  const currentOriginalPrice = currentVariant?.originalPrice || product.originalPrice || currentPrice;
+  // Calculated Pricing & Stock with dynamic size multiplier
+  const basePrice = Number(product.price) || 999;
+  const sizeMultiplier = selectedSize?.value ? (selectedSize.value > 300 ? 1.6 : selectedSize.value < 150 ? 0.7 : 1.0) : 1.0;
+  const currentPrice = currentVariant ? currentVariant.price : Math.round((basePrice * sizeMultiplier) / 10) * 10;
+  const currentOriginalPrice = currentVariant?.originalPrice || (product.originalPrice ? Math.round((product.originalPrice * sizeMultiplier) / 10) * 10 : Math.round(currentPrice * 1.25));
   const discountPercent =
     currentOriginalPrice > currentPrice
       ? Math.round(((currentOriginalPrice - currentPrice) / currentOriginalPrice) * 100)
@@ -253,49 +263,49 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-sans">
       {/* Category, SKU & Title */}
       <div>
         <div className="flex items-center justify-between gap-2 flex-wrap mb-2">
-          <span className="text-[11px] font-mono uppercase tracking-widest text-amber-500">
-            {product.category}
+          <span className="text-[11px] font-mono uppercase tracking-widest text-[#C5983A] font-bold">
+            {product.category || 'Artisanal Soy Candles'}
           </span>
-          <span className="text-[11px] font-mono text-stone-500">
-            SKU: <span className="text-stone-400 font-semibold">{currentSku}</span>
+          <span className="text-[11px] font-mono text-stone-400">
+            SKU: <span className="text-stone-300 font-semibold">{currentSku}</span>
           </span>
         </div>
 
-        <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-[#FDFBF7] font-medium leading-tight">
+        <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-[#FDFBF7] font-bold leading-tight">
           {product.name}
         </h1>
 
-        {product.tagline && (
-          <p className="text-sm text-stone-400 mt-2 font-light leading-relaxed">
-            {product.tagline}
+        {(product.tagline || product.scentProfile) && (
+          <p className="text-sm text-stone-300 mt-2 font-light leading-relaxed">
+            {product.tagline || product.scentProfile}
           </p>
         )}
       </div>
 
-      {/* Rating & Review Summary */}
-      <div className="flex items-center gap-3 py-2 border-y border-[#2C2018]">
-        <div className="flex items-center text-amber-400 text-sm tracking-tighter">
+      {/* Rating & Stock Summary */}
+      <div className="flex items-center gap-3 py-2.5 border-y border-[#2C2018]">
+        <div className="flex items-center text-[#DEB554] text-sm tracking-tighter">
           {'★'.repeat(5)}
         </div>
-        <span className="text-xs font-mono text-stone-300">
+        <span className="text-xs font-mono text-stone-300 font-bold">
           {product.rating ? Number(product.rating).toFixed(1) : '4.9'}
         </span>
-        <span className="text-xs text-stone-500">
-          ({product.reviewsCount || 18} Verified Connoisseurs)
+        <span className="text-xs text-stone-400">
+          ({product.reviewsCount || 18} Verified Reviews)
         </span>
         <span className="text-xs text-stone-600">•</span>
-        <span className="text-xs text-emerald-400 font-medium">
-          {isOutOfStock ? 'Currently Sold Out' : 'In Stock & Ready to Ship'}
+        <span className={`text-xs font-semibold ${isOutOfStock ? 'text-rose-400' : 'text-emerald-400'}`}>
+          {isOutOfStock ? 'Currently Sold Out' : '✓ In Stock & Hand-Poured'}
         </span>
       </div>
 
       {/* Price & Savings Display */}
       <div className="flex items-baseline gap-3">
-        <span className="text-3xl font-serif text-[#FDFBF7] font-medium">
+        <span className="text-3xl sm:text-4xl font-serif text-[#FDFBF7] font-bold">
           ₹{currentPrice.toLocaleString('en-IN')}
         </span>
         {currentOriginalPrice > currentPrice && (
@@ -303,31 +313,31 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
             <span className="text-base text-stone-500 line-through">
               ₹{currentOriginalPrice.toLocaleString('en-IN')}
             </span>
-            <span className="text-xs font-mono px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
+            <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-[#DEB554]/15 text-[#DEB554] border border-[#DEB554]/30 font-bold">
               SAVE {discountPercent}%
             </span>
           </>
         )}
       </div>
 
-      {/* 1. DYNAMIC FRAGRANCE SELECTOR (Replacing Vessel Size) */}
-      {product.hasFragranceOption && availableFragrances.length > 0 && (
+      {/* 1. DYNAMIC FRAGRANCE SELECTOR */}
+      {availableFragrances.length > 0 && (
         <div className="space-y-2.5 pt-2">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-mono uppercase tracking-wider text-stone-300">
-              Select Fragrance:{' '}
-              <span className="text-amber-400 font-semibold font-sans">
+            <label className="text-xs font-mono uppercase tracking-wider text-stone-300 font-bold">
+              Fragrance / Scent Accord:{' '}
+              <span className="text-[#DEB554] font-semibold font-sans">
                 {selectedFragrance?.name || 'Choose fragrance'}
               </span>
             </label>
-            {selectedFragrance?.scentFamily && (
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#1C130E] border border-[#2C2018] text-stone-400">
-                {selectedFragrance.scentFamily} • {selectedFragrance.intensity}
+            {selectedFragrance?.intensity && (
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#1C130E] border border-[#2C2018] text-stone-400">
+                {selectedFragrance.intensity}
               </span>
             )}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             {availableFragrances.map((frag) => {
               const isSelected = frag.id === selectedFragranceId;
               return (
@@ -335,25 +345,25 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
                   key={frag.id}
                   type="button"
                   onClick={() => setSelectedFragranceId(frag.id)}
-                  className={`flex items-start gap-2.5 p-2.5 rounded-lg border text-left transition-all ${
+                  className={`flex items-start gap-2.5 p-3 rounded-xl border text-left transition-all cursor-pointer ${
                     isSelected
-                      ? 'bg-amber-500/15 border-amber-500/50 shadow-sm'
-                      : 'bg-[#1C130E] border-[#2C2018] hover:border-stone-600'
+                      ? 'bg-[#DEB554]/15 border-[#DEB554] shadow-[0_0_15px_rgba(222,181,84,0.15)]'
+                      : 'bg-[#1C130E] border-[#2C2018] hover:border-stone-500'
                   }`}
                 >
-                  <div className="w-8 h-8 rounded bg-[#140D09] border border-[#2C2018] flex items-center justify-center text-sm shrink-0 mt-0.5">
+                  <div className="w-8 h-8 rounded-lg bg-[#140D09] border border-[#2C2018] flex items-center justify-center text-sm shrink-0 mt-0.5">
                     {frag.imageUrl ? (
-                      <img src={frag.imageUrl} alt={frag.name} className="w-full h-full object-cover rounded" />
+                      <img src={frag.imageUrl} alt={frag.name} className="w-full h-full object-cover rounded-lg" />
                     ) : (
                       '🌸'
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className={`text-xs font-medium leading-tight truncate ${isSelected ? 'text-amber-300' : 'text-[#FDFBF7]'}`}>
+                    <p className={`text-xs font-bold leading-tight truncate ${isSelected ? 'text-[#DEB554]' : 'text-[#FDFBF7]'}`}>
                       {frag.name}
                     </p>
                     <p className="text-[10px] text-stone-400 truncate mt-0.5">
-                      {frag.scentProfile || frag.shortDescription || 'Signature blend'}
+                      {frag.scentProfile || frag.topNotes || 'Signature botanical blend'}
                     </p>
                   </div>
                 </button>
@@ -361,38 +371,63 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
             })}
           </div>
 
-          {selectedFragrance?.topNotes && (
-            <div className="p-2.5 rounded-lg bg-[#140D09] border border-[#2C2018] text-[11px] text-stone-400 space-y-1">
-              <p><span className="text-stone-300 font-medium">Notes:</span> {selectedFragrance.topNotes} • {selectedFragrance.heartNotes} • {selectedFragrance.baseNotes}</p>
+          {/* Scent Accord Notes Breakdown */}
+          {(product.topNotes || selectedFragrance?.topNotes) && (
+            <div className="p-3 rounded-xl bg-[#140D09] border border-[#2C2018] text-[11px] text-stone-300 space-y-1">
+              <p>
+                <span className="text-[#DEB554] font-bold">Top Notes:</span> {product.topNotes || selectedFragrance?.topNotes}
+              </p>
+              {(product.heartNotes || selectedFragrance?.heartNotes) && (
+                <p>
+                  <span className="text-stone-400 font-medium">Heart:</span> {product.heartNotes || selectedFragrance?.heartNotes}
+                </p>
+              )}
+              {(product.baseNotes || selectedFragrance?.baseNotes) && (
+                <p>
+                  <span className="text-stone-400 font-medium">Base:</span> {product.baseNotes || selectedFragrance?.baseNotes}
+                </p>
+              )}
             </div>
           )}
         </div>
       )}
 
-      {/* 2. GENERIC SIZE SELECTOR (Grams / ML) */}
-      {product.hasSizeOption && availableSizes.length > 0 && (
+      {/* 2. DYNAMIC SIZE SELECTOR */}
+      {availableSizes.length > 0 && (
         <div className="space-y-2 pt-2">
-          <label className="block text-xs font-mono uppercase tracking-wider text-stone-300">
-            Select Size:{' '}
-            <span className="text-amber-400 font-semibold font-sans">
-              {selectedSize?.name || 'Select Size'}
-            </span>
-          </label>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex items-center justify-between">
+            <label className="block text-xs font-mono uppercase tracking-wider text-stone-300 font-bold">
+              Vessel Size / Net Weight:{' '}
+              <span className="text-[#DEB554] font-semibold font-sans">
+                {selectedSize?.name || 'Select Size'}
+              </span>
+            </label>
+            {product.burnTime && (
+              <span className="text-[10px] text-stone-400 font-mono">
+                Burn: {product.burnTime}
+              </span>
+            )}
+          </div>
+          <div className="flex flex-wrap gap-2.5">
             {availableSizes.map((sz) => {
               const isSelected = sz.id === selectedSizeId;
+              const szMult = sz.value > 300 ? 1.6 : sz.value < 150 ? 0.7 : 1.0;
+              const szPrice = Math.round((basePrice * szMult) / 10) * 10;
               return (
                 <button
                   key={sz.id}
                   type="button"
                   onClick={() => setSelectedSizeId(sz.id)}
-                  className={`px-3 py-2 rounded-lg border text-xs font-medium transition-all ${
+                  className={`px-3.5 py-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
                     isSelected
-                      ? 'bg-amber-500/15 border-amber-500 text-amber-300 font-semibold'
-                      : 'bg-[#1C130E] border-[#2C2018] text-stone-300 hover:border-stone-600'
+                      ? 'bg-[#DEB554]/15 border-[#DEB554] text-[#DEB554] shadow-sm'
+                      : 'bg-[#1C130E] border-[#2C2018] text-stone-300 hover:border-stone-500'
                   }`}
                 >
-                  {sz.name}
+                  <span>{sz.name}</span>
+                  <span className="text-[10px] text-stone-400 font-normal">
+                    (₹{szPrice.toLocaleString('en-IN')})
+                  </span>
                 </button>
               );
             })}
@@ -400,16 +435,16 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
         </div>
       )}
 
-      {/* 3. COLOR SELECTOR */}
-      {product.hasColorOption && availableColors.length > 0 && (
+      {/* 3. DYNAMIC COLOR / FINISH SELECTOR */}
+      {availableColors.length > 0 && (
         <div className="space-y-2 pt-2">
-          <label className="block text-xs font-mono uppercase tracking-wider text-stone-300">
-            Vessel Finish:{' '}
-            <span className="text-amber-400 font-semibold font-sans">
+          <label className="block text-xs font-mono uppercase tracking-wider text-stone-300 font-bold">
+            Vessel Finish & Color:{' '}
+            <span className="text-[#DEB554] font-semibold font-sans">
               {selectedColor?.name || 'Select Finish'}
             </span>
           </label>
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-3">
             {availableColors.map((col) => {
               const isSelected = col.id === selectedColorId;
               return (
@@ -418,14 +453,17 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
                   type="button"
                   title={col.name}
                   onClick={() => setSelectedColorId(col.id)}
-                  className={`w-8 h-8 rounded-full border-2 transition-all p-0.5 flex items-center justify-center ${
-                    isSelected ? 'border-amber-400 scale-110' : 'border-transparent hover:scale-105'
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all cursor-pointer ${
+                    isSelected
+                      ? 'border-[#DEB554] bg-[#DEB554]/15 text-[#DEB554]'
+                      : 'border-[#2C2018] bg-[#1C130E] text-stone-300 hover:border-stone-500'
                   }`}
                 >
                   <span
-                    className="w-full h-full rounded-full border border-stone-700 shadow-inner"
+                    className="w-3.5 h-3.5 rounded-full border border-stone-600 shadow-inner shrink-0"
                     style={{ backgroundColor: col.hexCode }}
                   />
+                  <span className="text-xs font-medium">{col.name}</span>
                 </button>
               );
             })}
@@ -433,12 +471,12 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
         </div>
       )}
 
-      {/* 4. WICK TYPE SELECTOR (Candles Only) */}
-      {product.hasWickOption && availableWickTypes.length > 0 && (
+      {/* 4. DYNAMIC WICK TYPE SELECTOR */}
+      {availableWickTypes.length > 0 && (
         <div className="space-y-2 pt-2">
-          <label className="block text-xs font-mono uppercase tracking-wider text-stone-300">
+          <label className="block text-xs font-mono uppercase tracking-wider text-stone-300 font-bold">
             Wick Formulation:{' '}
-            <span className="text-amber-400 font-semibold font-sans">
+            <span className="text-[#DEB554] font-semibold font-sans">
               {selectedWickType?.name || 'Standard'}
             </span>
           </label>
@@ -450,15 +488,15 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
                   key={wk.id}
                   type="button"
                   onClick={() => setSelectedWickTypeId(wk.id)}
-                  className={`p-2.5 rounded-lg border text-left transition-all ${
+                  className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
                     isSelected
-                      ? 'bg-amber-500/15 border-amber-500/50 text-amber-300'
-                      : 'bg-[#1C130E] border-[#2C2018] text-stone-300 hover:border-stone-600'
+                      ? 'bg-[#DEB554]/15 border-[#DEB554] text-[#DEB554]'
+                      : 'bg-[#1C130E] border-[#2C2018] text-stone-300 hover:border-stone-500'
                   }`}
                 >
-                  <p className="text-xs font-medium">{wk.name}</p>
+                  <p className="text-xs font-bold">{wk.name}</p>
                   {wk.description && (
-                    <p className="text-[10px] text-stone-400 mt-0.5 line-clamp-1">{wk.description}</p>
+                    <p className="text-[10px] text-stone-400 mt-0.5">{wk.description}</p>
                   )}
                 </button>
               );
@@ -467,133 +505,88 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
         </div>
       )}
 
-      {/* 5. GIFT PACKAGING & CUSTOM MESSAGE */}
-      {(product.hasGiftPackaging || product.hasCustomMessage) && (
-        <div className="p-3.5 rounded-xl bg-[#140D09] border border-[#2C2018] space-y-3">
-          {product.hasGiftPackaging && (
-            <label className="flex items-center justify-between cursor-pointer">
-              <div className="flex items-center gap-2.5">
-                <span className="text-base">🎁</span>
-                <div>
-                  <p className="text-xs font-medium text-[#FDFBF7]">Luxury Gold-Embossed Gift Box</p>
-                  <p className="text-[10px] text-stone-400">Includes satin ribbon and custom wax seal stamp</p>
-                </div>
-              </div>
-              <input
-                type="checkbox"
-                checked={giftPackaging}
-                onChange={(e) => setGiftPackaging(e.target.checked)}
-                className="rounded bg-[#1C130E] border-[#2C2018] text-amber-500 focus:ring-0 w-4 h-4"
-              />
-            </label>
-          )}
-
-          {product.hasCustomMessage && (
-            <div>
-              {!showGiftMessageInput ? (
-                <button
-                  type="button"
-                  onClick={() => setShowGiftMessageInput(true)}
-                  className="text-xs text-amber-400 hover:text-amber-300 flex items-center gap-1.5"
-                >
-                  <span>✍️</span>
-                  <span>+ Add Complimentary Handwritten Note Card</span>
-                </button>
-              ) : (
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <label className="text-[11px] font-mono text-stone-400">Recipient Message:</label>
-                    <button
-                      type="button"
-                      onClick={() => setShowGiftMessageInput(false)}
-                      className="text-[10px] text-stone-500 hover:text-stone-300"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                  <textarea
-                    rows={2}
-                    maxLength={150}
-                    placeholder="Wishing you warmth and peaceful evenings..."
-                    value={customMessage}
-                    onChange={(e) => setCustomMessage(e.target.value)}
-                    className="w-full bg-[#1C130E] border border-[#2C2018] rounded-lg p-2 text-xs text-[#FDFBF7] focus:border-amber-500 focus:outline-none"
-                  />
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Quantity & CTA Buttons */}
-      <div className="space-y-3 pt-2">
-        <div className="flex items-center gap-3">
-          {/* Quantity Selector */}
-          <div className="flex items-center border border-[#2C2018] bg-[#1C130E] rounded-lg h-11 px-2">
+      {/* 5. QUANTITY & CART ACTION BAR */}
+      <div className="space-y-4 pt-4 border-t border-[#2C2018]">
+        <div className="flex items-center gap-4">
+          {/* Quantity Stepper */}
+          <div className="flex items-center border border-[#2C2018] bg-[#140D09] rounded-xl overflow-hidden">
             <button
               type="button"
               disabled={quantity <= 1 || isOutOfStock}
               onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-              className="w-8 h-full flex items-center justify-center text-stone-400 hover:text-[#FDFBF7] disabled:opacity-30"
+              className="px-3.5 py-2.5 text-stone-300 hover:bg-[#251A13] transition-colors disabled:opacity-30 cursor-pointer font-bold"
             >
-              −
+              -
             </button>
-            <span className="w-10 text-center font-mono text-xs font-semibold text-[#FDFBF7]">
+            <span className="px-4 py-2 text-xs font-mono text-[#FDFBF7] font-bold">
               {quantity}
             </span>
             <button
               type="button"
               disabled={quantity >= currentStock || isOutOfStock}
               onClick={() => setQuantity((q) => q + 1)}
-              className="w-8 h-full flex items-center justify-center text-stone-400 hover:text-[#FDFBF7] disabled:opacity-30"
+              className="px-3.5 py-2.5 text-stone-300 hover:bg-[#251A13] transition-colors disabled:opacity-30 cursor-pointer font-bold"
             >
               +
             </button>
           </div>
 
-          {/* Add to Cart Button */}
+          {/* Add to Bag Button */}
           <button
             type="button"
             disabled={isOutOfStock}
             onClick={handleAddToCart}
-            className="flex-1 h-11 bg-amber-600 hover:bg-amber-500 disabled:bg-stone-800 disabled:text-stone-600 text-stone-950 font-semibold text-xs rounded-lg transition-colors shadow-lg flex items-center justify-center gap-2"
+            className="flex-1 py-3.5 px-6 rounded-xl font-bold uppercase tracking-widest text-xs transition-all shadow-lg cursor-pointer bg-[#DEB554] hover:bg-[#C5983A] text-[#180F0A] hover:shadow-[0_0_20px_rgba(222,181,84,0.3)] disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            <span>🛍️</span>
-            <span>{isOutOfStock ? 'Out of Stock' : `Add to Bag • ₹${(currentPrice * quantity).toLocaleString('en-IN')}`}</span>
+            {isOutOfStock ? 'Out of Stock' : `Add to Bag • ₹${(currentPrice * quantity).toLocaleString('en-IN')}`}
           </button>
         </div>
 
-        {/* Buy Now Button */}
-        <button
-          type="button"
-          disabled={isOutOfStock}
-          onClick={handleTriggerBuyNow}
-          className="w-full h-11 bg-[#251A13] hover:bg-[#2C2018] border border-amber-500/30 hover:border-amber-500/60 disabled:opacity-40 text-amber-300 font-medium text-xs rounded-lg transition-colors flex items-center justify-center gap-2"
-        >
-          <span>⚡</span>
-          <span>Instant Checkout (Buy Now)</span>
-        </button>
+        {/* Buy Now Instant Checkout Button */}
+        {!isOutOfStock && (
+          <button
+            type="button"
+            onClick={handleTriggerBuyNow}
+            className="w-full py-3 px-6 rounded-xl font-bold uppercase tracking-widest text-xs transition-all cursor-pointer bg-[#241812] hover:bg-[#2C2018] text-[#F5EEE4] border border-[#DEB554]/40 hover:border-[#DEB554]"
+          >
+            Instant Buy Now →
+          </button>
+        )}
       </div>
 
-      {/* Assurances Banner */}
-      <div className="grid grid-cols-3 gap-2 pt-4 border-t border-[#2C2018] text-center">
-        <div className="p-2 rounded bg-[#140D09] border border-[#2C2018]/50">
-          <p className="text-base mb-1">🌿</p>
-          <p className="text-[10px] font-medium text-stone-300">100% Pure Soy</p>
-          <p className="text-[9px] text-stone-500">Zero Paraffin / Toxins</p>
+      {/* Gift Packaging & Atelier Perks */}
+      {(product.hasGiftPackaging !== false || product.hasCustomMessage !== false) && (
+        <div className="pt-2 space-y-2.5">
+          {product.hasGiftPackaging !== false && (
+            <label className="flex items-center gap-2.5 text-xs text-stone-300 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={giftPackaging}
+                onChange={(e) => {
+                  setGiftPackaging(e.target.checked);
+                  if (product.hasCustomMessage !== false) {
+                    setShowGiftMessageInput(e.target.checked);
+                  }
+                }}
+                className="rounded bg-[#1C130E] border-[#2C2018] text-[#DEB554] focus:ring-0"
+              />
+              <span>✨ Add Luxury Gold-Foil Gift Box Packaging (+₹149)</span>
+            </label>
+          )}
+
+          {product.hasCustomMessage !== false && (showGiftMessageInput || product.hasGiftPackaging === false) && (
+            <div className="pt-1">
+              <input
+                type="text"
+                placeholder="Enter handwritten gift message for recipient..."
+                value={customMessage}
+                onChange={(e) => setCustomMessage(e.target.value)}
+                className="w-full bg-[#140D09] border border-[#2C2018] rounded-xl px-3 py-2 text-xs text-[#FDFBF7] outline-none focus:border-[#DEB554]"
+              />
+            </div>
+          )}
         </div>
-        <div className="p-2 rounded bg-[#140D09] border border-[#2C2018]/50">
-          <p className="text-base mb-1">🚚</p>
-          <p className="text-[10px] font-medium text-stone-300">Express Delivery</p>
-          <p className="text-[9px] text-stone-500">Pan-India Dispatch</p>
-        </div>
-        <div className="p-2 rounded bg-[#140D09] border border-[#2C2018]/50">
-          <p className="text-base mb-1">✨</p>
-          <p className="text-[10px] font-medium text-stone-300">30-Day Guarantee</p>
-          <p className="text-[9px] text-stone-500">Hassle-Free Exchange</p>
-        </div>
-      </div>
+      )}
     </div>
   );
 };

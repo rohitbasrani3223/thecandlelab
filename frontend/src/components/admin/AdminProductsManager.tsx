@@ -84,11 +84,9 @@ export const AdminProductsManager: React.FC = () => {
     availableColorIds: colors.slice(0, 2).map((c) => c.id),
     availableWickTypeIds: wickTypes.map((w) => w.id),
     vesselDescription: 'Hand-poured in heavy frosted Italian glass vessel.',
-    image: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80',
-    imageUrl: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80',
-    images: [
-      'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=1000&q=80',
-    ],
+    image: '',
+    imageUrl: '',
+    images: [],
     variants: [],
     metaTitle: '',
     metaDescription: '',
@@ -102,6 +100,19 @@ export const AdminProductsManager: React.FC = () => {
     const fresh: Partial<CMSProduct> = {
       ...initialFormState,
       sku: `TCL-${Math.floor(1000 + Math.random() * 9000)}`,
+      image: '',
+      imageUrl: '',
+      images: [],
+      hasFragranceOption: true,
+      hasSizeOption: true,
+      hasColorOption: true,
+      hasWickOption: true,
+      hasGiftPackaging: true,
+      hasCustomMessage: false,
+      availableFragranceIds: fragrances.map((f) => f.id),
+      availableSizeIds: sizes.map((s) => s.id),
+      availableColorIds: colors.map((c) => c.id),
+      availableWickTypeIds: wickTypes.map((w) => w.id),
       variants: [],
     };
     setFormData(fresh);
@@ -112,7 +123,31 @@ export const AdminProductsManager: React.FC = () => {
 
   // Start Edit Flow
   const handleStartEdit = (p: CMSProduct) => {
-    setFormData({ ...p });
+    const existingImages = (p.images && p.images.length > 0)
+      ? p.images
+      : p.image
+      ? [p.image]
+      : p.imageUrl
+      ? [p.imageUrl]
+      : [];
+
+    setFormData({
+      ...p,
+      images: existingImages,
+      image: existingImages[0] || p.image || p.imageUrl || '',
+      imageUrl: existingImages[0] || p.imageUrl || p.image || '',
+      hasFragranceOption: p.hasFragranceOption !== false,
+      hasSizeOption: p.hasSizeOption !== false,
+      hasColorOption: p.hasColorOption !== false,
+      hasWickOption: p.hasWickOption !== false,
+      hasGiftPackaging: p.hasGiftPackaging !== false,
+      hasCustomMessage: Boolean(p.hasCustomMessage),
+      availableFragranceIds: p.availableFragranceIds && p.availableFragranceIds.length > 0 ? p.availableFragranceIds : fragrances.map((f) => f.id),
+      availableSizeIds: p.availableSizeIds && p.availableSizeIds.length > 0 ? p.availableSizeIds : sizes.map((s) => s.id),
+      availableColorIds: p.availableColorIds && p.availableColorIds.length > 0 ? p.availableColorIds : colors.map((c) => c.id),
+      availableWickTypeIds: p.availableWickTypeIds && p.availableWickTypeIds.length > 0 ? p.availableWickTypeIds : wickTypes.map((w) => w.id),
+      variants: p.variants || [],
+    });
     setEditingId(p.id);
     setActiveFormTab('basic');
     setActiveMode('edit');
@@ -138,51 +173,47 @@ export const AdminProductsManager: React.FC = () => {
     const activeSizes = sizes.filter((s) => formData.availableSizeIds?.includes(s.id));
     const activeWicks = wickTypes.filter((w) => formData.availableWickTypeIds?.includes(w.id));
 
+    const effectiveFrags = activeFrags.length > 0
+      ? activeFrags
+      : [{ id: 'self-frag', name: formData.scentProfile || formData.name || 'Signature Fragrance', slug: 'SIG' } as any];
+
+    const effectiveSizes = activeSizes.length > 0
+      ? activeSizes
+      : [
+          { id: 'sz-100g', name: '100g (Travel / Votive)', slug: '100G', value: 100 } as any,
+          { id: 'sz-250g', name: '250g (Classic Luxury)', slug: '250G', value: 250 } as any,
+          { id: 'sz-450g', name: '450g (3-Wick Grande)', slug: '450G', value: 450 } as any,
+        ];
+
     const generated: CMSProductVariant[] = [];
-    const basePrice = Number(formData.price) || 0;
-    const baseOrigPrice = Number(formData.originalPrice) || basePrice;
+    const basePrice = Number(formData.price) || 599;
+    const baseOrigPrice = Number(formData.originalPrice) || Math.round(basePrice * 1.25);
 
-    // If fragrances and sizes are active, generate combinations
-    if (activeFrags.length > 0 && activeSizes.length > 0) {
-      activeFrags.forEach((frag) => {
-        activeSizes.forEach((sz, sIdx) => {
-          const sizeMultiplier = sz.value > 200 ? 1.4 : sz.value < 200 ? 0.75 : 1.0;
-          const varPrice = Math.round((basePrice * sizeMultiplier) / 10) * 10;
-          const varOrig = Math.round((baseOrigPrice * sizeMultiplier) / 10) * 10;
+    effectiveFrags.forEach((frag) => {
+      effectiveSizes.forEach((sz, sIdx) => {
+        const sizeMultiplier = sz.value > 300 ? 1.5 : sz.value < 150 ? 0.7 : 1.0;
+        const varPrice = Math.round((basePrice * sizeMultiplier) / 10) * 10;
+        const varOrig = Math.round((baseOrigPrice * sizeMultiplier) / 10) * 10;
 
-          generated.push({
-            id: `v-${Date.now()}-${frag.id.slice(0, 4)}-${sz.id.slice(0, 4)}`,
-            productId: editingId || 'temp',
-            sku: formData.sku ? `${formData.sku}-${frag.slug?.slice(0, 3).toUpperCase() || 'FR'}-${sz.slug.toUpperCase()}` : '',
-            title: `${frag.name} • ${sz.name}`,
-            fragranceId: frag.id,
-            fragranceName: frag.name,
-            sizeId: sz.id,
-            sizeName: sz.name,
-            wickTypeId: activeWicks[0]?.id,
-            wickTypeName: activeWicks[0]?.name,
-            price: varPrice,
-            originalPrice: varOrig,
-            stock: 0,
-            isDefault: sIdx === 0 && generated.length === 0,
-            status: 'ACTIVE',
-          });
+        generated.push({
+          id: `v-${Date.now()}-${frag.id.slice(0, 4)}-${sz.id.slice(0, 4)}`,
+          productId: editingId || 'temp',
+          sku: formData.sku ? `${formData.sku}-${frag.slug?.slice(0, 3).toUpperCase() || 'FR'}-${sz.slug?.toUpperCase() || 'SZ'}` : `TCL-V-${sIdx + 1}`,
+          title: `${frag.name} • ${sz.name}`,
+          fragranceId: frag.id,
+          fragranceName: frag.name,
+          sizeId: sz.id,
+          sizeName: sz.name,
+          wickTypeId: activeWicks[0]?.id,
+          wickTypeName: activeWicks[0]?.name,
+          price: varPrice,
+          originalPrice: varOrig,
+          stock: 50,
+          isDefault: sIdx === 1 || (sIdx === 0 && generated.length === 0),
+          status: 'ACTIVE',
         });
       });
-    } else {
-      // No attributes selected — create a single blank variant for the admin to fill in
-      generated.push({
-        id: `v-${Date.now()}`,
-        productId: editingId || 'temp',
-        sku: formData.sku || '',
-        title: formData.name || 'Default Variant',
-        price: basePrice,
-        originalPrice: baseOrigPrice,
-        stock: 0,
-        isDefault: true,
-        status: 'ACTIVE',
-      });
-    }
+    });
 
     setFormData((prev) => ({ ...prev, variants: generated }));
   };
@@ -238,6 +269,18 @@ export const AdminProductsManager: React.FC = () => {
       slug: formData.slug || formData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
       category: parentCat?.name || formData.category || 'Scented Soy Candles',
       subCategory: parentSub?.name || formData.subCategory || 'Luxury Glass Jar Candles',
+      scentProfile: formData.scentProfile || formData.tagline || formData.topNotes || 'Signature Scent',
+      tagline: formData.tagline || formData.scentProfile || '',
+      topNotes: formData.topNotes || '',
+      heartNotes: formData.heartNotes || '',
+      baseNotes: formData.baseNotes || '',
+      burnTime: formData.burnTime || '60 Hours',
+      weightGrams: Number(formData.weightGrams) || 250,
+      vesselDescription: formData.vesselDescription || 'Hand-poured in luxury frosted vessel.',
+      hasFragranceOption: formData.hasFragranceOption ?? true,
+      hasSizeOption: formData.hasSizeOption ?? true,
+      hasColorOption: formData.hasColorOption ?? true,
+      hasWickOption: formData.hasWickOption ?? true,
       price: Number(formData.price),
       originalPrice: Number(formData.originalPrice || formData.price),
       image: formData.images?.[0] || formData.image || formData.imageUrl || '',
@@ -495,13 +538,73 @@ export const AdminProductsManager: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-mono uppercase text-stone-400 mb-1">Product Tagline / Scent Mood</label>
+                  <label className="block text-xs font-mono uppercase text-stone-400 mb-1">Fragrance / Scent Accord Name *</label>
                   <input
                     type="text"
                     disabled={activeMode === 'view'}
-                    placeholder="e.g. Madagascar vanilla pod with bourbon oak"
-                    value={formData.tagline || ''}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, tagline: e.target.value }))}
+                    placeholder="e.g. French Bourbon Vanilla & Roasted Tonka"
+                    value={formData.scentProfile || formData.tagline || ''}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, scentProfile: e.target.value, tagline: e.target.value }))}
+                    className="w-full bg-[#140D09] border border-[#2C2018] rounded-lg px-3 py-2 text-xs text-[#FDFBF7]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono uppercase text-stone-400 mb-1">Top Scent Notes</label>
+                  <input
+                    type="text"
+                    disabled={activeMode === 'view'}
+                    placeholder="e.g. Calabrian Bergamot, Crushed Almond"
+                    value={formData.topNotes || ''}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, topNotes: e.target.value }))}
+                    className="w-full bg-[#140D09] border border-[#2C2018] rounded-lg px-3 py-2 text-xs text-[#FDFBF7]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono uppercase text-stone-400 mb-1">Heart & Base Notes</label>
+                  <input
+                    type="text"
+                    disabled={activeMode === 'view'}
+                    placeholder="e.g. Bourbon Vanilla Pod, White Amber & Oud"
+                    value={formData.heartNotes || formData.baseNotes || ''}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, heartNotes: e.target.value, baseNotes: e.target.value }))}
+                    className="w-full bg-[#140D09] border border-[#2C2018] rounded-lg px-3 py-2 text-xs text-[#FDFBF7]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono uppercase text-stone-400 mb-1">Vessel Size (Weight in Grams / ML)</label>
+                  <input
+                    type="number"
+                    disabled={activeMode === 'view'}
+                    placeholder="e.g. 250"
+                    value={formData.weightGrams ?? 250}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, weightGrams: parseInt(e.target.value) || 0 }))}
+                    className="w-full bg-[#140D09] border border-[#2C2018] rounded-lg px-3 py-2 text-xs text-[#FDFBF7]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono uppercase text-stone-400 mb-1">Burn Time Duration</label>
+                  <input
+                    type="text"
+                    disabled={activeMode === 'view'}
+                    placeholder="e.g. 60+ Hours"
+                    value={formData.burnTime || ''}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, burnTime: e.target.value }))}
+                    className="w-full bg-[#140D09] border border-[#2C2018] rounded-lg px-3 py-2 text-xs text-[#FDFBF7]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono uppercase text-stone-400 mb-1">Vessel Finish & Color</label>
+                  <input
+                    type="text"
+                    disabled={activeMode === 'view'}
+                    placeholder="e.g. Amber Glow Frosted Italian Glass"
+                    value={formData.vesselDescription || ''}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, vesselDescription: e.target.value }))}
                     className="w-full bg-[#140D09] border border-[#2C2018] rounded-lg px-3 py-2 text-xs text-[#FDFBF7]"
                   />
                 </div>
@@ -536,27 +639,40 @@ export const AdminProductsManager: React.FC = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                   {[
-                    { key: 'hasFragranceOption', label: 'Fragrance Selector (Dynamic)', desc: 'Allow customer to select from fragrance library' },
-                    { key: 'hasSizeOption', label: 'Generic Size Selector', desc: 'Allow customer to select size (100g, 200g, 400g, 100ml)' },
-                    { key: 'hasColorOption', label: 'Color Swatch Selector', desc: 'Allow customer to pick vessel color/finish' },
-                    { key: 'hasWickOption', label: 'Wick Type Selector', desc: 'Crackling wood wick vs silent cotton wick (Candles only)' },
-                    { key: 'hasGiftPackaging', label: 'Gift Packaging Option', desc: 'Allow customer to add gold gift box packaging' },
-                    { key: 'hasCustomMessage', label: 'Custom Gift Message', desc: 'Allow customer to write personal note for recipient' },
-                  ].map((opt) => (
-                    <label key={opt.key} className="flex items-start gap-3 p-3 rounded-lg bg-[#140D09] border border-[#2C2018] cursor-pointer">
-                      <input
-                        type="checkbox"
-                        disabled={activeMode === 'view'}
-                        checked={(formData as any)[opt.key] ?? false}
-                        onChange={(e) => setFormData((prev) => ({ ...prev, [opt.key]: e.target.checked }))}
-                        className="mt-0.5 rounded bg-[#1C130E] border-[#2C2018] text-amber-500 focus:ring-0"
-                      />
-                      <div>
-                        <p className="text-xs font-medium text-[#FDFBF7]">{opt.label}</p>
-                        <p className="text-[10px] text-stone-500 mt-0.5">{opt.desc}</p>
+                    { key: 'hasFragranceOption', label: '🌸 Fragrance Selector (Dynamic)', desc: 'Allow customer to select scent from fragrance library' },
+                    { key: 'hasSizeOption', label: '📏 Vessel Size Selector', desc: 'Allow customer to select size (100g, 250g, 450g, 100ml)' },
+                    { key: 'hasColorOption', label: '🎨 Color & Finish Swatches', desc: 'Allow customer to pick vessel color/finish (Amber, Obsidian, Ivory)' },
+                    { key: 'hasWickOption', label: '🕯️ Wick Formulation Selector', desc: 'Crackling wood wick vs silent cotton wick (Candles only)' },
+                    { key: 'hasGiftPackaging', label: '✨ Luxury Gift Box Option', desc: 'Allow customer to add gold gift box packaging' },
+                    { key: 'hasCustomMessage', label: '✍️ Handwritten Gift Note', desc: 'Allow customer to write personal note for recipient' },
+                  ].map((opt) => {
+                    const isChecked = (formData as any)[opt.key] ?? true;
+                    return (
+                      <div
+                        key={opt.key}
+                        onClick={() => {
+                          if (activeMode !== 'view') {
+                            setFormData((prev) => ({ ...prev, [opt.key]: !isChecked }));
+                          }
+                        }}
+                        className={`flex items-start justify-between gap-3 p-3.5 rounded-xl border transition-all cursor-pointer ${
+                          isChecked
+                            ? 'bg-[#DEB554]/10 border-[#DEB554]/60 shadow-[0_0_12px_rgba(222,181,84,0.1)]'
+                            : 'bg-[#140D09] border-[#2C2018] opacity-60 hover:opacity-100'
+                        }`}
+                      >
+                        <div>
+                          <p className={`text-xs font-bold ${isChecked ? 'text-[#DEB554]' : 'text-stone-300'}`}>{opt.label}</p>
+                          <p className="text-[10px] text-stone-400 mt-1">{opt.desc}</p>
+                        </div>
+                        <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold uppercase shrink-0 ${
+                          isChecked ? 'bg-[#DEB554] text-[#180F0A]' : 'bg-[#2C2018] text-stone-500'
+                        }`}>
+                          {isChecked ? 'ON' : 'OFF'}
+                        </span>
                       </div>
-                    </label>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 
@@ -1159,15 +1275,16 @@ export const AdminProductsManager: React.FC = () => {
                           )}
                         </td>
                         <td className="p-3">
-                          <span className="font-mono text-stone-400 bg-[#140D09] px-2 py-0.5 rounded border border-[#2C2018]">
-                            {varCount}
+                          <span className="font-mono text-stone-300 bg-[#140D09] px-2.5 py-1 rounded-lg border border-[#2C2018] text-[11px] font-semibold">
+                            {varCount > 0 ? `${varCount} Variants` : 'Base SKU'}
                           </span>
                         </td>
                         <td className="p-3">
                           <div className="flex items-center gap-1 flex-wrap">
-                            {p.hasFragranceOption && <span className="text-[9px] font-mono px-1 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20">FRAG</span>}
-                            {p.hasSizeOption && <span className="text-[9px] font-mono px-1 rounded bg-blue-500/10 text-blue-300 border border-blue-500/20">SIZE</span>}
-                            {p.hasWickOption && <span className="text-[9px] font-mono px-1 rounded bg-stone-800 text-stone-300">WICK</span>}
+                            {p.hasFragranceOption !== false && <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-300 border border-amber-500/30 font-bold">🌸 Frag</span>}
+                            {p.hasSizeOption !== false && <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-blue-500/15 text-blue-300 border border-blue-500/30 font-bold">📏 Size</span>}
+                            {p.hasColorOption !== false && <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-bold">🎨 Color</span>}
+                            {p.hasWickOption !== false && <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-purple-500/15 text-purple-300 border border-purple-500/30 font-bold">🕯️ Wick</span>}
                           </div>
                         </td>
                         <td className="p-3">
