@@ -1,17 +1,16 @@
 import React from 'react';
 
-export type CheckoutStep = 1 | 2 | 3 | 4;
+export type CheckoutStep = 1 | 2 | 3;
 
 export interface CheckoutHeaderProps {
-  currentStep: CheckoutStep;
+  currentStep: CheckoutStep | 4;
   onStepClick: (step: CheckoutStep) => void;
 }
 
 const steps = [
-  { num: 1, title: '1. Shipping Address', short: 'Address' },
+  { num: 1, title: '1. Details & Address', short: 'Address' },
   { num: 2, title: '2. Delivery Method', short: 'Delivery' },
-  { num: 3, title: '3. Payment Option', short: 'Payment' },
-  { num: 4, title: '4. Order Review', short: 'Review' },
+  { num: 3, title: '3. Payment & Pay', short: 'Payment' },
 ];
 
 export const CheckoutHeader: React.FC<CheckoutHeaderProps> = ({ currentStep, onStepClick }) => {

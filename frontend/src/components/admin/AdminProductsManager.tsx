@@ -131,8 +131,14 @@ export const AdminProductsManager: React.FC = () => {
       ? [p.imageUrl]
       : [];
 
+    const matchingCat = mainCategories.find(
+      (c) => c.id === p.mainCategoryId || c.name.toLowerCase() === (p.category || '').toLowerCase()
+    );
+
     setFormData({
       ...p,
+      mainCategoryId: matchingCat?.id || p.mainCategoryId || mainCategories[0]?.id || '',
+      category: matchingCat?.name || p.category || mainCategories[0]?.name || 'Luxury Scented Candles',
       images: existingImages,
       image: existingImages[0] || p.image || p.imageUrl || '',
       imageUrl: existingImages[0] || p.imageUrl || p.image || '',

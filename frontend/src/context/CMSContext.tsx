@@ -194,9 +194,13 @@ export interface CMSProduct {
   subCategoryId?: string;
   subCategory?: string;
   collectionIds?: string[];
+  collectionId?: string;
   collection: string;
   collections?: string[];
   scentProfile: string;
+  fragrance?: string;
+  size?: string;
+  color?: string;
   topNotes: string;
   heartNotes: string;
   baseNotes: string;
@@ -205,6 +209,7 @@ export interface CMSProduct {
   waxType?: string;
   wickType?: string;
   weightGrams?: number;
+  weightVolume?: string;
   shortDescription?: string;
   longDescription?: string;
   productDetails?: {
@@ -295,7 +300,10 @@ export interface CMSOrder {
   id: string;
   customerName: string;
   email: string;
+  phone?: string;
+  address?: string;
   items: string;
+  itemsList?: any[];
   totalAmount: number;
   paymentMethod: string;
   status: string;
@@ -444,9 +452,118 @@ export const DEFAULT_FRAGRANCES: CMSFragrance[] = [];
 export const DEFAULT_SIZES: CMSSize[] = [];
 export const DEFAULT_COLORS: CMSColor[] = [];
 export const DEFAULT_WICK_TYPES: CMSWickType[] = [];
-export const DEFAULT_MAIN_CATEGORIES: CMSMainCategory[] = [];
+export const DEFAULT_MAIN_CATEGORIES: CMSMainCategory[] = [
+  {
+    id: 'cat-scented-candles',
+    name: 'Luxury Scented Candles',
+    slug: 'luxury-scented-candles',
+    description: 'Hand-poured 100% natural soy candles infused with fine botanical oils.',
+    imageUrl: '/hero_candle.png',
+    bannerDesktop: '/hero_candle.png',
+    isActive: true,
+    sortOrder: 1,
+  },
+  {
+    id: 'cat-gift-hampers',
+    name: '🎁 Premium Gift Hampers 🎁',
+    slug: 'premium-gift-hampers',
+    description: 'Artisanal gift baskets with botanical candles, floral decor & bespoke fragrances.',
+    imageUrl: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=800&q=85',
+    bannerDesktop: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=1200&q=85',
+    isActive: true,
+    sortOrder: 2,
+  },
+  {
+    id: 'cat-custom-hampers',
+    name: '💝 Custom Gift Hampers 💝',
+    slug: 'custom-gift-hampers',
+    description: 'Curate your personalized luxury hamper with custom scents & personalized card notes.',
+    imageUrl: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=800&q=85',
+    bannerDesktop: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=1200&q=85',
+    isActive: true,
+    sortOrder: 3,
+  },
+  {
+    id: 'cat-diffusers',
+    name: 'Car Diffusers & Aromatics',
+    slug: 'car-diffusers',
+    description: 'Long-lasting car aroma diffusers & hanging perfume glass bottles.',
+    imageUrl: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=800&q=85',
+    bannerDesktop: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=1200&q=85',
+    isActive: true,
+    sortOrder: 4,
+  },
+  {
+    id: 'cat-wax-sachets',
+    name: 'Botanical Wax Sachets',
+    slug: 'botanical-wax-sachets',
+    description: 'Dried flower scented wax tablets for wardrobes, drawers & linen closets.',
+    imageUrl: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=85',
+    bannerDesktop: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=1200&q=85',
+    isActive: true,
+    sortOrder: 5,
+  },
+];
+
 export const DEFAULT_SUB_CATEGORIES: CMSSubCategory[] = [];
-export const DEFAULT_COLLECTIONS: CMSCollection[] = [];
+
+export const DEFAULT_COLLECTIONS: CMSCollection[] = [
+  {
+    id: 'col-signature',
+    name: 'Signature Sanctuary Collection',
+    title: 'Signature Sanctuary Collection',
+    slug: 'signature-sanctuary',
+    desc: 'Our hallmark formulations created for serenity, luxury, and warmth.',
+    description: 'Our hallmark formulations created for serenity, luxury, and warmth.',
+    badge: 'HALLMARK BESPOKE',
+    count: '3 Products',
+    scents: 'Botanical Scent',
+    image: '/hero_candle.png',
+    imageUrl: '/hero_candle.png',
+    bannerImage: '/hero_candle.png',
+    icon: '✨',
+    isFeatured: true,
+    isActive: true,
+    sortOrder: 1,
+  },
+  {
+    id: 'col-hampers',
+    name: '🎁 Luxury Hampers & Gift Sets',
+    title: '🎁 Luxury Hampers & Gift Sets',
+    slug: 'luxury-hampers',
+    desc: 'Exquisite curated gift baskets for weddings, birthdays, and celebrations.',
+    description: 'Exquisite curated gift baskets for weddings, birthdays, and celebrations.',
+    badge: 'GIFTING EDITION',
+    count: '2 Products',
+    scents: 'Rose & Vanilla',
+    image: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=800&q=85',
+    imageUrl: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=800&q=85',
+    bannerImage: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=1200&q=85',
+    icon: '🎁',
+    isFeatured: true,
+    isActive: true,
+    sortOrder: 2,
+  },
+  {
+    id: 'col-aromatics',
+    name: '🌿 Botanical Diffusers & Sachets',
+    title: '🌿 Botanical Diffusers & Sachets',
+    slug: 'botanical-diffusers-sachets',
+    desc: 'Flameless aroma diffusers and handmade flower wax sachets.',
+    description: 'Flameless aroma diffusers and handmade flower wax sachets.',
+    badge: 'EVERYDAY LUXURY',
+    count: '2 Products',
+    scents: 'Lavender & Citron',
+    image: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=800&q=85',
+    imageUrl: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=800&q=85',
+    bannerImage: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=1200&q=85',
+    icon: '🌸',
+    isFeatured: true,
+    isActive: true,
+    sortOrder: 3,
+  },
+];
+
 export const DEFAULT_PRODUCTS: CMSProduct[] = [];
 
 const CMSContext = createContext<CMSContextType | undefined>(undefined);
@@ -516,9 +633,13 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [mainCategories, setMainCategories] = useState<CMSMainCategory[]>(() => {
     try {
       const saved = localStorage.getItem(MAIN_CATEGORIES_STORAGE_KEY);
-      return saved ? JSON.parse(saved) : [];
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+      return DEFAULT_MAIN_CATEGORIES;
     } catch {
-      return [];
+      return DEFAULT_MAIN_CATEGORIES;
     }
   });
 
@@ -534,9 +655,13 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [collections, setCollections] = useState<CMSCollection[]>(() => {
     try {
       const saved = localStorage.getItem(COLLECTIONS_STORAGE_KEY);
-      return saved ? JSON.parse(saved) : [];
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+      return DEFAULT_COLLECTIONS;
     } catch {
-      return [];
+      return DEFAULT_COLLECTIONS;
     }
   });
 
@@ -887,10 +1012,16 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             variantMap.set(pId, current);
           });
 
+          // Category and Collection lookup maps
+          const catLookup = new Map<string, string>();
+          DEFAULT_MAIN_CATEGORIES.forEach((c) => catLookup.set(c.id, c.name));
+          (mainCategories || []).forEach((c) => catLookup.set(c.id, c.name));
+
           const mapped: CMSProduct[] = dbProducts.map((p) => {
             const gallery = imageMap.get(String(p.id)) || [];
             const primaryImg = gallery[0] || p.image_url || p.thumbnail || PRODUCT_IMAGE_PLACEHOLDER;
             const vars = variantMap.get(String(p.id)) || [];
+            const resolvedCat = p.main_category_id ? catLookup.get(String(p.main_category_id)) : undefined;
 
             return {
               id: String(p.id),
@@ -903,7 +1034,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               rating: Number(p.rating || 4.9),
               reviewsCount: Number(p.reviews_count || 12),
               mainCategoryId: p.main_category_id ? String(p.main_category_id) : undefined,
-              category: p.category || (p.tagline ? p.tagline : 'Scented Soy Candles'),
+              category: resolvedCat || p.category || (p.name.toLowerCase().includes('diffuser') ? 'Car Diffusers & Aromatics' : p.name.toLowerCase().includes('sachet') ? 'Botanical Wax Sachets' : p.name.toLowerCase().includes('bloom') || p.name.toLowerCase().includes('basket') ? '🎁 Premium Gift Hampers 🎁' : 'Luxury Scented Candles'),
               subCategoryId: p.sub_category_id ? String(p.sub_category_id) : undefined,
               collectionIds: p.collection_id ? [String(p.collection_id)] : [],
               collection: '',
@@ -960,12 +1091,27 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 (x) => x.name.toLowerCase() === p.name.toLowerCase() || (x.sku && x.sku === p.sku)
               );
               if (existing) {
-                map.set(existing.id, { ...existing, ...p });
+                // Ensure existing category edits are preserved over generic fallback
+                const effectiveCategory = existing.category && existing.category !== 'Scented Soy Candles' && existing.category !== existing.tagline
+                  ? existing.category
+                  : p.category;
+                const effectiveMainCatId = existing.mainCategoryId || p.mainCategoryId;
+                map.set(existing.id, {
+                  ...existing,
+                  ...p,
+                  category: effectiveCategory,
+                  mainCategoryId: effectiveMainCatId,
+                  collectionIds: existing.collectionIds && existing.collectionIds.length > 0 ? existing.collectionIds : p.collectionIds,
+                });
               } else {
                 map.set(p.id, p);
               }
             });
-            return Array.from(map.values());
+            const result = Array.from(map.values());
+            try {
+              localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(result));
+            } catch {}
+            return result;
           });
         }
       } catch (err) {
@@ -1628,9 +1774,15 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updateProduct = async (id: string, updated: Partial<CMSProduct>) => {
-    setProducts((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, ...updated } : p))
-    );
+    let nextProducts: CMSProduct[] = [];
+    setProducts((prev) => {
+      nextProducts = prev.map((p) => (p.id === id ? { ...p, ...updated } : p));
+      try {
+        localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(nextProducts));
+        window.dispatchEvent(new Event('tcl-cms-updated'));
+      } catch {}
+      return nextProducts;
+    });
 
     const merged = { ...products.find((p) => p.id === id), ...updated } as CMSProduct;
     syncProductImages(id, merged.image || merged.imageUrl, merged.images);

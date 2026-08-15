@@ -7,7 +7,7 @@ export interface ShippingProgressBarProps {
 
 export const ShippingProgressBar: React.FC<ShippingProgressBarProps> = ({
   currentSubtotal,
-  threshold = 1499.0,
+  threshold = 999.0,
 }) => {
   const remaining = Math.max(0, threshold - currentSubtotal);
   const percentage = Math.min(100, (currentSubtotal / threshold) * 100);

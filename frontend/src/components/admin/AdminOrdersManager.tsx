@@ -24,6 +24,19 @@ export const AdminOrdersManager: React.FC = () => {
     { id: 'tracking', label: 'AWB Tracking', icon: '🔎' },
   ];
 
+  const [selectedPackingOrder, setSelectedPackingOrder] = useState<any | null>(null);
+
+  const getFullOrderDetails = (ord: any) => {
+    try {
+      const userOrders = JSON.parse(localStorage.getItem('tcl_user_orders') || '[]');
+      const cmsOrders = JSON.parse(localStorage.getItem('tcl_cms_orders') || '[]');
+      const match = [...userOrders, ...cmsOrders].find((o: any) => o.id === ord.id || o.orderNumber === ord.id);
+      return match || ord;
+    } catch {
+      return ord;
+    }
+  };
+
   return (
     <div className="space-y-6 font-sans">
       {/* Top Header */}
@@ -59,6 +72,189 @@ export const AdminOrdersManager: React.FC = () => {
           );
         })}
       </div>
+
+      {/* Packing Slip & Order Full Specification Modal */}
+      {selectedPackingOrder && (
+        <div className="fixed inset-0 z-50 bg-[#1C130E]/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white border border-[#EFE8DB] rounded-3xl max-w-2xl w-full p-6 sm:p-8 space-y-6 shadow-2xl my-8">
+            {/* Header */}
+            <div className="flex items-start justify-between border-b border-[#EFE8DB] pb-4">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-[#B88B38]">
+                  🕯️ ATELIER PACKING SLIP & DISPATCH DETAILS
+                </span>
+                <h3 className="text-2xl font-serif font-bold text-[#2C1E16]">
+                  Order {selectedPackingOrder.id}
+                </h3>
+                <span className="text-xs text-[#7A6B5D]">
+                  Placed on {selectedPackingOrder.date || 'Today'} • Status: <strong className="text-[#2C1E16]">{selectedPackingOrder.status || 'Processing'}</strong>
+                </span>
+              </div>
+              <button
+                onClick={() => setSelectedPackingOrder(null)}
+                className="w-8 h-8 rounded-full bg-[#F8F3EA] hover:bg-[#EFE8DB] flex items-center justify-center text-sm font-bold text-[#2C1E16] cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Customer & Shipping Information Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-[#F8F3EA] rounded-2xl border border-[#EFE8DB] text-xs">
+              <div className="space-y-1">
+                <span className="text-[10px] uppercase font-bold text-[#7A6B5D] block">👤 Customer Details</span>
+                <p className="font-bold text-[#2C1E16] text-sm">{selectedPackingOrder.customerName}</p>
+                <p className="text-[#7A6B5D]">✉️ {selectedPackingOrder.email || selectedPackingOrder.customerEmail || 'No email provided'}</p>
+                {selectedPackingOrder.phone && (
+                  <p className="text-[#2C1E16] font-semibold flex items-center gap-2 mt-1">
+                    <span>📞 {selectedPackingOrder.phone}</span>
+                    <a
+                      href={`https://wa.me/91${selectedPackingOrder.phone.replace(/\D/g, '')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[10px] bg-[#2E6F40] text-white px-2 py-0.5 rounded-full font-bold"
+                    >
+                      WhatsApp
+                    </a>
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-1">
+                <span className="text-[10px] uppercase font-bold text-[#7A6B5D] block">🏠 Delivery Destination</span>
+                <p className="text-[#2C1E16] font-medium leading-relaxed">
+                  {selectedPackingOrder.shippingAddress || selectedPackingOrder.address || 'Address on invoice'}
+                </p>
+                <p className="text-[#7A6B5D] font-mono text-[11px]">
+                  Payment: <strong>{selectedPackingOrder.paymentMethod || 'Razorpay / Online'}</strong>
+                </p>
+              </div>
+            </div>
+
+            {/* Itemized Packing List with EXACT Specifications */}
+            <div className="space-y-3">
+              <h4 className="text-xs uppercase font-bold tracking-wider text-[#2C1E16] flex items-center justify-between">
+                <span>📦 Ordered Items & Formulation Details</span>
+                <span className="text-[11px] font-normal text-[#7A6B5D]">Verify each candle before boxing</span>
+              </h4>
+
+              <div className="space-y-3">
+                {selectedPackingOrder.itemsList && Array.isArray(selectedPackingOrder.itemsList) && selectedPackingOrder.itemsList.length > 0 ? (
+                  selectedPackingOrder.itemsList.map((item: any, idx: number) => (
+                    <div
+                      key={idx}
+                      className="p-4 bg-white border border-[#EFE8DB] rounded-2xl space-y-2 shadow-xs"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-xl bg-[#F8F3EA] border border-[#EFE8DB] flex items-center justify-center text-xl shrink-0 overflow-hidden">
+                            {item.image ? (
+                              <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                            ) : (
+                              '🕯️'
+                            )}
+                          </div>
+                          <div>
+                            <h5 className="font-serif font-bold text-sm text-[#2C1E16]">{item.name}</h5>
+                            <span className="text-[11px] font-mono text-[#7A6B5D]">SKU: {item.sku || 'TCL-CANDLE'}</span>
+                          </div>
+                        </div>
+
+                        <div className="text-right">
+                          <span className="text-xs font-bold text-[#2C1E16] block">
+                            Qty: <strong className="text-base text-[#B88B38]">{item.quantity || 1}</strong>
+                          </span>
+                          <span className="text-[11px] text-[#7A6B5D]">₹{item.price || 999} each</span>
+                        </div>
+                      </div>
+
+                      {/* Formulation Pill Specifications */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-[#F2ECE1] text-[11px]">
+                        <div className="p-2 bg-[#F8F3EA] rounded-xl border border-[#EFE8DB]">
+                          <span className="text-[9px] uppercase font-bold text-[#7A6B5D] block">🌸 Fragrance</span>
+                          <strong className="text-[#2C1E16] truncate block">{item.fragrance || 'Signature Blend'}</strong>
+                        </div>
+                        <div className="p-2 bg-[#F8F3EA] rounded-xl border border-[#EFE8DB]">
+                          <span className="text-[9px] uppercase font-bold text-[#7A6B5D] block">📏 Size / Weight</span>
+                          <strong className="text-[#2C1E16] truncate block">{item.size || '250g Classic'}</strong>
+                        </div>
+                        <div className="p-2 bg-[#F8F3EA] rounded-xl border border-[#EFE8DB]">
+                          <span className="text-[9px] uppercase font-bold text-[#7A6B5D] block">🕯️ Wick Type</span>
+                          <strong className="text-[#2C1E16] truncate block">{item.wickType || 'Wood Wick'}</strong>
+                        </div>
+                        <div className="p-2 bg-[#F8F3EA] rounded-xl border border-[#EFE8DB]">
+                          <span className="text-[9px] uppercase font-bold text-[#7A6B5D] block">🎨 Vessel Finish</span>
+                          <strong className="text-[#2C1E16] truncate block">{item.color || 'Standard Glass'}</strong>
+                        </div>
+                      </div>
+
+                      {/* Gift Packaging & Message */}
+                      {(item.giftPackaging || item.customMessage) && (
+                        <div className="p-2.5 bg-[#FFF6F8] border border-[#F9B8CA] rounded-xl text-xs space-y-1">
+                          {item.giftPackaging && (
+                            <span className="font-bold text-[#C94C6D] flex items-center gap-1">
+                              <span>🎁</span> Pack in Luxury Blush Rose Gift Box (+ Wax Seal)
+                            </span>
+                          )}
+                          {item.customMessage && (
+                            <div className="bg-white p-2 rounded-lg border border-[#F9B8CA]/40">
+                              <span className="text-[10px] font-bold uppercase text-[#886C7B] block">💌 Handwritten Card Note:</span>
+                              <p className="italic text-[#1C1217] font-serif">"{item.customMessage}"</p>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-4 bg-[#F8F3EA] rounded-2xl text-xs space-y-1">
+                    <span className="font-bold text-[#2C1E16] block">Order Summary:</span>
+                    <p className="text-[#7A6B5D]">{selectedPackingOrder.items || 'Standard Artisanal Candle Order'}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Packing Checklist & Print Actions */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-[#EFE8DB]">
+              <div className="flex items-center gap-2">
+                <select
+                  value={selectedPackingOrder.status}
+                  onChange={(e) => {
+                    updateOrderStatus(selectedPackingOrder.id, e.target.value as any);
+                    setSelectedPackingOrder({ ...selectedPackingOrder, status: e.target.value });
+                    setSavedMsg(`Order ${selectedPackingOrder.id} status updated to ${e.target.value}!`);
+                    setTimeout(() => setSavedMsg(''), 3000);
+                  }}
+                  className="bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-xl text-xs font-bold text-[#2C1E16]"
+                >
+                  <option value="Pending">Pending</option>
+                  <option value="Processing">Processing</option>
+                  <option value="Shipped">Shipped</option>
+                  <option value="Delivered">Delivered</option>
+                  <option value="Cancelled">Cancelled</option>
+                </select>
+                <button
+                  onClick={() => {
+                    setShipmentOrder(selectedPackingOrder.id);
+                    setSelectedPackingOrder(null);
+                  }}
+                  className="px-4 py-2.5 bg-[#B88B38] text-white text-xs font-bold rounded-xl cursor-pointer hover:bg-[#A37829]"
+                >
+                  🚚 Create Shipment
+                </button>
+              </div>
+
+              <button
+                onClick={() => window.print()}
+                className="px-5 py-2.5 bg-[#2C1E16] text-white text-xs font-bold rounded-xl cursor-pointer hover:bg-[#1C130E] flex items-center gap-2"
+              >
+                <span>🖨️</span>
+                <span>Print Packing Slip</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Add Order Modal */}
       {showAddModal && (
@@ -225,6 +421,12 @@ export const AdminOrdersManager: React.FC = () => {
                       </span>
                     </td>
                     <td className="p-4 text-right space-x-2">
+                      <button
+                        onClick={() => setSelectedPackingOrder(getFullOrderDetails(ord))}
+                        className="px-2 py-1 bg-[#F8F3EA] border border-[#EFE8DB] rounded-lg font-bold text-[10px] hover:border-[#B88B38] cursor-pointer"
+                      >
+                        📋 Slip
+                      </button>
                       <select
                         value={ord.status}
                         onChange={(e) => {

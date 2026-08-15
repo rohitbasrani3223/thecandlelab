@@ -104,7 +104,9 @@ export const CartDrawerUpgrade: React.FC<CartDrawerUpgradeProps> = ({
             <Button
               variant="pink"
               size="md"
+              disabled={items.length === 0}
               onClick={() => {
+                if (items.length === 0) return;
                 onClose();
                 if (onCheckout) {
                   onCheckout();
@@ -122,7 +124,7 @@ export const CartDrawerUpgrade: React.FC<CartDrawerUpgradeProps> = ({
     >
       <div className="space-y-5 font-sans">
         {/* Shipping Goal Bar */}
-        <ShippingProgressBar currentSubtotal={subtotal} />
+        <ShippingProgressBar currentSubtotal={subtotal} threshold={999} />
 
         {/* Gift Wrap Toggle */}
         <GiftWrapToggle
@@ -135,8 +137,18 @@ export const CartDrawerUpgrade: React.FC<CartDrawerUpgradeProps> = ({
         {/* Cart Items List */}
         <div className="space-y-3">
           {items.length === 0 ? (
-            <div className="py-12 text-center text-xs text-[#886C7B]">
-              Your bag is currently empty.
+            <div className="py-12 text-center text-xs text-[#886C7B] space-y-3">
+              <p>Your bag is currently empty.</p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  onClose();
+                  window.location.hash = '#shop';
+                }}
+              >
+                Explore Sanctuary Collections →
+              </Button>
             </div>
           ) : (
             items.map((item) => (
@@ -144,7 +156,7 @@ export const CartDrawerUpgrade: React.FC<CartDrawerUpgradeProps> = ({
                 key={item.id}
                 className="p-3 bg-[#FFFFFF] border border-[#F5E8EE] rounded-2xl flex items-center justify-between gap-3 shadow-xs"
               >
-                <div className="w-12 h-12 bg-[#FFF6F8] text-xl rounded-xl flex items-center justify-center border border-[#F5E8EE] shrink-0 overflow-hidden">
+                <div className="w-14 h-14 bg-[#FFF6F8] text-xl rounded-xl flex items-center justify-center border border-[#F5E8EE] shrink-0 overflow-hidden">
                   {item.image ? (
                     <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                   ) : (
@@ -154,9 +166,16 @@ export const CartDrawerUpgrade: React.FC<CartDrawerUpgradeProps> = ({
 
                 <div className="flex-1 space-y-0.5 min-w-0">
                   <h5 className="text-xs font-bold text-[#1C1217] truncate">{item.name}</h5>
-                  <span className="text-[10px] text-[#886C7B] block">
-                    {item.size || '12 oz Glass'} • ₹{Math.round(item.price)}
-                  </span>
+                  <div className="text-[10px] text-[#886C7B] space-y-0.5">
+                    {item.fragrance && (
+                      <span className="text-[#C94C6D] font-medium block truncate">
+                        🌸 {item.fragrance}
+                      </span>
+                    )}
+                    <span className="block">
+                      {[item.size, item.wickType, item.color].filter(Boolean).join(' • ') || 'Standard Luxury'}
+                    </span>
+                  </div>
                   <div className="flex items-center gap-2 pt-1">
                     <div className="flex items-center border border-[#F5E8EE] rounded-full bg-[#FFF6F8]">
                       <button

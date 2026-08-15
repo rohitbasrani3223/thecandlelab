@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CheckoutHeader } from './CheckoutHeader';
-
 import type { CheckoutStep } from './CheckoutHeader';
 import { AddressFormStep } from './AddressFormStep';
 import type { AddressData } from './AddressFormStep';
@@ -8,14 +7,13 @@ import { ShippingMethodStep } from './ShippingMethodStep';
 import type { ShippingOption } from './ShippingMethodStep';
 import { PaymentMethodStep } from './PaymentMethodStep';
 import type { PaymentData } from './PaymentMethodStep';
-
-import { OrderReviewStep } from './OrderReviewStep';
 import { CheckoutTrustBadges } from './CheckoutTrustBadges';
 import { OrderSuccessPage } from './OrderSuccessPage';
+import { CouponCodeBox } from '../cart/CouponCodeBox';
 import { useAuth } from '../../context/AuthContext';
-import { getApiUrl } from '../../config/api';
+import { useCMS } from '../../context/CMSContext';
 import { processRazorpayPayment } from '../../services/razorpay';
-import { useToast } from '../../design-system';
+import { useToast, Button } from '../../design-system';
 import { supabaseFetch } from '../../config/supabaseClient';
 
 export interface CheckoutPageProps {
@@ -24,9 +22,30 @@ export interface CheckoutPageProps {
 
 export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
   const { user } = useAuth();
+  const { addOrder } = useCMS();
   const { toast } = useToast();
-  const [step, setStep] = useState<CheckoutStep | 5>(1);
+  const [step, setStep] = useState<CheckoutStep | 4>(1);
   const [_isProcessing, setIsProcessing] = useState(false);
+
+  const [cartItems, setCartItems] = useState<any[]>(() => {
+    try {
+      const saved = localStorage.getItem('tcl_cart_items');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    const handleSync = () => {
+      try {
+        const saved = localStorage.getItem('tcl_cart_items');
+        setCartItems(saved ? JSON.parse(saved) : []);
+      } catch {}
+    };
+    window.addEventListener('tcl-cart-updated', handleSync);
+    return () => window.removeEventListener('tcl-cart-updated', handleSync);
+  }, []);
 
   const initialAddress: AddressData = {
     email: user?.email || '',
@@ -35,8 +54,8 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
     phone: user?.phone || '',
     street: '',
     apartment: '',
-    city: '',
-    state: '',
+    city: 'Mumbai',
+    state: 'Maharashtra',
     zip: '',
     country: 'IN',
     saveAddress: true,
@@ -50,47 +69,48 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
 
   const [address, setAddress] = useState<AddressData>(initialAddress);
   const [shipping, setShipping] = useState<ShippingOption>({
-    id: 'gold-express',
-    name: 'Complimentary Atelier Express Shipping',
+    id: 'free-express',
+    name: 'Pan-India Express Shipping',
     timeframe: '2 - 3 Business Days',
     price: 0,
-    description: 'Packed in blush rose gift box with wax seal.',
+    description: 'Complimentary on orders above ₹999.',
   });
   const [payment, setPayment] = useState<PaymentData>(initialPayment);
   const [confirmedOrderNumber, setConfirmedOrderNumber] = useState('');
 
-  const [cartItems] = useState<any[]>(() => {
-    try {
-      const saved = localStorage.getItem('tcl_cart_items');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
+  const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
+  const [discountPercent, setDiscountPercent] = useState<number>(0);
 
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0);
-  const discountAmount = Math.round(subtotal * 0.1); // 10% off coupon
-  const totalAmount = Math.max(0, Math.round(subtotal - discountAmount + shipping.price));
+  const isFreeShippingEligible = subtotal >= 999;
+  const shippingFee = isFreeShippingEligible
+    ? (shipping.id === 'vip-courier' ? 99 : 0)
+    : (shipping.price || 99);
+
+  const discountAmount = appliedCoupon ? Math.round((subtotal * discountPercent) / 100) : 0;
+  const totalAmount = Math.max(0, Math.round(subtotal - discountAmount + shippingFee));
 
   const completeOrderSave = async (paymentId?: string, razorpayOrderId?: string) => {
     const isCOD = payment.method === 'cod';
     const orderNumber = razorpayOrderId ? `#${razorpayOrderId}` : `#TCL-2026-${Math.floor(1000 + Math.random() * 9000)}`;
 
     const itemsSummaryStr = cartItems.length > 0
-      ? cartItems.map((i) => `${i.quantity}x ${i.name} (${[i.fragrance, i.size, i.wickType || i.wick].filter(Boolean).join(' • ')})`).join(', ')
+      ? cartItems.map((i) => `${i.quantity || 1}x ${i.name} (${[i.fragrance, i.size, i.wickType || i.wick, i.color].filter(Boolean).join(' • ')})`).join(', ')
       : '1x Custom Artisanal Candle';
 
-    const orderItemsArr = cartItems.length > 0
-      ? cartItems.map((i) => ({
-          name: i.name,
-          fragrance: i.fragrance,
-          size: i.size,
-          wickType: i.wickType || i.wick,
-          sku: i.sku,
-          quantity: i.quantity,
-          price: i.price,
-        }))
-      : [{ name: 'Custom Artisanal Candle', quantity: 1, price: subtotal }];
+    const orderItemsArr = cartItems.map((i) => ({
+      name: i.name,
+      fragrance: i.fragrance || 'Signature Blend',
+      size: i.size || 'Standard',
+      color: i.color || 'Classic Vessel',
+      wickType: i.wickType || i.wick || 'Wood Wick',
+      giftPackaging: Boolean(i.giftPackaging),
+      customMessage: i.customMessage || '',
+      sku: i.sku || `TCL-${i.id?.slice(0, 5) || '101'}`,
+      quantity: i.quantity || 1,
+      price: i.price || 999,
+      image: i.image || '',
+    }));
 
     const newOrder = {
       id: orderNumber,
@@ -104,99 +124,83 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
       paymentMethod: isCOD ? 'Cash on Delivery (COD)' : 'Razorpay Online (UPI/Cards)',
       paymentId: paymentId || (isCOD ? 'COD_ORDER' : 'PAY_RAZORPAY_SUCCESS'),
       trackingNumber: `AWB${Date.now().toString().slice(-8)}`,
+      customerName: `${address.firstName} ${address.lastName}`.trim() || 'Valued Customer',
       customerEmail: address.email || user?.email || '',
+      customerPhone: address.phone || '',
       shippingAddress: `${address.street}, ${address.apartment ? address.apartment + ', ' : ''}${address.city}, ${address.state} ${address.zip}`,
     };
 
     setConfirmedOrderNumber(orderNumber);
 
-    // 1. Direct Supabase PostgreSQL Database Insert
+    try {
+      addOrder({
+        id: orderNumber,
+        customerName: newOrder.customerName,
+        email: newOrder.customerEmail,
+        phone: newOrder.customerPhone,
+        address: newOrder.shippingAddress,
+        items: itemsSummaryStr,
+        itemsList: orderItemsArr,
+        totalAmount: totalAmount,
+        paymentMethod: newOrder.paymentMethod,
+        status: isCOD ? 'Pending' : 'Processing',
+        date: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
+      });
+    } catch (e) {
+      console.warn('CMS addOrder note:', e);
+    }
+
     try {
       await supabaseFetch('orders', {
         method: 'POST',
         body: {
           order_number: orderNumber,
-          customer_name: `${address.firstName} ${address.lastName}`.trim() || 'Valued Customer',
-          customer_email: address.email || user?.email || 'customer@example.com',
+          customer_name: newOrder.customerName,
+          customer_email: newOrder.customerEmail,
           total_amount: totalAmount,
           payment_method: isCOD ? 'COD' : 'RAZORPAY',
           order_status: isCOD ? 'Pending COD' : 'Paid',
-          shipping_address: `${address.street}, ${address.city}, ${address.state}`,
+          shipping_address: newOrder.shippingAddress,
         },
       });
     } catch (e) {
       console.warn('Supabase order insert note:', e);
     }
 
-    // 2. Direct Backend API fetch fallback
-    try {
-      const response = await fetch(getApiUrl('orders'), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          items: cartItems.map((item) => ({ product_id: item.id, quantity: item.quantity || 1 })),
-          shipping_address: {
-            fullName: `${address.firstName} ${address.lastName}`.trim() || 'Valued Customer',
-            email: address.email || user?.email || '',
-            phone: address.phone,
-            street: address.street,
-            apartment: address.apartment,
-            city: address.city,
-            state: address.state,
-            pincode: address.zip,
-          },
-          payment_method: isCOD ? 'COD' : 'RAZORPAY',
-        }),
-      });
-      if (!response.ok) console.warn('Backend order storage failed; saved locally for admin sync.');
-    } catch { }
-
-    // 3. Client Local Storage Sync for zero-latency UI update
     try {
       const existingOrders = JSON.parse(localStorage.getItem('tcl_user_orders') || '[]');
       localStorage.setItem('tcl_user_orders', JSON.stringify([newOrder, ...existingOrders]));
 
       const cmsOrders = JSON.parse(localStorage.getItem('tcl_cms_orders') || '[]');
-      const newCmsOrder = {
-        id: orderNumber,
-        customerName: `${address.firstName} ${address.lastName}`.trim() || 'Valued Customer',
-        email: address.email || user?.email || '',
-        items: itemsSummaryStr || 'Artisanal Candle Formulation',
-        totalAmount: totalAmount,
-        paymentMethod: isCOD ? 'COD' : 'Razorpay Online',
-        status: isCOD ? 'Pending COD' : 'Processing',
-        date: new Date().toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }),
-      };
-      localStorage.setItem('tcl_cms_orders', JSON.stringify([newCmsOrder, ...cmsOrders]));
+      localStorage.setItem('tcl_cms_orders', JSON.stringify([newOrder, ...cmsOrders]));
       window.dispatchEvent(new Event('tcl-orders-updated'));
-    } catch (e) { }
+    } catch (e) {}
 
-    // Clear cart upon successful checkout
     try {
       localStorage.removeItem('tcl_cart_items');
       window.dispatchEvent(new Event('tcl-cart-updated'));
-    } catch { }
+    } catch {}
 
     setIsProcessing(false);
-    toast({
-      type: 'luxury',
-      title: isCOD ? 'COD Order Placed Successfully!' : 'Payment Verified & Order Confirmed!',
-      description: isCOD ? 'Pay cash on delivery.' : `Payment ID: ${paymentId || 'Verified'}`,
-    });
-    setStep(5); // Go to Order Success screen
+    setStep(4);
   };
 
-  const handlePlaceOrder = async () => {
+  const handlePlaceOrder = async (payData?: PaymentData) => {
+    const activePayment = payData || payment;
     setIsProcessing(true);
 
-    if (payment.method === 'cod') {
-      await completeOrderSave('COD_' + Date.now(), 'COD_ORDER');
+    if (activePayment.method === 'cod') {
+      toast({
+        type: 'luxury',
+        title: 'Order Placed with COD!',
+        description: 'Thank you! Your candle order has been received.',
+      });
+      await completeOrderSave();
       return;
     }
 
-    // Razorpay Online Gateway Integration
     try {
-      const fullName = `${address.firstName} ${address.lastName}`.trim() || user?.name || '';
+      const fullName = `${address.firstName} ${address.lastName}`.trim() || 'Valued Customer';
       const email = (address.email || user?.email || '').trim();
       const phone = (address.phone || '').replace(/[^0-9+]/g, '');
 
@@ -227,7 +231,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
           toast({
             type: 'info',
             title: 'Payment Window Closed',
-            description: 'Payment window was closed. Click Pay Securely to try again or select Cash on Delivery.',
+            description: 'You can try again or select Cash on Delivery (COD).',
           });
         },
       });
@@ -242,7 +246,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
     }
   };
 
-  if (step === 5) {
+  if (step === 4) {
     return (
       <OrderSuccessPage
         orderDetails={{
@@ -252,26 +256,55 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
           items: cartItems,
           totalAmount: totalAmount,
           isCOD: payment.method === 'cod',
-          shippingAddress: `${address.street}, ${address.city}`,
+          shippingAddress: `${address.street}, ${address.city}, ${address.state} ${address.zip}`,
         }}
         onReturnHome={onReturnHome}
       />
     );
   }
 
+  if (cartItems.length === 0) {
+    return (
+      <div className="w-full bg-[#FAF6F8] min-h-screen font-sans">
+        <CheckoutHeader currentStep={1} onStepClick={() => {}} />
+        <div className="max-w-xl mx-auto px-4 py-20 text-center space-y-6">
+          <div className="w-20 h-20 bg-[#FFF6F8] rounded-full flex items-center justify-center mx-auto text-4xl border border-[#F5E8EE] shadow-sm">
+            🕯️
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#1C1217]">
+              Your Shopping Bag is Empty
+            </h2>
+            <p className="text-xs sm:text-sm text-[#886C7B] leading-relaxed">
+              Please add at least one handcrafted candle or botanical diffuser to proceed with checkout.
+            </p>
+          </div>
+          <Button
+            variant="pink"
+            size="lg"
+            onClick={() => {
+              window.location.hash = '#shop';
+            }}
+          >
+            Explore Collections & Shop →
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full bg-[#FAF6F8] min-h-screen font-sans">
-      {/* Checkout Stepper Header */}
       <CheckoutHeader currentStep={step as CheckoutStep} onStepClick={(s) => setStep(s)} />
 
-      {/* Main Checkout Viewport */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-          {/* Left Column: Active Step Form */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           <div className="lg:col-span-8 min-w-0 bg-[#FFFFFF] p-4 sm:p-8 rounded-3xl border border-[#F5E8EE] shadow-card">
             {step === 1 && (
               <AddressFormStep
                 initialData={address}
+                cartItems={cartItems}
+                subtotal={subtotal}
                 onNext={(data) => {
                   setAddress(data);
                   setStep(2);
@@ -282,6 +315,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
             {step === 2 && (
               <ShippingMethodStep
                 selectedOptionId={shipping.id}
+                subtotal={subtotal}
                 onBack={() => setStep(1)}
                 onNext={(opt) => {
                   setShipping(opt);
@@ -296,67 +330,107 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
                 onBack={() => setStep(2)}
                 onNext={(pay) => {
                   setPayment(pay);
-                  setStep(4);
+                  handlePlaceOrder(pay);
                 }}
-              />
-            )}
-
-            {step === 4 && (
-              <OrderReviewStep
-                addressData={address}
-                shippingOption={shipping}
-                paymentData={payment}
-                subtotal={subtotal}
-                discountAmount={discountAmount}
-                cartItems={cartItems}
-                onBack={() => setStep(3)}
-                onPlaceOrder={handlePlaceOrder}
               />
             )}
           </div>
 
-          {/* Right Column: Mini Order Summary & Trust Badges */}
-          <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
+          <div className="lg:col-span-4 space-y-5 lg:sticky lg:top-24">
             <div className="bg-[#FFFFFF] border border-[#F5E8EE] rounded-3xl p-5 space-y-4 shadow-card">
-              <h3 className="font-serif font-bold text-base text-[#1C1217] border-b border-[#F5E8EE] pb-2">
-                Order Items ({cartItems.reduce((sum, i) => sum + (i.quantity || 1), 0)})
-              </h3>
-
-              <div className="space-y-3 text-xs max-h-52 overflow-y-auto pr-1">
-                {cartItems.length === 0 ? (
-                  <p className="text-[#886C7B] italic py-2">No items in bag</p>
-                ) : (
-                  cartItems.map((item, idx) => (
-                    <div key={item.id || idx} className="flex items-center justify-between gap-2">
-                      <span className="text-[#1C1217] truncate font-medium">
-                        {item.quantity}x {item.name} ({item.size || '12oz'})
-                      </span>
-                      <span className="font-bold text-[#1C1217] shrink-0">
-                        ₹{Math.round((item.price || 0) * (item.quantity || 1)).toLocaleString('en-IN')}
-                      </span>
-                    </div>
-                  ))
-                )}
+              <div className="flex items-center justify-between border-b border-[#F5E8EE] pb-3">
+                <h3 className="font-serif font-bold text-base text-[#1C1217]">
+                  Order Items ({cartItems.reduce((sum, i) => sum + (i.quantity || 1), 0)})
+                </h3>
+                <span className="text-[10px] font-bold text-[#E87A96] bg-[#FFF6F8] px-2.5 py-0.5 rounded-full border border-[#F9B8CA]">
+                  {isFreeShippingEligible ? 'FREE SHIPPING' : '₹999+ FREE'}
+                </span>
               </div>
 
-              <div className="pt-3 border-t border-[#F5E8EE] space-y-1.5 text-xs">
+              <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
+                {cartItems.map((item, idx) => (
+                  <div key={item.id || idx} className="flex items-start gap-3 text-xs border-b border-[#F5E8EE]/60 pb-3 last:border-0 last:pb-0">
+                    <div className="w-12 h-12 rounded-xl bg-[#FFF6F8] border border-[#F5E8EE] shrink-0 overflow-hidden flex items-center justify-center">
+                      {item.image ? (
+                        <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-base">🕯️</span>
+                      )}
+                    </div>
+
+                    <div className="flex-1 min-w-0 space-y-0.5">
+                      <h4 className="font-bold text-[#1C1217] truncate">{item.name}</h4>
+                      <div className="text-[10px] text-[#886C7B] space-y-0.5">
+                        {item.fragrance && (
+                          <span className="text-[#C94C6D] font-medium block truncate">
+                            🌸 {item.fragrance}
+                          </span>
+                        )}
+                        <span className="block truncate">
+                          {[item.size, item.wickType || item.wick, item.color].filter(Boolean).join(' • ') || 'Standard Luxury'}
+                        </span>
+                        {item.giftPackaging && (
+                          <span className="text-[#C94C6D] font-semibold block text-[9px]">
+                            🎁 Luxury Gift Box
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="text-right shrink-0">
+                      <span className="font-bold text-[#1C1217] block">
+                        ₹{Math.round((item.price || 0) * (item.quantity || 1)).toLocaleString('en-IN')}
+                      </span>
+                      <span className="text-[10px] text-[#886C7B]">Qty: {item.quantity || 1}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="pt-2">
+                <CouponCodeBox
+                  appliedCoupon={appliedCoupon}
+                  onApplyCoupon={(code, percent) => {
+                    setAppliedCoupon(code);
+                    setDiscountPercent(percent);
+                  }}
+                  onRemoveCoupon={() => {
+                    setAppliedCoupon(null);
+                    setDiscountPercent(0);
+                  }}
+                  discountPercentage={discountPercent}
+                />
+              </div>
+
+              <div className="pt-3 border-t border-[#F5E8EE] space-y-2 text-xs">
                 <div className="flex justify-between text-[#886C7B]">
                   <span>Subtotal</span>
-                  <span>₹{subtotal.toLocaleString('en-IN')}</span>
+                  <span className="font-semibold text-[#1C1217]">₹{subtotal.toLocaleString('en-IN')}</span>
                 </div>
+
                 {discountAmount > 0 && (
-                  <div className="flex justify-between text-[#15803D] font-semibold">
-                    <span>Promo Savings</span>
+                  <div className="flex justify-between text-[#15803D] font-bold">
+                    <span>Promo Savings ({appliedCoupon})</span>
                     <span>-₹{discountAmount.toLocaleString('en-IN')}</span>
                   </div>
                 )}
+
                 <div className="flex justify-between text-[#886C7B]">
-                  <span>Delivery ({shipping.price === 0 ? 'Complimentary' : 'Standard'})</span>
-                  <span>{shipping.price === 0 ? 'FREE' : `₹${shipping.price}`}</span>
+                  <span>Delivery ({isFreeShippingEligible ? 'Pan-India Free Express' : 'Standard Express'})</span>
+                  <span>
+                    {shippingFee === 0 ? (
+                      <strong className="text-[#15803D]">FREE</strong>
+                    ) : (
+                      `₹${shippingFee}`
+                    )}
+                  </span>
                 </div>
-                <div className="flex justify-between text-[#1C1217] font-bold text-sm pt-2 border-t border-[#F5E8EE]">
-                  <span>Total</span>
-                  <span className="text-[#E87A96] font-serif text-lg">₹{totalAmount.toLocaleString('en-IN')}</span>
+
+                <div className="flex justify-between items-baseline pt-2 border-t border-[#F5E8EE] text-sm font-bold text-[#1C1217]">
+                  <span className="font-serif">Grand Total</span>
+                  <span className="text-xl font-serif text-[#E87A96]">
+                    ₹{totalAmount.toLocaleString('en-IN')}
+                  </span>
                 </div>
               </div>
             </div>

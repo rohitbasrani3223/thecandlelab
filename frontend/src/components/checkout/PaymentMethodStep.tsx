@@ -33,7 +33,7 @@ export const PaymentMethodStep: React.FC<PaymentMethodStepProps> = ({
     <form onSubmit={handleSubmit} className="space-y-6 font-sans">
       <div className="flex items-center justify-between border-b border-[#F5E8EE] pb-4">
         <div>
-          <Badge variant="pink" icon={<SparklesIcon size={12} />}>STEP 3 OF 4</Badge>
+          <Badge variant="pink" size="sm" icon={<SparklesIcon size={12} />}>STEP 3 OF 3</Badge>
           <h2 className="text-2xl font-serif font-bold text-[#1C1217] mt-1">
             Select Payment Method (India)
           </h2>

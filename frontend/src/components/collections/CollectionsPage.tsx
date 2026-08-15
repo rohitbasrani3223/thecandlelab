@@ -1,6 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useCMS, type CMSProduct } from '../../context/CMSContext';
 import { ProductCard } from '../product/ProductCard';
+import { Badge, SparklesIcon } from '../../design-system';
 
 interface CollectionsPageProps {
   onProductClick?: (product: CMSProduct) => void;
@@ -15,118 +16,259 @@ export const CollectionsPage: React.FC<CollectionsPageProps> = ({
   onNavigateToShop: _onNavigateToShop,
   initialCollectionSlug,
 }) => {
-  const { collections, products } = useCMS();
+  const { collections, mainCategories, products } = useCMS();
 
   const handleProductSelect = (p: CMSProduct) => {
     if (onSelectProduct) onSelectProduct(p);
     else if (onProductClick) onProductClick(p);
   };
 
-  // Active Collection
-  const [selectedColId, setSelectedColId] = useState<string>(() => {
-    if (initialCollectionSlug) {
-      const match = collections.find((c) => c.slug === initialCollectionSlug || c.name === initialCollectionSlug);
-      if (match) return match.id;
+  // Helper to extract id or category from window.location.hash
+  const getInitialSelectedId = () => {
+    const hash = window.location.hash || '';
+    if (hash.includes('?')) {
+      const query = hash.split('?')[1] || '';
+      const params = new URLSearchParams(query);
+      const id = params.get('id') || params.get('cat') || params.get('collection');
+      if (id) return decodeURIComponent(id);
     }
-    return collections[0]?.id || '';
-  });
+    if (initialCollectionSlug) return initialCollectionSlug;
+    return 'all';
+  };
 
+  const [selectedId, setSelectedId] = useState<string>(getInitialSelectedId);
   const [sortBy, setSortBy] = useState<string>('featured');
 
-  const currentCollection = useMemo(
-    () => collections.find((c) => c.id === selectedColId) || collections[0],
-    [collections, selectedColId]
-  );
+  // Listen for hash changes while on the page
+  useEffect(() => {
+    const handleHashChange = () => {
+      setSelectedId(getInitialSelectedId());
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
 
-  // Products belonging to current collection
-  const collectionProducts = useMemo(() => {
-    if (!currentCollection) return [];
-    return products
-      .filter((p) => {
-        const inColIds = p.collectionIds?.includes(currentCollection.id);
-        const inColName = p.collection === currentCollection.name;
-        const inColArray = p.collections?.includes(currentCollection.name);
-        const inColManualList = currentCollection.productIds?.includes(p.id);
-        return inColIds || inColName || inColArray || inColManualList;
-      })
-      .sort((a, b) => {
+  // Build unified list of Curations (Collections + Main Categories)
+  const unifiedCurations = useMemo(() => {
+    const list: any[] = [
+      {
+        id: 'all',
+        type: 'all',
+        name: 'All Formulations',
+        badge: 'COMPLETE SANCTUARY',
+        icon: '🌟',
+        description: 'Explore our complete spectrum of hand-poured botanical soy candles, diffusers, and luxury gift hampers.',
+        imageUrl: '/hero_candle.png',
+        bannerImage: '/hero_candle.png',
+      },
+    ];
+
+    // Add Collections
+    (collections || []).forEach((col) => {
+      list.push({
+        id: col.id,
+        rawId: col.id,
+        type: 'collection',
+        name: col.name,
+        badge: col.badge || 'CURATED COLLECTION',
+        icon: col.icon || '✨',
+        description: col.description || col.desc || 'Handcrafted botanical candle curation poured in limited luxury batches.',
+        imageUrl: col.imageUrl || col.bannerImage || '/hero_candle.png',
+        bannerImage: col.bannerImage || col.imageUrl || '/hero_candle.png',
+      });
+    });
+
+    // Add Categories
+    (mainCategories || []).forEach((cat) => {
+      list.push({
+        id: `cat:${cat.name}`,
+        rawId: cat.id,
+        type: 'category',
+        name: cat.name,
+        badge: 'CATEGORY SPOTLIGHT',
+        icon: cat.name.includes('Hamper') ? '🎁' : cat.name.includes('Diffuser') ? '🌿' : cat.name.includes('Sachet') ? '🌸' : '🕯️',
+        description: cat.description || `Handcrafted formulations in our ${cat.name} line.`,
+        imageUrl: cat.imageUrl || cat.bannerDesktop || '/hero_candle.png',
+        bannerImage: cat.bannerDesktop || cat.imageUrl || '/hero_candle.png',
+      });
+    });
+
+    return list;
+  }, [collections, mainCategories]);
+
+  // Current active curation item
+  const currentCuration = useMemo(() => {
+    if (selectedId === 'all') return unifiedCurations[0];
+    const match = unifiedCurations.find(
+      (c) =>
+        c.id === selectedId ||
+        c.rawId === selectedId ||
+        c.name.toLowerCase() === selectedId.toLowerCase() ||
+        c.id === `cat:${selectedId}`
+    );
+    return match || unifiedCurations[0];
+  }, [unifiedCurations, selectedId]);
+
+  // Filter products for active curation
+  const curationProducts = useMemo(() => {
+    if (!products || products.length === 0) return [];
+    if (currentCuration.id === 'all') {
+      return [...products].sort((a, b) => {
         if (sortBy === 'price_asc') return a.price - b.price;
         if (sortBy === 'price_desc') return b.price - a.price;
         if (sortBy === 'rating') return (b.rating || 0) - (a.rating || 0);
         return (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0);
       });
-  }, [products, currentCollection, sortBy]);
+    }
+
+    const curNameLower = currentCuration.name.toLowerCase();
+    const curId = currentCuration.rawId || currentCuration.id;
+
+    const filtered = products.filter((p) => {
+      const pName = p.name.toLowerCase();
+      const pCat = (p.category || '').toLowerCase();
+
+      // Collection ID match
+      if (p.collectionIds?.includes(curId) || p.collections?.includes(curId) || p.collections?.includes(currentCuration.name)) {
+        return true;
+      }
+      if (p.collection && p.collection.toLowerCase() === curNameLower) {
+        return true;
+      }
+
+      // Direct Category match
+      if (pCat === curNameLower || p.mainCategoryId === curId) {
+        return true;
+      }
+
+      // Intelligent keyword fallback matching
+      if (curNameLower.includes('hamper') || curNameLower.includes('gift')) {
+        if (pCat.includes('hamper') || pCat.includes('gift') || pName.includes('bloom') || pName.includes('basket') || pName.includes('hamper') || p.hasGiftPackaging) {
+          return true;
+        }
+      }
+
+      if (curNameLower.includes('diffuser') || curNameLower.includes('car')) {
+        if (pCat.includes('diffuser') || pCat.includes('oil') || pCat.includes('reed') || pName.includes('diffuser') || pName.includes('car')) {
+          return true;
+        }
+      }
+
+      if (curNameLower.includes('sachet') || curNameLower.includes('melt')) {
+        if (pCat.includes('sachet') || pCat.includes('melt') || pName.includes('sachet') || pName.includes('wax')) {
+          return true;
+        }
+      }
+
+      if (curNameLower.includes('candle') || curNameLower.includes('luxury scented')) {
+        if (pCat.includes('candle') || pCat.includes('jar') || pCat.includes('scented') || pName.includes('candle') || (!pName.includes('diffuser') && !pName.includes('sachet') && !pName.includes('basket'))) {
+          return true;
+        }
+      }
+
+      return false;
+    });
+
+    // If filtered list is empty for a generic category, show all products rather than empty screen
+    const resultList = filtered.length > 0 ? filtered : products;
+
+    return resultList.sort((a, b) => {
+      if (sortBy === 'price_asc') return a.price - b.price;
+      if (sortBy === 'price_desc') return b.price - a.price;
+      if (sortBy === 'rating') return (b.rating || 0) - (a.rating || 0);
+      return (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0);
+    });
+  }, [products, currentCuration, sortBy]);
+
+  const handleSelectCuration = (curId: string) => {
+    setSelectedId(curId);
+    window.location.hash = `#collections?id=${encodeURIComponent(curId)}`;
+  };
 
   return (
-    <div className="min-h-screen bg-[#FAF6F8] text-[#1C1217] py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto space-y-10">
-        {/* Collections Tab Bar */}
-        <div className="w-full max-w-full min-w-0 flex items-center gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-none touch-pan-x -mx-4 px-4 sm:mx-0 sm:px-0">
-          {collections.map((col) => {
-            const isSelected = col.id === currentCollection?.id;
-            return (
-              <button
-                key={col.id}
-                type="button"
-                onClick={() => setSelectedColId(col.id)}
-                className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 rounded-full border text-xs font-medium whitespace-nowrap shrink-0 transition-all cursor-pointer ${
-                  isSelected
-                    ? 'bg-[#E87A96] border-[#E87A96] text-white font-semibold shadow-xs scale-105'
-                    : 'bg-white border-[#F5E8EE] text-[#624855] hover:border-[#F9B8CA]'
-                }`}
-              >
-                <span className="text-base">{col.icon || '✨'}</span>
-                <span>{col.name}</span>
-              </button>
-            );
-          })}
+    <div className="min-h-screen bg-[#FAF6F8] text-[#1C1217] py-8 sm:py-12 px-4 sm:px-6 lg:px-8 font-sans">
+      <div className="max-w-7xl mx-auto space-y-8 sm:space-y-10">
+        {/* Curations Tab Bar */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-xs uppercase font-bold tracking-wider text-[#886C7B]">
+              Select Collection or Category
+            </span>
+            <span className="text-xs font-mono text-[#E87A96] font-bold">
+              {unifiedCurations.length} Curations Available
+            </span>
+          </div>
+
+          <div className="w-full flex items-center gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-none touch-pan-x -mx-4 px-4 sm:mx-0 sm:px-0">
+            {unifiedCurations.map((cur) => {
+              const isSelected = cur.id === currentCuration.id;
+              return (
+                <button
+                  key={cur.id}
+                  type="button"
+                  onClick={() => handleSelectCuration(cur.id)}
+                  className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 rounded-full border text-xs font-bold whitespace-nowrap shrink-0 transition-all cursor-pointer shadow-xs ${
+                    isSelected
+                      ? 'bg-[#E87A96] border-[#E87A96] text-white shadow-card scale-105 ring-2 ring-[#F9B8CA]'
+                      : 'bg-white border-[#F5E8EE] text-[#624855] hover:border-[#F9B8CA] hover:bg-[#FFF6F8]'
+                  }`}
+                >
+                  <span className="text-base">{cur.icon}</span>
+                  <span>{cur.name}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
-        {/* Collection Hero */}
-        {currentCollection && (
-          <div className="relative rounded-3xl overflow-hidden border border-[#F5E8EE] bg-white p-8 lg:p-14 shadow-card">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-[#F9B8CA]/15 rounded-full blur-3xl pointer-events-none" />
-            <div className="relative z-10 max-w-2xl space-y-4">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-mono uppercase px-3 py-1 rounded-full bg-[#FFF6F8] text-[#E87A96] border border-[#F9B8CA] font-bold">
-                  {currentCollection.badge || 'CURATED COLLECTION'}
-                </span>
-                <span className="text-xs font-mono text-[#886C7B]">
-                  {collectionProducts.length} Items
-                </span>
-              </div>
-
-              <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#1C1217]">
-                {currentCollection.name}
-              </h1>
-
-              <p className="text-sm text-[#624855] leading-relaxed font-light">
-                {currentCollection.description || currentCollection.desc || 'Explore our bespoke thematic collection.'}
-              </p>
+        {/* Collection / Category Hero Card with Cover Photo */}
+        <div className="relative rounded-3xl overflow-hidden border border-[#F5E8EE] bg-white p-6 sm:p-10 lg:p-12 shadow-card flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="relative z-10 max-w-xl space-y-3">
+            <div className="flex items-center gap-2">
+              <Badge variant="pink" size="sm" icon={<SparklesIcon size={12} />}>
+                {currentCuration.badge}
+              </Badge>
+              <span className="text-xs font-mono text-[#886C7B] font-semibold">
+                • {curationProducts.length} Formulations
+              </span>
             </div>
 
-            {currentCollection.bannerImage && (
-              <img
-                src={currentCollection.bannerImage}
-                alt={currentCollection.name}
-                className="absolute right-0 top-0 w-full md:w-3/5 h-full object-cover opacity-15 md:opacity-25"
-              />
-            )}
+            <h1 className="font-serif text-2xl sm:text-4xl lg:text-5xl font-extrabold text-[#1C1217] leading-tight">
+              {currentCuration.name}
+            </h1>
+
+            <p className="text-xs sm:text-sm text-[#624855] leading-relaxed">
+              {currentCuration.description}
+            </p>
           </div>
-        )}
+
+          <div className="w-full md:w-80 h-48 sm:h-56 rounded-2xl overflow-hidden bg-[#FFF6F8] border border-[#F5E8EE] shrink-0 shadow-subtle relative group">
+            <img
+              src={currentCuration.imageUrl || currentCuration.bannerImage || '/hero_candle.png'}
+              alt={currentCuration.name}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#140B10]/50 via-transparent to-transparent opacity-60" />
+            <div className="absolute bottom-3 left-3 text-white">
+              <span className="text-[10px] uppercase tracking-wider font-bold bg-[#E87A96] px-2.5 py-0.5 rounded-full">
+                {currentCuration.type === 'category' ? 'Category' : 'Curated Collection'}
+              </span>
+            </div>
+          </div>
+        </div>
 
         {/* Collection Product Grid */}
         <div className="space-y-6">
-          <div className="flex items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-[#F5E8EE] shadow-xs">
-            <span className="text-xs font-mono text-[#886C7B]">
-              Curated Selection ({collectionProducts.length} Products)
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-[#F5E8EE] shadow-xs">
+            <span className="text-xs font-bold text-[#1C1217]">
+              Showing {curationProducts.length} Handcrafted Candle{curationProducts.length === 1 ? '' : 's'} in {currentCuration.name}
             </span>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-[#886C7B]">Sort by:</span>
+              <span className="text-xs text-[#886C7B] font-medium">Sort by:</span>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="bg-[#FFF6F8] border border-[#F5E8EE] rounded-xl px-3 py-1.5 text-xs text-[#1C1217] outline-none"
+                className="bg-[#FFF6F8] border border-[#F5E8EE] rounded-xl px-3 py-1.5 text-xs text-[#1C1217] font-semibold outline-none cursor-pointer"
               >
                 <option value="featured">Featured First</option>
                 <option value="price_asc">Price: Low to High</option>
@@ -136,9 +278,9 @@ export const CollectionsPage: React.FC<CollectionsPageProps> = ({
             </div>
           </div>
 
-          {collectionProducts.length > 0 ? (
+          {curationProducts.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {collectionProducts.map((prod) => (
+              {curationProducts.map((prod) => (
                 <ProductCard
                   key={prod.id}
                   product={prod}
@@ -147,10 +289,16 @@ export const CollectionsPage: React.FC<CollectionsPageProps> = ({
               ))}
             </div>
           ) : (
-            <div className="p-12 text-center bg-white rounded-3xl border border-[#F5E8EE] space-y-2 shadow-xs">
-              <p className="text-2xl">✨</p>
-              <p className="font-serif text-base text-[#1C1217]">No products assigned to this collection yet.</p>
-              <p className="text-xs text-[#886C7B]">Assign products from the Admin Collections Manager.</p>
+            <div className="p-16 text-center bg-white rounded-3xl border border-[#F5E8EE] space-y-3 shadow-xs">
+              <p className="text-3xl">🕯️</p>
+              <p className="font-serif text-lg font-bold text-[#1C1217]">No products in this curation yet.</p>
+              <p className="text-xs text-[#886C7B]">Please select another collection or view all formulations.</p>
+              <button
+                onClick={() => handleSelectCuration('all')}
+                className="px-5 py-2 bg-[#E87A96] text-white text-xs font-bold rounded-full shadow-xs cursor-pointer hover:bg-[#D45D7D]"
+              >
+                View All Formulations
+              </button>
             </div>
           )}
         </div>

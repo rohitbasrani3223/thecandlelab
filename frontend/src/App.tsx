@@ -183,10 +183,12 @@ export function App() {
       <ToastProvider>
         <AuthProvider>
           <CMSProvider>
-            <AuthModal />
-            <Suspense fallback={<div className="p-12 text-center text-xs font-bold text-[#B88B38]">Loading Secure Checkout...</div>}>
-              <CheckoutPage onReturnHome={() => handleNavigate('home')} />
-            </Suspense>
+            <CartProvider>
+              <AuthModal />
+              <Suspense fallback={<div className="p-12 text-center text-xs font-bold text-[#E87A96]">Loading Secure Checkout...</div>}>
+                <CheckoutPage onReturnHome={() => handleNavigate('home')} />
+              </Suspense>
+            </CartProvider>
           </CMSProvider>
         </AuthProvider>
       </ToastProvider>

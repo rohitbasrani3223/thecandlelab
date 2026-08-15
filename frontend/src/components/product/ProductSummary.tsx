@@ -245,6 +245,7 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
     if (onBuyNow) {
       onBuyNow();
     }
+    window.location.hash = '#checkout';
   };
 
   return (

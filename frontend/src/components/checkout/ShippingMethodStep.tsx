@@ -10,44 +10,71 @@ export interface ShippingOption {
   badge?: string;
 }
 
-const shippingOptions: ShippingOption[] = [
-  {
-    id: 'eco-standard',
-    name: 'Eco-Friendly Standard Delivery',
-    timeframe: '4 - 5 Business Days',
-    price: 99.0,
-    description: '100% biodegradable packaging & carbon-neutral transit.',
-  },
-  {
-    id: 'express-gold',
-    name: 'Atelier Express Courier',
-    timeframe: '2 - 3 Business Days',
-    price: 199.0,
-    description: 'Priority courier handling with temperature-controlled shipping.',
-    badge: 'FASTEST',
-  },
-];
-
 export interface ShippingMethodStepProps {
   selectedOptionId: string;
+  subtotal?: number;
   onBack: () => void;
   onNext: (option: ShippingOption) => void;
 }
 
 export const ShippingMethodStep: React.FC<ShippingMethodStepProps> = ({
   selectedOptionId,
+  subtotal = 0,
   onBack,
   onNext,
 }) => {
-  const [selectedId, setSelectedId] = useState(selectedOptionId || 'eco-standard');
+  const isFreeEligible = subtotal >= 999;
 
-  const currentOption = shippingOptions.find((o) => o.id === selectedId) || shippingOptions[0];
+  const dynamicShippingOptions: ShippingOption[] = isFreeEligible
+    ? [
+        {
+          id: 'free-express',
+          name: 'Complimentary Pan-India Express Shipping',
+          timeframe: '2 - 3 Business Days',
+          price: 0,
+          description: 'Unlocked! Free Express delivery on orders above ₹999.',
+          badge: 'FREE DELIVERY',
+        },
+        {
+          id: 'vip-courier',
+          name: 'VIP Priority Air Dispatch',
+          timeframe: '1 - 2 Business Days',
+          price: 99.0,
+          description: 'Top-priority courier dispatch with wax seal gift packaging.',
+          badge: 'FASTEST',
+        },
+      ]
+    : [
+        {
+          id: 'standard-delivery',
+          name: 'Pan-India Express Delivery',
+          timeframe: '3 - 4 Business Days',
+          price: 99.0,
+          description: 'Insured transit in protective cushioned packaging.',
+        },
+        {
+          id: 'priority-delivery',
+          name: 'Priority Courier Handling',
+          timeframe: '1 - 2 Business Days',
+          price: 149.0,
+          description: 'Temperature-controlled courier with fast dispatch.',
+          badge: 'FASTEST',
+        },
+      ];
+
+  const [selectedId, setSelectedId] = useState(
+    selectedOptionId && dynamicShippingOptions.some((o) => o.id === selectedOptionId)
+      ? selectedOptionId
+      : dynamicShippingOptions[0].id
+  );
+
+  const currentOption = dynamicShippingOptions.find((o) => o.id === selectedId) || dynamicShippingOptions[0];
 
   return (
     <div className="space-y-6 font-sans">
       <div className="flex items-center justify-between border-b border-[#F5E8EE] pb-4">
         <div>
-          <Badge variant="pink" icon={<SparklesIcon size={12} />}>STEP 2 OF 4</Badge>
+          <Badge variant="pink" size="sm" icon={<SparklesIcon size={12} />}>STEP 2 OF 3</Badge>
           <h2 className="text-2xl font-serif font-bold text-[#1C1217] mt-1">
             Select Delivery Method
           </h2>
@@ -55,7 +82,7 @@ export const ShippingMethodStep: React.FC<ShippingMethodStepProps> = ({
       </div>
 
       <div className="space-y-3">
-        {shippingOptions.map((opt) => (
+        {dynamicShippingOptions.map((opt) => (
           <div
             key={opt.id}
             onClick={() => setSelectedId(opt.id)}
@@ -94,7 +121,7 @@ export const ShippingMethodStep: React.FC<ShippingMethodStepProps> = ({
           fullWidth
           onClick={() => onNext(currentOption)}
         >
-          Continue to Payment Option →
+          Continue to Payment & Pay →
         </Button>
       </div>
     </div>

@@ -18,6 +18,8 @@ export interface AddressData {
 
 export interface AddressFormStepProps {
   initialData: AddressData;
+  cartItems?: any[];
+  subtotal?: number;
   onNext: (data: AddressData) => void;
 }
 
@@ -44,7 +46,7 @@ const INDIAN_STATES_CITIES: Record<string, string[]> = {
   'Other / International': ['Custom City'],
 };
 
-export const AddressFormStep: React.FC<AddressFormStepProps> = ({ initialData, onNext }) => {
+export const AddressFormStep: React.FC<AddressFormStepProps> = ({ initialData, cartItems = [], subtotal = 0, onNext }) => {
   const getStorageKey = (email: string) => `tcl_saved_addresses_${(email || 'guest').toLowerCase().trim()}`;
 
   // Saved Addresses for Customer
@@ -82,9 +84,49 @@ export const AddressFormStep: React.FC<AddressFormStepProps> = ({ initialData, o
 
   const [isCustomState, setIsCustomState] = useState(false);
   const [isCustomCity, setIsCustomCity] = useState(false);
+  const [pincodeLoading, setPincodeLoading] = useState(false);
+  const [pincodeDetected, setPincodeDetected] = useState<string | null>(null);
 
   const availableStates = Object.keys(INDIAN_STATES_CITIES);
   const availableCities = INDIAN_STATES_CITIES[formData.state] || ['Mumbai', 'Pune', 'Other City'];
+
+  // Indian Pincode Auto-Fill
+  const handlePincodeChange = async (pin: string) => {
+    const cleanPin = pin.replace(/\D/g, '').slice(0, 6);
+    setFormData((prev) => ({ ...prev, zip: cleanPin }));
+
+    if (cleanPin.length === 6) {
+      setPincodeLoading(true);
+      try {
+        const res = await fetch(`https://api.postalpincode.in/pincode/${cleanPin}`);
+        const data = await res.json();
+        if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice?.length > 0) {
+          const po = data[0].PostOffice[0];
+          const detectedCity = po.District || po.Block || po.Circle || po.Name;
+          const detectedState = po.State;
+
+          setIsCustomCity(true);
+          setIsCustomState(true);
+          setFormData((prev) => ({
+            ...prev,
+            zip: cleanPin,
+            city: detectedCity,
+            state: detectedState,
+            country: 'IN',
+          }));
+          setPincodeDetected(`${detectedCity}, ${detectedState}`);
+        } else {
+          setPincodeDetected(null);
+        }
+      } catch (err) {
+        console.warn('Pincode auto-lookup note:', err);
+      } finally {
+        setPincodeLoading(false);
+      }
+    } else {
+      setPincodeDetected(null);
+    }
+  };
 
   const handleSelectSavedAddress = (addr: AddressData, idx: number) => {
     setSelectedAddressIdx(idx);
@@ -107,6 +149,7 @@ export const AddressFormStep: React.FC<AddressFormStepProps> = ({ initialData, o
       zip: '',
       saveAddress: true,
     });
+    setPincodeDetected(null);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -133,12 +176,81 @@ export const AddressFormStep: React.FC<AddressFormStepProps> = ({ initialData, o
       {/* Step Header */}
       <div className="flex items-center justify-between border-b border-[#F5E8EE] pb-4">
         <div>
-          <Badge variant="pink" icon={<SparklesIcon size={12} />}>STEP 1 OF 4</Badge>
+          <Badge variant="pink" size="sm" icon={<SparklesIcon size={12} />}>STEP 1 OF 3</Badge>
           <h2 className="text-2xl font-serif font-bold text-[#1C1217] mt-1">
-            Shipping Address & Contact
+            Order Summary & Shipping Address
           </h2>
         </div>
       </div>
+
+      {/* 1. Itemized Order Summary Box Inside Step 1 */}
+      {cartItems && cartItems.length > 0 && (
+        <div className="p-4 bg-[#FFF6F8] border border-[#F9B8CA]/60 rounded-3xl space-y-3 shadow-xs">
+          <div className="flex items-center justify-between border-b border-[#F9B8CA]/40 pb-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#C94C6D] flex items-center gap-1.5">
+              <span>🛍️</span> Your Order Items ({cartItems.reduce((s, i) => s + (i.quantity || 1), 0)})
+            </span>
+            <span className="text-xs font-bold text-[#1C1217]">
+              Subtotal: ₹{Math.round(subtotal).toLocaleString('en-IN')}
+            </span>
+          </div>
+
+          <div className="space-y-2.5 max-h-56 overflow-y-auto pr-1">
+            {cartItems.map((item, idx) => (
+              <div
+                key={item.id || idx}
+                className="p-3 bg-[#FFFFFF] border border-[#F5E8EE] rounded-2xl flex items-center justify-between gap-3 text-xs"
+              >
+                <div className="w-12 h-12 rounded-xl bg-[#FFF6F8] border border-[#F5E8EE] shrink-0 overflow-hidden flex items-center justify-center">
+                  {item.image ? (
+                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-lg">🕯️</span>
+                  )}
+                </div>
+
+                <div className="flex-1 min-w-0 space-y-0.5">
+                  <h4 className="font-bold text-[#1C1217] truncate">{item.name}</h4>
+                  <div className="flex flex-wrap items-center gap-1.5 text-[10px] text-[#886C7B]">
+                    {item.fragrance && (
+                      <span className="text-[#C94C6D] font-semibold bg-[#FFF6F8] px-1.5 py-0.5 rounded border border-[#F9B8CA]/40">
+                        🌸 {item.fragrance}
+                      </span>
+                    )}
+                    {item.size && (
+                      <span className="bg-[#FFFFFF] px-1.5 py-0.5 rounded border border-[#F5E8EE]">
+                        📏 {item.size}
+                      </span>
+                    )}
+                    {item.wickType && (
+                      <span className="bg-[#FFFFFF] px-1.5 py-0.5 rounded border border-[#F5E8EE]">
+                        🕯️ {item.wickType}
+                      </span>
+                    )}
+                    {item.color && (
+                      <span className="bg-[#FFFFFF] px-1.5 py-0.5 rounded border border-[#F5E8EE]">
+                        🎨 {item.color}
+                      </span>
+                    )}
+                  </div>
+                  {item.giftPackaging && (
+                    <span className="inline-block text-[9px] text-[#C94C6D] font-bold">
+                      🎁 Blush Luxury Gift Box Included
+                    </span>
+                  )}
+                </div>
+
+                <div className="text-right shrink-0">
+                  <span className="font-bold text-[#1C1217] block">
+                    ₹{Math.round((item.price || 0) * (item.quantity || 1)).toLocaleString('en-IN')}
+                  </span>
+                  <span className="text-[10px] text-[#886C7B]">Qty: {item.quantity || 1}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Saved Addresses Section (If Available) */}
       {savedAddresses.length > 0 && (
@@ -245,6 +357,49 @@ export const AddressFormStep: React.FC<AddressFormStepProps> = ({ initialData, o
           />
         </div>
 
+        {/* PIN Code with Auto-Detection */}
+        <div className="space-y-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <Input
+                label="Postal / PIN Code (6 Digits) *"
+                required
+                maxLength={6}
+                value={formData.zip}
+                onChange={(e) => handlePincodeChange(e.target.value)}
+                placeholder="e.g. 400001"
+              />
+              {pincodeLoading && (
+                <span className="text-[10px] text-[#E87A96] font-bold mt-1 block animate-pulse">
+                  ⏳ Detecting City & State from Indian Postal Service...
+                </span>
+              )}
+              {pincodeDetected && (
+                <span className="text-[10px] text-[#15803D] font-bold mt-1 flex items-center gap-1">
+                  <span>📍 Auto-detected:</span>
+                  <strong className="underline">{pincodeDetected}</strong>
+                </span>
+              )}
+            </div>
+
+            <div>
+              <label className="text-xs font-semibold text-[#1C1217] block mb-1">Country *</label>
+              <Select
+                options={[
+                  { value: 'IN', label: '🇮🇳 India' },
+                  { value: 'US', label: '🇺🇸 United States' },
+                  { value: 'CA', label: '🇨🇦 Canada' },
+                  { value: 'UK', label: '🇬🇧 United Kingdom' },
+                  { value: 'AE', label: '🇦🇪 United Arab Emirates' },
+                  { value: 'AU', label: '🇦🇺 Australia' },
+                ]}
+                value={formData.country}
+                onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+              />
+            </div>
+          </div>
+        </div>
+
         <Input
           label="Street Address"
           required
@@ -261,7 +416,7 @@ export const AddressFormStep: React.FC<AddressFormStepProps> = ({ initialData, o
             placeholder="Apt, Suite, Unit"
           />
 
-          {/* State Select Dropdown / Custom Input Toggle */}
+          {/* State Input */}
           <div>
             <div className="flex items-center justify-between mb-1">
               <label className="text-xs font-semibold text-[#1C1217]">State / Region *</label>
@@ -306,7 +461,7 @@ export const AddressFormStep: React.FC<AddressFormStepProps> = ({ initialData, o
             )}
           </div>
 
-          {/* City Select Dropdown / Custom Input Toggle */}
+          {/* City Input */}
           <div>
             <div className="flex items-center justify-between mb-1">
               <label className="text-xs font-semibold text-[#1C1217]">City *</label>
@@ -343,31 +498,6 @@ export const AddressFormStep: React.FC<AddressFormStepProps> = ({ initialData, o
                 }}
               />
             )}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input
-            label="Postal / ZIP Code"
-            required
-            value={formData.zip}
-            onChange={(e) => setFormData({ ...formData, zip: e.target.value })}
-            placeholder="e.g. 400001"
-          />
-          <div>
-            <label className="text-xs font-semibold text-[#1C1217] block mb-1">Country *</label>
-            <Select
-              options={[
-                { value: 'IN', label: '🇮🇳 India' },
-                { value: 'US', label: '🇺🇸 United States' },
-                { value: 'CA', label: '🇨🇦 Canada' },
-                { value: 'UK', label: '🇬🇧 United Kingdom' },
-                { value: 'AE', label: '🇦🇪 United Arab Emirates' },
-                { value: 'AU', label: '🇦🇺 Australia' },
-              ]}
-              value={formData.country}
-              onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-            />
           </div>
         </div>
 

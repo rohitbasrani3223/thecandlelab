@@ -3,7 +3,6 @@ import { HeroBanner } from './HeroBanner';
 import { CategoryGrid } from './CategoryGrid';
 import { FeaturedCollection } from './FeaturedCollection';
 import { BestSellers } from './BestSellers';
-import { CollectionsShowcase } from './CollectionsShowcase';
 import { NewArrivalsTrending } from './NewArrivalsTrending';
 import { ScentNotesCareSection } from './ScentNotesCareSection';
 import { CustomerReviews } from './CustomerReviews';
@@ -30,19 +29,14 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigateToShop, onSelectPr
       {/* 1. Hero Banner */}
       <HeroBanner />
 
-      {/* 2. Shop by Category (Clean, Simple & Attractive D2C Style) */}
-      <CategoryGrid onNavigateToShop={handleCategoryClick} />
-
-
+      {/* 2. Unified Categories & Collections with Live Product Showcase */}
+      <CategoryGrid onNavigateToShop={handleCategoryClick} onSelectProduct={onSelectProduct} />
 
       {/* 3. Featured Royal Collection */}
       <FeaturedCollection onSelectProduct={onSelectProduct} />
 
       {/* 4. Best Sellers */}
       <BestSellers onSelectProduct={onSelectProduct} />
-
-      {/* 5. Signature & Seasonal Collections Showcase */}
-      <CollectionsShowcase />
 
       {/* 6. New Arrivals & Trending */}
       <NewArrivalsTrending onSelectProduct={onSelectProduct} />
