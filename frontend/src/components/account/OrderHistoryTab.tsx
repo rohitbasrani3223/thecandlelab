@@ -9,7 +9,7 @@ export interface OrderItem {
   orderNumber: string;
   date: string;
   status: string;
-  badgeVariant?: 'gold' | 'success' | 'warning' | 'error' | 'info';
+  badgeVariant?: 'gold' | 'success' | 'warning' | 'error' | 'info' | 'pink';
   itemsSummary?: string;
   items?: Array<{ name: string; quantity: number; price: number }>;
   totalAmount?: number | string;
@@ -52,14 +52,13 @@ export const OrderHistoryTab: React.FC<OrderHistoryTabProps> = ({ onNavigateToSh
                 orderNumber: o.orderNumber || o.id,
                 date: o.date || new Date(o.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
                 status: o.status || 'PROCESSING',
-                badgeVariant: o.status === 'DELIVERED' ? 'success' : 'gold',
+                badgeVariant: o.status === 'DELIVERED' ? 'success' : 'pink',
                 itemsSummary: o.itemsSummary || (Array.isArray(o.items) ? o.items.map((i: any) => i.name || i.title).join(', ') : 'Botanical Soy Candle'),
                 items: o.items || [],
-                totalAmount: typeof o.totalAmount === 'number' ? `₹${o.totalAmount.toLocaleString('en-IN')}` : o.totalAmount || '₹1,499.00',
+                totalAmount: typeof o.totalAmount === 'number' ? `₹${o.totalAmount.toLocaleString('en-IN')}` : o.totalAmount || '₹1,499',
                 trackingNumber: o.trackingNumber,
               }));
 
-              // Merge unique local and server orders
               const combined = [...fetchedOrders, ...localOrders];
               const uniqueOrders = Array.from(new Map(combined.map((item) => [item.id, item])).values());
               setOrders(uniqueOrders);
@@ -81,92 +80,84 @@ export const OrderHistoryTab: React.FC<OrderHistoryTabProps> = ({ onNavigateToSh
 
   return (
     <div className="space-y-6 font-sans">
-      <div className="flex items-center justify-between border-b border-[#E5D9C5] pb-4">
+      <div className="flex items-center justify-between border-b border-[#F5E8EE] pb-4">
         <div>
-          <Badge variant="gold" icon={<SparklesIcon size={12} />}>ORDER ARCHIVE</Badge>
-          <h2 className="text-2xl font-serif font-bold text-[#2A1E17] mt-1">
+          <Badge variant="pink" icon={<SparklesIcon size={12} />}>ORDER ARCHIVE</Badge>
+          <h2 className="text-2xl font-serif font-bold text-[#1C1217] mt-1">
             Order History & Tracking
           </h2>
         </div>
       </div>
 
       {loading ? (
-        <div className="text-center py-12 text-xs text-[#8C7A6B]">
+        <div className="text-center py-12 text-xs text-[#886C7B]">
           Fetching your sanctuary order history...
         </div>
       ) : orders.length === 0 ? (
-        <Card variant="bordered" padding="lg" className="bg-[#FAF6F0] text-center py-12 space-y-4">
-          <div className="w-16 h-16 bg-[#F4EFE6] border border-[#D4AF37]/30 rounded-full flex items-center justify-center mx-auto text-[#D4AF37]">
+        <Card variant="bordered" padding="lg" className="bg-[#FFFFFF] border-[#F5E8EE] rounded-3xl text-center py-12 space-y-4 shadow-xs">
+          <div className="w-16 h-16 bg-[#FFF6F8] border border-[#F9B8CA] rounded-full flex items-center justify-center mx-auto text-[#E87A96]">
             <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 11h14l1 12H4L5 11z" />
             </svg>
           </div>
-
           <div className="space-y-1">
-            <h3 className="font-serif text-lg font-bold text-[#2A1E17]">No Orders Placed Yet</h3>
-            <p className="text-xs text-[#8C7A6B]">
-              You haven't placed any candle orders under <span className="font-semibold text-[#2A1E17]">{user?.email}</span>.
+            <h3 className="font-serif font-bold text-lg text-[#1C1217]">No Orders Placed Yet</h3>
+            <p className="text-xs text-[#886C7B] max-w-sm mx-auto">
+              When you purchase our hand-poured soy candles, you can track live dispatch and view itemized invoices here.
             </p>
           </div>
-
           {onNavigateToShop && (
-            <Button
-              type="button"
-              variant="primary"
-              size="md"
-              onClick={onNavigateToShop}
-              className="mt-2"
-            >
-              Explore Boutique Catalogue →
+            <Button variant="pink" size="md" onClick={onNavigateToShop}>
+              Explore Sanctuary Fragrances
             </Button>
           )}
         </Card>
       ) : (
         <div className="space-y-4">
           {orders.map((ord) => (
-            <Card
-              key={ord.id}
-              variant="bordered"
-              padding="lg"
-              className="bg-[#FAF6F0] space-y-3 hover:border-[#D4AF37] transition-all"
-            >
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-[#E5D9C5] pb-3">
+            <Card key={ord.id} variant="bordered" padding="md" className="bg-white border-[#F5E8EE] rounded-3xl space-y-3 shadow-xs">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-[#F5E8EE] pb-2 text-xs">
                 <div>
-                  <div className="flex items-center gap-3">
-                    <h4 className="font-serif font-bold text-base text-[#2A1E17]">{ord.id}</h4>
-                    <Badge variant={ord.badgeVariant || 'gold'} size="sm">{ord.status}</Badge>
-                  </div>
-                  <span className="text-[11px] text-[#8C7A6B]">Placed on {ord.date}</span>
+                  <span className="text-[#886C7B] block">Order Number</span>
+                  <strong className="font-serif text-[#1C1217] text-sm">{ord.orderNumber}</strong>
                 </div>
-
-                <div className="text-left sm:text-right">
-                  <span className="text-xs text-[#8C7A6B] block">Total Amount</span>
-                  <span className="text-base font-bold text-[#2A1E17]">{ord.totalAmount}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[#886C7B]">{ord.date}</span>
+                  <Badge variant={ord.status === 'DELIVERED' ? 'success' : 'pink'} size="sm">
+                    {ord.status}
+                  </Badge>
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
-                <span className="text-[#69574A] italic font-light truncate max-w-md">
-                  {ord.itemsSummary || 'Artisanal Candle Formulations'}
-                </span>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 py-1 text-xs">
+                <div className="space-y-1">
+                  <p className="text-[#1C1217] font-medium">{ord.itemsSummary}</p>
+                  {ord.trackingNumber && (
+                    <span className="text-[#886C7B] text-[11px] block">
+                      Courier AWB: <code className="font-mono text-[#E87A96]">{ord.trackingNumber}</code>
+                    </span>
+                  )}
+                </div>
 
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSelectedOrderId(ord.id)}
-                >
-                  View Details →
-                </Button>
+                <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
+                  <span className="text-base font-bold text-[#1C1217] font-serif">{ord.totalAmount}</span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setSelectedOrderId(ord.id)}
+                  >
+                    View Invoice
+                  </Button>
+                </div>
               </div>
             </Card>
           ))}
         </div>
       )}
 
-      {/* Shared Order Details Inspector Modal */}
       <OrderDetailsModal
         orderId={selectedOrderId}
-        isOpen={selectedOrderId !== null}
+        isOpen={Boolean(selectedOrderId)}
         onClose={() => setSelectedOrderId(null)}
       />
     </div>

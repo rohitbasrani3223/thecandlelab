@@ -20,7 +20,7 @@ export const CouponCodeBox: React.FC<CouponCodeBoxProps> = ({
   const handleApply = () => {
     if (!inputCode.trim()) return;
     const clean = inputCode.trim().toUpperCase();
-    if (clean === 'LUXURY10' || clean === 'CANDLE20') {
+    if (clean === 'LUXURY10' || clean === 'CANDLE20' || clean === 'SAVE10') {
       onApplyCoupon(clean);
       setInputCode('');
       toast({
@@ -32,30 +32,30 @@ export const CouponCodeBox: React.FC<CouponCodeBoxProps> = ({
       toast({
         type: 'info',
         title: 'Invalid Coupon Code',
-        description: 'Try code "LUXURY10" for 10% off your sanctuary order.',
+        description: 'Try code "SAVE10" for 10% off your sanctuary order.',
       });
     }
   };
 
   return (
-    <div className="p-4 bg-[#FAF6F0] border border-[#E5D9C5] rounded-md space-y-3 font-sans">
-      <span className="text-xs uppercase font-bold tracking-wider text-[#8C7A6B] block">
+    <div className="p-4 bg-[#FFFFFF] border border-[#F5E8EE] rounded-2xl space-y-3 font-sans shadow-xs">
+      <span className="text-xs uppercase font-bold tracking-wider text-[#886C7B] block">
         Promo / Gift Voucher Code
       </span>
 
       {appliedCoupon ? (
-        <div className="flex items-center justify-between p-2.5 bg-[#F4EFE6] border border-[#D4AF37] rounded-sm text-xs">
+        <div className="flex items-center justify-between p-3 bg-[#FFF6F8] border border-[#F9B8CA] rounded-xl text-xs">
           <div className="flex items-center gap-2">
-            <Badge variant="gold" size="sm">✓ APPLIED</Badge>
-            <span className="font-bold text-[#2A1E17]">{appliedCoupon}</span>
-            <span className="text-[#2E6F40] font-semibold">({discountPercentage}% Off)</span>
+            <Badge variant="pink" size="sm">✓ APPLIED</Badge>
+            <span className="font-bold text-[#1C1217]">{appliedCoupon}</span>
+            <span className="text-[#15803D] font-semibold">({discountPercentage}% Off)</span>
           </div>
           <button
             onClick={() => {
               onRemoveCoupon();
               toast({ type: 'info', title: 'Coupon Removed' });
             }}
-            className="text-xs text-[#B33A3A] font-bold hover:underline"
+            className="text-xs text-[#BE123C] font-bold hover:underline"
           >
             Remove
           </button>
@@ -64,12 +64,12 @@ export const CouponCodeBox: React.FC<CouponCodeBoxProps> = ({
         <div className="flex items-center gap-2">
           <input
             type="text"
-            placeholder="Enter code (e.g. LUXURY10)"
+            placeholder="Enter code (e.g. SAVE10)"
             value={inputCode}
             onChange={(e) => setInputCode(e.target.value)}
-            className="flex-1 text-xs p-2 bg-[#F4EFE6] border border-[#E5D9C5] rounded-xs font-mono uppercase text-[#2A1E17] outline-none focus:border-[#D4AF37]"
+            className="flex-1 text-xs p-2.5 bg-[#FFF6F8] border border-[#F5E8EE] rounded-xl font-mono uppercase text-[#1C1217] outline-none focus:border-[#E87A96] focus:ring-2 focus:ring-[#F9B8CA]/40"
           />
-          <Button variant="gold" size="sm" onClick={handleApply}>
+          <Button variant="pink" size="sm" onClick={handleApply}>
             Apply
           </Button>
         </div>

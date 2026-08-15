@@ -39,7 +39,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
   return (
     <div className="space-y-4">
       {/* Main Feature Image Container */}
-      <div className="relative group rounded-2xl overflow-hidden bg-[#140D09] border border-[#2C2018] aspect-square flex items-center justify-center">
+      <div className="relative group rounded-3xl overflow-hidden bg-[#FFF6F8] border border-[#F5E8EE] aspect-square flex items-center justify-center shadow-xs">
         <img
           src={selectedImage}
           alt={productName}
@@ -57,7 +57,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
             const idx = allImages.indexOf(selectedImage);
             handleOpenLightbox(idx >= 0 ? idx : 0);
           }}
-          className="absolute bottom-4 right-4 bg-black/60 hover:bg-black/80 backdrop-blur-sm text-stone-200 px-3 py-1.5 rounded-lg text-xs font-mono flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+          className="absolute bottom-4 right-4 bg-white/80 hover:bg-white backdrop-blur-sm text-[#1C1217] px-3 py-1.5 rounded-full text-xs font-sans font-bold flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-subtle border border-[#F5E8EE]"
         >
           <span>🔍</span>
           <span>Expand View</span>
@@ -66,7 +66,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
 
       {/* Thumbnails Row */}
       {allImages.length > 1 && (
-        <div className="w-full max-w-full min-w-0 flex items-center gap-2.5 sm:gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-stone-800 touch-pan-x -mx-1 px-1 sm:mx-0 sm:px-0">
+        <div className="w-full max-w-full min-w-0 flex items-center gap-2.5 sm:gap-3 overflow-x-auto pb-2 scrollbar-none touch-pan-x -mx-1 px-1 sm:mx-0 sm:px-0">
           {allImages.map((img, idx) => {
             const isSelected = img === selectedImage;
             return (
@@ -74,8 +74,8 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
                 key={idx}
                 type="button"
                 onClick={() => setSelectedImage(img)}
-                className={`relative w-20 h-20 rounded-xl overflow-hidden border-2 shrink-0 transition-all ${
-                  isSelected ? 'border-amber-500 shadow-md scale-95' : 'border-[#2C2018] opacity-70 hover:opacity-100'
+                className={`relative w-20 h-20 rounded-2xl overflow-hidden border-2 shrink-0 transition-all cursor-pointer ${
+                  isSelected ? 'border-[#E87A96] shadow-md scale-95' : 'border-[#F5E8EE] opacity-70 hover:opacity-100'
                 }`}
               >
                 <img src={img} alt={`${productName} thumbnail ${idx}`} className="w-full h-full object-cover" />
@@ -87,11 +87,11 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
 
       {/* Lightbox Modal */}
       {isLightboxOpen && (
-        <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
           <button
             type="button"
             onClick={() => setIsLightboxOpen(false)}
-            className="absolute top-6 right-6 text-stone-400 hover:text-stone-100 text-2xl font-mono"
+            className="absolute top-6 right-6 text-white hover:text-[#F9B8CA] text-2xl font-mono"
           >
             ✕
           </button>
@@ -99,7 +99,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
           <button
             type="button"
             onClick={handlePrev}
-            className="absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-stone-900/80 hover:bg-stone-800 text-stone-200 flex items-center justify-center text-xl"
+            className="absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/20 hover:bg-white/40 text-white flex items-center justify-center text-xl"
           >
             ‹
           </button>
@@ -108,9 +108,9 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
             <img
               src={allImages[lightboxIndex]}
               alt={`${productName} fullscreen`}
-              className="max-w-full max-h-[80vh] object-contain rounded-xl shadow-2xl border border-stone-800"
+              className="max-w-full max-h-[80vh] object-contain rounded-2xl shadow-2xl border border-white/20"
             />
-            <p className="text-xs font-mono text-stone-400 mt-3">
+            <p className="text-xs font-mono text-stone-200 mt-3">
               {lightboxIndex + 1} / {allImages.length}
             </p>
           </div>
@@ -118,7 +118,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
           <button
             type="button"
             onClick={handleNext}
-            className="absolute right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-stone-900/80 hover:bg-stone-800 text-stone-200 flex items-center justify-center text-xl"
+            className="absolute right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/20 hover:bg-white/40 text-white flex items-center justify-center text-xl"
           >
             ›
           </button>

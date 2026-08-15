@@ -4,15 +4,12 @@ import { ShippingProgressBar } from './ShippingProgressBar';
 import { GiftWrapToggle } from './GiftWrapToggle';
 import type { CartItem } from './CartItemRow';
 
-
-
 export interface CartDrawerUpgradeProps {
   isOpen: boolean;
   onClose: () => void;
   onViewFullCart?: () => void;
   onCheckout?: () => void;
 }
-
 
 export const CartDrawerUpgrade: React.FC<CartDrawerUpgradeProps> = ({
   isOpen,
@@ -86,9 +83,9 @@ export const CartDrawerUpgrade: React.FC<CartDrawerUpgradeProps> = ({
       title={`Your Shopping Bag (${items.reduce((s, i) => s + i.quantity, 0)})`}
       footer={
         <div className="space-y-3 font-sans">
-          <div className="flex items-center justify-between text-sm font-bold text-[#2A1E17]">
+          <div className="flex items-center justify-between text-sm font-bold text-[#1C1217]">
             <span>Subtotal</span>
-            <span className="text-lg font-serif font-bold text-[#D4AF37]">
+            <span className="text-lg font-serif font-bold text-[#E87A96]">
               ₹{Math.round(subtotal)}
             </span>
           </div>
@@ -105,7 +102,7 @@ export const CartDrawerUpgrade: React.FC<CartDrawerUpgradeProps> = ({
               View Full Bag
             </Button>
             <Button
-              variant="gold"
+              variant="pink"
               size="md"
               onClick={() => {
                 onClose();
@@ -138,16 +135,16 @@ export const CartDrawerUpgrade: React.FC<CartDrawerUpgradeProps> = ({
         {/* Cart Items List */}
         <div className="space-y-3">
           {items.length === 0 ? (
-            <div className="py-12 text-center text-xs text-[#8C7A6B]">
+            <div className="py-12 text-center text-xs text-[#886C7B]">
               Your bag is currently empty.
             </div>
           ) : (
             items.map((item) => (
               <div
                 key={item.id}
-                className="p-3 bg-[#FAF6F0] border border-[#E5D9C5] rounded-md flex items-center justify-between gap-3"
+                className="p-3 bg-[#FFFFFF] border border-[#F5E8EE] rounded-2xl flex items-center justify-between gap-3 shadow-xs"
               >
-                <div className="w-12 h-12 bg-[#2A1E17] text-xl rounded-xs flex items-center justify-center border border-[#4A3B32] shrink-0 overflow-hidden">
+                <div className="w-12 h-12 bg-[#FFF6F8] text-xl rounded-xl flex items-center justify-center border border-[#F5E8EE] shrink-0 overflow-hidden">
                   {item.image ? (
                     <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                   ) : (
@@ -156,22 +153,22 @@ export const CartDrawerUpgrade: React.FC<CartDrawerUpgradeProps> = ({
                 </div>
 
                 <div className="flex-1 space-y-0.5 min-w-0">
-                  <h5 className="text-xs font-bold text-[#2A1E17] truncate">{item.name}</h5>
-                  <span className="text-[10px] text-[#8C7A6B] block">
+                  <h5 className="text-xs font-bold text-[#1C1217] truncate">{item.name}</h5>
+                  <span className="text-[10px] text-[#886C7B] block">
                     {item.size || '12 oz Glass'} • ₹{Math.round(item.price)}
                   </span>
                   <div className="flex items-center gap-2 pt-1">
-                    <div className="flex items-center border border-[#E5D9C5] rounded-xs bg-[#FAF6F0]">
+                    <div className="flex items-center border border-[#F5E8EE] rounded-full bg-[#FFF6F8]">
                       <button
                         onClick={() => handleUpdateQty(item.id, -1)}
-                        className="px-2 py-0.5 text-xs font-bold text-[#2A1E17] hover:bg-[#E5D9C5]"
+                        className="px-2.5 py-0.5 text-xs font-bold text-[#1C1217] hover:text-[#E87A96]"
                       >
                         -
                       </button>
                       <span className="px-2 py-0.5 text-xs font-bold">{item.quantity}</span>
                       <button
                         onClick={() => handleUpdateQty(item.id, 1)}
-                        className="px-2 py-0.5 text-xs font-bold text-[#2A1E17] hover:bg-[#E5D9C5]"
+                        className="px-2.5 py-0.5 text-xs font-bold text-[#1C1217] hover:text-[#E87A96]"
                       >
                         +
                       </button>
@@ -180,12 +177,12 @@ export const CartDrawerUpgrade: React.FC<CartDrawerUpgradeProps> = ({
                 </div>
 
                 <div className="text-right space-y-1 shrink-0">
-                  <span className="text-xs font-bold text-[#2A1E17] block">
+                  <span className="text-xs font-bold text-[#1C1217] block">
                     ₹{Math.round(item.price * item.quantity)}
                   </span>
                   <button
                     onClick={() => handleRemove(item.id)}
-                    className="text-[10px] text-[#B33A3A] font-bold hover:underline cursor-pointer"
+                    className="text-[10px] text-[#BE123C] font-bold hover:underline cursor-pointer"
                   >
                     Remove
                   </button>

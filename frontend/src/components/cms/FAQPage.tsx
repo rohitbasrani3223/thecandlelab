@@ -13,7 +13,7 @@ const FAQ_DATA: FAQItem[] = [
     id: 'faq-1',
     category: 'shipping',
     question: 'What are your delivery timelines across India?',
-    answer: 'We dispatch all order within 24 hours. Standard Metro shipping takes 2-4 business days. Regional and tier-2/3 cities deliver in 4-6 business days. Express shipping options are available at checkout.',
+    answer: 'We dispatch all orders within 24 hours. Standard Metro shipping takes 2-4 business days. Regional and tier-2/3 cities deliver in 4-6 business days. Express shipping options are available at checkout.',
   },
   {
     id: 'faq-2',
@@ -43,7 +43,7 @@ const FAQ_DATA: FAQItem[] = [
     id: 'faq-6',
     category: 'returns',
     question: 'What is your return & exchange policy?',
-    answer: 'We offer a 15-day no-questions-asked return and exchange policy for unused, unopened candles in original gold box packaging. If a jar arrives damaged during transit, we send a replacement free of charge within 24 hours.',
+    answer: 'We offer a 15-day no-questions-asked return and exchange policy for unused, unopened candles in original packaging. If a jar arrives damaged during transit, we send a replacement free of charge within 24 hours.',
   },
   {
     id: 'faq-7',
@@ -66,15 +66,16 @@ export const FAQPage: React.FC = () => {
   });
 
   return (
-    <div className="w-full bg-[#FAF6F0] min-h-screen font-sans pb-16">
+    <div className="w-full bg-[#FAF6F8] min-h-screen font-sans pb-16">
       {/* Hero Header */}
-      <section className="bg-[#3D2B1F] text-[#FAF6F0] py-16 sm:py-24 px-6 sm:px-12 text-center relative overflow-hidden">
+      <section className="bg-white text-[#1C1217] py-16 sm:py-24 px-6 sm:px-12 text-center relative overflow-hidden border-b border-[#F5E8EE]">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-[#F9B8CA]/20 rounded-full blur-3xl pointer-events-none" />
         <div className="max-w-4xl mx-auto space-y-4 relative z-10">
-          <Badge variant="gold" icon={<SparklesIcon size={12} />}>HELP CENTER & KNOWLEDGE BASE</Badge>
-          <h1 className="text-4xl sm:text-6xl font-serif font-bold text-[#FAF6F0]">
+          <Badge variant="pink" icon={<SparklesIcon size={12} />}>HELP CENTER & KNOWLEDGE BASE</Badge>
+          <h1 className="text-4xl sm:text-6xl font-serif font-bold text-[#1C1217]">
             Frequently Asked Questions
           </h1>
-          <p className="text-sm sm:text-base text-[#EFE8DB] font-light max-w-xl mx-auto leading-relaxed">
+          <p className="text-sm sm:text-base text-[#624855] font-light max-w-xl mx-auto leading-relaxed">
             Find immediate answers regarding candle maintenance, shipping timelines, payment options, and return procedures.
           </p>
 
@@ -84,7 +85,7 @@ export const FAQPage: React.FC = () => {
               placeholder="Search FAQ questions (e.g. shipping, wick, return)..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-white text-[#2C1E16]"
+              className="bg-white text-[#1C1217] border-[#F5E8EE]"
             />
           </div>
         </div>
@@ -98,17 +99,17 @@ export const FAQPage: React.FC = () => {
             { id: 'all', label: 'All Topics' },
             { id: 'shipping', label: '🚚 Shipping & Delivery' },
             { id: 'care', label: '🕯️ Candle Care' },
-            { id: 'orders', label: '💳 Payment & Orders' },
+            { id: 'orders', label: '💳 Orders & Payments' },
             { id: 'returns', label: '🔄 Returns & Exchanges' },
-            { id: 'gifting', label: '🎁 Gifting & Bulk' },
+            { id: 'gifting', label: '🎁 Bespoke Gifting' },
           ].map((cat) => (
             <button
               key={cat.id}
               onClick={() => setActiveCategory(cat.id)}
-              className={`px-4 py-2 rounded-full text-xs font-bold transition-all whitespace-nowrap cursor-pointer shadow-xs ${
+              className={`px-4 py-2 rounded-full text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
                 activeCategory === cat.id
-                  ? 'bg-[#B88B38] text-white shadow-card'
-                  : 'bg-[#F3EDE2] text-[#4A3B32] hover:bg-[#EFE8DB]'
+                  ? 'bg-[#E87A96] text-white shadow-xs'
+                  : 'bg-white text-[#624855] border border-[#F5E8EE] hover:border-[#F9B8CA]'
               }`}
             >
               {cat.label}
@@ -118,39 +119,36 @@ export const FAQPage: React.FC = () => {
 
         {/* Accordion Questions List */}
         <div className="space-y-4">
-          {filteredFaqs.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-2xl border border-[#EFE8DB] p-8 space-y-2">
-              <span className="text-3xl">🔍</span>
-              <h3 className="font-serif font-bold text-lg text-[#2C1E16]">No Questions Found</h3>
-              <p className="text-xs text-[#7A6B5D]">Try adjusting your search query or select another topic category.</p>
-            </div>
-          ) : (
-            filteredFaqs.map((faq) => {
-              const isOpen = expandedId === faq.id;
-              return (
-                <div
-                  key={faq.id}
-                  className="bg-white border border-[#EFE8DB] rounded-2xl overflow-hidden shadow-subtle transition-all"
+          {filteredFaqs.map((faq) => {
+            const isOpen = expandedId === faq.id;
+            return (
+              <div
+                key={faq.id}
+                className={`bg-white border rounded-3xl overflow-hidden transition-all shadow-xs ${
+                  isOpen ? 'border-[#E87A96] ring-2 ring-[#F9B8CA]/20' : 'border-[#F5E8EE]'
+                }`}
+              >
+                <button
+                  type="button"
+                  onClick={() => setExpandedId(isOpen ? null : faq.id)}
+                  className="w-full p-5 sm:p-6 text-left flex items-center justify-between gap-4 cursor-pointer hover:bg-[#FFF6F8] transition-colors"
                 >
-                  <button
-                    onClick={() => setExpandedId(isOpen ? null : faq.id)}
-                    className="w-full p-5 text-left font-serif font-bold text-base text-[#2C1E16] flex items-center justify-between gap-4 hover:text-[#B88B38] transition-colors cursor-pointer"
-                  >
-                    <span>{faq.question}</span>
-                    <span className="w-6 h-6 rounded-full bg-[#F8F3EA] text-[#B88B38] flex items-center justify-center text-sm font-sans shrink-0">
-                      {isOpen ? '−' : '+'}
-                    </span>
-                  </button>
+                  <h3 className="font-serif font-bold text-base text-[#1C1217]">
+                    {faq.question}
+                  </h3>
+                  <span className={`text-sm font-bold text-[#E87A96] transition-transform ${isOpen ? 'rotate-180' : ''}`}>
+                    ▼
+                  </span>
+                </button>
 
-                  {isOpen && (
-                    <div className="px-5 pb-5 pt-0 text-xs sm:text-sm text-[#7A6B5D] font-light leading-relaxed border-t border-[#F2ECE1]">
-                      <p className="pt-3">{faq.answer}</p>
-                    </div>
-                  )}
-                </div>
-              );
-            })
-          )}
+                {isOpen && (
+                  <div className="px-5 sm:px-6 pb-6 pt-2 text-xs sm:text-sm text-[#624855] leading-relaxed border-t border-[#F5E8EE] font-light">
+                    {faq.answer}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

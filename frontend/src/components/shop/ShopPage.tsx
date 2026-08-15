@@ -84,7 +84,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({ onSelectProduct }) => {
   }, [filteredProducts, currentPage, pageSize]);
 
   return (
-    <div className="w-full bg-[#FAF6F0] min-h-screen">
+    <div className="w-full bg-[#FAF6F8] min-h-screen">
       {/* 1. Shop Hero Header */}
       <ShopHeader totalProducts={activeProducts.length} />
 
@@ -100,9 +100,9 @@ export const ShopPage: React.FC<ShopPageProps> = ({ onSelectProduct }) => {
             />
           </div>
 
-          {/* Main Product Column */}
-          <div className="flex-1 space-y-6">
-            {/* Toolbar */}
+          {/* Right Product Grid Column */}
+          <div className="flex-1 space-y-6 min-w-0">
+            {/* Toolbar: Category Pills & Sort By */}
             <ShopToolbar
               filters={filters}
               onFilterChange={setFilters}
@@ -115,29 +115,29 @@ export const ShopPage: React.FC<ShopPageProps> = ({ onSelectProduct }) => {
               totalResults={filteredProducts.length}
             />
 
-            {/* Empty State */}
+            {/* Empty State vs Products */}
             {filteredProducts.length === 0 ? (
               <EmptyState
-                title="No Candles Found"
-                description="No luxury fragrances match your selected filter criteria. Try adjusting your price range or scent family."
+                title="No Formulations Match Filters"
+                description="Try loosening your filters or resetting them to explore all our artisan soy candles."
                 actionLabel="Reset All Filters"
                 onAction={handleResetFilters}
               />
             ) : viewMode === 'grid' ? (
               <ProductGrid
                 products={paginatedProducts}
-                onQuickView={setQuickViewProduct}
+                onQuickView={(p) => setQuickViewProduct(p)}
                 onSelectProduct={onSelectProduct}
                 wishlist={wishlist}
                 onToggleWishlist={toggleWishlist}
               />
             ) : (
               <div className="space-y-4">
-                {paginatedProducts.map((prod: any) => (
+                {paginatedProducts.map((prod) => (
                   <ProductListItem
                     key={prod.id}
                     product={prod}
-                    onQuickView={setQuickViewProduct}
+                    onQuickView={(p) => setQuickViewProduct(p)}
                     onSelectProduct={onSelectProduct}
                     isWishlisted={wishlist.includes(prod.id)}
                     onToggleWishlist={toggleWishlist}
@@ -146,7 +146,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({ onSelectProduct }) => {
               </div>
             )}
 
-            {/* Pagination */}
+            {/* Pagination Controls */}
             <ShopPagination
               currentPage={currentPage}
               totalPages={totalPages}
@@ -158,13 +158,13 @@ export const ShopPage: React.FC<ShopPageProps> = ({ onSelectProduct }) => {
         </div>
       </div>
 
-      {/* Mobile Filter Drawer */}
+      {/* Mobile Drawer Filter */}
       <Drawer
         isOpen={isMobileFilterOpen}
         onClose={() => setIsMobileFilterOpen(false)}
         position="left"
         size="md"
-        title="Refine Selection"
+        title="Filter Formulations"
       >
         <FilterSidebar
           filters={filters}
@@ -178,7 +178,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({ onSelectProduct }) => {
       {/* Quick View Modal */}
       <QuickViewModal
         product={quickViewProduct}
-        isOpen={quickViewProduct !== null}
+        isOpen={Boolean(quickViewProduct)}
         onClose={() => setQuickViewProduct(null)}
         isWishlisted={quickViewProduct ? wishlist.includes(quickViewProduct.id) : false}
         onToggleWishlist={toggleWishlist}

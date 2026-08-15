@@ -79,16 +79,16 @@ export const FeaturedCollection: React.FC<FeaturedCollectionProps> = ({ onSelect
   }
 
   return (
-    <section className="py-16 sm:py-24 bg-[#F5EEE4] border-b border-[#E5DAC7] font-sans">
+    <section className="py-16 sm:py-24 bg-[#FFFFFF] border-b border-[#F5E8EE] font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 space-y-12">
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto space-y-3">
-          <Badge variant="gold" icon={<SparklesIcon size={12} />}>2026 ROYAL RESERVE</Badge>
-          <h2 className="text-3xl sm:text-5xl font-serif font-bold text-[#241812]">
+          <Badge variant="pink" icon={<SparklesIcon size={12} />}>2026 ROYAL RESERVE</Badge>
+          <h2 className="text-3xl sm:text-5xl font-serif font-bold text-[#1C1217]">
             Featured Royal Collection
           </h2>
-          <p className="text-sm text-[#5E4E42] leading-relaxed">
-            Hand-poured in numbered small batches with custom-blended essential oils and 24K gold foil labeling.
+          <p className="text-sm text-[#624855] leading-relaxed">
+            Hand-poured in numbered small batches with custom-blended essential oils and pure blush rose gold labeling.
           </p>
         </div>
 
@@ -106,20 +106,20 @@ export const FeaturedCollection: React.FC<FeaturedCollectionProps> = ({ onSelect
                 variant="bordered"
                 padding="none"
                 onClick={() => handleProductClick(prod)}
-                className="bg-[#FAF7F2] group flex flex-col justify-between overflow-hidden hover:shadow-[0_16px_36px_rgba(36,24,18,0.11)] border border-[#E5DAC7] hover:border-[#C5983A] transition-all duration-300 relative cursor-pointer rounded-2xl"
+                className="bg-[#FFFFFF] group flex flex-col justify-between overflow-hidden hover:shadow-[0_16px_36px_rgba(230,106,138,0.12)] border border-[#F5E8EE] hover:border-[#F9B8CA] transition-all duration-300 relative cursor-pointer rounded-3xl"
               >
                 {/* Product Image Container */}
-                <div className="relative h-64 bg-[#F5EEE4] flex items-center justify-center overflow-hidden">
+                <div className="relative h-64 bg-[#FFF6F8] flex items-center justify-center overflow-hidden">
                   <img
                     src={prod.image || prod.imageUrl || prod.images?.[0] || 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80'}
                     alt={prod.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#180F0A]/60 via-transparent to-transparent opacity-40 group-hover:opacity-20 transition-opacity" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#140B10]/60 via-transparent to-transparent opacity-40 group-hover:opacity-20 transition-opacity" />
 
                   {/* Tag Badge */}
                   <div className="absolute top-3 left-3">
-                    <Badge variant="gold" size="sm">{prod.collection || 'Flagship'}</Badge>
+                    <Badge variant="pink" size="sm">{prod.collection || 'Flagship'}</Badge>
                   </div>
 
                   {/* Wishlist Heart */}
@@ -128,16 +128,16 @@ export const FeaturedCollection: React.FC<FeaturedCollectionProps> = ({ onSelect
                       e.stopPropagation();
                       toggleWishlist(prod.id, prod.name);
                     }}
-                    className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-colors ${isWishlisted ? 'bg-[#BA6648] text-white' : 'bg-[#180F0A]/50 text-white hover:bg-[#C5983A] hover:text-[#180F0A]'}`}
+                    className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-colors shadow-sm ${isWishlisted ? 'bg-[#E87A96] text-white' : 'bg-[#140B10]/50 text-white hover:bg-[#E87A96] hover:text-white'}`}
                     aria-label="Wishlist"
                   >
                     <HeartIcon size={16} />
                   </button>
 
                   {/* Scent Pyramid Pill Hover overlay */}
-                  <div className="absolute bottom-3 left-3 right-3 bg-[#180F0A]/90 text-[#FAF7F2] p-2.5 rounded-md text-[10px] space-y-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-xs">
-                    <div className="font-semibold text-[#DEB554] uppercase tracking-wider">Fragrance Notes:</div>
-                    <div className="truncate text-[#E5DAC7]">Top: {prod.topNotes || 'Bergamot'} • Heart: {prod.heartNotes || 'Rose'} • Base: {prod.baseNotes || 'Amber'}</div>
+                  <div className="absolute bottom-3 left-3 right-3 bg-[#140B10]/90 text-[#FFFFFF] p-2.5 rounded-xl text-[10px] space-y-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-xs border border-[#F9B8CA]/20">
+                    <div className="font-semibold text-[#F9B8CA] uppercase tracking-wider">Fragrance Notes:</div>
+                    <div className="truncate text-[#FCD5E2]">Top: {prod.topNotes || 'Bergamot'} • Heart: {prod.heartNotes || 'Rose'} • Base: {prod.baseNotes || 'Amber'}</div>
                   </div>
                 </div>
 
@@ -145,27 +145,27 @@ export const FeaturedCollection: React.FC<FeaturedCollectionProps> = ({ onSelect
                 <div className="p-5 space-y-3 flex-1 flex flex-col justify-between">
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="text-[#847262] font-medium">{prod.scentProfile || prod.category}</span>
-                      <div className="flex items-center gap-1 text-[#C5983A] font-bold">
-                        <StarIcon size={14} className="fill-current text-[#C5983A]" />
+                      <span className="text-[#886C7B] font-medium">{prod.scentProfile || prod.category}</span>
+                      <div className="flex items-center gap-1 text-[#E8C86D] font-bold">
+                        <StarIcon size={14} className="fill-current text-[#E8C86D]" />
                         <span>{prod.rating || 4.9}</span>
-                        <span className="text-[#847262] font-normal">({prod.reviewsCount || 88})</span>
+                        <span className="text-[#886C7B] font-normal">({prod.reviewsCount || 88})</span>
                       </div>
                     </div>
 
-                    <h3 className="text-base font-serif font-bold text-[#241812] group-hover:text-[#C5983A] transition-colors leading-snug">
+                    <h3 className="text-base font-serif font-bold text-[#1C1217] group-hover:text-[#E87A96] transition-colors leading-snug">
                       {prod.name}
                     </h3>
                   </div>
 
-                  <div className="pt-3 border-t border-[#E5DAC7] flex items-center justify-between">
+                  <div className="pt-3 border-t border-[#F5E8EE] flex items-center justify-between">
                     <div className="flex items-baseline gap-2">
-                      <span className="text-base font-bold text-[#241812]">{formattedPrice}</span>
-                      {origPrice && <span className="text-xs text-[#847262] line-through">{origPrice}</span>}
+                      <span className="text-base font-bold text-[#1C1217]">{formattedPrice}</span>
+                      {origPrice && <span className="text-xs text-[#886C7B] line-through">{origPrice}</span>}
                     </div>
 
                     <Button
-                      variant="gold"
+                      variant="pink"
                       size="sm"
                       onClick={(e) => handleAddToCart(prod, e)}
                     >

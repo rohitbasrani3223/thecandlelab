@@ -51,11 +51,11 @@ export const ProductListItem: React.FC<ProductListItemProps> = ({
   };
 
   return (
-    <div className="bg-[#FAF6F0] border border-[#E5D9C5] rounded-md p-5 shadow-subtle hover:shadow-card hover:border-[#D4AF37] transition-all flex flex-col sm:flex-row items-center gap-6 font-sans group">
+    <div className="bg-[#FFFFFF] border border-[#F5E8EE] rounded-3xl p-5 shadow-subtle hover:shadow-card hover:border-[#F9B8CA] transition-all flex flex-col sm:flex-row items-center gap-6 font-sans group">
       {/* Vessel Image Mock */}
       <div
         onClick={handleProductClick}
-        className="w-full sm:w-48 h-48 bg-[#2A1E17] rounded-sm flex items-center justify-center relative overflow-hidden shrink-0 cursor-pointer"
+        className="w-full sm:w-48 h-48 bg-[#FFF6F8] rounded-2xl flex items-center justify-center relative overflow-hidden shrink-0 cursor-pointer"
       >
         <img
           src={product.image || product.imageUrl || PRODUCT_IMAGE_PLACEHOLDER}
@@ -69,8 +69,8 @@ export const ProductListItem: React.FC<ProductListItemProps> = ({
         />
 
         {product.isBestSeller && (
-          <div className="absolute top-2 left-2 z-10">
-            <Badge variant="gold" size="sm" icon={<SparklesIcon size={10} />}>Best Seller</Badge>
+          <div className="absolute top-3 left-3 z-10">
+            <Badge variant="pink" size="sm" icon={<SparklesIcon size={10} />}>Best Seller</Badge>
           </div>
         )}
 
@@ -79,10 +79,10 @@ export const ProductListItem: React.FC<ProductListItemProps> = ({
             e.stopPropagation();
             onToggleWishlist(product.id, product.name);
           }}
-          className={`absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center transition-colors z-20 cursor-pointer ${
+          className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-colors z-20 cursor-pointer ${
             isWishlisted
-              ? 'bg-[#B33A3A] text-white'
-              : 'bg-[#1C130E]/60 text-white hover:bg-[#D4AF37] hover:text-[#1C130E]'
+              ? 'bg-[#BE123C] text-white'
+              : 'bg-white/80 text-[#886C7B] hover:bg-[#E87A96] hover:text-white shadow-xs'
           }`}
           aria-label="Wishlist"
         >
@@ -94,47 +94,47 @@ export const ProductListItem: React.FC<ProductListItemProps> = ({
       <div className="flex-1 space-y-3 w-full">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <Badge variant="espresso" size="sm">{product.scentProfile}</Badge>
-            <span className="text-xs text-[#8C7A6B]">• {product.category}</span>
+            <Badge variant="pink" size="sm">{product.scentProfile}</Badge>
+            <span className="text-xs text-[#886C7B]">• {product.category}</span>
           </div>
 
-          <div className="flex items-center gap-1 text-xs text-[#D4AF37] font-bold">
-            <StarIcon size={14} className="fill-current text-[#D4AF37]" />
+          <div className="flex items-center gap-1 text-xs text-[#E8C86D] font-bold">
+            <StarIcon size={14} className="fill-current text-[#E8C86D]" />
             <span>{product.rating}</span>
-            <span className="text-[#8C7A6B] font-normal">({product.reviewsCount})</span>
+            <span className="text-[#886C7B] font-normal">({product.reviewsCount})</span>
           </div>
         </div>
 
         <div>
           <h3
             onClick={handleProductClick}
-            className="text-lg font-serif font-bold text-[#2A1E17] group-hover:text-[#D4AF37] transition-colors cursor-pointer"
+            className="text-lg font-serif font-bold text-[#1C1217] group-hover:text-[#E87A96] transition-colors cursor-pointer"
           >
             {product.name}
           </h3>
-          <p className="text-xs text-[#8C7A6B] mt-0.5">{product.vesselDescription}</p>
+          <p className="text-xs text-[#886C7B] mt-0.5">{product.vesselDescription}</p>
         </div>
 
         {/* Fragrance Notes */}
-        <div className="p-2.5 bg-[#F4EFE6] rounded-xs text-xs text-[#69574A] space-y-1">
-          <div className="font-semibold text-[#2A1E17] uppercase text-[10px] tracking-wider">Aromatic Notes:</div>
+        <div className="p-3 bg-[#FFF6F8] rounded-2xl text-xs text-[#624855] space-y-1 border border-[#F5E8EE]">
+          <div className="font-semibold text-[#1C1217] uppercase text-[10px] tracking-wider">Aromatic Notes:</div>
           <div className="truncate">Top: {product.topNotes} | Heart: {product.heartNotes} | Base: {product.baseNotes}</div>
         </div>
       </div>
 
       {/* Right Column: Price & Actions */}
-      <div className="w-full sm:w-48 sm:border-l sm:border-[#E5D9C5] sm:pl-6 space-y-3 flex flex-col justify-between shrink-0 text-left sm:text-right">
+      <div className="w-full sm:w-48 sm:border-l sm:border-[#F5E8EE] sm:pl-6 space-y-3 flex flex-col justify-between shrink-0 text-left sm:text-right">
         <div>
-          <div className="text-xl font-bold text-[#2A1E17]">₹{inrPrice.toLocaleString('en-IN')}.00</div>
+          <div className="text-xl font-bold text-[#1C1217]">₹{inrPrice.toLocaleString('en-IN')}</div>
           {inrOriginal && (
-            <span className="text-xs text-[#8C7A6B] line-through">₹{inrOriginal.toLocaleString('en-IN')}.00</span>
+            <span className="text-xs text-[#886C7B] line-through">₹{inrOriginal.toLocaleString('en-IN')}</span>
           )}
-          <div className="text-[11px] text-[#D4AF37] font-semibold mt-1">Burn Duration: {product.burnTime}</div>
+          <div className="text-[11px] text-[#E87A96] font-semibold mt-1">Burn Duration: {product.burnTime}</div>
         </div>
 
         <div className="space-y-2">
           <Button
-            variant="gold"
+            variant="pink"
             size="sm"
             fullWidth
             onClick={handleProductClick}

@@ -63,32 +63,32 @@ export const LoginForm: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-full font-sans text-[#2A1E17] px-1 sm:px-0 box-border">
+    <div className="w-full max-w-full font-sans text-[#1C1217] px-1 sm:px-0 box-border">
       {/* Top Floating Badge & Icon Header */}
       <div className="flex flex-col items-center text-center mb-5 sm:mb-6">
-        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#F4EFE6] border border-[#E5D9C5] flex items-center justify-center shadow-xs mb-2.5 sm:mb-3 text-xl sm:text-2xl">
+        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#FFF6F8] border border-[#F9B8CA] flex items-center justify-center shadow-xs mb-2.5 sm:mb-3 text-xl sm:text-2xl text-[#E87A96]">
           🕯️
         </div>
-        <h2 className="font-serif text-xl sm:text-3xl font-bold tracking-tight text-[#2A1E17]">
+        <h2 className="font-serif text-xl sm:text-3xl font-bold tracking-tight text-[#1C1217]">
           Welcome Back
         </h2>
-        <p className="text-[11px] sm:text-xs text-[#8C7A6B] mt-1 max-w-xs sm:max-w-none">
+        <p className="text-[11px] sm:text-xs text-[#886C7B] mt-1 max-w-xs sm:max-w-none">
           Sign in to access your saved candles, wishlist & exclusive rewards.
         </p>
       </div>
 
       {/* Switch between Email and Phone Login */}
-      <div className="flex bg-[#F4EFE6] p-1 rounded-xl border border-[#E5D9C5] mb-4 sm:mb-5">
+      <div className="flex bg-[#FFF6F8] p-1 rounded-2xl border border-[#F5E8EE] mb-4 sm:mb-5">
         <button
           type="button"
           onClick={() => {
             setLoginType('email');
             setErrors({});
           }}
-          className={`flex-1 py-2 text-[10px] sm:text-xs font-bold uppercase tracking-wider rounded-lg transition-all cursor-pointer ${
+          className={`flex-1 py-2 text-[10px] sm:text-xs font-bold uppercase tracking-wider rounded-xl transition-all cursor-pointer ${
             loginType === 'email'
-              ? 'bg-white text-[#2A1E17] shadow-xs'
-              : 'text-[#8C7A6B] hover:text-[#2A1E17]'
+              ? 'bg-white text-[#1C1217] shadow-xs'
+              : 'text-[#886C7B] hover:text-[#1C1217]'
           }`}
         >
           Email & Password
@@ -99,91 +99,83 @@ export const LoginForm: React.FC = () => {
             setLoginType('phone');
             setErrors({});
           }}
-          className={`flex-1 py-2 text-[10px] sm:text-xs font-bold uppercase tracking-wider rounded-lg transition-all cursor-pointer ${
+          className={`flex-1 py-2 text-[10px] sm:text-xs font-bold uppercase tracking-wider rounded-xl transition-all cursor-pointer ${
             loginType === 'phone'
-              ? 'bg-white text-[#2A1E17] shadow-xs'
-              : 'text-[#8C7A6B] hover:text-[#2A1E17]'
+              ? 'bg-white text-[#1C1217] shadow-xs'
+              : 'text-[#886C7B] hover:text-[#1C1217]'
           }`}
         >
-          Phone & OTP
+          Phone OTP
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-3.5 sm:space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
         {/* Email or Phone Input */}
         <div className="space-y-1">
-          <label className="block text-xs font-semibold text-[#69574A]">
-            {loginType === 'email' ? 'Email Address' : 'Mobile Phone Number'}
+          <label className="block text-xs font-semibold text-[#624855]">
+            {loginType === 'email' ? 'Email Address' : 'Phone Number'}
           </label>
           <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs sm:text-sm text-[#8C7A6B]">
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-[#886C7B]">
               {loginType === 'email' ? '✉️' : '📱'}
             </span>
             <input
               type={loginType === 'email' ? 'email' : 'tel'}
               value={emailOrPhone}
               onChange={(e) => setEmailOrPhone(e.target.value)}
-              placeholder={loginType === 'email' ? 'admin@example.com' : '+91 98765 43210'}
-              className={`w-full bg-[#FAF6F0] border ${
-                errors.emailOrPhone ? 'border-red-500' : 'border-[#E5D9C5] focus:border-[#D4AF37]'
-              } rounded-xl pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 text-xs sm:text-sm text-[#2A1E17] placeholder-[#B0A398] focus:outline-hidden focus:ring-2 focus:ring-[#D4AF37]/20 transition-all min-h-[44px]`}
+              placeholder={loginType === 'email' ? 'client@sanctuary.com' : '+91 98765 43210'}
+              className={`w-full bg-[#FFFFFF] border ${
+                errors.emailOrPhone ? 'border-red-500' : 'border-[#F5E8EE] focus:border-[#E87A96]'
+              } rounded-2xl pl-10 pr-4 py-3 text-xs text-[#1C1217] placeholder-[#AC94A1] focus:outline-none focus:ring-2 focus:ring-[#F9B8CA]/30 transition-all`}
             />
           </div>
-          {errors.emailOrPhone && (
-            <p className="text-[11px] text-red-500 font-medium">{errors.emailOrPhone}</p>
-          )}
+          {errors.emailOrPhone && <p className="text-[11px] text-red-500 font-medium">{errors.emailOrPhone}</p>}
         </div>
 
-        {/* Password Input (Email mode) */}
+        {/* Password (if email mode) */}
         {loginType === 'email' && (
           <div className="space-y-1">
             <div className="flex items-center justify-between">
-              <label className="block text-xs font-semibold text-[#69574A]">
-                Password
-              </label>
+              <label className="block text-xs font-semibold text-[#624855]">Password</label>
               <button
                 type="button"
                 onClick={() => setAuthViewMode('forgot-password')}
-                className="text-[11px] font-semibold text-[#B88B38] hover:text-[#2A1E17] transition-colors p-0.5 cursor-pointer"
+                className="text-[11px] font-semibold text-[#E87A96] hover:underline cursor-pointer"
               >
-                Forgot password?
+                Forgot?
               </button>
             </div>
             <div className="relative">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs sm:text-sm text-[#8C7A6B]">
-                🔒
-              </span>
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-[#886C7B]">🔒</span>
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-                className={`w-full bg-[#FAF6F0] border ${
-                  errors.password ? 'border-red-500' : 'border-[#E5D9C5] focus:border-[#D4AF37]'
-                } rounded-xl pl-9 sm:pl-10 pr-10 py-2.5 sm:py-3 text-xs sm:text-sm text-[#2A1E17] placeholder-[#B0A398] focus:outline-hidden focus:ring-2 focus:ring-[#D4AF37]/20 transition-all min-h-[44px]`}
+                placeholder="••••••••••••"
+                className={`w-full bg-[#FFFFFF] border ${
+                  errors.password ? 'border-red-500' : 'border-[#F5E8EE] focus:border-[#E87A96]'
+                } rounded-2xl pl-10 pr-10 py-3 text-xs text-[#1C1217] placeholder-[#AC94A1] focus:outline-none focus:ring-2 focus:ring-[#F9B8CA]/30 transition-all`}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8C7A6B] hover:text-[#2A1E17] p-1 text-xs cursor-pointer"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-[#886C7B] hover:text-[#1C1217] cursor-pointer"
               >
-                {showPassword ? '🙈' : '👁️'}
+                {showPassword ? 'Hide' : 'Show'}
               </button>
             </div>
-            {errors.password && (
-              <p className="text-[11px] text-red-500 font-medium">{errors.password}</p>
-            )}
+            {errors.password && <p className="text-[11px] text-red-500 font-medium">{errors.password}</p>}
           </div>
         )}
 
-        {/* Remember Me Checkbox */}
-        <div className="flex items-center justify-between pt-0.5">
-          <label className="flex items-center gap-2 text-xs text-[#69574A] cursor-pointer">
+        {/* Remember Me */}
+        <div className="flex items-center justify-between pt-1">
+          <label className="flex items-center gap-2 cursor-pointer text-xs text-[#624855]">
             <input
               type="checkbox"
               checked={rememberMe}
               onChange={(e) => setRememberMe(e.target.checked)}
-              className="rounded-md border-[#E5D9C5] text-[#D4AF37] focus:ring-[#D4AF37]"
+              className="rounded text-[#E87A96]"
             />
             <span>Remember this device</span>
           </label>
@@ -193,30 +185,31 @@ export const LoginForm: React.FC = () => {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-[#2A1E17] hover:bg-[#1C130E] active:scale-[0.98] text-white font-semibold py-3.5 px-6 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-2 min-h-[46px]"
+          className="w-full bg-[#E87A96] hover:bg-[#D45D7D] text-white font-bold py-3 px-4 rounded-full text-xs uppercase tracking-wider shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
         >
           {isSubmitting ? (
-            <span className="text-xs uppercase tracking-wider">Signing In...</span>
+            <span className="inline-block animate-spin">⏳</span>
+          ) : loginType === 'email' ? (
+            'Sign In to Account'
           ) : (
-            <span className="text-xs sm:text-sm font-bold">Sign In</span>
+            'Send Login OTP →'
           )}
         </button>
       </form>
 
-      {/* Google, Apple & Meta Social Sign-In Buttons */}
-      <SocialLoginButtons labelPrefix="or sign in with" />
+      {/* Social Login Alternatives */}
+      <SocialLoginButtons labelPrefix="or continue with" />
 
-      {/* Account Signup Box */}
-      <div className="bg-[#F4EFE6] border border-[#E5D9C5] rounded-xl p-3.5 sm:p-4 text-center mt-4 sm:mt-5">
-        <p className="text-xs text-[#69574A]">
-          First time here?{' '}
-          <button
-            onClick={() => setAuthViewMode('register')}
-            className="font-bold text-[#2A1E17] hover:underline underline-offset-4 cursor-pointer p-0.5"
-          >
-            Create an Account
-          </button>
-        </p>
+      {/* Sign Up Redirect Switch */}
+      <div className="mt-6 text-center text-xs text-[#886C7B]">
+        Don't have a sanctuary account yet?{' '}
+        <button
+          type="button"
+          onClick={() => setAuthViewMode('register')}
+          className="font-bold text-[#E87A96] hover:underline ml-1 cursor-pointer"
+        >
+          Create One
+        </button>
       </div>
     </div>
   );

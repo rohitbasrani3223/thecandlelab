@@ -31,15 +31,16 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigateToFAQ }) => 
   };
 
   return (
-    <div className="w-full bg-[#FAF6F0] min-h-screen font-sans pb-16">
+    <div className="w-full bg-[#FAF6F8] min-h-screen font-sans pb-16">
       {/* Hero Header */}
-      <section className="bg-[#3D2B1F] text-[#FAF6F0] py-16 sm:py-24 px-6 sm:px-12 text-center relative overflow-hidden">
+      <section className="bg-white text-[#1C1217] py-16 sm:py-24 px-6 sm:px-12 text-center relative overflow-hidden border-b border-[#F5E8EE]">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-[#F9B8CA]/20 rounded-full blur-3xl pointer-events-none" />
         <div className="max-w-4xl mx-auto space-y-3 relative z-10">
-          <Badge variant="gold" icon={<SparklesIcon size={12} />}>CONCIERGE & SUPPORT STUDIO</Badge>
-          <h1 className="text-4xl sm:text-6xl font-serif font-bold text-[#FAF6F0]">
+          <Badge variant="pink" icon={<SparklesIcon size={12} />}>CONCIERGE & SUPPORT STUDIO</Badge>
+          <h1 className="text-4xl sm:text-6xl font-serif font-bold text-[#1C1217]">
             We'd Love to Hear From You
           </h1>
-          <p className="text-sm sm:text-base text-[#EFE8DB] font-light max-w-xl mx-auto leading-relaxed">
+          <p className="text-sm sm:text-base text-[#624855] font-light max-w-xl mx-auto leading-relaxed">
             Have questions about custom orders, corporate gifting, order tracking, or candle care? Our atelier support team is at your service.
           </p>
         </div>
@@ -49,16 +50,16 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigateToFAQ }) => 
       <div className="max-w-7xl mx-auto px-6 sm:px-12 py-12 sm:py-16">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
           {/* Left Column: Interactive Contact Form */}
-          <div className="lg:col-span-7 bg-white border border-[#EFE8DB] rounded-2xl p-8 sm:p-10 shadow-subtle space-y-6">
+          <div className="lg:col-span-7 bg-white border border-[#F5E8EE] rounded-3xl p-8 sm:p-10 shadow-card space-y-6">
             <div className="space-y-1">
-              <h2 className="text-2xl font-serif font-bold text-[#2C1E16]">Send Us a Direct Message</h2>
-              <p className="text-xs text-[#7A6B5D]">Fill in your details below and our team will get back to you shortly.</p>
+              <h2 className="text-2xl font-serif font-bold text-[#1C1217]">Send Us a Direct Message</h2>
+              <p className="text-xs text-[#886C7B]">Fill in your details below and our team will get back to you shortly.</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-[#2C1E16] uppercase">Full Name *</label>
+                  <label className="text-xs font-bold text-[#1C1217] uppercase">Full Name *</label>
                   <Input
                     type="text"
                     required
@@ -68,7 +69,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigateToFAQ }) => 
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-[#2C1E16] uppercase">Email Address *</label>
+                  <label className="text-xs font-bold text-[#1C1217] uppercase">Email Address *</label>
                   <Input
                     type="email"
                     required
@@ -81,7 +82,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigateToFAQ }) => 
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-[#2C1E16] uppercase">Order Reference (Optional)</label>
+                  <label className="text-xs font-bold text-[#1C1217] uppercase">Order Reference (Optional)</label>
                   <Input
                     type="text"
                     placeholder="e.g. TCL-98241"
@@ -90,90 +91,94 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onNavigateToFAQ }) => 
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-[#2C1E16] uppercase">Subject</label>
+                  <label className="text-xs font-bold text-[#1C1217] uppercase">Subject</label>
                   <select
                     value={formData.subject}
                     onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                    className="w-full bg-[#F8F3EA] border border-[#EFE8DB] text-[#2C1E16] text-xs font-semibold rounded-lg p-2.5 focus:outline-none focus:ring-1 focus:ring-[#B88B38]"
+                    className="w-full bg-[#FFF6F8] border border-[#F5E8EE] text-[#1C1217] text-xs font-semibold rounded-2xl p-3 focus:outline-none focus:ring-1 focus:ring-[#E87A96]"
                   >
                     <option value="General Inquiry">General Inquiry</option>
                     <option value="Order Status">Order Tracking & Status</option>
-                    <option value="Corporate Gifting">Corporate Gifting & Bulk Orders</option>
-                    <option value="Returns & Exchanges">Returns & Exchanges</option>
-                    <option value="Press & PR">Press & Partnerships</option>
+                    <option value="Custom Candle Gifting">Custom & Corporate Gifting</option>
+                    <option value="Wholesale Inquiries">Wholesale & Stockist Requests</option>
+                    <option value="Press & Collaborations">Press & Brand Collaborations</option>
                   </select>
                 </div>
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-bold text-[#2C1E16] uppercase">Message *</label>
+                <label className="text-xs font-bold text-[#1C1217] uppercase">Detailed Message *</label>
                 <textarea
-                  rows={5}
                   required
-                  placeholder="Describe your inquiry in detail..."
+                  rows={5}
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  className="w-full bg-[#F8F3EA] border border-[#EFE8DB] text-[#2C1E16] text-xs p-3 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#B88B38] font-sans"
+                  placeholder="How can our candle artisans assist you today?"
+                  className="w-full bg-[#FFF6F8] border border-[#F5E8EE] rounded-2xl p-4 text-xs text-[#1C1217] outline-none focus:border-[#E87A96]"
                 />
               </div>
 
               <Button
-                variant="gold"
+                variant="pink"
                 size="lg"
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-[#B88B38] hover:bg-[#A3792E] text-white font-bold"
               >
-                {isSubmitting ? 'Transmitting...' : 'Send Message →'}
+                {isSubmitting ? 'Transmitting...' : 'Send Message to Concierge →'}
               </Button>
             </form>
           </div>
 
-          {/* Right Column: Studio Information */}
+          {/* Right Column: Contact Cards & Studio Coordinates */}
           <div className="lg:col-span-5 space-y-6">
-            <div className="bg-[#3D2B1F] text-[#FAF6F0] rounded-2xl p-8 shadow-card border border-[#523A2B] space-y-6">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-[#B88B38]">FLAGSHIP ATELIER</span>
-              <h3 className="text-2xl font-serif font-bold text-[#FAF6F0]">The Candle Lab Studio</h3>
+            <div className="bg-white border border-[#F5E8EE] rounded-3xl p-6 sm:p-8 space-y-4 shadow-card">
+              <h3 className="font-serif font-bold text-lg text-[#1C1217]">
+                Concierge Coordinates
+              </h3>
 
-              <div className="space-y-4 text-xs text-[#EFE8DB]">
-                <div className="flex items-start gap-3">
-                  <span className="text-lg">📍</span>
+              <div className="space-y-3 text-xs text-[#624855]">
+                <div className="flex items-start gap-3 p-3 bg-[#FFF6F8] rounded-2xl border border-[#F5E8EE]">
+                  <span className="text-xl">📍</span>
                   <div>
-                    <strong className="block text-[#FAF6F0]">Address:</strong>
-                    <span>Plot 42, Signature Atelier Towers, Lower Parel, Mumbai, Maharashtra 400013</span>
+                    <strong className="text-[#1C1217] block">Main Fragrance Studio & Atelier:</strong>
+                    <p>Building 4B, Mehrauli Heritage Quarter, New Delhi, 110030, India</p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3">
-                  <span className="text-lg">✉️</span>
+                <div className="flex items-start gap-3 p-3 bg-[#FFF6F8] rounded-2xl border border-[#F5E8EE]">
+                  <span className="text-xl">✉️</span>
                   <div>
-                    <strong className="block text-[#FAF6F0]">Email Support:</strong>
-                    <a href="mailto:support@thecandlelab.in" className="text-[#B88B38] hover:underline">support@thecandlelab.in</a>
+                    <strong className="text-[#1C1217] block">Direct Email Concierge:</strong>
+                    <p>support@thecandlelab.in</p>
+                    <p className="text-[10px] text-[#886C7B]">Average response time: &lt; 4 hours</p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3">
-                  <span className="text-lg">📞</span>
+                <div className="flex items-start gap-3 p-3 bg-[#FFF6F8] rounded-2xl border border-[#F5E8EE]">
+                  <span className="text-xl">📞</span>
                   <div>
-                    <strong className="block text-[#FAF6F0]">Phone Concierge:</strong>
-                    <span>+91 (022) 4982-1090 (Mon - Sat, 10 AM - 7 PM IST)</span>
+                    <strong className="text-[#1C1217] block">WhatsApp & Phone Support:</strong>
+                    <p>+91 (011) 4982-1000</p>
+                    <p className="text-[10px] text-[#886C7B]">Mon - Sat: 9:00 AM – 7:00 PM IST</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* FAQ Shortcut Box */}
-            <div className="bg-white border border-[#EFE8DB] rounded-2xl p-6 shadow-subtle space-y-3">
-              <h4 className="font-serif font-bold text-base text-[#2C1E16]">Looking for Instant Answers?</h4>
-              <p className="text-xs text-[#7A6B5D]">Check our comprehensive FAQ section for quick info on delivery timelines, wick trimming, and return policies.</p>
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full border-[#B88B38] text-[#B88B38] hover:bg-[#B88B38] hover:text-white"
-                onClick={onNavigateToFAQ}
-              >
-                Visit Help Center & FAQ →
-              </Button>
+            {/* Quick FAQ Link Card */}
+            <div className="bg-[#FFF6F8] border border-[#F9B8CA] rounded-3xl p-6 text-center space-y-3">
+              <span className="text-2xl">💡</span>
+              <h4 className="font-serif font-bold text-base text-[#1C1217]">
+                Looking for Instant Answers?
+              </h4>
+              <p className="text-xs text-[#624855] leading-relaxed">
+                Check our Knowledge Base for quick solutions regarding shipping timelines, returns, and organic wick trimming.
+              </p>
+              {onNavigateToFAQ && (
+                <Button variant="pink" size="sm" onClick={onNavigateToFAQ}>
+                  Visit Help Center & FAQ →
+                </Button>
+              )}
             </div>
           </div>
         </div>

@@ -19,15 +19,15 @@ export const WishlistHeader: React.FC<WishlistHeaderProps> = ({ itemCount, onMov
   };
 
   return (
-    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-[#E5D9C5] pb-6 font-sans">
+    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-[#F5E8EE] pb-6 font-sans">
       <div className="space-y-2">
         <div className="flex items-center gap-3">
-          <Badge variant="gold" icon={<SparklesIcon size={12} />}>PERSONAL SANCTUARY</Badge>
-          <span className="text-xs font-semibold text-[#8C7A6B]">
+          <Badge variant="pink" icon={<SparklesIcon size={12} />}>PERSONAL SANCTUARY</Badge>
+          <span className="text-xs font-semibold text-[#886C7B]">
             {itemCount} {itemCount === 1 ? 'Formulation' : 'Formulations'} Saved
           </span>
         </div>
-        <h1 className="text-3xl sm:text-5xl font-serif font-bold text-[#2A1E17]">
+        <h1 className="text-3xl sm:text-5xl font-serif font-bold text-[#1C1217]">
           My Saved Wishlist
         </h1>
       </div>
@@ -44,7 +44,7 @@ export const WishlistHeader: React.FC<WishlistHeaderProps> = ({ itemCount, onMov
           </Button>
 
           <Button
-            variant="gold"
+            variant="pink"
             size="md"
             onClick={onMoveAllToCart}
             className="flex-1 sm:flex-initial"

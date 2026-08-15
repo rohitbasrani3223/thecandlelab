@@ -58,7 +58,7 @@ export const CollectionsPage: React.FC<CollectionsPageProps> = ({
   }, [products, currentCollection, sortBy]);
 
   return (
-    <div className="min-h-screen bg-[#140D09] text-[#FDFBF7] py-10 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#FAF6F8] text-[#1C1217] py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto space-y-10">
         {/* Collections Tab Bar */}
         <div className="w-full max-w-full min-w-0 flex items-center gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-none touch-pan-x -mx-4 px-4 sm:mx-0 sm:px-0">
@@ -69,10 +69,10 @@ export const CollectionsPage: React.FC<CollectionsPageProps> = ({
                 key={col.id}
                 type="button"
                 onClick={() => setSelectedColId(col.id)}
-                className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl border text-xs font-medium whitespace-nowrap shrink-0 transition-all cursor-pointer ${
+                className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 rounded-full border text-xs font-medium whitespace-nowrap shrink-0 transition-all cursor-pointer ${
                   isSelected
-                    ? 'bg-amber-600 border-amber-500 text-stone-950 font-semibold shadow-lg scale-105'
-                    : 'bg-[#1C130E] border-[#2C2018] text-stone-300 hover:border-stone-600'
+                    ? 'bg-[#E87A96] border-[#E87A96] text-white font-semibold shadow-xs scale-105'
+                    : 'bg-white border-[#F5E8EE] text-[#624855] hover:border-[#F9B8CA]'
                 }`}
               >
                 <span className="text-base">{col.icon || '✨'}</span>
@@ -84,22 +84,23 @@ export const CollectionsPage: React.FC<CollectionsPageProps> = ({
 
         {/* Collection Hero */}
         {currentCollection && (
-          <div className="relative rounded-3xl overflow-hidden border border-[#2C2018] bg-[#1C130E] p-8 lg:p-14">
+          <div className="relative rounded-3xl overflow-hidden border border-[#F5E8EE] bg-white p-8 lg:p-14 shadow-card">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-[#F9B8CA]/15 rounded-full blur-3xl pointer-events-none" />
             <div className="relative z-10 max-w-2xl space-y-4">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-mono uppercase px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                <span className="text-xs font-mono uppercase px-3 py-1 rounded-full bg-[#FFF6F8] text-[#E87A96] border border-[#F9B8CA] font-bold">
                   {currentCollection.badge || 'CURATED COLLECTION'}
                 </span>
-                <span className="text-xs font-mono text-stone-400">
+                <span className="text-xs font-mono text-[#886C7B]">
                   {collectionProducts.length} Items
                 </span>
               </div>
 
-              <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-medium text-[#FDFBF7]">
+              <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#1C1217]">
                 {currentCollection.name}
               </h1>
 
-              <p className="text-sm text-stone-300 leading-relaxed font-light">
+              <p className="text-sm text-[#624855] leading-relaxed font-light">
                 {currentCollection.description || currentCollection.desc || 'Explore our bespoke thematic collection.'}
               </p>
             </div>
@@ -108,7 +109,7 @@ export const CollectionsPage: React.FC<CollectionsPageProps> = ({
               <img
                 src={currentCollection.bannerImage}
                 alt={currentCollection.name}
-                className="absolute right-0 top-0 w-full md:w-3/5 h-full object-cover opacity-20 md:opacity-40"
+                className="absolute right-0 top-0 w-full md:w-3/5 h-full object-cover opacity-15 md:opacity-25"
               />
             )}
           </div>
@@ -116,16 +117,16 @@ export const CollectionsPage: React.FC<CollectionsPageProps> = ({
 
         {/* Collection Product Grid */}
         <div className="space-y-6">
-          <div className="flex items-center justify-between gap-4 bg-[#1C130E] p-4 rounded-xl border border-[#2C2018]">
-            <span className="text-xs font-mono text-stone-400">
+          <div className="flex items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-[#F5E8EE] shadow-xs">
+            <span className="text-xs font-mono text-[#886C7B]">
               Curated Selection ({collectionProducts.length} Products)
             </span>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-stone-400">Sort by:</span>
+              <span className="text-xs text-[#886C7B]">Sort by:</span>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="bg-[#140D09] border border-[#2C2018] rounded-lg px-3 py-1.5 text-xs text-[#FDFBF7]"
+                className="bg-[#FFF6F8] border border-[#F5E8EE] rounded-xl px-3 py-1.5 text-xs text-[#1C1217] outline-none"
               >
                 <option value="featured">Featured First</option>
                 <option value="price_asc">Price: Low to High</option>
@@ -146,10 +147,10 @@ export const CollectionsPage: React.FC<CollectionsPageProps> = ({
               ))}
             </div>
           ) : (
-            <div className="p-12 text-center bg-[#1C130E] rounded-2xl border border-[#2C2018] space-y-2">
+            <div className="p-12 text-center bg-white rounded-3xl border border-[#F5E8EE] space-y-2 shadow-xs">
               <p className="text-2xl">✨</p>
-              <p className="font-serif text-base text-[#FDFBF7]">No products assigned to this collection yet.</p>
-              <p className="text-xs text-stone-400">Assign products from the Admin Collections Manager.</p>
+              <p className="font-serif text-base text-[#1C1217]">No products assigned to this collection yet.</p>
+              <p className="text-xs text-[#886C7B]">Assign products from the Admin Collections Manager.</p>
             </div>
           )}
         </div>

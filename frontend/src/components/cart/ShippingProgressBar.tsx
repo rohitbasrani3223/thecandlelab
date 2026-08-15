@@ -7,33 +7,33 @@ export interface ShippingProgressBarProps {
 
 export const ShippingProgressBar: React.FC<ShippingProgressBarProps> = ({
   currentSubtotal,
-  threshold = 150.0,
+  threshold = 1499.0,
 }) => {
   const remaining = Math.max(0, threshold - currentSubtotal);
   const percentage = Math.min(100, (currentSubtotal / threshold) * 100);
   const isUnlocked = remaining === 0;
 
   return (
-    <div className="bg-[#FAF6F0] border border-[#E5D9C5] p-4 rounded-md space-y-2.5 font-sans">
+    <div className="bg-[#FFFFFF] border border-[#F5E8EE] p-4 rounded-2xl space-y-2.5 font-sans shadow-xs">
       <div className="flex items-center justify-between text-xs font-semibold">
-        <span className="text-[#d3d3d3]">
+        <span className="text-[#1C1217]">
           {isUnlocked ? (
-            <strong className="text-[#2E6F40] flex items-center gap-1.5">
-              <span>🎉</span> Congratulations! You unlocked FREE Gold Express Shipping
+            <strong className="text-[#15803D] flex items-center gap-1.5">
+              <span>🎉</span> Congratulations! You unlocked FREE Atelier Express Shipping
             </strong>
           ) : (
             <span>
-              Add <strong className="text-[#9b9890]">${remaining.toFixed(2)}</strong> more to unlock <strong className="text-[#2A1E17]">Free Gold Express Shipping</strong>
+              Add <strong className="text-[#E87A96]">₹{remaining.toFixed(0)}</strong> more to unlock <strong className="text-[#1C1217]">Free Atelier Express Shipping</strong>
             </span>
           )}
         </span>
-        <span className="text-[11px] font-bold text-[#8C7A6B]">{percentage.toFixed(0)}%</span>
+        <span className="text-[11px] font-bold text-[#886C7B]">{percentage.toFixed(0)}%</span>
       </div>
 
       {/* Progress Bar Track */}
-      <div className="w-full h-2.5 bg-[#E5D9C5] rounded-full overflow-hidden relative shadow-inner">
+      <div className="w-full h-2.5 bg-[#FFF6F8] rounded-full overflow-hidden relative border border-[#F5E8EE]">
         <div
-          className={`h-full transition-all duration-500 rounded-full ${isUnlocked ? 'bg-[#2E6F40]' : 'bg-gradient-to-r from-[#D4AF37] to-[#E6CA65] shadow-[0_0_8px_rgba(212,175,55,0.6)]'}`}
+          className={`h-full transition-all duration-500 rounded-full ${isUnlocked ? 'bg-[#15803D]' : 'bg-gradient-to-r from-[#F9B8CA] via-[#E87A96] to-[#D45D7D] shadow-[0_0_10px_rgba(249,184,202,0.6)]'}`}
           style={{ width: `${percentage}%` }}
         />
       </div>

@@ -11,26 +11,26 @@ export const RecentlyViewedSection: React.FC = () => {
   const { toast } = useToast();
 
   return (
-    <div className="space-y-4 pt-8 border-t border-[#E5D9C5] font-sans">
-      <h3 className="font-serif font-bold text-lg text-[#2A1E17]">
+    <div className="space-y-4 pt-8 border-t border-[#F5E8EE] font-sans">
+      <h3 className="font-serif font-bold text-lg text-[#1C1217]">
         Recently Viewed Formulations
       </h3>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {recentItems.map((item) => (
-          <Card key={item.id} variant="bordered" padding="md" className="bg-[#FAF6F0] space-y-2">
+          <Card key={item.id} variant="bordered" padding="md" className="bg-[#FFFFFF] border-[#F5E8EE] rounded-2xl space-y-2 shadow-xs">
             <div className="flex items-center justify-between text-xs">
-              <div className="flex items-center gap-1 text-[#D4AF37] font-bold">
-                <StarIcon size={12} className="fill-current text-[#D4AF37]" />
+              <div className="flex items-center gap-1 text-[#E8C86D] font-bold">
+                <StarIcon size={12} className="fill-current text-[#E8C86D]" />
                 <span>{item.rating}</span>
               </div>
-              <span className="font-bold text-[#2A1E17]">{item.price}</span>
+              <span className="font-bold text-[#1C1217]">{item.price}</span>
             </div>
 
-            <h5 className="font-serif font-bold text-xs text-[#2A1E17] truncate">{item.name}</h5>
+            <h5 className="font-serif font-bold text-xs text-[#1C1217] truncate">{item.name}</h5>
 
             <Button
-              variant="gold"
+              variant="pink"
               size="sm"
               fullWidth
               onClick={() => toast({ type: 'luxury', title: 'Added to Bag', description: item.name })}

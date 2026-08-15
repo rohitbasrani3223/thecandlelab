@@ -3,7 +3,6 @@ import type { AddressData } from './AddressFormStep';
 import type { ShippingOption } from './ShippingMethodStep';
 import type { PaymentData } from './PaymentMethodStep';
 
-
 export interface OrderReviewStepProps {
   addressData: AddressData;
   shippingOption: ShippingOption;
@@ -30,10 +29,10 @@ export const OrderReviewStep: React.FC<OrderReviewStepProps> = ({
 
   return (
     <div className="space-y-6 font-sans">
-      <div className="flex items-center justify-between border-b border-[#E5D9C5] pb-4">
+      <div className="flex items-center justify-between border-b border-[#F5E8EE] pb-4">
         <div>
-          <Badge variant="gold" icon={<SparklesIcon size={12} />}>STEP 4 OF 4</Badge>
-          <h2 className="text-2xl font-serif font-bold text-[#2A1E17] mt-1">
+          <Badge variant="pink" icon={<SparklesIcon size={12} />}>STEP 4 OF 4</Badge>
+          <h2 className="text-2xl font-serif font-bold text-[#1C1217] mt-1">
             Final Order Review & Place Order
           </h2>
         </div>
@@ -42,55 +41,55 @@ export const OrderReviewStep: React.FC<OrderReviewStepProps> = ({
       {/* Recap Boxes */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Shipping Address Recap */}
-        <div className="p-4 bg-[#FAF6F0] border border-[#E5D9C5] rounded-md space-y-1 text-xs">
-          <span className="font-bold text-[#D4AF37] uppercase tracking-wider block">Deliver To:</span>
-          <strong className="text-[#2A1E17] block">{addressData.firstName} {addressData.lastName}</strong>
-          <p className="text-[#69574A]">{addressData.street}, {addressData.city}, {addressData.state} {addressData.zip}</p>
-          <span className="text-[#8C7A6B]">{addressData.email}</span>
+        <div className="p-4 bg-[#FFFFFF] border border-[#F5E8EE] rounded-2xl space-y-1 text-xs shadow-xs">
+          <span className="font-bold text-[#E87A96] uppercase tracking-wider block">Deliver To:</span>
+          <strong className="text-[#1C1217] block">{addressData.firstName} {addressData.lastName}</strong>
+          <p className="text-[#624855]">{addressData.street}, {addressData.city}, {addressData.state} {addressData.zip}</p>
+          <span className="text-[#886C7B]">{addressData.email}</span>
         </div>
 
         {/* Shipping Method Recap */}
-        <div className="p-4 bg-[#FAF6F0] border border-[#E5D9C5] rounded-md space-y-1 text-xs">
-          <span className="font-bold text-[#D4AF37] uppercase tracking-wider block">Delivery Method:</span>
-          <strong className="text-[#2A1E17] block">{shippingOption.name}</strong>
-          <span className="text-[#2E6F40] font-semibold block">{shippingOption.timeframe}</span>
-          <span className="text-[#8C7A6B]">{shippingOption.price === 0 ? 'FREE (Complimentary)' : `₹${shippingOption.price}`}</span>
+        <div className="p-4 bg-[#FFFFFF] border border-[#F5E8EE] rounded-2xl space-y-1 text-xs shadow-xs">
+          <span className="font-bold text-[#E87A96] uppercase tracking-wider block">Delivery Method:</span>
+          <strong className="text-[#1C1217] block">{shippingOption.name}</strong>
+          <span className="text-[#15803D] font-semibold block">{shippingOption.timeframe}</span>
+          <span className="text-[#886C7B]">{shippingOption.price === 0 ? 'FREE (Complimentary)' : `₹${shippingOption.price}`}</span>
         </div>
 
         {/* Payment Method Recap */}
-        <div className="p-4 bg-[#FAF6F0] border border-[#E5D9C5] rounded-md space-y-1 text-xs">
-          <span className="font-bold text-[#D4AF37] uppercase tracking-wider block">Payment Option:</span>
-          <strong className="text-[#2A1E17] block">
+        <div className="p-4 bg-[#FFFFFF] border border-[#F5E8EE] rounded-2xl space-y-1 text-xs shadow-xs">
+          <span className="font-bold text-[#E87A96] uppercase tracking-wider block">Payment Option:</span>
+          <strong className="text-[#1C1217] block">
             {paymentData.method === 'cod'
               ? 'Cash on Delivery (Pay at Doorstep)'
               : paymentData.method === 'upi'
               ? 'UPI Instant (GPay / PhonePe / Paytm)'
               : 'Razorpay Online (UPI, Cards, NetBanking)'}
           </strong>
-          <span className="text-[#2E6F40] font-semibold block">
+          <span className="text-[#15803D] font-semibold block">
             {paymentData.method === 'cod' ? '✓ Pay Cash / UPI on Delivery' : '✓ Verified & Encrypted Gateway'}
           </span>
         </div>
       </div>
 
       {/* Item Summary Box */}
-      <div className="p-5 bg-[#F4EFE6] border border-[#E5D9C5] rounded-md space-y-3">
-        <h4 className="font-serif font-bold text-sm text-[#2A1E17]">
+      <div className="p-5 bg-[#FFF6F8] border border-[#F5E8EE] rounded-3xl space-y-3">
+        <h4 className="font-serif font-bold text-sm text-[#1C1217]">
           Order Items Summary ({cartItems.reduce((sum, i) => sum + (i.quantity || 1), 0)} Items)
         </h4>
 
         <div className="space-y-2 text-xs">
           {cartItems.length === 0 ? (
-            <p className="text-[#8C7A6B] italic">Your cart is empty.</p>
+            <p className="text-[#886C7B] italic">Your cart is empty.</p>
           ) : (
             cartItems.map((item, idx) => {
               const variantLabel = [item.fragrance, item.size].filter(Boolean).join(' • ');
               return (
                 <div key={item.id || idx} className="flex items-center justify-between">
-                  <span className="text-[#2A1E17] font-medium">
+                  <span className="text-[#1C1217] font-medium">
                     {item.quantity || 1}x {item.name}{variantLabel ? ` (${variantLabel})` : ''}
                   </span>
-                  <span className="font-bold text-[#2A1E17]">
+                  <span className="font-bold text-[#1C1217]">
                     ₹{Math.round((item.price || 0) * (item.quantity || 1)).toLocaleString('en-IN')}
                   </span>
                 </div>
@@ -99,24 +98,24 @@ export const OrderReviewStep: React.FC<OrderReviewStepProps> = ({
           )}
         </div>
 
-        <div className="pt-3 border-t border-[#E5D9C5] space-y-1 text-xs">
-          <div className="flex justify-between text-[#8C7A6B]">
+        <div className="pt-3 border-t border-[#F5E8EE] space-y-1 text-xs">
+          <div className="flex justify-between text-[#886C7B]">
             <span>Subtotal</span>
             <span>₹{subtotal.toLocaleString('en-IN')}</span>
           </div>
           {discountAmount > 0 && (
-            <div className="flex justify-between text-[#2E6F40] font-semibold">
-              <span>Promo Savings (LUXURY10)</span>
+            <div className="flex justify-between text-[#15803D] font-semibold">
+              <span>Promo Savings</span>
               <span>-₹{discountAmount.toLocaleString('en-IN')}</span>
             </div>
           )}
-          <div className="flex justify-between text-[#8C7A6B]">
+          <div className="flex justify-between text-[#886C7B]">
             <span>Shipping / Delivery</span>
             <span>{shippingOption.price === 0 ? 'FREE' : `₹${shippingOption.price}`}</span>
           </div>
-          <div className="flex justify-between text-base font-bold text-[#2A1E17] pt-2 border-t border-[#E5D9C5]">
+          <div className="flex justify-between text-base font-bold text-[#1C1217] pt-2 border-t border-[#F5E8EE]">
             <span>Grand Total</span>
-            <span className="text-xl font-serif text-[#D4AF37]">₹{grandTotal.toLocaleString('en-IN')}</span>
+            <span className="text-xl font-serif text-[#E87A96]">₹{grandTotal.toLocaleString('en-IN')}</span>
           </div>
         </div>
       </div>
@@ -127,7 +126,7 @@ export const OrderReviewStep: React.FC<OrderReviewStepProps> = ({
         </Button>
         <Button
           type="button"
-          variant="gold"
+          variant="pink"
           size="lg"
           fullWidth
           onClick={() => {

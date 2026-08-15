@@ -30,7 +30,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(({
       {label && (
         <label
           htmlFor={selectId}
-          className="text-xs font-semibold uppercase tracking-wider text-[#4A3B32]"
+          className="text-xs font-semibold uppercase tracking-wider text-[#624855]"
         >
           {label}
         </label>
@@ -39,7 +39,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(({
         <select
           ref={ref}
           id={selectId}
-          className={`w-full appearance-none bg-[#FAF6F0] text-[#2A1E17] text-sm pl-4 pr-10 py-2.5 rounded-sm border outline-none cursor-pointer transition-all duration-200 ${error ? 'border-[#B33A3A]' : 'border-[#E5D9C5] focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37]'} ${className}`}
+          className={`w-full appearance-none bg-[#FFFFFF] text-[#1C1217] text-sm pl-4 pr-10 py-2.5 rounded-xl border outline-none cursor-pointer transition-all duration-200 ${error ? 'border-[#BE123C]' : 'border-[#F5E8EE] focus:border-[#E87A96] focus:ring-2 focus:ring-[#F9B8CA]/40'} ${className}`}
           {...props}
         >
           {options.map((opt) => (
@@ -48,12 +48,12 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(({
             </option>
           ))}
         </select>
-        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#8C7A6B]">
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#886C7B]">
           <ChevronDownIcon size={18} />
         </div>
       </div>
       {(error || helperText) && (
-        <p className={`text-xs ${error ? 'text-[#B33A3A] font-medium' : 'text-[#8C7A6B]'}`}>
+        <p className={`text-xs ${error ? 'text-[#BE123C] font-medium' : 'text-[#886C7B]'}`}>
           {error || helperText}
         </p>
       )}

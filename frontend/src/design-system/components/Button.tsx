@@ -1,7 +1,7 @@
 import React from 'react';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'gold' | 'secondary' | 'outline' | 'ghost' | 'danger';
+  variant?: 'primary' | 'pink' | 'gold' | 'secondary' | 'outline' | 'ghost' | 'danger';
   size?: 'sm' | 'md' | 'lg';
   isLoading?: boolean;
   leftIcon?: React.ReactNode;
@@ -23,23 +23,24 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   // Base classes
-  const baseStyles = "inline-flex items-center justify-center font-medium transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-amber-400/50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer tracking-wider uppercase";
+  const baseStyles = "inline-flex items-center justify-center font-medium transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-pink-300/60 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer tracking-wider uppercase";
 
   // Size variations
   const sizeStyles = {
-    sm: "text-xs px-3 py-1.5 rounded-sm gap-1.5 h-8 font-semibold",
-    md: "text-xs px-5 py-2.5 rounded-sm gap-2 h-10 font-bold",
-    lg: "text-sm px-7 py-3.5 rounded-md gap-2.5 h-12 font-bold tracking-widest",
+    sm: "text-xs px-3.5 py-1.5 rounded-full gap-1.5 h-8 font-semibold",
+    md: "text-xs px-5 py-2.5 rounded-full gap-2 h-10 font-bold",
+    lg: "text-sm px-7 py-3.5 rounded-full gap-2.5 h-12 font-bold tracking-widest",
   };
 
   // Variant variations
   const variantStyles = {
-    primary: "bg-[#2A1E17] text-[#FAF6F0] hover:bg-[#4A3B32] border border-[#2A1E17] shadow-sm active:translate-y-[1px]",
-    gold: "bg-gradient-to-r from-[#E6CA65] via-[#D4AF37] to-[#C5A059] text-[#1C130E] hover:brightness-105 border border-[#D4AF37] shadow-[0_0_15px_rgba(212,175,55,0.25)] active:translate-y-[1px]",
-    secondary: "bg-[#FAF6F0] text-[#2A1E17] hover:bg-[#F4EFE6] border border-[#E5D9C5] shadow-xs active:translate-y-[1px]",
-    outline: "bg-transparent text-[#2A1E17] border border-[#8C7A6B] hover:bg-[#FAF6F0] hover:border-[#2A1E17] active:translate-y-[1px]",
-    ghost: "bg-transparent text-[#4A3B32] hover:bg-[#F4EFE6] hover:text-[#2A1E17]",
-    danger: "bg-[#B33A3A] text-white hover:bg-[#8C2C2C] border border-[#B33A3A]",
+    primary: "bg-[#1C1217] text-[#FFFFFF] hover:bg-[#2C1D25] border border-[#1C1217] shadow-sm hover:shadow-md active:translate-y-[1px]",
+    pink: "bg-gradient-to-r from-[#F9B8CA] via-[#E87A96] to-[#D45D7D] text-white hover:brightness-105 border border-[#E87A96] shadow-[0_4px_16px_rgba(249,184,202,0.45)] active:translate-y-[1px]",
+    gold: "bg-gradient-to-r from-[#F7E5A5] via-[#E8C86D] to-[#CCA243] text-[#1C1217] hover:brightness-105 border border-[#E8C86D] shadow-[0_4px_16px_rgba(232,200,109,0.35)] active:translate-y-[1px]",
+    secondary: "bg-[#FFFFFF] text-[#1C1217] hover:bg-[#FFF6F8] hover:text-[#C94C6D] border border-[#F5E8EE] shadow-xs active:translate-y-[1px]",
+    outline: "bg-transparent text-[#1C1217] border border-[#EAD3DC] hover:bg-[#FFF6F8] hover:border-[#E87A96] hover:text-[#C94C6D] active:translate-y-[1px]",
+    ghost: "bg-transparent text-[#624855] hover:bg-[#FDE8EF] hover:text-[#1C1217] rounded-full",
+    danger: "bg-[#BE123C] text-white hover:bg-[#9F1239] border border-[#BE123C] active:translate-y-[1px]",
   };
 
   const widthStyle = fullWidth ? "w-full" : "";

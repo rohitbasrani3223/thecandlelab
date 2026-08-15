@@ -23,7 +23,7 @@ export const Chip: React.FC<ChipProps> = ({
   return (
     <div
       onClick={() => !disabled && onSelect && onSelect()}
-      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 select-none ${onSelect && !disabled ? 'cursor-pointer' : ''} ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${selected ? 'bg-[#2A1E17] text-[#FAF6F0] shadow-xs' : 'bg-[#F4EFE6] text-[#4A3B32] hover:bg-[#E5D9C5] border border-[#E5D9C5]'} ${className}`}
+      className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all duration-200 select-none ${onSelect && !disabled ? 'cursor-pointer' : ''} ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${selected ? 'bg-[#1C1217] text-[#FFFFFF] shadow-sm' : 'bg-[#FFF6F8] text-[#624855] hover:bg-[#FDE8EF] hover:text-[#C94C6D] border border-[#F5E8EE]'} ${className}`}
     >
       {icon && <span className="inline-flex">{icon}</span>}
       <span>{label}</span>

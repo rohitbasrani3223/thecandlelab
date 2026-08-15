@@ -70,29 +70,28 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({ onNavigateToShop }) 
     }
   };
 
-  // If user hasn't added categories yet, do not render any fake placeholder categories
   if (displayCategories.length === 0) {
     return null;
   }
 
   return (
-    <section className="py-16 sm:py-24 bg-[#FAF7F2] border-b border-[#E5DAC7] font-sans">
+    <section className="py-16 sm:py-24 bg-[#FFFFFF] border-b border-[#F5E8EE] font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 space-y-10">
         {/* Section Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 border-b border-[#E5DAC7] pb-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 border-b border-[#F5E8EE] pb-6">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2">
-              <Badge variant="gold" size="sm" icon={<SparklesIcon size={12} />}>
+              <Badge variant="pink" size="sm" icon={<SparklesIcon size={12} />}>
                 PRODUCT CATEGORIES
               </Badge>
-              <span className="text-[11px] uppercase tracking-wider text-[#847262] font-semibold hidden sm:inline-block">
+              <span className="text-[11px] uppercase tracking-wider text-[#886C7B] font-semibold hidden sm:inline-block">
                 • {displayCategories.length} Categories Live
               </span>
             </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-extrabold text-[#241812] tracking-tight">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-extrabold text-[#1C1217] tracking-tight">
               Shop by Category
             </h2>
-            <p className="text-xs sm:text-sm text-[#5E4E42] max-w-xl">
+            <p className="text-xs sm:text-sm text-[#624855] max-w-xl">
               Handcrafted botanical soy candles, aromatic diffusers, and luxury home fragrances curated for every space.
             </p>
           </div>
@@ -103,10 +102,10 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({ onNavigateToShop }) 
               e.preventDefault();
               handleCategoryClick('all');
             }}
-            className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-[#241812] hover:text-[#C5983A] transition-colors cursor-pointer group shrink-0 pb-1"
+            className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-[#1C1217] hover:text-[#E87A96] transition-colors cursor-pointer group shrink-0 pb-1"
           >
             <span>View All Categories</span>
-            <ChevronRightIcon size={14} className="group-hover:translate-x-1.5 transition-transform text-[#C5983A]" />
+            <ChevronRightIcon size={14} className="group-hover:translate-x-1.5 transition-transform text-[#E87A96]" />
           </a>
         </div>
 
@@ -116,22 +115,22 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({ onNavigateToShop }) 
             <div
               key={cat.id}
               onClick={() => handleCategoryClick(cat.name)}
-              className="group cursor-pointer rounded-2xl overflow-hidden bg-[#FAF6F0] border border-[#E5DAC7] hover:border-[#C5983A] hover:shadow-[0_20px_40px_rgba(36,24,18,0.12)] transition-all duration-500 flex flex-col justify-between relative hover:-translate-y-1.5"
+              className="group cursor-pointer rounded-3xl overflow-hidden bg-[#FFFFFF] border border-[#F5E8EE] hover:border-[#F9B8CA] hover:shadow-[0_20px_40px_rgba(230,106,138,0.12)] transition-all duration-500 flex flex-col justify-between relative hover:-translate-y-1.5"
             >
               {/* Image Container with Luxury Overlay */}
-              <div className="relative aspect-16/10 sm:aspect-4/3 overflow-hidden bg-[#1E130D]">
+              <div className="relative aspect-16/10 sm:aspect-4/3 overflow-hidden bg-[#140B10]">
                 <img
                   src={cat.image}
                   alt={cat.name}
                   loading="lazy"
                   className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out brightness-95 group-hover:brightness-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#140D09]/80 via-[#140D09]/20 to-transparent opacity-75 group-hover:opacity-60 transition-opacity" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#140B10]/80 via-[#140B10]/20 to-transparent opacity-75 group-hover:opacity-60 transition-opacity" />
 
                 {/* Floating Tag */}
                 {cat.tag && (
                   <div className="absolute top-3 left-3">
-                    <span className="bg-[#FAF7F2]/95 backdrop-blur-md text-[#241812] text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full border border-[#E5DAC7] shadow-sm">
+                    <span className="bg-[#FFFFFF]/95 backdrop-blur-md text-[#C94C6D] text-[10px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full border border-[#F9B8CA] shadow-sm">
                       {cat.tag}
                     </span>
                   </div>
@@ -139,7 +138,7 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({ onNavigateToShop }) 
 
                 {/* Product Count Pill */}
                 <div className="absolute top-3 right-3">
-                  <span className="bg-[#140D09]/80 backdrop-blur-md text-[#F5EEE4] text-[11px] font-semibold px-2.5 py-1 rounded-full border border-white/10 shadow-sm">
+                  <span className="bg-[#140B10]/80 backdrop-blur-md text-[#FFF6F8] text-[11px] font-semibold px-3 py-1 rounded-full border border-white/10 shadow-sm">
                     {cat.count}
                   </span>
                 </div>
@@ -147,27 +146,27 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({ onNavigateToShop }) 
                 {/* Overlay Title on Mobile/Hover */}
                 <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between text-white">
                   <div className="space-y-0.5">
-                    <h3 className="font-serif text-lg sm:text-xl font-bold text-[#FAF7F2] drop-shadow-md group-hover:text-[#E6CA65] transition-colors">
+                    <h3 className="font-serif text-lg sm:text-xl font-bold text-[#FFFFFF] drop-shadow-md group-hover:text-[#F9B8CA] transition-colors">
                       {cat.name}
                     </h3>
                     {cat.price && (
-                      <span className="text-xs font-semibold text-[#E5D9C5] drop-shadow-sm block">
+                      <span className="text-xs font-semibold text-[#FCD5E2] drop-shadow-sm block">
                         {cat.price}
                       </span>
                     )}
                   </div>
-                  <span className="w-8 h-8 rounded-full bg-[#FAF7F2] text-[#241812] group-hover:bg-[#C5983A] group-hover:text-[#180F0A] flex items-center justify-center text-sm font-bold shadow-md group-hover:translate-x-1 transition-all">
+                  <span className="w-8 h-8 rounded-full bg-[#FFFFFF] text-[#1C1217] group-hover:bg-[#E87A96] group-hover:text-[#FFFFFF] flex items-center justify-center text-sm font-bold shadow-md group-hover:translate-x-1 transition-all">
                     →
                   </span>
                 </div>
               </div>
 
               {/* Bottom Details Strip */}
-              <div className="p-4 bg-[#FAF7F2] flex items-center justify-between border-t border-[#E5DAC7]/70 text-xs">
-                <p className="text-[#847262] text-[12px] line-clamp-1 flex-1 pr-2 font-medium">
+              <div className="p-4 bg-[#FFF6F8] flex items-center justify-between border-t border-[#F5E8EE] text-xs">
+                <p className="text-[#624855] text-[12px] line-clamp-1 flex-1 pr-2 font-medium">
                   {cat.subtitle}
                 </p>
-                <span className="text-[#C5983A] font-extrabold text-[11px] uppercase tracking-wider shrink-0 group-hover:underline">
+                <span className="text-[#E87A96] font-extrabold text-[11px] uppercase tracking-wider shrink-0 group-hover:underline">
                   Shop Now
                 </span>
               </div>

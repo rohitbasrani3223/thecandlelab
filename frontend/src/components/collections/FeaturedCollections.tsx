@@ -23,14 +23,14 @@ export const FeaturedCollections: React.FC<FeaturedCollectionsProps> = ({ onSele
   }
 
   return (
-    <section className="py-16 sm:py-24 bg-[#F4EFE6] border-b border-[#E5D9C5] font-sans">
+    <section className="py-16 sm:py-24 bg-[#FFF6F8] border-b border-[#F5E8EE] font-sans">
       <div className="max-w-7xl mx-auto px-6 sm:px-12 space-y-12">
         <div className="text-center max-w-2xl mx-auto space-y-3">
-          <Badge variant="gold" icon={<SparklesIcon size={12} />}>CURATED COLLECTIONS ({collections.length})</Badge>
-          <h2 className="text-3xl sm:text-5xl font-serif font-bold text-[#2A1E17]">
+          <Badge variant="pink" icon={<SparklesIcon size={12} />}>CURATED COLLECTIONS ({collections.length})</Badge>
+          <h2 className="text-3xl sm:text-5xl font-serif font-bold text-[#1C1217]">
             Our Signature Collections
           </h2>
-          <p className="text-sm text-[#69574A]">
+          <p className="text-sm text-[#624855]">
             Curated vessel and scent groupings formulated for high aesthetic and olfactory impact.
           </p>
         </div>
@@ -40,26 +40,26 @@ export const FeaturedCollections: React.FC<FeaturedCollectionsProps> = ({ onSele
             <div
               key={col.id}
               onClick={() => handleCollectionClick(col.id)}
-              className="bg-white rounded-2xl border border-[#EFE8DB] overflow-hidden shadow-subtle group cursor-pointer hover:border-[#B88B38] hover:shadow-card transition-all flex flex-col justify-between"
+              className="bg-white rounded-3xl border border-[#F5E8EE] overflow-hidden shadow-subtle group cursor-pointer hover:border-[#F9B8CA] hover:shadow-card transition-all flex flex-col justify-between"
             >
-              <div className="relative h-48 bg-[#F8F3EA] overflow-hidden">
+              <div className="relative h-48 bg-[#FFF6F8] overflow-hidden">
                 <img
                   src={col.image || CMS_BANNER_PLACEHOLDER}
                   alt={col.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-90"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#2C1E16]/80 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
 
                 {col.badge && (
                   <div className="absolute top-3 left-3">
-                    <span className="bg-[#B88B38] text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-xs">
+                    <span className="bg-[#E87A96] text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-xs">
                       {col.badge}
                     </span>
                   </div>
                 )}
 
                 {col.count && (
-                  <div className="absolute bottom-3 right-3 text-[10px] font-bold bg-[#2C1E16]/90 text-white px-2.5 py-1 rounded-full backdrop-blur-xs">
+                  <div className="absolute bottom-3 right-3 text-[10px] font-bold bg-white/90 text-[#1C1217] px-2.5 py-1 rounded-full backdrop-blur-xs">
                     {col.count}
                   </div>
                 )}
@@ -69,18 +69,18 @@ export const FeaturedCollections: React.FC<FeaturedCollectionsProps> = ({ onSele
                 <div>
                   <div className="flex items-center gap-1.5 mb-1">
                     <span className="text-base">{col.icon}</span>
-                    <h3 className="text-base font-serif font-bold text-[#2C1E16] group-hover:text-[#B88B38] transition-colors leading-snug">
+                    <h3 className="text-base font-serif font-bold text-[#1C1217] group-hover:text-[#E87A96] transition-colors leading-snug">
                       {col.title}
                     </h3>
                   </div>
-                  <p className="text-xs text-[#7A6B5D] font-light leading-relaxed line-clamp-2">
+                  <p className="text-xs text-[#624855] font-light leading-relaxed line-clamp-2">
                     {col.desc}
                   </p>
                 </div>
 
-                <div className="pt-3 border-t border-[#F2ECE1] flex items-center justify-between text-xs">
-                  <span className="text-[#B88B38] font-bold truncate max-w-[150px]">{col.scents}</span>
-                  <button className="bg-[#B88B38] hover:bg-[#A3792E] text-white font-bold text-[11px] py-1.5 px-3 rounded-lg flex items-center gap-1 shadow-xs transition-all cursor-pointer shrink-0">
+                <div className="pt-3 border-t border-[#F5E8EE] flex items-center justify-between text-xs">
+                  <span className="text-[#E87A96] font-bold truncate max-w-[150px]">{col.scents}</span>
+                  <button className="bg-[#E87A96] hover:bg-[#D45D7D] text-white font-bold text-[11px] py-1.5 px-3.5 rounded-full flex items-center gap-1 shadow-xs transition-all cursor-pointer shrink-0">
                     Explore →
                   </button>
                 </div>

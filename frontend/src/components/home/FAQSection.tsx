@@ -16,7 +16,7 @@ const faqs = [
   },
   {
     question: 'What is your shipping & return policy?',
-    answer: 'We offer Free Express Shipping nationwide on all orders over $150. Every order is backed by our 30-Day Serenity Guarantee: if you are not delighted with your scent, return it unused for a full refund or exchange.',
+    answer: 'We offer Free Express Shipping nationwide on all orders over ₹1,499. Every order is backed by our 30-Day Serenity Guarantee: if you are not delighted with your scent, return it unused for a full refund or exchange.',
   },
   {
     question: 'Do you offer custom corporate or wedding gift boxes?',
@@ -28,14 +28,14 @@ export const FaqSection: React.FC = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <section className="py-16 sm:py-24 bg-[#F5EEE4] border-b border-[#E5DAC7] font-sans">
+    <section className="py-16 sm:py-24 bg-[#FFF6F8] border-b border-[#F5E8EE] font-sans">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-12 space-y-12">
         <div className="text-center space-y-3">
-          <Badge variant="gold" icon={<SparklesIcon size={12} />}>CLEAR ANSWERS</Badge>
-          <h2 className="text-3xl sm:text-5xl font-serif font-bold text-[#241812]">
+          <Badge variant="pink" icon={<SparklesIcon size={12} />}>CLEAR ANSWERS</Badge>
+          <h2 className="text-3xl sm:text-5xl font-serif font-bold text-[#1C1217]">
             Frequently Asked Questions
           </h2>
-          <p className="text-sm text-[#5E4E42]">
+          <p className="text-sm text-[#624855]">
             Everything you need to know about our organic soy wax, wood wicks, and atelier deliveries.
           </p>
         </div>
@@ -45,18 +45,18 @@ export const FaqSection: React.FC = () => {
           {faqs.map((faq, index) => (
             <div
               key={index}
-              className="bg-[#FAF7F2] rounded-2xl border border-[#E5DAC7] overflow-hidden shadow-subtle hover:border-[#C5983A]/60 transition-all"
+              className="bg-[#FFFFFF] rounded-2xl border border-[#F5E8EE] overflow-hidden shadow-subtle hover:border-[#F9B8CA] transition-all"
             >
               <button
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                className="w-full text-left p-5 sm:p-6 font-serif font-bold text-base sm:text-lg text-[#241812] hover:text-[#C5983A] flex items-center justify-between gap-4 transition-colors cursor-pointer"
+                className="w-full text-left p-5 sm:p-6 font-serif font-bold text-base sm:text-lg text-[#1C1217] hover:text-[#E87A96] flex items-center justify-between gap-4 transition-colors cursor-pointer"
               >
                 <span>{faq.question}</span>
-                <ChevronDownIcon size={18} className={`shrink-0 transition-transform ${openIndex === index ? 'rotate-180 text-[#C5983A]' : ''}`} />
+                <ChevronDownIcon size={18} className={`shrink-0 transition-transform ${openIndex === index ? 'rotate-180 text-[#E87A96]' : 'text-[#886C7B]'}`} />
               </button>
 
               {openIndex === index && (
-                <div className="px-5 sm:px-6 pb-6 text-xs sm:text-sm text-[#5E4E42] leading-relaxed border-t border-[#E5DAC7]/60 pt-4 animate-fade-in font-sans">
+                <div className="px-5 sm:px-6 pb-6 text-xs sm:text-sm text-[#624855] leading-relaxed border-t border-[#F5E8EE] pt-4 animate-fade-in font-sans">
                   {faq.answer}
                 </div>
               )}

@@ -58,33 +58,33 @@ export const BestSellers: React.FC<BestSellersProps> = ({ onSelectProduct }) => 
     });
 
   return (
-    <section className="py-16 sm:py-24 bg-[#FAF7F2] border-b border-[#E5DAC7] font-sans">
+    <section className="py-16 sm:py-24 bg-[#FFF6F8] border-b border-[#F5E8EE] font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 space-y-10">
         {/* Section Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 sm:gap-6 border-b border-[#E5DAC7] pb-6 w-full max-w-full min-w-0">
+        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 sm:gap-6 border-b border-[#F5E8EE] pb-6 w-full max-w-full min-w-0">
           <div className="space-y-1 sm:space-y-2">
-            <Badge variant="gold" icon={<SparklesIcon size={12} />}>MOST LOVED FORMULATIONS</Badge>
-            <h2 className="text-2xl sm:text-4xl font-serif font-bold text-[#241812]">
+            <Badge variant="pink" icon={<SparklesIcon size={12} />}>MOST LOVED FORMULATIONS</Badge>
+            <h2 className="text-2xl sm:text-4xl font-serif font-bold text-[#1C1217]">
               Boutique Best Sellers
             </h2>
           </div>
 
-          {/* Filter Tabs (Horizontal Scrollable Strip with safe touch boundaries) */}
+          {/* Filter Tabs */}
           <div className="w-full sm:w-auto max-w-full min-w-0 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 flex items-center gap-2 pb-2 sm:pb-0 touch-pan-x">
             {[
               { id: 'all', label: 'All Best Sellers' },
               { id: 'woody', label: 'Woody & Spiced' },
               { id: 'vanilla', label: 'Warm Vanilla' },
-              { id: 'floral', label: 'Floral' },
+              { id: 'floral', label: 'Floral & Rose' },
               { id: 'aromatherapy', label: 'Aromatherapy' },
             ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as CategoryTab)}
-                className={`px-3.5 py-2 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap shrink-0 cursor-pointer min-h-[38px] sm:min-h-[32px] flex items-center justify-center ${
+                className={`px-4 py-2 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap shrink-0 cursor-pointer min-h-[38px] sm:min-h-[32px] flex items-center justify-center ${
                   activeTab === tab.id
-                    ? 'bg-[#241812] text-[#FDFBF8] shadow-card'
-                    : 'bg-[#F5EEE4] text-[#5E4E42] hover:text-[#241812] hover:bg-[#EFE4D3] border border-[#E5DAC7]'
+                    ? 'bg-[#1C1217] text-[#FFFFFF] shadow-sm'
+                    : 'bg-[#FFFFFF] text-[#624855] hover:text-[#C94C6D] hover:bg-[#FDE8EF] border border-[#F5E8EE]'
                 }`}
               >
                 {tab.label}
@@ -106,20 +106,20 @@ export const BestSellers: React.FC<BestSellersProps> = ({ onSelectProduct }) => 
                 variant="bordered"
                 padding="none"
                 onClick={() => handleProductClick(prod)}
-                className="bg-[#FAF6F0] group flex flex-col justify-between overflow-hidden hover:shadow-[0_16px_36px_rgba(36,24,18,0.11)] hover:border-[#C5983A] border border-[#E5DAC7] transition-all duration-300 relative cursor-pointer rounded-2xl"
+                className="bg-[#FFFFFF] group flex flex-col justify-between overflow-hidden hover:shadow-[0_16px_36px_rgba(230,106,138,0.12)] hover:border-[#F9B8CA] border border-[#F5E8EE] transition-all duration-300 relative cursor-pointer rounded-3xl"
               >
                 {/* Vessel Image Container */}
-                <div className="relative h-64 bg-[#F5EEE4] flex items-center justify-center overflow-hidden">
+                <div className="relative h-64 bg-[#FFF6F8] flex items-center justify-center overflow-hidden">
                   <img
                     src={prod.image || prod.imageUrl || prod.images?.[0] || 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80'}
                     alt={prod.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#180F0A]/60 via-transparent to-transparent opacity-40 group-hover:opacity-20 transition-opacity" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#140B10]/60 via-transparent to-transparent opacity-40 group-hover:opacity-20 transition-opacity" />
 
                   {/* Rank Badge */}
                   <div className="absolute top-3 left-3 z-10">
-                    <Badge variant="gold" size="sm" icon={<SparklesIcon size={10} />}>
+                    <Badge variant="pink" size="sm" icon={<SparklesIcon size={10} />}>
                       {rankLabel}
                     </Badge>
                   </div>
@@ -127,18 +127,18 @@ export const BestSellers: React.FC<BestSellersProps> = ({ onSelectProduct }) => 
                   {/* Wishlist Button */}
                   <button
                     onClick={(e) => toggleWishlist(prod.id, prod.name, e)}
-                    className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-colors z-20 cursor-pointer ${isWishlisted
-                        ? 'bg-[#BA6648] text-white'
-                        : 'bg-[#180F0A]/50 text-white hover:bg-[#C5983A] hover:text-[#180F0A]'
+                    className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-colors z-20 cursor-pointer shadow-sm ${isWishlisted
+                        ? 'bg-[#E87A96] text-white'
+                        : 'bg-[#140B10]/50 text-white hover:bg-[#E87A96] hover:text-white'
                       }`}
                   >
                     <HeartIcon size={16} />
                   </button>
 
                   {/* Scent Notes Overlay */}
-                  <div className="absolute bottom-3 left-3 right-3 bg-[#180F0A]/90 text-[#FAF7F2] p-2.5 rounded-md text-[10px] space-y-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-xs z-10">
-                    <div className="font-semibold text-[#DEB554] uppercase tracking-wider">Fragrance Notes:</div>
-                    <div className="truncate text-[#E5DAC7]">
+                  <div className="absolute bottom-3 left-3 right-3 bg-[#140B10]/90 text-[#FFFFFF] p-2.5 rounded-xl text-[10px] space-y-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-xs z-10 border border-[#F9B8CA]/20">
+                    <div className="font-semibold text-[#F9B8CA] uppercase tracking-wider">Fragrance Notes:</div>
+                    <div className="truncate text-[#FCD5E2]">
                       Top: {prod.topNotes || 'Bergamot'} | Heart: {prod.heartNotes || 'Rose'} | Base: {prod.baseNotes || 'Amber'}
                     </div>
                   </div>
@@ -148,30 +148,30 @@ export const BestSellers: React.FC<BestSellersProps> = ({ onSelectProduct }) => 
                 <div className="p-5 space-y-3 flex-1 flex flex-col justify-between">
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="text-[#847262] font-medium">{prod.scentProfile || prod.category}</span>
-                      <div className="flex items-center gap-1 text-[#C5983A] font-bold">
-                        <StarIcon size={14} className="fill-current text-[#C5983A]" />
+                      <span className="text-[#886C7B] font-medium">{prod.scentProfile || prod.category}</span>
+                      <div className="flex items-center gap-1 text-[#E8C86D] font-bold">
+                        <StarIcon size={14} className="fill-current text-[#E8C86D]" />
                         <span>{prod.rating || 4.9}</span>
-                        <span className="text-[#847262] font-normal">({prod.reviewsCount || 42})</span>
+                        <span className="text-[#886C7B] font-normal">({prod.reviewsCount || 42})</span>
                       </div>
                     </div>
 
-                    <h3 className="text-base font-serif font-bold text-[#241812] group-hover:text-[#C5983A] transition-colors leading-snug">
+                    <h3 className="text-base font-serif font-bold text-[#1C1217] group-hover:text-[#E87A96] transition-colors leading-snug">
                       {prod.name}
                     </h3>
                   </div>
 
-                  <div className="pt-3 border-t border-[#E5DAC7] space-y-3">
+                  <div className="pt-3 border-t border-[#F5E8EE] space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-lg font-bold text-[#241812] font-serif">{formattedPrice}</span>
-                      <span className="text-[10px] text-[#847262] font-mono">{prod.burnTime || '60 Hours'}</span>
+                      <span className="text-lg font-bold text-[#1C1217] font-serif">{formattedPrice}</span>
+                      <span className="text-[10px] text-[#886C7B] font-mono">{prod.burnTime || '60 Hours'}</span>
                     </div>
 
                     <Button
-                      variant="gold"
+                      variant="pink"
                       size="sm"
                       fullWidth
-                      onClick={handleProductClick}
+                      onClick={() => handleProductClick(prod)}
                     >
                       View Product Details →
                     </Button>

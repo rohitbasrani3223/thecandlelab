@@ -4,10 +4,8 @@ import { LoginPromptBanner } from './LoginPromptBanner';
 import { WishlistGrid } from './WishlistGrid';
 import type { WishlistItem } from './WishlistGrid';
 
-
 import { WishlistEmptyState } from './WishlistEmptyState';
 import { useToast } from '../../design-system';
-
 
 export interface WishlistPageProps {
   onNavigateToShop?: () => void;
@@ -38,7 +36,7 @@ export const WishlistPage: React.FC<WishlistPageProps> = ({ onNavigateToShop }) 
     toast({
       type: 'luxury',
       title: 'Transferred to Shopping Bag',
-      description: `${item.name} ($${item.price.toFixed(2)}) moved to bag.`,
+      description: `${item.name} (₹${item.price.toFixed(0)}) moved to bag.`,
     });
   };
 
@@ -63,20 +61,20 @@ export const WishlistPage: React.FC<WishlistPageProps> = ({ onNavigateToShop }) 
   };
 
   return (
-    <div className="w-full bg-[#FAF6F0] min-h-screen font-sans">
+    <div className="w-full bg-[#FAF6F8] min-h-screen font-sans">
       {/* Breadcrumb Header */}
-      <div className="bg-[#F4EFE6] border-b border-[#E5D9C5] py-3.5 px-6 sm:px-12 text-xs text-[#8C7A6B]">
+      <div className="bg-white border-b border-[#F5E8EE] py-3.5 px-6 sm:px-12 text-xs text-[#886C7B]">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <a href="#home" className="hover:text-[#D4AF37] transition-colors">Home</a>
+            <a href="#home" className="hover:text-[#E87A96] transition-colors">Home</a>
             <span>/</span>
-            <span className="text-[#2A1E17] font-bold">My Saved Wishlist</span>
+            <span className="text-[#1C1217] font-bold">My Saved Wishlist</span>
           </div>
 
           {onNavigateToShop && (
             <button
               onClick={onNavigateToShop}
-              className="text-xs font-bold uppercase tracking-wider text-[#D4AF37] hover:underline"
+              className="text-xs font-bold uppercase tracking-wider text-[#E87A96] hover:underline cursor-pointer"
             >
               ← Continue Shopping
             </button>

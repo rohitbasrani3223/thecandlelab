@@ -31,13 +31,13 @@ export const PaymentMethodStep: React.FC<PaymentMethodStepProps> = ({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 font-sans">
-      <div className="flex items-center justify-between border-b border-[#E5D9C5] pb-4">
+      <div className="flex items-center justify-between border-b border-[#F5E8EE] pb-4">
         <div>
-          <Badge variant="gold" icon={<SparklesIcon size={12} />}>STEP 3 OF 4</Badge>
-          <h2 className="text-2xl font-serif font-bold text-[#2A1E17] mt-1">
+          <Badge variant="pink" icon={<SparklesIcon size={12} />}>STEP 3 OF 4</Badge>
+          <h2 className="text-2xl font-serif font-bold text-[#1C1217] mt-1">
             Select Payment Method (India)
           </h2>
-          <p className="text-xs text-[#8C7A6B] mt-0.5">Choose your preferred Indian payment option.</p>
+          <p className="text-xs text-[#886C7B] mt-0.5">Choose your preferred Indian payment option.</p>
         </div>
       </div>
 
@@ -70,21 +70,21 @@ export const PaymentMethodStep: React.FC<PaymentMethodStepProps> = ({
             key={tab.id}
             type="button"
             onClick={() => setPaymentData({ ...paymentData, method: tab.id as any })}
-            className={`p-4 rounded-md border text-left transition-all cursor-pointer flex flex-col justify-between space-y-3 ${
+            className={`p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between space-y-3 ${
               paymentData.method === tab.id
-                ? 'border-[#D4AF37] bg-[#FAF6F0] ring-2 ring-[#D4AF37]/40 shadow-card'
-                : 'border-[#E5D9C5] bg-[#F4EFE6] hover:bg-[#FAF6F0]'
+                ? 'border-[#E87A96] bg-[#FFF6F8] ring-2 ring-[#F9B8CA]/40 shadow-card'
+                : 'border-[#F5E8EE] bg-[#FFFFFF] hover:bg-[#FFF6F8]'
             }`}
           >
             <div className="flex items-center justify-between">
               <span className="text-2xl">{tab.icon}</span>
-              <span className="text-[9px] font-bold uppercase bg-[#D4AF37]/20 text-[#2A1E17] px-2 py-0.5 rounded-full border border-[#D4AF37]/40">
+              <span className="text-[9px] font-bold uppercase bg-[#FDE8EF] text-[#C94C6D] px-2.5 py-0.5 rounded-full border border-[#F9B8CA]">
                 {tab.badge}
               </span>
             </div>
             <div>
-              <span className="text-sm font-bold text-[#2A1E17] block leading-snug">{tab.title}</span>
-              <span className="text-[11px] text-[#8C7A6B] block mt-0.5">{tab.subtitle}</span>
+              <span className="text-sm font-bold text-[#1C1217] block leading-snug">{tab.title}</span>
+              <span className="text-[11px] text-[#886C7B] block mt-0.5">{tab.subtitle}</span>
             </div>
           </button>
         ))}
@@ -92,64 +92,64 @@ export const PaymentMethodStep: React.FC<PaymentMethodStepProps> = ({
 
       {/* Razorpay Online Checkout Banner */}
       {paymentData.method === 'razorpay' && (
-        <div className="p-5 bg-[#FAF6F0] border border-[#E5D9C5] rounded-md space-y-3 animate-fade-in">
+        <div className="p-5 bg-[#FFFFFF] border border-[#F5E8EE] rounded-2xl space-y-3 animate-fade-in shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs uppercase font-bold text-[#2A1E17]">Razorpay Payment Gateway</span>
-            <span className="text-xs text-[#2E6F40] font-bold">✓ 256-bit SSL Encrypted</span>
+            <span className="text-xs uppercase font-bold text-[#1C1217]">Razorpay Payment Gateway</span>
+            <span className="text-xs text-[#15803D] font-bold">✓ 256-bit SSL Encrypted</span>
           </div>
 
-          <p className="text-xs text-[#69574A] leading-relaxed">
+          <p className="text-xs text-[#624855] leading-relaxed">
             Pay securely using any Indian payment mode: <strong>UPI (GPay, PhonePe, Paytm, BHIM, Cred)</strong>, <strong>RuPay / Visa / Mastercard</strong>, or <strong>50+ Indian Net Banking</strong> options.
           </p>
 
-          <div className="flex items-center gap-2 pt-2 border-t border-[#E5D9C5] text-[11px] text-[#8C7A6B] font-medium">
+          <div className="flex items-center gap-2 pt-2 border-t border-[#F5E8EE] text-[11px] text-[#886C7B] font-medium">
             <span>Supported Apps:</span>
-            <span className="bg-white px-2 py-1 rounded border border-[#E5D9C5] font-bold text-[#2A1E17]">Google Pay</span>
-            <span className="bg-white px-2 py-1 rounded border border-[#E5D9C5] font-bold text-[#2A1E17]">PhonePe</span>
-            <span className="bg-white px-2 py-1 rounded border border-[#E5D9C5] font-bold text-[#2A1E17]">Paytm</span>
-            <span className="bg-white px-2 py-1 rounded border border-[#E5D9C5] font-bold text-[#2A1E17]">RuPay</span>
+            <span className="bg-[#FFF6F8] px-2.5 py-1 rounded-full border border-[#F5E8EE] font-bold text-[#1C1217]">Google Pay</span>
+            <span className="bg-[#FFF6F8] px-2.5 py-1 rounded-full border border-[#F5E8EE] font-bold text-[#1C1217]">PhonePe</span>
+            <span className="bg-[#FFF6F8] px-2.5 py-1 rounded-full border border-[#F5E8EE] font-bold text-[#1C1217]">Paytm</span>
+            <span className="bg-[#FFF6F8] px-2.5 py-1 rounded-full border border-[#F5E8EE] font-bold text-[#1C1217]">RuPay</span>
           </div>
         </div>
       )}
 
       {/* UPI Direct Banner */}
       {paymentData.method === 'upi' && (
-        <div className="p-5 bg-[#FAF6F0] border border-[#E5D9C5] rounded-md space-y-4 animate-fade-in">
+        <div className="p-5 bg-[#FFFFFF] border border-[#F5E8EE] rounded-2xl space-y-4 animate-fade-in shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs uppercase font-bold text-[#2A1E17]">Direct UPI Instant Payment</span>
-            <span className="text-xs text-[#D4AF37] font-bold">📱 Zero Transaction Fee</span>
+            <span className="text-xs uppercase font-bold text-[#1C1217]">Direct UPI Instant Payment</span>
+            <span className="text-xs text-[#E87A96] font-bold">📱 Zero Transaction Fee</span>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-[#2A1E17] mb-1.5">Enter VPA / UPI ID (Optional)</label>
+            <label className="block text-xs font-bold text-[#1C1217] mb-1.5">Enter VPA / UPI ID (Optional)</label>
             <input
               type="text"
               value={paymentData.upiId || ''}
               onChange={(e) => setPaymentData({ ...paymentData, upiId: e.target.value })}
               placeholder="e.g. mobileNumber@upi / username@okaxis"
-              className="w-full px-3 py-2 bg-white border border-[#E5D9C5] rounded-xs text-xs font-mono text-[#2A1E17]"
+              className="w-full px-3 py-2 bg-[#FFF6F8] border border-[#F5E8EE] rounded-xl text-xs font-mono text-[#1C1217] outline-none focus:border-[#E87A96] focus:ring-2 focus:ring-[#F9B8CA]/40"
             />
-            <p className="text-[10px] text-[#8C7A6B] mt-1">You will receive a payment request directly in your UPI app on click.</p>
+            <p className="text-[10px] text-[#886C7B] mt-1">You will receive a payment request directly in your UPI app on click.</p>
           </div>
         </div>
       )}
 
       {/* Cash on Delivery Banner */}
       {paymentData.method === 'cod' && (
-        <div className="p-5 bg-[#FAF6F0] border border-[#E5D9C5] rounded-md space-y-3 animate-fade-in">
+        <div className="p-5 bg-[#FFFFFF] border border-[#F5E8EE] rounded-2xl space-y-3 animate-fade-in shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs uppercase font-bold text-[#2A1E17]">Cash on Delivery (COD)</span>
-            <span className="text-xs text-[#2E6F40] font-bold">🚚 Doorstep Verification</span>
+            <span className="text-xs uppercase font-bold text-[#1C1217]">Cash on Delivery (COD)</span>
+            <span className="text-xs text-[#15803D] font-bold">🚚 Doorstep Verification</span>
           </div>
 
-          <p className="text-xs text-[#69574A] leading-relaxed">
+          <p className="text-xs text-[#624855] leading-relaxed">
             Pay with cash or scan delivery agent UPI QR code when your candle shipment arrives at your delivery address.
           </p>
         </div>
       )}
 
       <Checkbox
-        label={<span className="text-xs text-[#2A1E17]">Billing address is the same as shipping address</span>}
+        label={<span className="text-xs text-[#1C1217]">Billing address is the same as shipping address</span>}
         checked={paymentData.sameBilling}
         onChange={(e) => setPaymentData({ ...paymentData, sameBilling: e.target.checked })}
       />
@@ -158,7 +158,7 @@ export const PaymentMethodStep: React.FC<PaymentMethodStepProps> = ({
         <Button type="button" variant="outline" size="lg" onClick={onBack}>
           ← Back to Delivery
         </Button>
-        <Button type="submit" variant="gold" size="lg" fullWidth>
+        <Button type="submit" variant="pink" size="lg" fullWidth>
           Continue to Final Review →
         </Button>
       </div>

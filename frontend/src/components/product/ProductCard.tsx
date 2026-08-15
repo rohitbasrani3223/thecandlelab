@@ -57,37 +57,37 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   return (
     <div
       onClick={handleClick}
-      className="group relative bg-[#1C130E] border border-[#2C2018] rounded-2xl overflow-hidden hover:border-[#DEB554]/50 transition-all duration-300 flex flex-col justify-between cursor-pointer shadow-lg hover:shadow-[0_16px_36px_rgba(0,0,0,0.4)] font-sans hover:-translate-y-1"
+      className="group relative bg-[#FFFFFF] border border-[#F5E8EE] rounded-3xl overflow-hidden hover:border-[#F9B8CA] transition-all duration-300 flex flex-col justify-between cursor-pointer shadow-subtle hover:shadow-[0_16px_36px_rgba(230,106,138,0.12)] font-sans hover:-translate-y-1"
     >
       {/* Image Container */}
-      <div className="relative aspect-[4/5] overflow-hidden bg-[#140D09]">
+      <div className="relative aspect-[4/5] overflow-hidden bg-[#FFF6F8]">
         <img
           src={imageSrc}
           alt={product.name}
           loading="lazy"
-          className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-108 brightness-95 group-hover:brightness-100"
+          className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-108 brightness-98 group-hover:brightness-100"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#1C130E] via-transparent to-transparent opacity-60 group-hover:opacity-30 transition-opacity" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent opacity-40 group-hover:opacity-20 transition-opacity" />
 
         {/* Badges from live DB flags */}
         <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10 pointer-events-none">
           {product.isBestSeller && (
-            <span className="text-[9px] font-mono font-bold uppercase bg-[#DEB554] text-[#180F0A] px-2.5 py-0.5 rounded-full shadow font-sans">
+            <span className="text-[9px] font-mono font-bold uppercase bg-[#E87A96] text-white px-2.5 py-0.5 rounded-full shadow font-sans">
               ★ BESTSELLER
             </span>
           )}
           {product.isNew && (
-            <span className="text-[9px] font-mono font-bold uppercase bg-[#DEB554]/20 text-[#DEB554] border border-[#DEB554]/40 px-2.5 py-0.5 rounded-full shadow backdrop-blur-sm">
+            <span className="text-[9px] font-mono font-bold uppercase bg-[#FFFFFF]/90 text-[#E87A96] border border-[#F9B8CA] px-2.5 py-0.5 rounded-full shadow backdrop-blur-sm">
               NEW
             </span>
           )}
           {product.isTrending && (
-            <span className="text-[9px] font-mono font-bold uppercase bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2.5 py-0.5 rounded-full shadow backdrop-blur-sm">
+            <span className="text-[9px] font-mono font-bold uppercase bg-[#FDE8EF] text-[#C94C6D] border border-[#F9B8CA] px-2.5 py-0.5 rounded-full shadow backdrop-blur-sm">
               TRENDING
             </span>
           )}
           {product.isLimitedEdition && (
-            <span className="text-[9px] font-mono font-bold uppercase bg-purple-900/80 text-purple-200 border border-purple-700/50 px-2.5 py-0.5 rounded-full shadow backdrop-blur-sm">
+            <span className="text-[9px] font-mono font-bold uppercase bg-[#1C1217]/80 text-[#FCD5E2] border border-[#F9B8CA]/30 px-2.5 py-0.5 rounded-full shadow backdrop-blur-sm">
               LIMITED
             </span>
           )}
@@ -96,7 +96,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         {/* Size Badge Top Right */}
         {sizeLabel && (
           <div className="absolute top-3 right-3 z-10 pointer-events-none">
-            <span className="text-[9px] font-mono font-semibold bg-[#140D09]/80 backdrop-blur-xs text-[#F5EEE4] border border-white/10 px-2 py-0.5 rounded-full">
+            <span className="text-[9px] font-mono font-semibold bg-[#FFFFFF]/90 backdrop-blur-xs text-[#1C1217] border border-[#F5E8EE] px-2.5 py-0.5 rounded-full shadow-xs">
               {sizeLabel}
             </span>
           </div>
@@ -105,7 +105,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         {/* Bottom Scent Notes Overlay Pill */}
         {fragranceLabel && (
           <div className="absolute bottom-3 left-3 right-12 z-10 pointer-events-none">
-            <span className="inline-block text-[10px] font-semibold bg-[#140D09]/85 backdrop-blur-md text-[#DEB554] border border-[#DEB554]/30 px-2.5 py-0.5 rounded-full truncate max-w-full">
+            <span className="inline-block text-[10px] font-semibold bg-[#1C1217]/85 backdrop-blur-md text-[#FCD5E2] border border-[#F9B8CA]/30 px-2.5 py-0.5 rounded-full truncate max-w-full">
               🌸 {fragranceLabel}
             </span>
           </div>
@@ -115,7 +115,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         <button
           type="button"
           onClick={handleAddToCart}
-          className="absolute bottom-2.5 right-2.5 bg-[#DEB554] hover:bg-[#C5983A] text-[#180F0A] p-2.5 rounded-full shadow-xl opacity-0 group-hover:opacity-100 transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 cursor-pointer font-bold"
+          className="absolute bottom-2.5 right-2.5 bg-[#E87A96] hover:bg-[#D45D7D] text-white p-2.5 rounded-full shadow-xl opacity-0 group-hover:opacity-100 transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 cursor-pointer font-bold"
           title="Quick add to bag"
         >
           <span className="text-xs">🛍️</span>
@@ -125,38 +125,38 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       {/* Product Details */}
       <div className="p-4 space-y-2 flex-1 flex flex-col justify-between">
         <div>
-          <div className="flex items-center justify-between text-[10px] font-mono text-[#DEB554] mb-1">
+          <div className="flex items-center justify-between text-[10px] font-mono text-[#E87A96] mb-1">
             <span className="truncate uppercase font-bold tracking-wider">{product.category || 'Soy Candle'}</span>
             {hasRating && (
-              <span className="text-stone-300 font-bold">★ {Number(product.rating).toFixed(1)}</span>
+              <span className="text-[#886C7B] font-bold">★ {Number(product.rating).toFixed(1)}</span>
             )}
           </div>
 
-          <h3 className="font-serif text-sm sm:text-base font-bold text-[#FDFBF7] group-hover:text-[#DEB554] transition-colors line-clamp-1">
+          <h3 className="font-serif text-sm sm:text-base font-bold text-[#1C1217] group-hover:text-[#E87A96] transition-colors line-clamp-1">
             {product.name}
           </h3>
 
           {/* Fragrance / Top Notes preview */}
           {product.topNotes && (
-            <p className="text-[11px] text-stone-400 line-clamp-1 mt-0.5">
-              <span className="text-stone-500 font-medium">Notes:</span> {product.topNotes}
+            <p className="text-[11px] text-[#624855] line-clamp-1 mt-0.5">
+              <span className="text-[#886C7B] font-medium">Notes:</span> {product.topNotes}
             </p>
           )}
         </div>
 
-        <div className="flex items-baseline justify-between pt-2.5 border-t border-[#2C2018]/80">
+        <div className="flex items-baseline justify-between pt-2.5 border-t border-[#F5E8EE]">
           <div className="flex items-baseline gap-1.5">
-            <span className="text-base font-serif font-bold text-[#FDFBF7]">
+            <span className="text-base font-serif font-bold text-[#1C1217]">
               ₹{Number(product.price).toLocaleString('en-IN')}
             </span>
             {hasDiscount && (
-              <span className="text-[11px] text-stone-500 line-through">
+              <span className="text-[11px] text-[#886C7B] line-through">
                 ₹{Number(product.originalPrice!).toLocaleString('en-IN')}
               </span>
             )}
           </div>
 
-          <span className="text-[11px] font-bold text-[#DEB554] group-hover:translate-x-0.5 transition-transform">
+          <span className="text-[11px] font-bold text-[#E87A96] group-hover:translate-x-0.5 transition-transform">
             View Details →
           </span>
         </div>

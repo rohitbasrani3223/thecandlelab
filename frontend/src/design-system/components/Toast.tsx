@@ -61,33 +61,33 @@ export const useToast = () => {
 
 const ToastItem: React.FC<{ toast: ToastMessage; onClose: () => void }> = ({ toast, onClose }) => {
   const typeIcons: Record<ToastType, React.ReactNode> = {
-    success: <CheckIcon size={18} className="text-[#2E6F40]" />,
-    error: <AlertCircleIcon size={18} className="text-[#B33A3A]" />,
-    warning: <AlertCircleIcon size={18} className="text-[#C87D20]" />,
-    info: <AlertCircleIcon size={18} className="text-[#2B6CB0]" />,
-    luxury: <SparklesIcon size={18} className="text-[#D4AF37]" />,
+    success: <CheckIcon size={18} className="text-[#15803D]" />,
+    error: <AlertCircleIcon size={18} className="text-[#BE123C]" />,
+    warning: <AlertCircleIcon size={18} className="text-[#B45309]" />,
+    info: <AlertCircleIcon size={18} className="text-[#0369A1]" />,
+    luxury: <SparklesIcon size={18} className="text-[#E87A96]" />,
   };
 
   const bgStyles: Record<ToastType, string> = {
-    success: 'bg-[#FAF6F0] border-l-4 border-l-[#2E6F40] border-y border-r border-[#E5D9C5]',
-    error: 'bg-[#FAF6F0] border-l-4 border-l-[#B33A3A] border-y border-r border-[#E5D9C5]',
-    warning: 'bg-[#FAF6F0] border-l-4 border-l-[#C87D20] border-y border-r border-[#E5D9C5]',
-    info: 'bg-[#FAF6F0] border-l-4 border-l-[#2B6CB0] border-y border-r border-[#E5D9C5]',
-    luxury: 'bg-[#2A1E17] text-[#FAF6F0] border-l-4 border-l-[#D4AF37] border-y border-r border-[#4A3B32]',
+    success: 'bg-[#FFFFFF] border-l-4 border-l-[#15803D] border-y border-r border-[#F5E8EE]',
+    error: 'bg-[#FFFFFF] border-l-4 border-l-[#BE123C] border-y border-r border-[#F5E8EE]',
+    warning: 'bg-[#FFFFFF] border-l-4 border-l-[#B45309] border-y border-r border-[#F5E8EE]',
+    info: 'bg-[#FFFFFF] border-l-4 border-l-[#0369A1] border-y border-r border-[#F5E8EE]',
+    luxury: 'bg-[#1C1217] text-[#FFFFFF] border-l-4 border-l-[#E87A96] border-y border-r border-[#2C1D25] shadow-[0_8px_30px_rgba(249,184,202,0.25)]',
   };
 
   return (
     <div
-      className={`pointer-events-auto flex items-start justify-between p-4 rounded-md shadow-hover animate-slide-right transition-all font-sans ${bgStyles[toast.type]}`}
+      className={`pointer-events-auto flex items-start justify-between p-4 rounded-xl shadow-hover animate-slide-right transition-all font-sans ${bgStyles[toast.type]}`}
     >
       <div className="flex items-start gap-3">
         <div className="mt-0.5 shrink-0">{typeIcons[toast.type]}</div>
         <div className="flex flex-col text-left">
-          <h4 className={`text-sm font-semibold ${toast.type === 'luxury' ? 'text-[#D4AF37]' : 'text-[#2A1E17]'}`}>
+          <h4 className={`text-sm font-semibold ${toast.type === 'luxury' ? 'text-[#F9B8CA]' : 'text-[#1C1217]'}`}>
             {toast.title}
           </h4>
           {toast.description && (
-            <p className={`text-xs mt-0.5 ${toast.type === 'luxury' ? 'text-[#E5D9C5]' : 'text-[#8C7A6B]'}`}>
+            <p className={`text-xs mt-0.5 ${toast.type === 'luxury' ? 'text-[#FCD5E2]' : 'text-[#886C7B]'}`}>
               {toast.description}
             </p>
           )}
@@ -95,7 +95,7 @@ const ToastItem: React.FC<{ toast: ToastMessage; onClose: () => void }> = ({ toa
       </div>
       <button
         onClick={onClose}
-        className={`ml-3 shrink-0 p-1 rounded-sm hover:opacity-75 focus:outline-none ${toast.type === 'luxury' ? 'text-[#E5D9C5]' : 'text-[#8C7A6B]'}`}
+        className={`ml-3 shrink-0 p-1 rounded-full hover:opacity-75 focus:outline-none ${toast.type === 'luxury' ? 'text-[#FCD5E2]' : 'text-[#886C7B]'}`}
         aria-label="Close notification"
       >
         <CloseIcon size={14} />

@@ -42,17 +42,17 @@ export const ProfileSettingsTab: React.FC = () => {
 
   return (
     <form onSubmit={handleSave} className="space-y-6 font-sans">
-      <div className="flex items-center justify-between border-b border-[#E5D9C5] pb-4">
+      <div className="flex items-center justify-between border-b border-[#F5E8EE] pb-4">
         <div>
-          <Badge variant="gold" icon={<SparklesIcon size={12} />}>PROFILE MANAGEMENT</Badge>
-          <h2 className="text-2xl font-serif font-bold text-[#2A1E17] mt-1">
+          <Badge variant="pink" icon={<SparklesIcon size={12} />}>PROFILE MANAGEMENT</Badge>
+          <h2 className="text-2xl font-serif font-bold text-[#1C1217] mt-1">
             Personal Details & Scent Profile
           </h2>
         </div>
       </div>
 
       <div className="space-y-4">
-        <h3 className="text-xs uppercase font-bold tracking-wider text-[#8C7A6B]">Personal Information</h3>
+        <h3 className="text-xs uppercase font-bold tracking-wider text-[#886C7B]">Personal Information</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
             label="First Name"
@@ -88,7 +88,7 @@ export const ProfileSettingsTab: React.FC = () => {
 
       {/* Preferred Scent Profile Selection */}
       <div className="space-y-3 pt-2">
-        <span className="text-xs uppercase font-bold tracking-wider text-[#8C7A6B] block">
+        <span className="text-xs uppercase font-bold tracking-wider text-[#886C7B] block">
           Preferred Olfactory Families (for personalized drops):
         </span>
         <div className="flex flex-wrap items-center gap-3">
@@ -105,7 +105,7 @@ export const ProfileSettingsTab: React.FC = () => {
                 key={scent}
                 type="button"
                 onClick={() => toggleScent(scent)}
-                className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${isSelected ? 'bg-[#D4AF37] text-[#1C130E] border-[#D4AF37] shadow-xs' : 'bg-[#FAF6F0] border-[#E5D9C5] text-[#4A3B32] hover:bg-[#F4EFE6]'}`}
+                className={`px-4 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer ${isSelected ? 'bg-[#E87A96] text-white border-[#E87A96] shadow-xs' : 'bg-[#FFF6F8] border-[#F5E8EE] text-[#624855] hover:bg-[#FDE8EF]'}`}
               >
                 {isSelected ? `✓ ${scent}` : `+ ${scent}`}
               </button>
@@ -115,7 +115,7 @@ export const ProfileSettingsTab: React.FC = () => {
       </div>
 
       <div className="pt-4">
-        <Button variant="gold" size="md" type="submit">
+        <Button variant="pink" size="md" type="submit">
           Save Profile Changes
         </Button>
       </div>

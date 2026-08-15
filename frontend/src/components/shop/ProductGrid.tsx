@@ -76,12 +76,12 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
         return (
           <div
             key={prod.id}
-            className="group bg-white border border-[#EFE8DB] rounded-2xl overflow-hidden shadow-subtle hover:shadow-hover hover:border-[#B88B38] transition-all duration-300 flex flex-col justify-between"
+            className="group bg-white border border-[#F5E8EE] rounded-3xl overflow-hidden shadow-subtle hover:shadow-card hover:border-[#F9B8CA] transition-all duration-300 flex flex-col justify-between"
           >
             {/* Top Vessel Media Container */}
             <div
               onClick={() => handleProductClick(prod)}
-              className="relative h-60 bg-[#F8F3EA] flex items-center justify-center cursor-pointer overflow-hidden rounded-t-2xl"
+              className="relative h-60 bg-[#FFF6F8] flex items-center justify-center cursor-pointer overflow-hidden rounded-t-3xl"
             >
               {((prod as any).image || (prod as any).imageUrl) ? (
                 <img
@@ -90,19 +90,21 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
               ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center bg-[#F4EDE0] gap-2">
+                <div className="w-full h-full flex flex-col items-center justify-center bg-[#FFF6F8] gap-2">
                   <span className="text-4xl">🕯️</span>
-                  <span className="text-xs font-semibold text-[#8C7A6B] text-center px-4">{prod.name}</span>
-                  <span className="text-[10px] text-[#A8957F]">No image yet</span>
+                  <span className="text-xs font-semibold text-[#886C7B] text-center px-4">{prod.name}</span>
+                  <span className="text-[10px] text-[#AC94A1]">No image yet</span>
                 </div>
               )}
 
-              {/* SAVE Discount Red Pill Badge */}
-              <div className="absolute top-3 left-3 z-10">
-                <span className="bg-[#B93829] text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-xs">
-                  SAVE ₹{discountAmount}
-                </span>
-              </div>
+              {/* SAVE Discount Pill Badge */}
+              {discountAmount > 0 && (
+                <div className="absolute top-3 left-3 z-10">
+                  <span className="bg-[#E87A96] text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-xs">
+                    SAVE ₹{discountAmount}
+                  </span>
+                </div>
+              )}
 
               {/* Wishlist Circle Button */}
               <button
@@ -111,59 +113,59 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                   onToggleWishlist(prod.id, prod.name);
                 }}
                 className={`absolute top-3 right-3 w-8 h-8 rounded-full bg-white shadow-xs flex items-center justify-center transition-all z-20 cursor-pointer hover:scale-105 ${
-                  isWishlisted ? 'text-[#B93829]' : 'text-[#4A3B32] hover:text-[#B88B38]'
+                  isWishlisted ? 'text-[#BE123C]' : 'text-[#886C7B] hover:text-[#E87A96]'
                 }`}
                 aria-label="Wishlist"
               >
-                <HeartIcon size={16} className={isWishlisted ? 'fill-current text-[#B93829]' : ''} />
+                <HeartIcon size={16} className={isWishlisted ? 'fill-current text-[#BE123C]' : ''} />
               </button>
 
               {/* Hover Notes Overlay */}
-              <div className="absolute bottom-2 left-2 right-2 bg-[#2D1E15]/90 text-white p-2 rounded-lg text-[10px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-xs z-10">
-                <div className="font-bold text-[#D4AF37] uppercase">Notes:</div>
-                <div className="truncate text-[#E5D9C5]">{prod.topNotes}</div>
+              <div className="absolute bottom-2 left-2 right-2 bg-[#1C1217]/90 text-white p-2.5 rounded-xl text-[10px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-xs z-10">
+                <div className="font-bold text-[#F9B8CA] uppercase">Notes:</div>
+                <div className="truncate text-[#FAF6F8]">{prod.topNotes}</div>
               </div>
             </div>
 
             {/* Lower Details Content Section */}
             <div className="p-5 space-y-2.5 flex-1 flex flex-col justify-between bg-white">
               <div className="space-y-1">
-                <span className="text-[10px] uppercase font-bold tracking-widest text-[#B88B38] block">
+                <span className="text-[10px] uppercase font-bold tracking-widest text-[#E87A96] block">
                   {prod.category}
                 </span>
 
                 <h3
                   onClick={() => handleProductClick(prod)}
-                  className="text-base font-serif font-bold text-[#2C1E16] group-hover:text-[#B88B38] transition-colors leading-snug cursor-pointer line-clamp-1"
+                  className="text-base font-serif font-bold text-[#1C1217] group-hover:text-[#E87A96] transition-colors leading-snug cursor-pointer line-clamp-1"
                 >
                   {prod.name}
                 </h3>
 
-                <p className="text-xs text-[#7A6B5D] italic truncate">
+                <p className="text-xs text-[#624855] italic truncate">
                   Notes: {prod.topNotes}
                 </p>
 
                 {/* Rating */}
-                <div className="flex items-center gap-1 text-xs text-[#B88B38] font-bold pt-1">
-                  <div className="flex text-[#B88B38]">
+                <div className="flex items-center gap-1 text-xs text-[#E8C86D] font-bold pt-1">
+                  <div className="flex text-[#E8C86D]">
                     {[...Array(5)].map((_, i) => (
-                      <StarIcon key={i} size={14} className="fill-current text-[#B88B38]" />
+                      <StarIcon key={i} size={14} className="fill-current text-[#E8C86D]" />
                     ))}
                   </div>
-                  <span className="ml-1 text-[#2C1E16]">{prod.rating}</span>
-                  <span className="text-[#8C7A6B] font-normal">({prod.reviewsCount})</span>
+                  <span className="ml-1 text-[#1C1217]">{prod.rating}</span>
+                  <span className="text-[#886C7B] font-normal">({prod.reviewsCount})</span>
                 </div>
               </div>
 
               {/* Bottom Price & Add to Cart Row */}
-              <div className="pt-3 border-t border-[#F2ECE1] flex items-center justify-between gap-2">
+              <div className="pt-3 border-t border-[#F5E8EE] flex items-center justify-between gap-2">
                 <div className="flex items-baseline gap-1.5">
                   {inrOriginal && (
-                    <span className="text-xs text-[#8C7A6B] line-through font-normal">
+                    <span className="text-xs text-[#886C7B] line-through font-normal">
                       ₹{inrOriginal}
                     </span>
                   )}
-                  <span className="text-base font-bold text-[#2C1E16]">
+                  <span className="text-base font-bold text-[#1C1217]">
                     ₹{inrPrice}
                   </span>
                 </div>
@@ -171,7 +173,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                 <div className="flex items-center gap-1.5">
                   <button
                     onClick={(e) => handleAddToCartDirect(prod, e)}
-                    className="bg-[#B88B38] hover:bg-[#A3792E] text-white font-bold text-xs py-2 px-3.5 rounded-lg flex items-center gap-1.5 shadow-xs transition-all cursor-pointer shrink-0"
+                    className="bg-[#E87A96] hover:bg-[#D45D7D] text-white font-bold text-xs py-2 px-3.5 rounded-full flex items-center gap-1.5 shadow-xs transition-all cursor-pointer shrink-0"
                   >
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 11h14l1 12H4L5 11z" />
@@ -186,10 +188,10 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
       })}
     </div>
 
-    {/* ─── Cart Added Notification (Top Right Below Header, Premium) ─── */}
+    {/* ─── Cart Added Notification (Top Right Below Header) ─── */}
     {cartAddedProduct && (
       <div
-        className="fixed top-16 left-3 right-3 sm:left-auto sm:right-6 sm:w-80 z-[9999] bg-[#1C130E] border border-[#D4AF37]/40 rounded-2xl shadow-2xl overflow-hidden animate-slide-right font-sans"
+        className="fixed top-16 left-3 right-3 sm:left-auto sm:right-6 sm:w-80 z-[9999] bg-white border border-[#F5E8EE] rounded-3xl shadow-2xl overflow-hidden animate-slide-right font-sans"
         style={{ animation: 'slideInRight 0.35s cubic-bezier(0.16,1,0.3,1)' }}
       >
         <style>{`
@@ -198,60 +200,64 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
             to   { transform: translateX(0);    opacity: 1; }
           }
         `}</style>
-        {/* Gold top line */}
-        <div className="h-0.5 w-full bg-gradient-to-r from-[#D4AF37] via-[#F5D98F] to-[#D4AF37]" />
-        <div className="p-4 flex items-start gap-3">
-          {/* Product thumb */}
-          <div className="w-12 h-12 rounded-xl overflow-hidden border border-[#D4AF37]/30 shrink-0 bg-[#2A1E17] flex items-center justify-center">
-            {((cartAddedProduct as any).image || (cartAddedProduct as any).imageUrl) ? (
-              <img
-                src={(cartAddedProduct as any).image || (cartAddedProduct as any).imageUrl}
-                alt={cartAddedProduct.name}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <span className="text-xl">🕯️</span>
-            )}
+        <div className="p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] uppercase font-bold text-[#15803D] flex items-center gap-1">
+              ✓ Added to Bag
+            </span>
+            <button
+              onClick={() => setCartAddedProduct(null)}
+              className="text-[#886C7B] hover:text-[#1C1217] text-xs font-bold"
+            >
+              ✕
+            </button>
           </div>
-          {/* Text */}
-          <div className="flex-1 min-w-0">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-[#D4AF37]">✓ Added to Bag</p>
-            <p className="text-sm font-semibold text-white truncate mt-0.5">{cartAddedProduct.name}</p>
-            <p className="text-xs text-[#A89078] mt-0.5">₹{Math.round(cartAddedProduct.price)}</p>
+
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-[#FFF6F8] overflow-hidden shrink-0 border border-[#F5E8EE]">
+              {((cartAddedProduct as any).image || (cartAddedProduct as any).imageUrl) ? (
+                <img
+                  src={(cartAddedProduct as any).image || (cartAddedProduct as any).imageUrl}
+                  alt={cartAddedProduct.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-xl flex items-center justify-center h-full">🕯️</span>
+              )}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-bold text-[#1C1217] truncate">{cartAddedProduct.name}</p>
+              <p className="text-[11px] text-[#E87A96] font-bold">₹{Math.round(cartAddedProduct.price || 0)}</p>
+            </div>
           </div>
-          {/* Close */}
-          <button
-            onClick={() => setCartAddedProduct(null)}
-            className="text-[#7A6B5D] hover:text-white transition-colors shrink-0 mt-0.5 cursor-pointer"
-          >
-            ✕
-          </button>
-        </div>
-        {/* CTA Buttons */}
-        <div className="px-4 pb-4 flex gap-2">
-          <button
-            onClick={() => setCartAddedProduct(null)}
-            className="flex-1 text-xs font-semibold text-[#D4AF37] border border-[#D4AF37]/40 rounded-lg py-2 hover:bg-[#D4AF37]/10 transition-colors cursor-pointer"
-          >
-            Continue Shopping
-          </button>
-          <button
-            onClick={() => {
-              setCartAddedProduct(null);
-              if (onNavigateToCart) {
-                onNavigateToCart();
-              } else {
-                window.location.hash = '#cart';
-                window.dispatchEvent(new HashChangeEvent('hashchange'));
-              }
-            }}
-            className="flex-1 text-xs font-bold bg-[#D4AF37] text-[#1C130E] rounded-lg py-2 hover:bg-[#F5D98F] transition-colors cursor-pointer"
-          >
-            View Cart →
-          </button>
+
+          <div className="grid grid-cols-2 gap-2 pt-1">
+            <button
+              onClick={() => {
+                setCartAddedProduct(null);
+                if (onNavigateToCart) {
+                  onNavigateToCart();
+                } else {
+                  window.location.hash = '#cart';
+                }
+              }}
+              className="w-full text-center text-xs py-2 bg-[#FFF6F8] text-[#1C1217] rounded-full border border-[#F5E8EE] font-bold hover:bg-[#FDE8EF]"
+            >
+              View Bag
+            </button>
+            <button
+              onClick={() => {
+                setCartAddedProduct(null);
+                window.location.hash = '#checkout';
+              }}
+              className="w-full text-center text-xs py-2 bg-[#E87A96] text-white rounded-full font-bold hover:bg-[#D45D7D]"
+            >
+              Checkout →
+            </button>
+          </div>
         </div>
       </div>
     )}
-  </>
+    </>
   );
 };

@@ -13,13 +13,13 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   height,
   className = '',
 }) => {
-  const baseStyles = "animate-shimmer rounded-sm";
+  const baseStyles = "animate-shimmer rounded-xl";
 
   const variantStyles = {
-    text: "h-4 w-full rounded-xs my-1",
+    text: "h-4 w-full rounded-md my-1",
     circular: "rounded-full w-10 h-10 shrink-0",
-    rectangular: "w-full h-32 rounded-md",
-    card: "w-full h-64 rounded-md",
+    rectangular: "w-full h-32 rounded-xl",
+    card: "w-full h-64 rounded-2xl",
   };
 
   const style: React.CSSProperties = {
@@ -36,12 +36,12 @@ export const Skeleton: React.FC<SkeletonProps> = ({
 };
 
 export const SkeletonCard: React.FC<{ className?: string }> = ({ className = '' }) => (
-  <div className={`p-4 rounded-md border border-[#E5D9C5] bg-[#FAF6F0] flex flex-col gap-3 ${className}`}>
+  <div className={`p-4 rounded-2xl border border-[#F5E8EE] bg-[#FFFFFF] flex flex-col gap-3 ${className}`}>
     <Skeleton variant="rectangular" height={180} />
     <Skeleton variant="text" width="40%" />
     <Skeleton variant="text" width="90%" />
     <Skeleton variant="text" width="60%" />
-    <div className="flex items-center justify-between mt-2 pt-2 border-t border-[#F4EFE6]">
+    <div className="flex items-center justify-between mt-2 pt-2 border-t border-[#FFF6F8]">
       <Skeleton variant="text" width={70} height={24} />
       <Skeleton variant="text" width={90} height={32} />
     </div>

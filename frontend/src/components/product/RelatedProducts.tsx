@@ -6,7 +6,7 @@ const relatedItems = [
     id: 'rel-1',
     name: 'French Bourbon Vanilla Bean',
     subtitle: 'Warm Vanilla Series',
-    price: '$94.00',
+    price: '₹1,299',
     rating: 4.95,
     tag: 'Best Seller',
   },
@@ -14,7 +14,7 @@ const relatedItems = [
     id: 'rel-2',
     name: 'Mysore Sandalwood & Cedar',
     subtitle: 'Woody Oud Series',
-    price: '$42.00',
+    price: '₹899',
     rating: 4.85,
     tag: 'Limited',
   },
@@ -22,7 +22,7 @@ const relatedItems = [
     id: 'rel-3',
     name: 'Bergamot & White Jasmine Bloom',
     subtitle: 'Floral Citrus Series',
-    price: '$68.00',
+    price: '₹1,099',
     rating: 4.88,
     tag: 'Calming',
   },
@@ -32,11 +32,11 @@ export const RelatedProducts: React.FC = () => {
   const { toast } = useToast();
 
   return (
-    <section className="space-y-8 font-sans border-t border-[#E5D9C5] pt-12">
-      <div className="flex items-center justify-between border-b border-[#E5D9C5] pb-4">
+    <section className="space-y-8 font-sans border-t border-[#F5E8EE] pt-12">
+      <div className="flex items-center justify-between border-b border-[#F5E8EE] pb-4">
         <div>
-          <span className="text-xs uppercase font-bold tracking-widest text-[#D4AF37] block">Complimentary Aromatics</span>
-          <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#2A1E17]">
+          <span className="text-xs uppercase font-bold tracking-widest text-[#E87A96] block">Complimentary Aromatics</span>
+          <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#1C1217]">
             You May Also Savor
           </h2>
         </div>
@@ -48,32 +48,32 @@ export const RelatedProducts: React.FC = () => {
             key={prod.id}
             variant="bordered"
             padding="none"
-            className="bg-[#FAF6F0] group flex flex-col justify-between overflow-hidden hover:shadow-hover transition-all duration-300"
+            className="bg-[#FFFFFF] border-[#F5E8EE] rounded-3xl group flex flex-col justify-between overflow-hidden hover:shadow-card hover:border-[#F9B8CA] transition-all duration-300"
           >
-            <div className="h-48 bg-[#2A1E17] flex items-center justify-center relative overflow-hidden">
+            <div className="h-48 bg-[#FFF6F8] flex items-center justify-center relative overflow-hidden">
               <div className="text-5xl group-hover:scale-110 transition-transform">🕯️</div>
-              <div className="absolute top-2 left-2">
-                <Badge variant="gold" size="sm" icon={<SparklesIcon size={10} />}>{prod.tag}</Badge>
+              <div className="absolute top-3 left-3">
+                <Badge variant="pink" size="sm" icon={<SparklesIcon size={10} />}>{prod.tag}</Badge>
               </div>
             </div>
 
             <div className="p-4 space-y-2">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-[#8C7A6B] font-medium">{prod.subtitle}</span>
-                <div className="flex items-center gap-1 text-[#D4AF37] font-bold">
-                  <StarIcon size={12} className="fill-current text-[#D4AF37]" />
+                <span className="text-[#886C7B] font-medium">{prod.subtitle}</span>
+                <div className="flex items-center gap-1 text-[#E8C86D] font-bold">
+                  <StarIcon size={12} className="fill-current text-[#E8C86D]" />
                   <span>{prod.rating}</span>
                 </div>
               </div>
 
-              <h3 className="text-sm font-serif font-bold text-[#2A1E17] group-hover:text-[#D4AF37] transition-colors truncate">
+              <h3 className="text-sm font-serif font-bold text-[#1C1217] group-hover:text-[#E87A96] transition-colors truncate">
                 {prod.name}
               </h3>
 
-              <div className="pt-2 border-t border-[#E5D9C5] flex items-center justify-between">
-                <span className="text-sm font-bold text-[#2A1E17]">{prod.price}</span>
+              <div className="pt-2 border-t border-[#F5E8EE] flex items-center justify-between">
+                <span className="text-sm font-bold text-[#1C1217]">{prod.price}</span>
                 <Button
-                  variant="gold"
+                  variant="pink"
                   size="sm"
                   onClick={() => toast({ type: 'luxury', title: 'Added to Bag', description: prod.name })}
                 >

@@ -30,18 +30,18 @@ export const SecurityTab: React.FC = () => {
 
   return (
     <div className="space-y-8 font-sans">
-      <div className="flex items-center justify-between border-b border-[#E5D9C5] pb-4">
+      <div className="flex items-center justify-between border-b border-[#F5E8EE] pb-4">
         <div>
-          <Badge variant="gold" icon={<SparklesIcon size={12} />}>ACCOUNT SECURITY</Badge>
-          <h2 className="text-2xl font-serif font-bold text-[#2A1E17] mt-1">
+          <Badge variant="pink" icon={<SparklesIcon size={12} />}>ACCOUNT SECURITY</Badge>
+          <h2 className="text-2xl font-serif font-bold text-[#1C1217] mt-1">
             Security & Credentials
           </h2>
         </div>
       </div>
 
       {/* 1. Change Password Form */}
-      <form onSubmit={handlePasswordChange} className="p-6 bg-[#FAF6F0] border border-[#E5D9C5] rounded-md space-y-4">
-        <h3 className="font-serif font-bold text-base text-[#2A1E17] border-b border-[#E5D9C5] pb-2">
+      <form onSubmit={handlePasswordChange} className="p-6 bg-[#FFF6F8] border border-[#F5E8EE] rounded-3xl space-y-4 shadow-xs">
+        <h3 className="font-serif font-bold text-base text-[#1C1217] border-b border-[#F5E8EE] pb-2">
           Change Account Password
         </h3>
 
@@ -73,19 +73,19 @@ export const SecurityTab: React.FC = () => {
           />
         </div>
 
-        <Button variant="gold" size="md" type="submit">
+        <Button variant="pink" size="md" type="submit">
           Update Password
         </Button>
       </form>
 
       {/* 2. Two-Factor Authentication (2FA) */}
-      <div className="p-6 bg-[#FAF6F0] border border-[#E5D9C5] rounded-md flex items-center justify-between gap-4">
+      <div className="p-6 bg-[#FFF6F8] border border-[#F5E8EE] rounded-3xl flex items-center justify-between gap-4 shadow-xs">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-bold text-[#2A1E17]">Two-Factor Authentication (2FA)</span>
+            <span className="text-sm font-bold text-[#1C1217]">Two-Factor Authentication (2FA)</span>
             <Badge variant="success" size="sm">RECOMMENDED</Badge>
           </div>
-          <p className="text-xs text-[#8C7A6B]">
+          <p className="text-xs text-[#886C7B]">
             Add an additional layer of security to your account using authenticator apps or SMS codes.
           </p>
         </div>
@@ -102,32 +102,32 @@ export const SecurityTab: React.FC = () => {
       </div>
 
       {/* 3. Active Sessions List */}
-      <div className="p-6 bg-[#FAF6F0] border border-[#E5D9C5] rounded-md space-y-4">
-        <div className="flex items-center justify-between border-b border-[#E5D9C5] pb-2">
-          <h4 className="font-serif font-bold text-sm text-[#2A1E17]">Active Login Sessions</h4>
+      <div className="p-6 bg-white border border-[#F5E8EE] rounded-3xl space-y-4 shadow-xs">
+        <div className="flex items-center justify-between border-b border-[#F5E8EE] pb-2">
+          <h4 className="font-serif font-bold text-sm text-[#1C1217]">Active Login Sessions</h4>
           <button
             onClick={() => toast({ type: 'luxury', title: 'Signed Out from All Other Devices' })}
-            className="text-xs font-bold text-[#B33A3A] hover:underline"
+            className="text-xs font-bold text-[#BE123C] hover:underline cursor-pointer"
           >
             Sign Out All Other Devices
           </button>
         </div>
 
         <div className="space-y-2 text-xs">
-          <div className="p-3 bg-[#F4EFE6] rounded-xs border border-[#E5D9C5] flex items-center justify-between">
+          <div className="p-3 bg-[#FFF6F8] rounded-2xl border border-[#F5E8EE] flex items-center justify-between">
             <div>
-              <strong className="text-[#2A1E17] block">MacBook Pro • Chrome Browser (Current Session)</strong>
-              <span className="text-[#8C7A6B]">Boston, MA • IP 192.168.1.1</span>
+              <strong className="text-[#1C1217] block">MacBook Pro • Chrome Browser (Current Session)</strong>
+              <span className="text-[#886C7B]">Boston, MA • IP 192.168.1.1</span>
             </div>
-            <Badge variant="gold" size="sm">ACTIVE NOW</Badge>
+            <Badge variant="pink" size="sm">ACTIVE NOW</Badge>
           </div>
 
-          <div className="p-3 bg-[#FAF6F0] rounded-xs border border-[#E5D9C5] flex items-center justify-between">
+          <div className="p-3 bg-white rounded-2xl border border-[#F5E8EE] flex items-center justify-between">
             <div>
-              <strong className="text-[#2A1E17] block">iPhone 15 Pro • Safari Mobile</strong>
-              <span className="text-[#8C7A6B]">Boston, MA • Last active 2 hours ago</span>
+              <strong className="text-[#1C1217] block">iPhone 15 Pro • Safari Mobile</strong>
+              <span className="text-[#886C7B]">Boston, MA • Last active 2 hours ago</span>
             </div>
-            <span className="text-[10px] text-[#8C7A6B]">Trusted Device</span>
+            <span className="text-[10px] text-[#886C7B]">Trusted Device</span>
           </div>
         </div>
       </div>

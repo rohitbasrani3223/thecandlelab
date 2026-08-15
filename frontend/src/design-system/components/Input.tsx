@@ -28,11 +28,11 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(({
   const isPassword = type === 'password';
   const effectiveType = isPassword ? (showPassword ? 'text' : 'password') : type;
 
-  let borderColorClass = "border-[#E5D9C5] focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37]";
+  let borderColorClass = "border-[#F5E8EE] focus:border-[#E87A96] focus:ring-2 focus:ring-[#F9B8CA]/40";
   if (error) {
-    borderColorClass = "border-[#B33A3A] text-[#B33A3A] focus:border-[#B33A3A] focus:ring-1 focus:ring-[#B33A3A]";
+    borderColorClass = "border-[#BE123C] text-[#BE123C] focus:border-[#BE123C] focus:ring-2 focus:ring-[#BE123C]/30";
   } else if (success) {
-    borderColorClass = "border-[#2E6F40] focus:border-[#2E6F40] focus:ring-1 focus:ring-[#2E6F40]";
+    borderColorClass = "border-[#15803D] focus:border-[#15803D] focus:ring-2 focus:ring-[#15803D]/30";
   }
 
   return (
@@ -40,7 +40,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(({
       {label && (
         <label
           htmlFor={inputId}
-          className="text-xs font-semibold uppercase tracking-wider text-[#4A3B32] select-none"
+          className="text-xs font-semibold uppercase tracking-wider text-[#624855] select-none"
         >
           {label}
         </label>
@@ -48,7 +48,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(({
       
       <div className="relative flex items-center w-full">
         {leftIcon && (
-          <div className="absolute left-3.5 text-[#8C7A6B] pointer-events-none flex items-center justify-center">
+          <div className="absolute left-3.5 text-[#AC94A1] pointer-events-none flex items-center justify-center">
             {leftIcon}
           </div>
         )}
@@ -58,7 +58,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(({
           id={inputId}
           type={effectiveType}
           disabled={disabled}
-          className={`w-full bg-[#FAF6F0] text-[#2A1E17] placeholder-[#A68B75] text-sm px-4 py-2.5 rounded-sm border outline-none transition-all duration-200 disabled:opacity-50 disabled:bg-[#EBE2D3] ${leftIcon ? 'pl-10' : ''} ${(rightIcon || isPassword) ? 'pr-10' : ''} ${borderColorClass} ${className}`}
+          className={`w-full bg-[#FFFFFF] text-[#1C1217] placeholder-[#AC94A1] text-sm px-4 py-2.5 rounded-xl border outline-none transition-all duration-200 disabled:opacity-50 disabled:bg-[#FAF6F8] ${leftIcon ? 'pl-10' : ''} ${(rightIcon || isPassword) ? 'pr-10' : ''} ${borderColorClass} ${className}`}
           {...props}
         />
 
@@ -66,7 +66,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(({
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 text-[#8C7A6B] hover:text-[#2A1E17] focus:outline-none p-1 transition-colors"
+            className="absolute right-3 text-[#AC94A1] hover:text-[#1C1217] focus:outline-none p-1 transition-colors"
             tabIndex={-1}
             aria-label={showPassword ? 'Hide password' : 'Show password'}
           >
@@ -74,7 +74,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(({
           </button>
         ) : (
           rightIcon && (
-            <div className="absolute right-3.5 text-[#8C7A6B] pointer-events-none flex items-center justify-center">
+            <div className="absolute right-3.5 text-[#AC94A1] pointer-events-none flex items-center justify-center">
               {rightIcon}
             </div>
           )
@@ -82,7 +82,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(({
       </div>
 
       {(error || helperText) && (
-        <p className={`text-xs ${error ? 'text-[#B33A3A] font-medium' : 'text-[#8C7A6B]'}`}>
+        <p className={`text-xs ${error ? 'text-[#BE123C] font-medium' : 'text-[#886C7B]'}`}>
           {error || helperText}
         </p>
       )}
@@ -114,7 +114,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(({
       {label && (
         <label
           htmlFor={textareaId}
-          className="text-xs font-semibold uppercase tracking-wider text-[#4A3B32]"
+          className="text-xs font-semibold uppercase tracking-wider text-[#624855]"
         >
           {label}
         </label>
@@ -123,11 +123,11 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(({
         ref={ref}
         id={textareaId}
         rows={rows}
-        className={`w-full bg-[#FAF6F0] text-[#2A1E17] placeholder-[#A68B75] text-sm p-3.5 rounded-sm border outline-none transition-all duration-200 ${error ? 'border-[#B33A3A]' : 'border-[#E5D9C5] focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37]'} ${className}`}
+        className={`w-full bg-[#FFFFFF] text-[#1C1217] placeholder-[#AC94A1] text-sm p-3.5 rounded-xl border outline-none transition-all duration-200 ${error ? 'border-[#BE123C]' : 'border-[#F5E8EE] focus:border-[#E87A96] focus:ring-2 focus:ring-[#F9B8CA]/40'} ${className}`}
         {...props}
       />
       {(error || helperText) && (
-        <p className={`text-xs ${error ? 'text-[#B33A3A] font-medium' : 'text-[#8C7A6B]'}`}>
+        <p className={`text-xs ${error ? 'text-[#BE123C] font-medium' : 'text-[#886C7B]'}`}>
           {error || helperText}
         </p>
       )}

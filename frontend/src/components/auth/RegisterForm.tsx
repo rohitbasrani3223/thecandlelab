@@ -59,16 +59,16 @@ export const RegisterForm: React.FC = () => {
   };
 
   return (
-    <div className="w-full font-sans text-[#2A1E17]">
+    <div className="w-full font-sans text-[#1C1217]">
       {/* Top Floating Badge & Icon Header */}
       <div className="flex flex-col items-center text-center mb-6">
-        <div className="w-14 h-14 rounded-2xl bg-[#F4EFE6] border border-[#E5D9C5] flex items-center justify-center shadow-xs mb-3 text-2xl">
+        <div className="w-14 h-14 rounded-2xl bg-[#FFF6F8] border border-[#F9B8CA] flex items-center justify-center shadow-xs mb-3 text-2xl text-[#E87A96]">
           ✨
         </div>
-        <h2 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-[#2A1E17]">
+        <h2 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-[#1C1217]">
           Create Account
         </h2>
-        <p className="text-xs text-[#8C7A6B] mt-1">
+        <p className="text-xs text-[#886C7B] mt-1">
           Join VIP Rewards and receive 15% off your first candle order.
         </p>
       </div>
@@ -76,17 +76,17 @@ export const RegisterForm: React.FC = () => {
       <form onSubmit={handleSubmit} className="space-y-3.5">
         {/* Full Name */}
         <div className="space-y-1">
-          <label className="block text-xs font-semibold text-[#69574A]">Full Name</label>
+          <label className="block text-xs font-semibold text-[#624855]">Full Name</label>
           <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-[#8C7A6B]">👤</span>
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-[#886C7B]">👤</span>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Ananya Sharma"
-              className={`w-full bg-[#FAF6F0] border ${
-                errors.name ? 'border-red-500' : 'border-[#E5D9C5] focus:border-[#D4AF37]'
-              } rounded-xl pl-10 pr-4 py-3 text-sm text-[#2A1E17] placeholder-[#B0A398] focus:outline-hidden focus:ring-2 focus:ring-[#D4AF37]/20 transition-all`}
+              className={`w-full bg-[#FFFFFF] border ${
+                errors.name ? 'border-red-500' : 'border-[#F5E8EE] focus:border-[#E87A96]'
+              } rounded-2xl pl-10 pr-4 py-2.5 text-xs text-[#1C1217] placeholder-[#AC94A1] focus:outline-none focus:ring-2 focus:ring-[#F9B8CA]/30 transition-all`}
             />
           </div>
           {errors.name && <p className="text-[11px] text-red-500 font-medium">{errors.name}</p>}
@@ -94,35 +94,35 @@ export const RegisterForm: React.FC = () => {
 
         {/* Email Address */}
         <div className="space-y-1">
-          <label className="block text-xs font-semibold text-[#69574A]">Email Address</label>
+          <label className="block text-xs font-semibold text-[#624855]">Email Address</label>
           <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-[#8C7A6B]">✉️</span>
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-[#886C7B]">✉️</span>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="ananya@example.com"
-              className={`w-full bg-[#FAF6F0] border ${
-                errors.email ? 'border-red-500' : 'border-[#E5D9C5] focus:border-[#D4AF37]'
-              } rounded-xl pl-10 pr-4 py-3 text-sm text-[#2A1E17] placeholder-[#B0A398] focus:outline-hidden focus:ring-2 focus:ring-[#D4AF37]/20 transition-all`}
+              placeholder="client@sanctuary.com"
+              className={`w-full bg-[#FFFFFF] border ${
+                errors.email ? 'border-red-500' : 'border-[#F5E8EE] focus:border-[#E87A96]'
+              } rounded-2xl pl-10 pr-4 py-2.5 text-xs text-[#1C1217] placeholder-[#AC94A1] focus:outline-none focus:ring-2 focus:ring-[#F9B8CA]/30 transition-all`}
             />
           </div>
           {errors.email && <p className="text-[11px] text-red-500 font-medium">{errors.email}</p>}
         </div>
 
-        {/* Mobile Phone */}
+        {/* Phone Number */}
         <div className="space-y-1">
-          <label className="block text-xs font-semibold text-[#69574A]">Mobile Phone</label>
+          <label className="block text-xs font-semibold text-[#624855]">Phone Number (for Courier SMS)</label>
           <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-[#8C7A6B]">📱</span>
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-[#886C7B]">📱</span>
             <input
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="+91 98765 43210"
-              className={`w-full bg-[#FAF6F0] border ${
-                errors.phone ? 'border-red-500' : 'border-[#E5D9C5] focus:border-[#D4AF37]'
-              } rounded-xl pl-10 pr-4 py-3 text-sm text-[#2A1E17] placeholder-[#B0A398] focus:outline-hidden focus:ring-2 focus:ring-[#D4AF37]/20 transition-all`}
+              className={`w-full bg-[#FFFFFF] border ${
+                errors.phone ? 'border-red-500' : 'border-[#F5E8EE] focus:border-[#E87A96]'
+              } rounded-2xl pl-10 pr-4 py-2.5 text-xs text-[#1C1217] placeholder-[#AC94A1] focus:outline-none focus:ring-2 focus:ring-[#F9B8CA]/30 transition-all`}
             />
           </div>
           {errors.phone && <p className="text-[11px] text-red-500 font-medium">{errors.phone}</p>}
@@ -130,71 +130,76 @@ export const RegisterForm: React.FC = () => {
 
         {/* Password */}
         <div className="space-y-1">
-          <label className="block text-xs font-semibold text-[#69574A]">Password</label>
+          <label className="block text-xs font-semibold text-[#624855]">Password</label>
           <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-[#8C7A6B]">🔒</span>
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-[#886C7B]">🔒</span>
             <input
               type={showPassword ? 'text' : 'password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Create password (min 6 chars)"
-              className={`w-full bg-[#FAF6F0] border ${
-                errors.password ? 'border-red-500' : 'border-[#E5D9C5] focus:border-[#D4AF37]'
-              } rounded-xl pl-10 pr-10 py-3 text-sm text-[#2A1E17] placeholder-[#B0A398] focus:outline-hidden focus:ring-2 focus:ring-[#D4AF37]/20 transition-all`}
+              placeholder="Min. 6 characters"
+              className={`w-full bg-[#FFFFFF] border ${
+                errors.password ? 'border-red-500' : 'border-[#F5E8EE] focus:border-[#E87A96]'
+              } rounded-2xl pl-10 pr-10 py-2.5 text-xs text-[#1C1217] placeholder-[#AC94A1] focus:outline-none focus:ring-2 focus:ring-[#F9B8CA]/30 transition-all`}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8C7A6B] hover:text-[#2A1E17] p-1 text-xs"
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-[#886C7B] hover:text-[#1C1217] cursor-pointer"
             >
-              {showPassword ? '🙈' : '👁️'}
+              {showPassword ? 'Hide' : 'Show'}
             </button>
           </div>
           {errors.password && <p className="text-[11px] text-red-500 font-medium">{errors.password}</p>}
         </div>
 
-        {/* Agree Terms Checkbox */}
-        <div className="pt-1">
-          <label className="flex items-start gap-2 text-xs text-[#69574A] cursor-pointer">
+        {/* Terms Agreement Checkbox */}
+        <div className="space-y-1 pt-1">
+          <label className="flex items-start gap-2 cursor-pointer text-xs text-[#624855]">
             <input
               type="checkbox"
               checked={agreeTerms}
               onChange={(e) => setAgreeTerms(e.target.checked)}
-              className="mt-0.5 rounded-md border-[#E5D9C5] text-[#D4AF37] focus:ring-[#D4AF37]"
+              className="rounded text-[#E87A96] mt-0.5"
             />
-            <span>I agree to The Candle Lab Terms & Privacy Policy</span>
+            <span>
+              I agree to the{' '}
+              <a href="#terms" className="text-[#E87A96] underline">
+                Terms of Service
+              </a>{' '}
+              and{' '}
+              <a href="#privacy" className="text-[#E87A96] underline">
+                Privacy Policy
+              </a>
+              .
+            </span>
           </label>
-          {errors.agreeTerms && <p className="text-[11px] text-red-500 font-medium mt-1">{errors.agreeTerms}</p>}
+          {errors.agreeTerms && <p className="text-[11px] text-red-500 font-medium">{errors.agreeTerms}</p>}
         </div>
 
-        {/* Submit Button */}
+        {/* Submit */}
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-[#2A1E17] hover:bg-[#1C130E] text-white font-semibold py-3.5 px-6 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-2"
+          className="w-full bg-[#E87A96] hover:bg-[#D45D7D] text-white font-bold py-3 px-4 rounded-full text-xs uppercase tracking-wider shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-2"
         >
-          {isSubmitting ? (
-            <span className="text-xs uppercase tracking-wider">Creating Account...</span>
-          ) : (
-            <span className="text-sm font-bold">Register & Verify OTP →</span>
-          )}
+          {isSubmitting ? <span className="inline-block animate-spin">⏳</span> : 'Create Connoisseur Account'}
         </button>
       </form>
 
-      {/* Google, Apple & Meta Social Register Buttons */}
+      {/* Social Register */}
       <SocialLoginButtons labelPrefix="or register with" />
 
-      {/* Already registered */}
-      <div className="bg-[#F4EFE6] border border-[#E5D9C5] rounded-xl p-4 text-center mt-5">
-        <p className="text-xs text-[#69574A]">
-          Already have an account?{' '}
-          <button
-            onClick={() => setAuthViewMode('login')}
-            className="font-bold text-[#2A1E17] hover:underline underline-offset-4 cursor-pointer"
-          >
-            Sign In Here
-          </button>
-        </p>
+      {/* Login Switch */}
+      <div className="mt-5 text-center text-xs text-[#886C7B]">
+        Already have an account?{' '}
+        <button
+          type="button"
+          onClick={() => setAuthViewMode('login')}
+          className="font-bold text-[#E87A96] hover:underline ml-1 cursor-pointer"
+        >
+          Sign In
+        </button>
       </div>
     </div>
   );

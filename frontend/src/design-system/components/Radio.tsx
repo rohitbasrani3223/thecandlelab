@@ -33,15 +33,15 @@ export const Radio = React.forwardRef<HTMLInputElement, RadioProps>(({
           className="sr-only peer"
           {...props}
         />
-        <div className="w-4 h-4 rounded-full border border-[#8C7A6B] bg-[#FAF6F0] peer-checked:border-[#D4AF37] transition-all flex items-center justify-center peer-focus:ring-2 peer-focus:ring-[#D4AF37]/50">
-          {checked && <div className="w-2 h-2 rounded-full bg-[#2A1E17]" />}
+        <div className="w-4 h-4 rounded-full border border-[#F5E8EE] bg-[#FFFFFF] peer-checked:border-[#E87A96] transition-all flex items-center justify-center peer-focus:ring-2 peer-focus:ring-[#F9B8CA]/50 shadow-xs">
+          {checked && <div className="w-2 h-2 rounded-full bg-[#E87A96]" />}
         </div>
       </div>
 
       {(label || description) && (
         <div className="flex flex-col text-left">
-          {label && <span className="text-sm font-medium text-[#2A1E17]">{label}</span>}
-          {description && <span className="text-xs text-[#8C7A6B]">{description}</span>}
+          {label && <span className="text-sm font-medium text-[#1C1217]">{label}</span>}
+          {description && <span className="text-xs text-[#886C7B]">{description}</span>}
         </div>
       )}
     </label>

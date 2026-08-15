@@ -96,145 +96,134 @@ export const AddressBookTab: React.FC = () => {
 
   return (
     <div className="space-y-6 font-sans">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#E5D9C5] pb-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#F5E8EE] pb-4">
         <div>
-          <Badge variant="gold" icon={<SparklesIcon size={12} />}>ADDRESS BOOK</Badge>
-          <h2 className="text-2xl font-serif font-bold text-[#2A1E17] mt-1">
-            Saved Shipping Locations
+          <Badge variant="pink" icon={<SparklesIcon size={12} />}>DISPATCH DESTINATIONS</Badge>
+          <h2 className="text-2xl font-serif font-bold text-[#1C1217] mt-1">
+            Saved Shipping Addresses
           </h2>
         </div>
 
-        <Button variant="gold" size="sm" onClick={() => setIsAddModalOpen(true)}>
+        <Button variant="pink" size="sm" onClick={() => setIsAddModalOpen(true)}>
           + Add New Address
         </Button>
       </div>
 
       {addresses.length === 0 ? (
-        <Card variant="bordered" padding="lg" className="bg-[#FAF6F0] text-center py-10 space-y-4">
-          <div className="w-14 h-14 bg-[#F4EFE6] border border-[#D4AF37]/30 rounded-full flex items-center justify-center mx-auto text-[#D4AF37]">
-            <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
+        <Card variant="bordered" padding="lg" className="bg-[#FFFFFF] border-[#F5E8EE] rounded-3xl text-center py-12 space-y-4 shadow-xs">
+          <div className="w-16 h-16 bg-[#FFF6F8] border border-[#F9B8CA] rounded-full flex items-center justify-center mx-auto text-[#E87A96]">
+            📍
           </div>
           <div className="space-y-1">
-            <h3 className="font-serif text-lg font-bold text-[#2A1E17]">No Saved Addresses</h3>
-            <p className="text-xs text-[#8C7A6B]">You have no shipping addresses saved in your sanctuary account book yet.</p>
+            <h3 className="font-serif font-bold text-lg text-[#1C1217]">No Saved Addresses</h3>
+            <p className="text-xs text-[#886C7B] max-w-sm mx-auto">
+              Save your residence or office address to expedite checkout on future artisanal orders.
+            </p>
           </div>
-          <Button variant="primary" size="md" onClick={() => setIsAddModalOpen(true)}>
-            + Add Your First Address
+          <Button variant="pink" size="md" onClick={() => setIsAddModalOpen(true)}>
+            + Add First Address
           </Button>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {addresses.map((addr) => (
             <Card
               key={addr.id}
-              variant={addr.isDefault ? 'gold-border' : 'bordered'}
-              padding="lg"
-              className="bg-[#FAF6F0] space-y-4 relative flex flex-col justify-between"
+              variant="bordered"
+              padding="md"
+              className={`bg-white rounded-3xl space-y-3 shadow-xs transition-all ${addr.isDefault ? 'border-[#E87A96] ring-2 ring-[#F9B8CA]/30' : 'border-[#F5E8EE]'}`}
             >
-              <div className="space-y-2">
-                <div className="flex items-center justify-between border-b border-[#E5D9C5] pb-2">
-                  <span className="font-serif font-bold text-sm text-[#2A1E17]">{addr.label}</span>
-                  {addr.isDefault && <Badge variant="gold" size="sm">DEFAULT ADDRESS</Badge>}
+              <div className="flex items-center justify-between border-b border-[#F5E8EE] pb-2 text-xs">
+                <div className="flex items-center gap-2">
+                  <strong className="font-serif text-[#1C1217] font-bold">{addr.label}</strong>
+                  {addr.isDefault && <Badge variant="pink" size="sm">DEFAULT</Badge>}
                 </div>
-
-                <div className="text-xs text-[#5C4A3E] space-y-1">
-                  <p className="font-bold text-[#2A1E17]">{addr.name}</p>
-                  <p>{addr.street}</p>
-                  <p>
-                    {addr.city}, {addr.state} — {addr.zip}
-                  </p>
-                  <p className="text-[#8C7A6B]">{addr.country}</p>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between pt-3 border-t border-[#E5D9C5]/60 text-xs">
-                {!addr.isDefault && (
-                  <button
-                    onClick={() => handleSetDefault(addr.id)}
-                    className="text-[#D4AF37] font-semibold hover:underline"
-                  >
-                    Set as Default
-                  </button>
-                )}
-                {addr.isDefault && <span className="text-[#8C7A6B] italic">Primary Delivery Point</span>}
-
                 <button
                   onClick={() => handleDelete(addr.id)}
-                  className="text-red-700 font-semibold hover:underline ml-auto"
+                  className="text-[#886C7B] hover:text-[#BE123C] font-semibold text-xs cursor-pointer"
                 >
-                  Remove
+                  Delete
                 </button>
               </div>
+
+              <div className="text-xs text-[#624855] space-y-1 leading-relaxed">
+                <strong className="text-[#1C1217] block font-semibold">{addr.name}</strong>
+                <p>{addr.street}</p>
+                <p>{addr.city}, {addr.state} {addr.zip}</p>
+                <p>{addr.country}</p>
+              </div>
+
+              {!addr.isDefault && (
+                <div className="pt-2 border-t border-[#F5E8EE]">
+                  <button
+                    onClick={() => handleSetDefault(addr.id)}
+                    className="text-xs font-bold text-[#E87A96] hover:underline cursor-pointer"
+                  >
+                    Set as Default Address
+                  </button>
+                </div>
+              )}
             </Card>
           ))}
         </div>
       )}
 
-      {/* Add New Address Modal */}
+      {/* Add Address Modal */}
       <Modal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        title="Add New Delivery Address"
-        subtitle="Save a destination to your sanctuary address book for rapid checkout."
-        size="md"
+        title="Add New Shipping Destination"
       >
-        <form onSubmit={handleCreateAddress} className="space-y-4 font-sans">
+        <form onSubmit={handleCreateAddress} className="space-y-4 font-sans text-xs">
           <Input
-            label="Location Label"
-            placeholder="e.g. Home, Office, Summer Atelier"
+            label="Address Tag / Label (e.g. Home, Studio, Office)"
+            placeholder="Home Residence"
             value={newLabel}
             onChange={(e) => setNewLabel(e.target.value)}
           />
-
           <Input
-            label="Recipient Full Name"
-            placeholder="Recipient Name"
+            label="Full Recipient Name"
+            placeholder="Aria Montgomery"
+            required
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
-            required
           />
-
           <Input
-            label="Flat / Building / Street Address"
-            placeholder="Flat 4B, Amber Woods, MG Road"
+            label="Street Address"
+            placeholder="42 Beacon Hill Lane, Apt 4B"
+            required
             value={newStreet}
             onChange={(e) => setNewStreet(e.target.value)}
-            required
           />
-
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             <Input
               label="City"
-              placeholder="Mumbai"
+              placeholder="Boston"
+              required
               value={newCity}
               onChange={(e) => setNewCity(e.target.value)}
-              required
             />
             <Input
-              label="State"
-              placeholder="Maharashtra"
+              label="State / Province"
+              placeholder="MA"
+              required
               value={newState}
               onChange={(e) => setNewState(e.target.value)}
-              required
             />
           </div>
-
           <Input
-            label="PIN / Zip Code"
-            placeholder="400001"
+            label="Postal / PIN Code"
+            placeholder="02108"
+            required
             value={newZip}
             onChange={(e) => setNewZip(e.target.value)}
-            required
           />
 
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#E5D9C5]">
-            <Button variant="ghost" type="button" onClick={() => setIsAddModalOpen(false)}>
+          <div className="pt-3 flex justify-end gap-3">
+            <Button variant="outline" size="sm" type="button" onClick={() => setIsAddModalOpen(false)}>
               Cancel
             </Button>
-            <Button variant="primary" type="submit">
+            <Button variant="pink" size="sm" type="submit">
               Save Address
             </Button>
           </div>

@@ -37,10 +37,10 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({
   const wickDisplay = item.wickType || item.wick;
 
   return (
-    <div className="p-4 bg-[#1C130E] border border-[#2C2018] rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 font-sans hover:border-amber-500/30 transition-all">
+    <div className="p-4 bg-[#FFFFFF] border border-[#F5E8EE] rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 font-sans hover:border-[#F9B8CA] shadow-xs transition-all">
       {/* Product Image & Details */}
       <div className="flex items-center gap-4 flex-1 min-w-0">
-        <div className="w-16 h-16 rounded-lg bg-[#140D09] border border-[#2C2018] shrink-0 overflow-hidden flex items-center justify-center">
+        <div className="w-16 h-16 rounded-xl bg-[#FFF6F8] border border-[#F5E8EE] shrink-0 overflow-hidden flex items-center justify-center">
           {item.image ? (
             <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
           ) : (
@@ -49,46 +49,46 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({
         </div>
 
         <div className="space-y-1 min-w-0 flex-1">
-          <h4 className="font-serif font-medium text-sm text-[#FDFBF7] truncate">
+          <h4 className="font-serif font-medium text-sm text-[#1C1217] truncate">
             {item.name}
           </h4>
 
           {/* Dynamic Variant Attributes Display */}
-          <div className="flex items-center gap-2 text-[11px] text-stone-400 flex-wrap">
+          <div className="flex items-center gap-2 text-[11px] text-[#886C7B] flex-wrap">
             {fragranceDisplay && (
-              <span className="text-amber-300 font-medium">
+              <span className="text-[#C94C6D] font-medium">
                 🌸 {fragranceDisplay}
               </span>
             )}
             {sizeDisplay && (
               <>
                 <span>•</span>
-                <span>Size: <strong className="text-stone-300 font-mono">{sizeDisplay}</strong></span>
+                <span>Size: <strong className="text-[#1C1217] font-mono">{sizeDisplay}</strong></span>
               </>
             )}
             {wickDisplay && wickDisplay !== 'N/A' && (
               <>
                 <span>•</span>
-                <span className="text-stone-400">{wickDisplay}</span>
+                <span className="text-[#886C7B]">{wickDisplay}</span>
               </>
             )}
             {item.color && (
               <>
                 <span>•</span>
-                <span className="text-stone-400">Color: {item.color}</span>
+                <span className="text-[#886C7B]">Color: {item.color}</span>
               </>
             )}
           </div>
 
           {/* Gift Packaging & Message Notes */}
           {item.giftPackaging && (
-            <span className="inline-block text-[10px] font-mono text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
+            <span className="inline-block text-[10px] font-mono text-[#C94C6D] bg-[#FDE8EF] px-2 py-0.5 rounded-full border border-[#F9B8CA]">
               🎁 Luxury Gift Box Included
             </span>
           )}
 
           {item.customMessage && (
-            <p className="text-[10px] text-stone-500 italic truncate max-w-sm">
+            <p className="text-[10px] text-[#886C7B] italic truncate max-w-sm">
               Note: "{item.customMessage}"
             </p>
           )}
@@ -96,21 +96,21 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({
       </div>
 
       {/* Quantity & Actions */}
-      <div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-[#2C2018]">
+      <div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-[#F5E8EE]">
         {/* Quantity Counter */}
-        <div className="flex items-center border border-[#2C2018] rounded-lg bg-[#140D09]">
+        <div className="flex items-center border border-[#F5E8EE] rounded-full bg-[#FFF6F8]">
           <button
             type="button"
             onClick={() => onUpdateQuantity(item.id, -1)}
-            className="px-2.5 py-1 text-xs font-bold text-stone-400 hover:text-stone-200"
+            className="px-3 py-1 text-xs font-bold text-[#624855] hover:text-[#1C1217]"
           >
             −
           </button>
-          <span className="px-3 py-1 text-xs font-mono font-semibold text-[#FDFBF7]">{item.quantity}</span>
+          <span className="px-2 py-1 text-xs font-mono font-semibold text-[#1C1217]">{item.quantity}</span>
           <button
             type="button"
             onClick={() => onUpdateQuantity(item.id, 1)}
-            className="px-2.5 py-1 text-xs font-bold text-stone-400 hover:text-stone-200"
+            className="px-3 py-1 text-xs font-bold text-[#624855] hover:text-[#1C1217]"
           >
             +
           </button>
@@ -118,10 +118,10 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({
 
         {/* Total Price */}
         <div className="text-right">
-          <span className="text-sm font-serif font-semibold text-[#FDFBF7] block">
+          <span className="text-sm font-serif font-semibold text-[#1C1217] block">
             ₹{(item.price * item.quantity).toLocaleString('en-IN')}
           </span>
-          <span className="text-[10px] font-mono text-stone-500">
+          <span className="text-[10px] font-mono text-[#886C7B]">
             ₹{item.price.toLocaleString('en-IN')} each
           </span>
         </div>
@@ -131,7 +131,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({
           <button
             type="button"
             onClick={() => onSaveForLater(item)}
-            className="text-[10px] font-mono text-stone-400 hover:text-amber-400"
+            className="text-[10px] font-mono text-[#886C7B] hover:text-[#E87A96] bg-[#FFF6F8] px-2 py-1 rounded-full border border-[#F5E8EE]"
             title="Save for Later"
           >
             Save
@@ -139,7 +139,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({
           <button
             type="button"
             onClick={() => onRemove(item.id)}
-            className="text-xs text-red-400 hover:text-red-300 p-1"
+            className="text-xs text-[#BE123C] hover:text-[#9F1239] p-1.5 rounded-full hover:bg-[#FFF1F2]"
             title="Remove item"
           >
             ✕

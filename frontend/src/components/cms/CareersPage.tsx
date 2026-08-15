@@ -16,7 +16,7 @@ const OPEN_POSITIONS = [
     department: 'Production',
     location: 'New Delhi Studio (On-Site)',
     type: 'Full-Time',
-    desc: 'Master small-batch soy & beeswax pouring, wood wick trimming, gold foil lid stamping, and quality inspection.',
+    desc: 'Master small-batch soy & beeswax pouring, wood wick trimming, rose gold foil lid stamping, and quality inspection.',
   },
   {
     id: 'car-3',
@@ -63,15 +63,16 @@ export const CareersPage: React.FC = () => {
   };
 
   return (
-    <div className="w-full bg-[#FAF6F0] min-h-screen font-sans pb-16">
+    <div className="w-full bg-[#FAF6F8] min-h-screen font-sans pb-16">
       {/* Hero Header */}
-      <section className="bg-[#3D2B1F] text-[#FAF6F0] py-16 sm:py-24 px-6 sm:px-12 text-center relative overflow-hidden">
+      <section className="bg-white text-[#1C1217] py-16 sm:py-24 px-6 sm:px-12 text-center relative overflow-hidden border-b border-[#F5E8EE]">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-[#F9B8CA]/20 rounded-full blur-3xl pointer-events-none" />
         <div className="max-w-4xl mx-auto space-y-4 relative z-10">
-          <Badge variant="gold" icon={<SparklesIcon size={12} />}>CAREERS AT THE CANDLE LAB</Badge>
-          <h1 className="text-4xl sm:text-6xl font-serif font-bold text-[#FAF6F0]">
+          <Badge variant="pink" icon={<SparklesIcon size={12} />}>CAREERS AT THE CANDLE LAB</Badge>
+          <h1 className="text-4xl sm:text-6xl font-serif font-bold text-[#1C1217]">
             Join Our Olfactory Atelier
           </h1>
-          <p className="text-sm sm:text-base text-[#EFE8DB] font-light max-w-xl mx-auto leading-relaxed">
+          <p className="text-sm sm:text-base text-[#624855] font-light max-w-xl mx-auto leading-relaxed">
             We are looking for passionate artisans, perfumers, designers, and e-commerce strategists to build India's premier luxury candle house.
           </p>
         </div>
@@ -81,8 +82,8 @@ export const CareersPage: React.FC = () => {
       <div className="max-w-7xl mx-auto px-6 sm:px-12 py-12 sm:py-16 space-y-16">
         {/* Open Positions Grid */}
         <div className="space-y-6">
-          <div className="border-b border-[#E5D9C5] pb-3">
-            <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#2C1E16]">
+          <div className="border-b border-[#F5E8EE] pb-3">
+            <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#1C1217]">
               Current Open Roles ({OPEN_POSITIONS.length})
             </h2>
           </div>
@@ -93,31 +94,36 @@ export const CareersPage: React.FC = () => {
                 key={pos.id}
                 variant="bordered"
                 padding="lg"
-                className="bg-white border-[#EFE8DB] rounded-2xl shadow-subtle space-y-4 hover:border-[#B88B38] transition-all flex flex-col justify-between"
+                className="bg-white border-[#F5E8EE] rounded-3xl shadow-card space-y-4 hover:border-[#F9B8CA] transition-all flex flex-col justify-between"
               >
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] uppercase font-bold tracking-widest text-[#B88B38]">
-                      {pos.department} • {pos.type}
+                    <span className="text-[10px] uppercase font-bold tracking-widest text-[#E87A96]">
+                      {pos.department} • {pos.location}
                     </span>
-                    <span className="text-xs text-[#7A6B5D]">{pos.location}</span>
+                    <Badge variant="pink" size="sm">{pos.type}</Badge>
                   </div>
-                  <h3 className="text-xl font-serif font-bold text-[#2C1E16]">{pos.title}</h3>
-                  <p className="text-xs text-[#7A6B5D] font-light leading-relaxed">{pos.desc}</p>
+                  <h3 className="font-serif font-bold text-xl text-[#1C1217]">
+                    {pos.title}
+                  </h3>
+                  <p className="text-xs text-[#624855] font-light leading-relaxed">
+                    {pos.desc}
+                  </p>
                 </div>
 
-                <div className="pt-3 border-t border-[#F2ECE1] flex items-center justify-between">
-                  <span className="text-xs text-[#2E6F40] font-bold">✓ Accepting Applications</span>
-                  <button
+                <div className="pt-3 border-t border-[#F5E8EE]">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    fullWidth
                     onClick={() => {
                       setSelectedRole(pos.title);
                       const el = document.getElementById('apply-form');
                       el?.scrollIntoView({ behavior: 'smooth' });
                     }}
-                    className="bg-[#B88B38] hover:bg-[#A3792E] text-white font-bold text-xs py-1.5 px-3.5 rounded-lg shadow-xs cursor-pointer"
                   >
-                    Apply for Role →
-                  </button>
+                    Apply for Position →
+                  </Button>
                 </div>
               </Card>
             ))}
@@ -125,67 +131,59 @@ export const CareersPage: React.FC = () => {
         </div>
 
         {/* Application Form */}
-        <div id="apply-form" className="bg-white border border-[#EFE8DB] rounded-2xl p-8 sm:p-12 shadow-subtle max-w-3xl mx-auto space-y-6">
+        <div id="apply-form" className="bg-white border border-[#F5E8EE] rounded-3xl p-8 sm:p-12 shadow-card max-w-2xl mx-auto space-y-6">
           <div className="space-y-1 text-center">
-            <span className="text-[10px] uppercase font-bold tracking-widest text-[#B88B38]">CAREERS APPLICATION</span>
-            <h3 className="text-2xl font-serif font-bold text-[#2C1E16]">Apply to The Atelier</h3>
-            <p className="text-xs text-[#7A6B5D]">Selected Role: <strong className="text-[#B88B38]">{selectedRole}</strong></p>
+            <Badge variant="pink" icon={<SparklesIcon size={12} />}>TALENT APPLICATION</Badge>
+            <h3 className="text-2xl font-serif font-bold text-[#1C1217]">
+              Submit Your Candidacy
+            </h3>
+            <p className="text-xs text-[#886C7B]">
+              Selected Role: <strong className="text-[#E87A96]">{selectedRole}</strong>
+            </p>
           </div>
 
           <form onSubmit={handleApply} className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-[#2C1E16] uppercase">Full Name *</label>
-                <Input
-                  type="text"
-                  required
-                  placeholder="e.g. Vikramaditya Singh"
-                  value={applicantName}
-                  onChange={(e) => setApplicantName(e.target.value)}
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-[#2C1E16] uppercase">Email Address *</label>
-                <Input
-                  type="email"
-                  required
-                  placeholder="e.g. vikram@example.com"
-                  value={applicantEmail}
-                  onChange={(e) => setApplicantEmail(e.target.value)}
-                />
-              </div>
-            </div>
-
+            <Input
+              label="Full Name *"
+              required
+              placeholder="e.g. Maya Iyer"
+              value={applicantName}
+              onChange={(e) => setApplicantName(e.target.value)}
+            />
+            <Input
+              label="Email Address *"
+              type="email"
+              required
+              placeholder="e.g. maya@example.com"
+              value={applicantEmail}
+              onChange={(e) => setApplicantEmail(e.target.value)}
+            />
+            <Input
+              label="LinkedIn Profile or Portfolio URL"
+              placeholder="https://linkedin.com/in/..."
+              value={linkedinUrl}
+              onChange={(e) => setLinkedinUrl(e.target.value)}
+            />
             <div className="space-y-1">
-              <label className="text-xs font-bold text-[#2C1E16] uppercase">LinkedIn / Portfolio URL</label>
-              <Input
-                type="url"
-                placeholder="https://linkedin.in/in/username"
-                value={linkedinUrl}
-                onChange={(e) => setLinkedinUrl(e.target.value)}
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-[#2C1E16] uppercase">Why do you want to join The Candle Lab?</label>
+              <label className="text-xs font-bold text-[#1C1217] uppercase">Short Introduction / Motivation *</label>
               <textarea
-                rows={4}
                 required
-                placeholder="Tell us about your background and passion for luxury candles..."
+                rows={4}
                 value={coverNote}
                 onChange={(e) => setCoverNote(e.target.value)}
-                className="w-full bg-[#F8F3EA] border border-[#EFE8DB] text-[#2C1E16] text-xs p-3 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#B88B38] font-sans"
+                placeholder="Tell us about your background, craftsmanship, or why you'd like to join The Candle Lab..."
+                className="w-full bg-[#FFF6F8] border border-[#F5E8EE] rounded-2xl p-4 text-xs text-[#1C1217] outline-none focus:border-[#E87A96]"
               />
             </div>
 
             <Button
-              variant="gold"
+              variant="pink"
               size="lg"
+              fullWidth
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-[#B88B38] hover:bg-[#A3792E] text-white font-bold"
             >
-              {isSubmitting ? 'Submitting Application...' : 'Submit Application →'}
+              {isSubmitting ? 'Submitting Application...' : 'Send Application to Talent Team →'}
             </Button>
           </form>
         </div>

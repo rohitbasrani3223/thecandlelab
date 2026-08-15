@@ -15,13 +15,13 @@ export const WishlistEmptyState: React.FC<WishlistEmptyStateProps> = ({ onExplor
         onAction={onExploreCatalog}
       />
 
-      <div className="pt-8 border-t border-[#E5D9C5] max-w-md mx-auto space-y-3">
-        <span className="text-xs font-bold uppercase tracking-wider text-[#8C7A6B]">Need Inspiration?</span>
+      <div className="pt-8 border-t border-[#F5E8EE] max-w-md mx-auto space-y-3">
+        <span className="text-xs font-bold uppercase tracking-wider text-[#886C7B]">Need Inspiration?</span>
         <div className="flex justify-center gap-3">
           <Button variant="outline" size="sm" onClick={onExploreCatalog}>
             View Best Sellers
           </Button>
-          <Button variant="gold" size="sm" onClick={onExploreCatalog}>
+          <Button variant="pink" size="sm" onClick={onExploreCatalog}>
             Take Scent Quiz
           </Button>
         </div>
