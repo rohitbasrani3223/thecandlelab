@@ -915,8 +915,12 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
           // Category and Collection lookup maps
           const catLookup = new Map<string, string>();
-          DEFAULT_MAIN_CATEGORIES.forEach((c) => catLookup.set(c.id, c.name));
+          if (categoriesRes.status === 'fulfilled' && Array.isArray(categoriesRes.value)) {
+            categoriesRes.value.forEach((c: any) => catLookup.set(String(c.id), c.name));
+          }
           (mainCategories || []).forEach((c) => catLookup.set(c.id, c.name));
+
+          const fallbackDefaultCategory = (categoriesRes.status === 'fulfilled' && categoriesRes.value?.[0]?.name) || 'Luxury Scented Candles';
 
           const mapped: CMSProduct[] = dbProducts.map((p) => {
             const gallery = imageMap.get(String(p.id)) || [];
@@ -935,7 +939,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               rating: Number(p.rating || 4.9),
               reviewsCount: Number(p.reviews_count || 12),
               mainCategoryId: p.main_category_id ? String(p.main_category_id) : undefined,
-              category: resolvedCat || p.category || (p.name.toLowerCase().includes('diffuser') ? 'Car Diffusers & Aromatics' : p.name.toLowerCase().includes('sachet') ? 'Botanical Wax Sachets' : p.name.toLowerCase().includes('bloom') || p.name.toLowerCase().includes('basket') ? '🎁 Premium Gift Hampers 🎁' : 'Luxury Scented Candles'),
+              category: resolvedCat || p.category || fallbackDefaultCategory,
               subCategoryId: p.sub_category_id ? String(p.sub_category_id) : undefined,
               collectionIds: p.collection_id ? [String(p.collection_id)] : [],
               collection: '',

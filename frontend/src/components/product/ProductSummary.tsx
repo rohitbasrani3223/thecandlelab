@@ -18,7 +18,7 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
 
   // 1. DYNAMIC FRAGRANCE OPTIONS
   const availableFragrances = useMemo(() => {
-    if (product.hasFragranceOption === false) return [];
+    if (!product || product.hasFragranceOption === false) return [];
 
     // A. If admin explicitly selected allowed fragrance IDs for this product
     if (product.availableFragranceIds && product.availableFragranceIds.length > 0) {

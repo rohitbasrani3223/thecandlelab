@@ -8,6 +8,8 @@ interface ProductSpecsAccordionProps {
 export const ProductSpecsAccordion: React.FC<ProductSpecsAccordionProps> = ({ product }) => {
   const [openSections, setOpenSections] = useState<string[]>(['description', 'specs', 'pyramid']);
 
+  if (!product) return null;
+
   const toggleSection = (key: string) => {
     setOpenSections((prev) =>
       prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]

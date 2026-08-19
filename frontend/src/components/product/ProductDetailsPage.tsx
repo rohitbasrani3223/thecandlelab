@@ -51,7 +51,17 @@ export const ProductDetailsPage: React.FC<ProductDetailsPageProps> = ({
     return (passedProduct as CMSProduct) || products[0];
   }, [products, passedProduct]);
 
-  const productName = activeProduct?.name;
+  if (!activeProduct) {
+    return (
+      <div className="max-w-7xl mx-auto px-6 py-16 font-sans space-y-6">
+        <div className="text-center text-xs font-bold text-[#E87A96] uppercase tracking-widest animate-pulse">
+          Loading Formulation Details...
+        </div>
+      </div>
+    );
+  }
+
+  const productName = activeProduct.name;
 
   const handleVariantChange = (_variant: CMSProductVariant | null, variantImage?: string) => {
     if (variantImage) {
