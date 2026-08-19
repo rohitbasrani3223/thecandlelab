@@ -4,7 +4,8 @@ export const SUPABASE_URL: string =
   import.meta.env.VITE_SUPABASE_URL || 'https://anaqrvrzbqhpgwjfpacx.supabase.co';
 
 export const SUPABASE_ANON_KEY: string =
-  import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+  import.meta.env.VITE_SUPABASE_ANON_KEY ||
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFuYXFydnJ6YnFocGd3amZwYWN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUyMzMzMzIsImV4cCI6MjEwMDgwOTMzMn0.NDzAvxZDP_TSlq1sXm1AID9xL8AzYl3QCA2LwH0TAhs';
 
 const headers = {
   'apikey': SUPABASE_ANON_KEY,
@@ -19,6 +20,9 @@ export async function supabaseUpsertByKey(
   onConflict: string
 ): Promise<boolean> {
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 6000);
+
     const url = `${SUPABASE_URL}/rest/v1/${table}?on_conflict=${encodeURIComponent(onConflict)}`;
     const res = await fetch(url, {
       method: 'POST',
@@ -27,7 +31,10 @@ export async function supabaseUpsertByKey(
         Prefer: 'resolution=merge-duplicates,return=representation',
       },
       body: JSON.stringify(body),
+      signal: controller.signal,
     });
+    clearTimeout(timeoutId);
+
     if (!res.ok) {
       const errText = await res.text();
       console.error(`Supabase upsert error on ${table} [${res.status}]:`, errText);
@@ -45,11 +52,16 @@ export async function supabaseFetch<T>(table: string, options: { method?: string
     const { method = 'GET', query = '', body } = options;
     const url = `${SUPABASE_URL}/rest/v1/${table}${query ? `?${query}` : ''}`;
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
     const res = await fetch(url, {
       method,
       headers,
       body: body ? JSON.stringify(body) : undefined,
+      signal: controller.signal,
     });
+    clearTimeout(timeoutId);
 
     if (!res.ok) {
       // If 404 (table doesn't exist yet in remote schema), gracefully return null
@@ -58,10 +70,14 @@ export async function supabaseFetch<T>(table: string, options: { method?: string
       }
       // If 400 and there was a query (e.g. order by non-existent column), retry without query
       if (res.status === 400 && query && method === 'GET') {
+        const retryController = new AbortController();
+        const retryTimeoutId = setTimeout(() => retryController.abort(), 4000);
         const retryRes = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
           method: 'GET',
           headers,
+          signal: retryController.signal,
         });
+        clearTimeout(retryTimeoutId);
         if (retryRes.ok) {
           const retryData = await retryRes.json();
           return retryData as T;

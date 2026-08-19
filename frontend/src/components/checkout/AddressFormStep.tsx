@@ -98,7 +98,14 @@ export const AddressFormStep: React.FC<AddressFormStepProps> = ({ initialData, c
     if (cleanPin.length === 6) {
       setPincodeLoading(true);
       try {
-        const res = await fetch(`https://api.postalpincode.in/pincode/${cleanPin}`);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3500);
+
+        const res = await fetch(`https://api.postalpincode.in/pincode/${cleanPin}`, {
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+
         const data = await res.json();
         if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice?.length > 0) {
           const po = data[0].PostOffice[0];

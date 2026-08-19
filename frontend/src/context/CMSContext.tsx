@@ -740,21 +740,55 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     async function loadLiveBackend() {
       try {
-        // Fetch remote CMS Bundle
-        const cmsBundle = await fetchCmsBundle();
-        if (cmsBundle) {
-          if (cmsBundle.settings) setSettings(cmsBundle.settings);
-          if (cmsBundle.announcement) setAnnouncement(cmsBundle.announcement);
-          if (cmsBundle.hero) setHero(cmsBundle.hero);
-          if (cmsBundle.pagesContent) setPagesContent(cmsBundle.pagesContent);
-          if (cmsBundle.seoSettings) setSeoSettings(cmsBundle.seoSettings);
+        // Fetch all remote endpoints concurrently with safe error isolation
+        const [
+          cmsBundleRes,
+          fragrancesRes,
+          sizesRes,
+          colorsRes,
+          wicksRes,
+          categoriesRes,
+          subCategoriesRes,
+          collectionsRes,
+          ordersRes,
+          customersRes,
+          couponsRes,
+          adminsRes,
+          productsRes,
+          imagesRes,
+          variantsRes,
+        ] = await Promise.allSettled([
+          fetchCmsBundle(),
+          supabaseFetch<any[]>('fragrances'),
+          supabaseFetch<any[]>('sizes'),
+          supabaseFetch<any[]>('colors'),
+          supabaseFetch<any[]>('wick_types'),
+          supabaseFetch<any[]>('main_categories'),
+          supabaseFetch<any[]>('sub_categories'),
+          supabaseFetch<any[]>('collections'),
+          supabaseFetch<any[]>('orders', { query: 'order=created_at.desc' }),
+          supabaseFetch<any[]>('customers', { query: 'order=created_at.desc' }),
+          supabaseFetch<any[]>('coupons', { query: 'order=created_at.desc' }),
+          supabaseFetch<any[]>('admins', { query: 'order=created_at.desc' }),
+          supabaseFetch<any[]>('products', { query: 'order=created_at.desc' }),
+          supabaseFetch<any[]>('product_images'),
+          supabaseFetch<any[]>('product_variants'),
+        ]);
+
+        // 1. CMS Bundle
+        if (cmsBundleRes.status === 'fulfilled' && cmsBundleRes.value) {
+          const b = cmsBundleRes.value;
+          if (b.settings) setSettings(b.settings);
+          if (b.announcement) setAnnouncement(b.announcement);
+          if (b.hero) setHero(b.hero);
+          if (b.pagesContent) setPagesContent(b.pagesContent);
+          if (b.seoSettings) setSeoSettings(b.seoSettings);
         }
 
-        // Fetch Fragrances from Supabase / API
-        const dbFragrances = await supabaseFetch<any[]>('fragrances');
-        if (dbFragrances && Array.isArray(dbFragrances) && dbFragrances.length > 0) {
+        // 2. Fragrances
+        if (fragrancesRes.status === 'fulfilled' && Array.isArray(fragrancesRes.value) && fragrancesRes.value.length > 0) {
           setFragrances(
-            dbFragrances.map((f) => ({
+            fragrancesRes.value.map((f) => ({
               id: String(f.id),
               name: f.name,
               slug: f.slug || f.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
@@ -770,15 +804,12 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               sortOrder: f.sort_order ?? 0,
             }))
           );
-        } else {
-          setFragrances([]);
         }
 
-        // Fetch Sizes
-        const dbSizes = await supabaseFetch<any[]>('sizes');
-        if (dbSizes && Array.isArray(dbSizes) && dbSizes.length > 0) {
+        // 3. Sizes
+        if (sizesRes.status === 'fulfilled' && Array.isArray(sizesRes.value) && sizesRes.value.length > 0) {
           setSizes(
-            dbSizes.map((s) => ({
+            sizesRes.value.map((s) => ({
               id: String(s.id),
               name: s.name,
               slug: s.slug,
@@ -788,15 +819,12 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               sortOrder: s.sort_order ?? 0,
             }))
           );
-        } else {
-          setSizes([]);
         }
 
-        // Fetch Colors
-        const dbColors = await supabaseFetch<any[]>('colors');
-        if (dbColors && Array.isArray(dbColors) && dbColors.length > 0) {
+        // 4. Colors
+        if (colorsRes.status === 'fulfilled' && Array.isArray(colorsRes.value) && colorsRes.value.length > 0) {
           setColors(
-            dbColors.map((c) => ({
+            colorsRes.value.map((c) => ({
               id: String(c.id),
               name: c.name,
               hexCode: c.hex_code,
@@ -805,15 +833,12 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               sortOrder: c.sort_order ?? 0,
             }))
           );
-        } else {
-          setColors([]);
         }
 
-        // Fetch Wick Types
-        const dbWicks = await supabaseFetch<any[]>('wick_types');
-        if (dbWicks && Array.isArray(dbWicks) && dbWicks.length > 0) {
+        // 5. Wick Types
+        if (wicksRes.status === 'fulfilled' && Array.isArray(wicksRes.value) && wicksRes.value.length > 0) {
           setWickTypes(
-            dbWicks.map((w) => ({
+            wicksRes.value.map((w) => ({
               id: String(w.id),
               name: w.name,
               description: w.description,
@@ -822,15 +847,12 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               sortOrder: w.sort_order ?? 0,
             }))
           );
-        } else {
-          setWickTypes([]);
         }
 
-        // Fetch Main Categories
-        const dbCategories = await supabaseFetch<any[]>('main_categories');
-        if (dbCategories && Array.isArray(dbCategories)) {
+        // 6. Main Categories
+        if (categoriesRes.status === 'fulfilled' && Array.isArray(categoriesRes.value) && categoriesRes.value.length > 0) {
           setMainCategories(
-            dbCategories.map((c) => ({
+            categoriesRes.value.map((c) => ({
               id: String(c.id),
               name: c.name,
               slug: c.slug,
@@ -844,15 +866,12 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               sortOrder: c.sort_order ?? 0,
             }))
           );
-        } else {
-          setMainCategories([]);
         }
 
-        // Fetch Sub Categories
-        const dbSubCategories = await supabaseFetch<any[]>('sub_categories');
-        if (dbSubCategories && Array.isArray(dbSubCategories)) {
+        // 7. Sub Categories
+        if (subCategoriesRes.status === 'fulfilled' && Array.isArray(subCategoriesRes.value) && subCategoriesRes.value.length > 0) {
           setSubCategories(
-            dbSubCategories.map((s) => ({
+            subCategoriesRes.value.map((s) => ({
               id: String(s.id),
               mainCategoryId: String(s.main_category_id),
               name: s.name,
@@ -867,15 +886,12 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               sortOrder: s.sort_order ?? 0,
             }))
           );
-        } else {
-          setSubCategories([]);
         }
 
-        // Fetch Collections
-        const dbCollections = await supabaseFetch<any[]>('collections');
-        if (dbCollections && Array.isArray(dbCollections)) {
+        // 8. Collections
+        if (collectionsRes.status === 'fulfilled' && Array.isArray(collectionsRes.value) && collectionsRes.value.length > 0) {
           setCollections(
-            dbCollections.map((col) => ({
+            collectionsRes.value.map((col) => ({
               id: String(col.id),
               name: col.name,
               title: col.name,
@@ -898,14 +914,11 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               sortOrder: col.sort_order ?? 0,
             }))
           );
-        } else {
-          setCollections([]);
         }
 
-        // Fetch Orders
-        const dbOrders = await supabaseFetch<any[]>('orders', { query: 'order=created_at.desc' });
-        if (dbOrders && Array.isArray(dbOrders) && dbOrders.length > 0) {
-          const mappedOrders: CMSOrder[] = dbOrders.map((o) => ({
+        // 9. Orders
+        if (ordersRes.status === 'fulfilled' && Array.isArray(ordersRes.value) && ordersRes.value.length > 0) {
+          const mappedOrders: CMSOrder[] = ordersRes.value.map((o) => ({
             id: o.order_number || String(o.id).slice(0, 8).toUpperCase(),
             customerName: o.customer_name || 'Valued Customer',
             email: o.customer_email || 'customer@thecandlelab.com',
@@ -921,10 +934,9 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           setTotalRevenue(totalRev);
         }
 
-        // Fetch Customers
-        const dbCustomers = await supabaseFetch<any[]>('customers', { query: 'order=created_at.desc' });
-        if (dbCustomers && Array.isArray(dbCustomers) && dbCustomers.length > 0) {
-          const mappedCustomers: CMSCustomer[] = dbCustomers.map((c) => ({
+        // 10. Customers
+        if (customersRes.status === 'fulfilled' && Array.isArray(customersRes.value) && customersRes.value.length > 0) {
+          const mappedCustomers: CMSCustomer[] = customersRes.value.map((c) => ({
             id: String(c.id),
             name: c.full_name || 'Customer',
             email: c.email || '',
@@ -935,10 +947,9 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           setCustomers(mappedCustomers);
         }
 
-        // Fetch Coupons
-        const dbCoupons = await supabaseFetch<any[]>('coupons', { query: 'order=created_at.desc' });
-        if (dbCoupons && Array.isArray(dbCoupons) && dbCoupons.length > 0) {
-          const mappedCoupons: CMSCoupon[] = dbCoupons.map((cp) => ({
+        // 11. Coupons
+        if (couponsRes.status === 'fulfilled' && Array.isArray(couponsRes.value) && couponsRes.value.length > 0) {
+          const mappedCoupons: CMSCoupon[] = couponsRes.value.map((cp) => ({
             code: cp.code,
             discountPercent: Number(cp.discount_percentage || 15),
             description: `Save ${cp.discount_percentage}% on orders above ₹${cp.min_order_amount || 0}`,
@@ -947,9 +958,8 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           setCoupons(mappedCoupons);
         }
 
-        // Fetch Admins & Staff from Supabase 'admins' table
-        const dbAdmins = await supabaseFetch<any[]>('admins', { query: 'order=created_at.desc' });
-        if (dbAdmins && Array.isArray(dbAdmins) && dbAdmins.length > 0) {
+        // 12. Staff Users
+        if (adminsRes.status === 'fulfilled' && Array.isArray(adminsRes.value) && adminsRes.value.length > 0) {
           const roleMap: Record<string, CMSStaffUser['role']> = {
             'SUPER_ADMIN': 'Super Admin',
             'ADMIN': 'Admin',
@@ -958,7 +968,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             'MARKETING_MANAGER': 'Marketing Manager',
             'SUPPORT': 'Support',
           };
-          const mappedAdmins: CMSStaffUser[] = dbAdmins.map((adm) => ({
+          const mappedAdmins: CMSStaffUser[] = adminsRes.value.map((adm) => ({
             id: String(adm.id),
             name: adm.full_name || 'Staff Member',
             email: adm.email,
@@ -969,14 +979,14 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           setStaffUsers(mappedAdmins);
         }
 
-        // Fetch Products with Images and Variants
-        const dbProducts = await supabaseFetch<any[]>('products', { query: 'order=created_at.desc' });
-        const dbImages = await supabaseFetch<any[]>('product_images');
-        const dbVariants = await supabaseFetch<any[]>('product_variants');
+        // 13. Products & Images & Variants
+        const dbProducts = productsRes.status === 'fulfilled' && Array.isArray(productsRes.value) ? productsRes.value : [];
+        const dbImages = imagesRes.status === 'fulfilled' && Array.isArray(imagesRes.value) ? imagesRes.value : [];
+        const dbVariants = variantsRes.status === 'fulfilled' && Array.isArray(variantsRes.value) ? variantsRes.value : [];
 
-        if (dbProducts && Array.isArray(dbProducts) && dbProducts.length > 0) {
+        if (dbProducts.length > 0) {
           const imageMap = new Map<string, string[]>();
-          (dbImages || []).forEach((img) => {
+          dbImages.forEach((img) => {
             const pId = String(img.product_id);
             const current = imageMap.get(pId) || [];
             if (img.image_url) {
@@ -985,7 +995,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           });
 
           const variantMap = new Map<string, CMSProductVariant[]>();
-          (dbVariants || []).forEach((v) => {
+          dbVariants.forEach((v) => {
             const pId = String(v.product_id);
             const current = variantMap.get(pId) || [];
             current.push({
