@@ -97,7 +97,7 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({ onNavigateToShop: _o
   }, [collections, products]);
 
   const allCards = useMemo(() => {
-    return [...categoryCards, ...collectionCards];
+    return categoryCards.length > 0 ? categoryCards : collectionCards;
   }, [categoryCards, collectionCards]);
 
   const handleOpenCollectionPage = (cardId?: string) => {
@@ -116,17 +116,17 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({ onNavigateToShop: _o
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2">
               <Badge variant="pink" size="sm" icon={<SparklesIcon size={12} />}>
-                CATEGORIES & CURATED COLLECTIONS
+                PRODUCT CATEGORIES
               </Badge>
               <span className="text-[11px] uppercase tracking-wider text-[#886C7B] font-semibold hidden sm:inline-block">
-                • {allCards.length} Curations Available
+                • {allCards.length} Categories Available
               </span>
             </div>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-extrabold text-[#1C1217] tracking-tight">
               Categories & Collections
             </h2>
             <p className="text-xs sm:text-sm text-[#624855] max-w-2xl leading-relaxed">
-              Explore our handcrafted soy candle categories and signature scent collections. Click any category or collection to view its hand-poured formulations directly below.
+              Explore our artisanal product categories. Click any category to view its hand-poured formulations.
             </p>
           </div>
 
