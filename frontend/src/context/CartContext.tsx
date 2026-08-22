@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useToast } from '../design-system';
+import { safeLocalStorageSet } from '../utils/storage';
 
 export interface CartItem {
   id: string;
@@ -59,12 +60,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
 
   useEffect(() => {
-    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartItems));
+    safeLocalStorageSet(CART_STORAGE_KEY, cartItems);
     window.dispatchEvent(new Event('tcl-cart-updated'));
   }, [cartItems]);
 
   useEffect(() => {
-    localStorage.setItem(SAVED_STORAGE_KEY, JSON.stringify(savedForLater));
+    safeLocalStorageSet(SAVED_STORAGE_KEY, savedForLater);
   }, [savedForLater]);
 
   // Listen to external cart updates

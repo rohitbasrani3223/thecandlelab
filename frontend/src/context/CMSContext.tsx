@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabaseFetch } from '../config/supabaseClient';
 import { fetchCmsBundle, saveCmsBundle } from '../services/cmsRemote';
 import { PRODUCT_IMAGE_PLACEHOLDER } from '../config/placeholders';
+import { safeLocalStorageSet } from '../utils/storage';
 
 // Storage keys
 const PRODUCTS_STORAGE_KEY = 'tcl_cms_products';
@@ -582,49 +583,49 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [totalRevenue, setTotalRevenue] = useState<number>(0);
   const [ordersCount, setOrdersCount] = useState<number>(0);
 
-  // Sync to LocalStorage
+  // Sync to LocalStorage safely
   useEffect(() => {
-    localStorage.setItem('tcl_settings', JSON.stringify(settings));
+    safeLocalStorageSet('tcl_settings', settings);
   }, [settings]);
 
   useEffect(() => {
-    localStorage.setItem('tcl_announcement', JSON.stringify(announcement));
+    safeLocalStorageSet('tcl_announcement', announcement);
   }, [announcement]);
 
   useEffect(() => {
-    localStorage.setItem('tcl_hero', JSON.stringify(hero));
+    safeLocalStorageSet('tcl_hero', hero);
   }, [hero]);
 
   useEffect(() => {
-    localStorage.setItem(FRAGRANCES_STORAGE_KEY, JSON.stringify(fragrances));
+    safeLocalStorageSet(FRAGRANCES_STORAGE_KEY, fragrances);
   }, [fragrances]);
 
   useEffect(() => {
-    localStorage.setItem(SIZES_STORAGE_KEY, JSON.stringify(sizes));
+    safeLocalStorageSet(SIZES_STORAGE_KEY, sizes);
   }, [sizes]);
 
   useEffect(() => {
-    localStorage.setItem(COLORS_STORAGE_KEY, JSON.stringify(colors));
+    safeLocalStorageSet(COLORS_STORAGE_KEY, colors);
   }, [colors]);
 
   useEffect(() => {
-    localStorage.setItem(WICK_TYPES_STORAGE_KEY, JSON.stringify(wickTypes));
+    safeLocalStorageSet(WICK_TYPES_STORAGE_KEY, wickTypes);
   }, [wickTypes]);
 
   useEffect(() => {
-    localStorage.setItem(MAIN_CATEGORIES_STORAGE_KEY, JSON.stringify(mainCategories));
+    safeLocalStorageSet(MAIN_CATEGORIES_STORAGE_KEY, mainCategories);
   }, [mainCategories]);
 
   useEffect(() => {
-    localStorage.setItem(SUB_CATEGORIES_STORAGE_KEY, JSON.stringify(subCategories));
+    safeLocalStorageSet(SUB_CATEGORIES_STORAGE_KEY, subCategories);
   }, [subCategories]);
 
   useEffect(() => {
-    localStorage.setItem(COLLECTIONS_STORAGE_KEY, JSON.stringify(collections));
+    safeLocalStorageSet(COLLECTIONS_STORAGE_KEY, collections);
   }, [collections]);
 
   useEffect(() => {
-    localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(products));
+    safeLocalStorageSet(PRODUCTS_STORAGE_KEY, products);
   }, [products]);
 
   // Load from Backend/Database

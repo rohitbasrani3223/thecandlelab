@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { safeLocalStorageSet } from '../../utils/storage';
 import { AdminSidebar, type AdminTab } from './AdminSidebar';
 import { AdminLoginPage } from './AdminLoginPage';
 import { AdminProductsManager } from './AdminProductsManager';
@@ -30,12 +31,16 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
 }) => {
   const { user: authUser, isAuthenticated, logout } = useAuth();
   const [activeTab, setActiveTab] = useState<AdminTab>(() => {
-    return (localStorage.getItem('tcl_admin_active_tab') as AdminTab) || 'dashboard';
+    try {
+      return (localStorage.getItem('tcl_admin_active_tab') as AdminTab) || 'dashboard';
+    } catch {
+      return 'dashboard';
+    }
   });
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
 
   useEffect(() => {
-    localStorage.setItem('tcl_admin_active_tab', activeTab);
+    safeLocalStorageSet('tcl_admin_active_tab', activeTab);
   }, [activeTab]);
 
   const handleLogout = () => {

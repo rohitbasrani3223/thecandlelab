@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useCMS } from '../../context/CMSContext';
+import { safeLocalStorageSet } from '../../utils/storage';
 
 type OrdersSubTab = 'orders' | 'returns' | 'refunds' | 'shipping' | 'tracking';
 
@@ -339,9 +340,11 @@ export const AdminOrdersManager: React.FC = () => {
             onSubmit={(event) => {
               event.preventDefault();
               const awb = shipment.awb.trim() || `AWB${Date.now().toString().slice(-9)}`;
-              const shipmentRecords = JSON.parse(localStorage.getItem('tcl_shipments') || '{}');
-              shipmentRecords[shipmentOrder] = { ...shipment, awb, createdAt: new Date().toISOString() };
-              localStorage.setItem('tcl_shipments', JSON.stringify(shipmentRecords));
+              try {
+                const shipmentRecords = JSON.parse(localStorage.getItem('tcl_shipments') || '{}');
+                shipmentRecords[shipmentOrder] = { ...shipment, awb, createdAt: new Date().toISOString() };
+                safeLocalStorageSet('tcl_shipments', shipmentRecords);
+              } catch {}
               updateOrderStatus(shipmentOrder, 'Shipped');
               window.dispatchEvent(new Event('tcl-orders-updated'));
               setSavedMsg(`Shipment created for ${shipmentOrder}. AWB: ${awb}`);

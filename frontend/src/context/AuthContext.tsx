@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { getApiUrl } from '../config/api';
 import { supabaseFetch } from '../config/supabaseClient';
+import { safeLocalStorageSet } from '../utils/storage';
 
 export interface UserProfile {
   id: string;
@@ -22,7 +23,7 @@ export type AuthViewMode =
   | 'verify-email'
   | 'verify-otp';
 
-interface AuthContextType {
+export interface AuthContextType {
   user: UserProfile | null;
   isAuthenticated: boolean;
   isLoading: boolean;
@@ -33,15 +34,16 @@ interface AuthContextType {
   openAuthModal: (mode?: AuthViewMode, emailOrPhone?: string) => void;
   closeAuthModal: () => void;
   setAuthViewMode: (mode: AuthViewMode) => void;
-  login: (credentials: { emailOrPhone: string; password?: string; otp?: string; rememberMe?: boolean }) => Promise<{ success: boolean; message?: string }>;
+  login: (credentials: { emailOrPhone?: string; email?: string; phone?: string; password?: string; otp?: string; rememberMe?: boolean }) => Promise<{ success: boolean; message?: string }>;
   adminLogin: (credentials: { email: string; password?: string }) => Promise<{ success: boolean; message?: string }>;
-  register: (data: { name: string; email: string; phone: string; password?: string }) => Promise<{ success: boolean; message?: string; requireOtp?: boolean; requireEmailVerify?: boolean }>;
-  requestPasswordReset: (emailOrPhone: string) => Promise<{ success: boolean; message?: string; method: 'email' | 'otp' }>;
-  resetPassword: (password: string, tokenOrOtp: string) => Promise<{ success: boolean; message?: string }>;
-  verifyEmail: (token?: string) => Promise<{ success: boolean; message?: string }>;
-  verifyOtp: (otp: string) => Promise<{ success: boolean; message?: string }>;
-  socialLogin: (provider: 'google' | 'apple' | 'meta', profileData?: { name?: string; email?: string; avatar?: string; idToken?: string }) => Promise<{ success: boolean; message?: string }>;
+  register: (data: { name: string; email: string; phone?: string; password?: string }) => Promise<{ success: boolean; message?: string }>;
   logout: () => void;
+  updateProfile: (data: Partial<UserProfile>) => Promise<{ success: boolean; message?: string }>;
+  requestPasswordReset: (email: string) => Promise<{ success: boolean; message?: string }>;
+  resetPassword: (password: string, token: string) => Promise<{ success: boolean; message?: string }>;
+  verifyEmail: (token?: string) => Promise<{ success: boolean; message?: string }>;
+  verifyOtp: (otpOrPhone: string, otpCode?: string) => Promise<{ success: boolean; message?: string }>;
+  socialLogin: (provider: 'google' | 'facebook' | 'apple' | 'meta', profileData?: { name?: string; email?: string; avatar?: string; idToken?: string } | any) => Promise<{ success: boolean; message?: string }>;
 }
 
 const STORAGE_KEY = 'thecandlelab_auth_user';
@@ -67,7 +69,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (savedUser && expiryTime) {
         if (Date.now() < Number(expiryTime)) {
-          setUser(JSON.parse(savedUser));
+          const parsed = JSON.parse(savedUser);
+          if (parsed && typeof parsed === 'object' && parsed.email) {
+            setUser(parsed);
+          } else {
+            localStorage.removeItem(STORAGE_KEY);
+            localStorage.removeItem(TOKEN_KEY);
+            localStorage.removeItem(STORAGE_KEY + '_expiry');
+          }
         } else {
           // Session expired after 2 days
           localStorage.removeItem(STORAGE_KEY);
@@ -75,10 +84,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           localStorage.removeItem(STORAGE_KEY + '_expiry');
         }
       } else if (savedUser) {
-        setUser(JSON.parse(savedUser));
+        const parsed = JSON.parse(savedUser);
+        if (parsed && typeof parsed === 'object' && parsed.email) {
+          setUser(parsed);
+        }
       }
     } catch (e) {
-      console.error('Failed to restore auth session:', e);
+      console.warn('Failed to restore auth session, resetting session:', e);
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(STORAGE_KEY + '_expiry');
+      } catch {}
     } finally {
       setIsLoading(false);
     }
@@ -106,9 +123,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const saveSession = (userData: UserProfile, token: string = 'mock-jwt-token-12345') => {
     setUser(userData);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
-    localStorage.setItem(TOKEN_KEY, token);
-    localStorage.setItem(STORAGE_KEY + '_expiry', String(Date.now() + TWO_DAYS_MS));
+    safeLocalStorageSet(STORAGE_KEY, userData);
+    safeLocalStorageSet(TOKEN_KEY, token);
+    safeLocalStorageSet(STORAGE_KEY + '_expiry', String(Date.now() + TWO_DAYS_MS));
   };
 
   // Strict Administrator Login: Authenticates EXCLUSIVELY against Supabase 'admins' table
@@ -182,9 +199,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // Customer Storefront Login: Authenticates against Supabase 'customers' table
-  const login = async (credentials: { emailOrPhone: string; password?: string; otp?: string; rememberMe?: boolean }) => {
+  const login = async (credentials: { emailOrPhone?: string; email?: string; phone?: string; password?: string; otp?: string; rememberMe?: boolean }) => {
     setIsLoading(true);
-    const input = credentials.emailOrPhone.trim().toLowerCase();
+    const input = (credentials.emailOrPhone || credentials.email || credentials.phone || '').trim().toLowerCase();
     const pass = credentials.password ? credentials.password.trim() : '';
 
     if (pass && pass.length < 3) {
@@ -247,10 +264,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const register = async (data: { name: string; email: string; phone: string; password?: string }) => {
+  const register = async (data: { name: string; email: string; phone?: string; password?: string }) => {
     setIsLoading(true);
     setPendingEmail(data.email);
-    setPendingPhone(data.phone);
+    if (data.phone) setPendingPhone(data.phone);
 
     try {
       // Save directly to Supabase customers table
@@ -359,13 +376,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { success: true, message: 'Email address verified successfully!' };
   };
 
-  const verifyOtp = async (otp: string) => {
+  const verifyOtp = async (otpOrPhone: string, otpCode?: string) => {
+    const otp = otpCode || otpOrPhone;
+    const phone = otpCode ? otpOrPhone : pendingPhone;
     setIsLoading(true);
     try {
       await fetch(getApiUrl('auth/verify-otp'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ otp, email: pendingEmail, phone: pendingPhone }),
+        body: JSON.stringify({ otp, email: pendingEmail, phone: phone || pendingPhone }),
       });
     } catch (e) {
       // Fallback
@@ -378,7 +397,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       id: 'usr_' + Date.now().toString().slice(-6),
       name: pendingEmail ? pendingEmail.split('@')[0] : 'Valued Customer',
       email: pendingEmail || 'customer@thecandlelab.com',
-      phone: pendingPhone || '+91 98765 43210',
+      phone: phone || pendingPhone || '+91 98765 43210',
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
       isEmailVerified: true,
       isPhoneVerified: true,
@@ -388,12 +407,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     saveSession(newUser);
     closeAuthModal();
-    return { success: true, message: 'OTP verified successfully! Welcome to The Candle Lab.' };
+    return { success: true, message: 'OTP Verified successfully!' };
   };
 
-  const socialLogin = async (provider: 'google' | 'apple' | 'meta', profileData?: { name?: string; email?: string; avatar?: string; idToken?: string }) => {
+  const socialLogin = async (provider: 'google' | 'facebook' | 'apple' | 'meta', profileData?: { name?: string; email?: string; avatar?: string; idToken?: string } | any) => {
     setIsLoading(true);
-    const providerNames = { google: 'Google', apple: 'Apple ID', meta: 'Facebook' };
+    const providerNames: Record<string, string> = { google: 'Google', apple: 'Apple ID', meta: 'Facebook', facebook: 'Facebook' };
     
     try {
       const res = await fetch(getApiUrl('auth/social'), {
@@ -413,7 +432,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           saveSession(userObj, data.token);
           setIsLoading(false);
           closeAuthModal();
-          return { success: true, message: `Successfully authenticated via ${providerNames[provider]}` };
+          return { success: true, message: `Successfully authenticated via ${providerNames[provider] || provider}` };
         }
       }
     } catch (e) {
@@ -422,7 +441,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const socialUser: UserProfile = {
       id: `usr_${provider}_${Date.now().toString().slice(-6)}`,
-      name: profileData?.name || `Valued User (${providerNames[provider]})`,
+      name: profileData?.name || `Valued User (${providerNames[provider] || provider})`,
       email: profileData?.email || `user.${provider}@thecandlelab.com`,
       avatar: profileData?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
       isEmailVerified: true,
@@ -434,7 +453,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     saveSession(socialUser);
     setIsLoading(false);
     closeAuthModal();
-    return { success: true, message: `Successfully authenticated via ${providerNames[provider]}` };
+    return { success: true, message: `Successfully authenticated via ${providerNames[provider] || provider}` };
+  };
+
+  const updateProfile = async (data: Partial<UserProfile>) => {
+    if (!user) return { success: false, message: 'No active user session found.' };
+    const updatedUser = { ...user, ...data };
+    saveSession(updatedUser);
+    return { success: true, message: 'Profile updated successfully.' };
   };
 
   const logout = () => {
@@ -460,6 +486,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         login,
         adminLogin,
         register,
+        updateProfile,
         requestPasswordReset,
         resetPassword,
         verifyEmail,
