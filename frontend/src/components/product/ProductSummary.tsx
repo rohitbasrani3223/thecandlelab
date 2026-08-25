@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useCart } from '../../context/CartContext';
 import { useCMS, type CMSProduct, type CMSProductVariant } from '../../context/CMSContext';
+import { ChevronDownIcon, ShoppingBagIcon, SparklesIcon } from '../../design-system';
 
 interface ProductSummaryProps {
   product: CMSProduct;
@@ -307,14 +308,12 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
       </div>
 
       {/* 1. DYNAMIC FRAGRANCE SELECTOR */}
+      {/* 1. DYNAMIC FRAGRANCE SELECTOR DROPDOWN */}
       {availableFragrances.length > 0 && (
-        <div className="space-y-2.5 pt-2">
+        <div className="space-y-1.5 pt-1">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-mono uppercase tracking-wider text-[#1C1217] font-bold">
-              Fragrance / Scent Accord:{' '}
-              <span className="text-[#E87A96] font-semibold font-sans">
-                {selectedFragrance?.name || 'Choose fragrance'}
-              </span>
+            <label className="text-[11px] font-mono uppercase tracking-wider text-[#624855] font-bold">
+              Select Fragrance:
             </label>
             {selectedFragrance?.intensity && (
               <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#FFF6F8] border border-[#F5E8EE] text-[#886C7B]">
@@ -322,71 +321,70 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
               </span>
             )}
           </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            {availableFragrances.map((frag) => {
-              const isSelected = frag.id === selectedFragranceId;
-              return (
-                <button
-                  key={frag.id}
-                  type="button"
-                  onClick={() => setSelectedFragranceId(frag.id)}
-                  className={`flex items-start gap-2.5 p-3 rounded-2xl border text-left transition-all cursor-pointer ${
-                    isSelected
-                      ? 'bg-[#FFF6F8] border-[#E87A96] shadow-[0_0_15px_rgba(232,122,150,0.15)] ring-1 ring-[#E87A96]'
-                      : 'bg-[#FFFFFF] border-[#F5E8EE] hover:border-[#F9B8CA]'
-                  }`}
-                >
-                  <div className="w-8 h-8 rounded-xl bg-[#FFF6F8] border border-[#F5E8EE] flex items-center justify-center text-sm shrink-0 mt-0.5">
-                    {frag.imageUrl ? (
-                      <img src={frag.imageUrl} alt={frag.name} className="w-full h-full object-cover rounded-xl" />
-                    ) : (
-                      '🌸'
-                    )}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className={`text-xs font-bold leading-tight truncate ${isSelected ? 'text-[#E87A96]' : 'text-[#1C1217]'}`}>
-                      {frag.name}
-                    </p>
-                    <p className="text-[10px] text-[#886C7B] truncate mt-0.5">
-                      {frag.scentProfile || frag.topNotes || 'Signature botanical blend'}
-                    </p>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Scent Accord Notes Breakdown */}
-          {(product.topNotes || selectedFragrance?.topNotes) && (
-            <div className="p-3.5 rounded-2xl bg-[#FFF6F8] border border-[#F5E8EE] text-[11px] text-[#624855] space-y-1">
-              <p>
-                <span className="text-[#E87A96] font-bold">Top Notes:</span> {product.topNotes || selectedFragrance?.topNotes}
-              </p>
-              {(product.heartNotes || selectedFragrance?.heartNotes) && (
-                <p>
-                  <span className="text-[#886C7B] font-medium">Heart:</span> {product.heartNotes || selectedFragrance?.heartNotes}
-                </p>
-              )}
-              {(product.baseNotes || selectedFragrance?.baseNotes) && (
-                <p>
-                  <span className="text-[#886C7B] font-medium">Base:</span> {product.baseNotes || selectedFragrance?.baseNotes}
-                </p>
-              )}
+          <div className="relative">
+            <select
+              value={selectedFragranceId}
+              onChange={(e) => setSelectedFragranceId(e.target.value)}
+              className="w-full px-4 py-3 bg-white border border-[#E8DCE2] rounded-xl text-sm text-[#1C1217] font-medium appearance-none focus:outline-none focus:border-[#E87A96] focus:ring-1 focus:ring-[#E87A96] transition-all pr-10 cursor-pointer shadow-xs"
+            >
+              {availableFragrances.map((frag) => (
+                <option key={frag.id} value={frag.id}>
+                  {frag.name} {frag.scentProfile ? `— ${frag.scentProfile}` : ''}
+                </option>
+              ))}
+            </select>
+            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#886C7B]">
+              <ChevronDownIcon size={16} />
             </div>
+          </div>
+          {selectedFragrance && (
+            <p className="text-[11px] text-[#886C7B] italic px-1">
+              ✨ {selectedFragrance.scentProfile || selectedFragrance.topNotes || 'Signature botanical essential oil blend'}
+            </p>
           )}
         </div>
       )}
 
-      {/* 2. DYNAMIC SIZE SELECTOR */}
+      {/* 2. DYNAMIC COLOR / FINISH SELECTOR DROPDOWN */}
+      {availableColors.length > 0 && (
+        <div className="space-y-1.5 pt-1">
+          <label className="block text-[11px] font-mono uppercase tracking-wider text-[#624855] font-bold">
+            Select Wax / Vessel Color:
+          </label>
+          <div className="flex items-center gap-3">
+            <div className="relative flex-1">
+              <select
+                value={selectedColorId}
+                onChange={(e) => setSelectedColorId(e.target.value)}
+                className="w-full px-4 py-3 bg-white border border-[#E8DCE2] rounded-xl text-sm text-[#1C1217] font-medium appearance-none focus:outline-none focus:border-[#E87A96] focus:ring-1 focus:ring-[#E87A96] transition-all pr-10 cursor-pointer shadow-xs"
+              >
+                {availableColors.map((col) => (
+                  <option key={col.id} value={col.id}>
+                    {col.name}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#886C7B]">
+                <ChevronDownIcon size={16} />
+              </div>
+            </div>
+            {selectedColor?.hexCode && (
+              <div
+                className="w-9 h-9 rounded-full border-2 border-white shadow-md shrink-0 ring-1 ring-[#E8DCE2]"
+                style={{ backgroundColor: selectedColor.hexCode }}
+                title={selectedColor.name}
+              />
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 3. DYNAMIC SIZE SELECTOR DROPDOWN */}
       {availableSizes.length > 0 && (
-        <div className="space-y-2 pt-2">
+        <div className="space-y-1.5 pt-1">
           <div className="flex items-center justify-between">
-            <label className="block text-xs font-mono uppercase tracking-wider text-[#1C1217] font-bold">
-              Vessel Size / Net Weight:{' '}
-              <span className="text-[#E87A96] font-semibold font-sans">
-                {selectedSize?.name || 'Select Size'}
-              </span>
+            <label className="block text-[11px] font-mono uppercase tracking-wider text-[#624855] font-bold">
+              Select Vessel Size:
             </label>
             {product.burnTime && (
               <span className="text-[10px] text-[#886C7B] font-mono">
@@ -394,148 +392,104 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
               </span>
             )}
           </div>
-          <div className="flex flex-wrap gap-2.5">
-            {availableSizes.map((sz) => {
-              const isSelected = sz.id === selectedSizeId;
-              const szMult = sz.value > 300 ? 1.6 : sz.value < 150 ? 0.7 : 1.0;
-              const szPrice = Math.round((basePrice * szMult) / 10) * 10;
-              return (
-                <button
-                  key={sz.id}
-                  type="button"
-                  onClick={() => setSelectedSizeId(sz.id)}
-                  className={`px-4 py-2.5 rounded-full border text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
-                    isSelected
-                      ? 'bg-[#E87A96] border-[#E87A96] text-white shadow-xs'
-                      : 'bg-[#FFFFFF] border-[#F5E8EE] text-[#1C1217] hover:border-[#F9B8CA]'
-                  }`}
-                >
-                  <span>{sz.name}</span>
-                  <span className={`text-[10px] font-normal ${isSelected ? 'text-white/80' : 'text-[#886C7B]'}`}>
-                    (₹{szPrice.toLocaleString('en-IN')})
-                  </span>
-                </button>
-              );
-            })}
+          <div className="relative">
+            <select
+              value={selectedSizeId}
+              onChange={(e) => setSelectedSizeId(e.target.value)}
+              className="w-full px-4 py-3 bg-white border border-[#E8DCE2] rounded-xl text-sm text-[#1C1217] font-medium appearance-none focus:outline-none focus:border-[#E87A96] focus:ring-1 focus:ring-[#E87A96] transition-all pr-10 cursor-pointer shadow-xs"
+            >
+              {availableSizes.map((sz) => {
+                const szMult = sz.value > 300 ? 1.6 : sz.value < 150 ? 0.7 : 1.0;
+                const szPrice = Math.round((basePrice * szMult) / 10) * 10;
+                return (
+                  <option key={sz.id} value={sz.id}>
+                    {sz.name} (₹{szPrice.toLocaleString('en-IN')})
+                  </option>
+                );
+              })}
+            </select>
+            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#886C7B]">
+              <ChevronDownIcon size={16} />
+            </div>
           </div>
         </div>
       )}
 
-      {/* 3. DYNAMIC COLOR / FINISH SELECTOR */}
-      {availableColors.length > 0 && (
-        <div className="space-y-2 pt-2">
-          <label className="block text-xs font-mono uppercase tracking-wider text-[#1C1217] font-bold">
-            Vessel Finish & Color:{' '}
-            <span className="text-[#E87A96] font-semibold font-sans">
-              {selectedColor?.name || 'Select Finish'}
-            </span>
-          </label>
-          <div className="flex items-center gap-3">
-            {availableColors.map((col) => {
-              const isSelected = col.id === selectedColorId;
-              return (
-                <button
-                  key={col.id}
-                  type="button"
-                  title={col.name}
-                  onClick={() => setSelectedColorId(col.id)}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all cursor-pointer ${
-                    isSelected
-                      ? 'border-[#E87A96] bg-[#FFF6F8] text-[#E87A96] ring-1 ring-[#E87A96]'
-                      : 'border-[#F5E8EE] bg-[#FFFFFF] text-[#1C1217] hover:border-[#F9B8CA]'
-                  }`}
-                >
-                  <span
-                    className="w-3.5 h-3.5 rounded-full border border-stone-300 shadow-inner shrink-0"
-                    style={{ backgroundColor: col.hexCode }}
-                  />
-                  <span className="text-xs font-medium">{col.name}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* 4. DYNAMIC WICK TYPE SELECTOR */}
+      {/* 4. DYNAMIC WICK TYPE SELECTOR DROPDOWN */}
       {availableWickTypes.length > 0 && (
-        <div className="space-y-2 pt-2">
-          <label className="block text-xs font-mono uppercase tracking-wider text-[#1C1217] font-bold">
-            Wick Formulation:{' '}
-            <span className="text-[#E87A96] font-semibold font-sans">
-              {selectedWickType?.name || 'Standard'}
-            </span>
+        <div className="space-y-1.5 pt-1">
+          <label className="block text-[11px] font-mono uppercase tracking-wider text-[#624855] font-bold">
+            Select Wick Type:
           </label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {availableWickTypes.map((wk) => {
-              const isSelected = wk.id === selectedWickTypeId;
-              return (
-                <button
-                  key={wk.id}
-                  type="button"
-                  onClick={() => setSelectedWickTypeId(wk.id)}
-                  className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
-                    isSelected
-                      ? 'bg-[#FFF6F8] border-[#E87A96] text-[#E87A96] ring-1 ring-[#E87A96]'
-                      : 'bg-[#FFFFFF] border-[#F5E8EE] text-[#1C1217] hover:border-[#F9B8CA]'
-                  }`}
-                >
-                  <p className="text-xs font-bold">{wk.name}</p>
-                  {wk.description && (
-                    <p className="text-[10px] text-[#886C7B] mt-0.5">{wk.description}</p>
-                  )}
-                </button>
-              );
-            })}
+          <div className="relative">
+            <select
+              value={selectedWickTypeId}
+              onChange={(e) => setSelectedWickTypeId(e.target.value)}
+              className="w-full px-4 py-3 bg-white border border-[#E8DCE2] rounded-xl text-sm text-[#1C1217] font-medium appearance-none focus:outline-none focus:border-[#E87A96] focus:ring-1 focus:ring-[#E87A96] transition-all pr-10 cursor-pointer shadow-xs"
+            >
+              {availableWickTypes.map((wk) => (
+                <option key={wk.id} value={wk.id}>
+                  {wk.name} {wk.description ? `(${wk.description})` : ''}
+                </option>
+              ))}
+            </select>
+            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#886C7B]">
+              <ChevronDownIcon size={16} />
+            </div>
           </div>
         </div>
       )}
 
-      {/* 5. QUANTITY & CART ACTION BAR */}
-      <div className="space-y-4 pt-4 border-t border-[#F5E8EE]">
-        <div className="flex items-center gap-4">
-          {/* Quantity Stepper */}
-          <div className="flex items-center border border-[#F5E8EE] bg-[#FFF6F8] rounded-full overflow-hidden">
-            <button
-              type="button"
-              disabled={quantity <= 1 || isOutOfStock}
-              onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-              className="px-3.5 py-2.5 text-[#1C1217] hover:text-[#E87A96] transition-colors disabled:opacity-30 cursor-pointer font-bold"
-            >
-              -
-            </button>
-            <span className="px-4 py-2 text-xs font-mono text-[#1C1217] font-bold">
-              {quantity}
-            </span>
-            <button
-              type="button"
-              disabled={quantity >= currentStock || isOutOfStock}
-              onClick={() => setQuantity((q) => q + 1)}
-              className="px-3.5 py-2.5 text-[#1C1217] hover:text-[#E87A96] transition-colors disabled:opacity-30 cursor-pointer font-bold"
-            >
-              +
-            </button>
-          </div>
-
-          {/* Add to Bag Button */}
+      {/* 5. QUANTITY SELECTOR */}
+      <div className="space-y-1.5 pt-1">
+        <label className="block text-[11px] font-mono uppercase tracking-wider text-[#624855] font-bold">
+          Quantity:
+        </label>
+        <div className="flex items-center border border-[#E8DCE2] bg-white rounded-xl overflow-hidden max-w-[140px] shadow-xs">
           <button
             type="button"
-            disabled={isOutOfStock}
-            onClick={handleAddToCart}
-            className="flex-1 py-3.5 px-6 rounded-full font-bold uppercase tracking-widest text-xs transition-all shadow-subtle cursor-pointer bg-[#E87A96] hover:bg-[#D45D7D] text-white hover:shadow-[0_0_20px_rgba(232,122,150,0.3)] disabled:opacity-40 disabled:cursor-not-allowed"
+            disabled={quantity <= 1 || isOutOfStock}
+            onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+            className="px-4 py-2.5 text-[#1C1217] hover:text-[#E87A96] transition-colors disabled:opacity-30 cursor-pointer font-bold text-base"
           >
-            {isOutOfStock ? 'Out of Stock' : `Add to Bag • ₹${(currentPrice * quantity).toLocaleString('en-IN')}`}
+            -
+          </button>
+          <span className="flex-1 text-center text-sm font-mono text-[#1C1217] font-bold">
+            {quantity}
+          </span>
+          <button
+            type="button"
+            disabled={quantity >= currentStock || isOutOfStock}
+            onClick={() => setQuantity((q) => q + 1)}
+            className="px-4 py-2.5 text-[#1C1217] hover:text-[#E87A96] transition-colors disabled:opacity-30 cursor-pointer font-bold text-base"
+          >
+            +
           </button>
         </div>
+      </div>
 
-        {/* Buy Now Instant Checkout Button */}
+      {/* 6. ACTION BUTTONS */}
+      <div className="space-y-3 pt-3 border-t border-[#F5E8EE]">
+        {/* Add to Cart Primary Button */}
+        <button
+          type="button"
+          disabled={isOutOfStock}
+          onClick={handleAddToCart}
+          className="w-full py-4 px-6 rounded-2xl font-bold uppercase tracking-widest text-xs sm:text-sm transition-all shadow-md cursor-pointer bg-[#4A3222] hover:bg-[#382417] text-white flex items-center justify-center gap-2.5 disabled:opacity-40 disabled:cursor-not-allowed hover:scale-[1.01] active:scale-[0.99]"
+        >
+          <ShoppingBagIcon size={18} />
+          <span>{isOutOfStock ? 'Currently Out of Stock' : `Add to Cart • ₹${(currentPrice * quantity).toLocaleString('en-IN')}`}</span>
+        </button>
+
+        {/* Instant Buy Now Button */}
         {!isOutOfStock && (
           <button
             type="button"
             onClick={handleTriggerBuyNow}
-            className="w-full py-3.5 px-6 rounded-full font-bold uppercase tracking-widest text-xs transition-all cursor-pointer bg-[#1C1217] hover:bg-[#2C1D25] text-white"
+            className="w-full py-3.5 px-6 rounded-2xl font-bold uppercase tracking-widest text-xs transition-all cursor-pointer bg-[#E87A96] hover:bg-[#D45D7D] text-white shadow-sm flex items-center justify-center gap-2"
           >
-            Instant Buy Now →
+            <SparklesIcon size={16} />
+            <span>Instant Buy Now</span>
           </button>
         )}
       </div>
