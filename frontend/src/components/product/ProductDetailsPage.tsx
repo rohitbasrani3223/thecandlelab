@@ -2,7 +2,6 @@ import React, { useState, useMemo } from 'react';
 import { PRODUCT_IMAGE_PLACEHOLDER } from '../../config/placeholders';
 import { ProductGallery } from './ProductGallery';
 import { ProductSummary } from './ProductSummary';
-import { FragrancePyramidSection } from './FragrancePyramidSection';
 import { ProductSpecsAccordion } from './ProductSpecsAccordion';
 import { ProductReviewsSection } from './ProductReviewsSection';
 import { RelatedProducts } from './RelatedProducts';
@@ -131,9 +130,6 @@ export const ProductDetailsPage: React.FC<ProductDetailsPageProps> = ({
           <ProductSpecsAccordion product={activeProduct} />
         </div>
       </div>
-
-      {/* Fragrance Pyramid Architecture */}
-      <FragrancePyramidSection product={activeProduct} />
 
       {/* Customer Reviews & Related Products Container */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-12 sm:py-16 space-y-12 sm:space-y-16">
