@@ -130,6 +130,8 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
   const [selectedColorId, setSelectedColorId] = useState<string>(
     availableColors[0]?.id || ''
   );
+  const [customColorText, setCustomColorText] = useState<string>('');
+  const [isCustomColorActive, setIsCustomColorActive] = useState<boolean>(false);
   const [selectedWickTypeId, setSelectedWickTypeId] = useState<string>(
     availableWickTypes[0]?.id || ''
   );
@@ -153,7 +155,7 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
   }, [availableSizes, selectedSizeId]);
 
   useEffect(() => {
-    if (availableColors.length > 0 && !availableColors.some((c) => c.id === selectedColorId)) {
+    if (availableColors.length > 0 && selectedColorId !== 'custom' && !availableColors.some((c) => c.id === selectedColorId)) {
       setSelectedColorId(availableColors[0].id);
     }
   }, [availableColors, selectedColorId]);
@@ -189,10 +191,16 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
     () => availableSizes.find((s) => s.id === selectedSizeId) || availableSizes[0],
     [availableSizes, selectedSizeId]
   );
-  const selectedColor = useMemo(
-    () => availableColors.find((c) => c.id === selectedColorId) || availableColors[0],
-    [availableColors, selectedColorId]
-  );
+  const selectedColor = useMemo(() => {
+    if (selectedColorId === 'custom') {
+      return {
+        id: 'custom',
+        name: customColorText.trim() ? `Custom: ${customColorText.trim()}` : 'Custom Shade',
+        hexCode: '#F9B8CA',
+      };
+    }
+    return availableColors.find((c) => c.id === selectedColorId) || availableColors[0];
+  }, [availableColors, selectedColorId, customColorText]);
   const selectedWickType = useMemo(
     () => availableWickTypes.find((w) => w.id === selectedWickTypeId) || availableWickTypes[0],
     [availableWickTypes, selectedWickTypeId]
@@ -223,6 +231,10 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
   const handleAddToCart = () => {
     if (isOutOfStock) return;
 
+    const finalColorName = selectedColorId === 'custom'
+      ? (customColorText.trim() ? `Custom: ${customColorText.trim()}` : 'Custom Color Shade')
+      : (customColorText.trim() ? `${selectedColor?.name || 'Standard'} (${customColorText.trim()})` : selectedColor?.name);
+
     addToCart({
       id: product.id,
       name: product.name,
@@ -231,7 +243,7 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
       image: currentVariant?.imageUrl || product.image || product.imageUrl,
       fragrance: selectedFragrance?.name || product.scentProfile || 'Signature',
       size: selectedSize?.name || 'Standard',
-      color: selectedColor?.name,
+      color: finalColorName,
       wickType: selectedWickType?.name,
       sku: currentSku,
       variantId: currentVariant?.id,
@@ -345,39 +357,95 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
         </div>
       )}
 
-      {/* 2. DYNAMIC COLOR / FINISH SELECTOR DROPDOWN */}
-      {availableColors.length > 0 && (
-        <div className="space-y-1.5 pt-1">
+      {/* 2. DYNAMIC COLOR / FINISH SELECTOR DROPDOWN (WITH CUSTOM COLOR SUPPORT) */}
+      <div className="space-y-1.5 pt-1">
+        <div className="flex items-center justify-between">
           <label className="block text-[11px] font-mono uppercase tracking-wider text-[#624855] font-bold">
             Select Wax / Vessel Color:
           </label>
-          <div className="flex items-center gap-3">
-            <div className="relative flex-1">
-              <select
-                value={selectedColorId}
-                onChange={(e) => setSelectedColorId(e.target.value)}
-                className="w-full px-4 py-3 bg-white border border-[#E8DCE2] rounded-xl text-sm text-[#1C1217] font-medium appearance-none focus:outline-none focus:border-[#E87A96] focus:ring-1 focus:ring-[#E87A96] transition-all pr-10 cursor-pointer shadow-xs"
-              >
-                {availableColors.map((col) => (
-                  <option key={col.id} value={col.id}>
-                    {col.name}
-                  </option>
-                ))}
-              </select>
-              <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#886C7B]">
-                <ChevronDownIcon size={16} />
-              </div>
-            </div>
-            {selectedColor?.hexCode && (
-              <div
-                className="w-9 h-9 rounded-full border-2 border-white shadow-md shrink-0 ring-1 ring-[#E8DCE2]"
-                style={{ backgroundColor: selectedColor.hexCode }}
-                title={selectedColor.name}
-              />
-            )}
-          </div>
+          <button
+            type="button"
+            onClick={() => {
+              const nextActive = !isCustomColorActive;
+              setIsCustomColorActive(nextActive);
+              if (nextActive) {
+                setSelectedColorId('custom');
+              } else if (availableColors.length > 0) {
+                setSelectedColorId(availableColors[0].id);
+              }
+            }}
+            className="text-[10px] font-mono font-bold text-[#E87A96] hover:underline cursor-pointer flex items-center gap-1"
+          >
+            <span>🎨 {isCustomColorActive || selectedColorId === 'custom' ? 'View Standard Colors' : '+ Custom Color Shade'}</span>
+          </button>
         </div>
-      )}
+
+        <div className="flex items-center gap-3">
+          <div className="relative flex-1">
+            <select
+              value={selectedColorId}
+              onChange={(e) => {
+                const val = e.target.value;
+                setSelectedColorId(val);
+                if (val === 'custom') {
+                  setIsCustomColorActive(true);
+                }
+              }}
+              className="w-full px-4 py-3 bg-white border border-[#E8DCE2] rounded-xl text-sm text-[#1C1217] font-medium appearance-none focus:outline-none focus:border-[#E87A96] focus:ring-1 focus:ring-[#E87A96] transition-all pr-10 cursor-pointer shadow-xs"
+            >
+              {availableColors.map((col) => (
+                <option key={col.id} value={col.id}>
+                  {col.name}
+                </option>
+              ))}
+              {availableColors.length === 0 && (
+                <option value="standard">Natural Atelier Soy Wax</option>
+              )}
+              <option value="custom">🎨 Custom / Request Specific Shade...</option>
+            </select>
+            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#886C7B]">
+              <ChevronDownIcon size={16} />
+            </div>
+          </div>
+
+          {/* Color Preview Swatch or Custom Palette Indicator */}
+          {selectedColorId === 'custom' ? (
+            <div
+              className="w-9 h-9 rounded-full border-2 border-white shadow-md shrink-0 bg-gradient-to-tr from-[#F9B8CA] via-[#E8C86D] to-[#88D49E] flex items-center justify-center text-xs ring-1 ring-[#E8DCE2]"
+              title="Custom Color Formulation"
+            >
+              🎨
+            </div>
+          ) : selectedColor?.hexCode ? (
+            <div
+              className="w-9 h-9 rounded-full border-2 border-white shadow-md shrink-0 ring-1 ring-[#E8DCE2]"
+              style={{ backgroundColor: selectedColor.hexCode }}
+              title={selectedColor.name}
+            />
+          ) : (
+            <div
+              className="w-9 h-9 rounded-full border-2 border-white shadow-md shrink-0 bg-[#FDFBF7] ring-1 ring-[#E8DCE2]"
+              title="Natural Soy Cream"
+            />
+          )}
+        </div>
+
+        {/* Custom Color Text Input Field */}
+        {(selectedColorId === 'custom' || isCustomColorActive) && (
+          <div className="pt-1.5 space-y-1">
+            <input
+              type="text"
+              placeholder="Describe your custom color / shade (e.g. Pastel Lavender, Sage Green & Gold)..."
+              value={customColorText}
+              onChange={(e) => setCustomColorText(e.target.value)}
+              className="w-full px-3.5 py-2.5 bg-[#FFF6F8] border border-[#F9B8CA] rounded-xl text-xs text-[#1C1217] placeholder:text-[#886C7B] outline-none focus:ring-1 focus:ring-[#E87A96] transition-all font-medium"
+            />
+            <p className="text-[10px] text-[#886C7B] italic px-1">
+              ✨ Hand-tinted specifically to your shade request in small batches.
+            </p>
+          </div>
+        )}
+      </div>
 
       {/* 3. DYNAMIC SIZE SELECTOR DROPDOWN */}
       {availableSizes.length > 0 && (

@@ -83,7 +83,7 @@ export const OrderReviewStep: React.FC<OrderReviewStepProps> = ({
             <p className="text-[#886C7B] italic">Your cart is empty.</p>
           ) : (
             cartItems.map((item, idx) => {
-              const variantLabel = [item.fragrance, item.size].filter(Boolean).join(' • ');
+              const variantLabel = [item.fragrance, item.size, item.color].filter(Boolean).join(' • ');
               return (
                 <div key={item.id || idx} className="flex items-center justify-between">
                   <span className="text-[#1C1217] font-medium">

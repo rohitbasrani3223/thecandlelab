@@ -75,7 +75,9 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({
             {item.color && (
               <>
                 <span>•</span>
-                <span className="text-[#886C7B]">Color: {item.color}</span>
+                <span className={item.color.toLowerCase().includes('custom') ? 'text-[#E87A96] font-semibold bg-[#FFF6F8] px-1.5 py-0.5 rounded border border-[#F9B8CA]' : 'text-[#886C7B]'}>
+                  🎨 {item.color}
+                </span>
               </>
             )}
           </div>

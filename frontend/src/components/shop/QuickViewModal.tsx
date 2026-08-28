@@ -21,7 +21,11 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
   const [quantity, setQuantity] = useState(1);
   const { toast } = useToast();
   const { addToCart } = useCart();
-  const { settings } = useCMS();
+  const { settings, colors, fragrances } = useCMS();
+
+  const [selectedFragrance, setSelectedFragrance] = useState<string>('');
+  const [selectedColorId, setSelectedColorId] = useState<string>('');
+  const [customColorText, setCustomColorText] = useState<string>('');
 
   if (!product) return null;
 
@@ -31,14 +35,20 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
   const origPrice = product.originalPrice ? Math.round(Number(product.originalPrice)) : null;
 
   const handleAddToCart = () => {
+    const chosenColor = colors.find((c) => c.id === selectedColorId);
+    const finalColor = selectedColorId === 'custom'
+      ? (customColorText.trim() ? `Custom: ${customColorText.trim()}` : 'Custom Color Shade')
+      : (customColorText.trim() ? `${chosenColor?.name || 'Standard'} (${customColorText.trim()})` : chosenColor?.name);
+
     addToCart({
       id: product.id,
       name: product.name,
       price: price,
       originalPrice: origPrice || price,
       image: imageSrc,
-      fragrance: product.scentProfile || product.topNotes || 'Signature Blend',
+      fragrance: selectedFragrance || product.scentProfile || product.topNotes || 'Signature Blend',
       size: product.weightGrams ? `${product.weightGrams}g` : '250g',
+      color: finalColor,
       wickType: 'Organic Wood Wick',
       quantity,
     } as any);
@@ -110,12 +120,59 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
               {product.longDescription || product.vesselDescription || 'Hand-poured candle crafted with natural soy wax, custom essential oil notes, and organic dual crackling wood wicks.'}
             </p>
 
-            {/* Aromatic Profile Notes */}
-            <div className="p-3 bg-[#FFF6F8] rounded-2xl border border-[#F5E8EE] space-y-1 text-xs">
-              <span className="font-bold text-[#E87A96] block uppercase text-[10px]">Aromatic Profile:</span>
-              <p className="text-[#624855] italic">
-                Top: {product.topNotes || 'Bergamot'} • Heart: {product.heartNotes || 'Rose'} • Base: {product.baseNotes || 'Amber'}
-              </p>
+            {/* Fragrance & Color Selectors */}
+            <div className="space-y-2 pt-1 border-t border-[#F5E8EE]">
+              {/* Fragrance Dropdown */}
+              {fragrances.length > 0 && (
+                <div className="space-y-1">
+                  <label className="block text-[10px] font-mono uppercase font-bold text-[#624855]">
+                    Select Fragrance
+                  </label>
+                  <select
+                    value={selectedFragrance}
+                    onChange={(e) => setSelectedFragrance(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-[#E8DCE2] rounded-xl text-xs text-[#1C1217] outline-none cursor-pointer"
+                  >
+                    <option value="">{product.scentProfile || product.topNotes || 'Signature Formulation'}</option>
+                    {fragrances.map((f) => (
+                      <option key={f.id} value={f.name}>
+                        {f.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* Color Dropdown + Custom Color */}
+              <div className="space-y-1">
+                <label className="block text-[10px] font-mono uppercase font-bold text-[#624855]">
+                  Select Wax / Vessel Color
+                </label>
+                <div className="flex items-center gap-2">
+                  <select
+                    value={selectedColorId}
+                    onChange={(e) => setSelectedColorId(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-[#E8DCE2] rounded-xl text-xs text-[#1C1217] outline-none cursor-pointer"
+                  >
+                    {colors.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                    {colors.length === 0 && <option value="standard">Natural Atelier Soy Cream</option>}
+                    <option value="custom">🎨 Custom / Request Specific Shade...</option>
+                  </select>
+                </div>
+                {selectedColorId === 'custom' && (
+                  <input
+                    type="text"
+                    placeholder="Enter custom shade (e.g. Pastel Lavender, Sage Green)..."
+                    value={customColorText}
+                    onChange={(e) => setCustomColorText(e.target.value)}
+                    className="w-full px-3 py-2 bg-[#FFF6F8] border border-[#F9B8CA] rounded-xl text-xs text-[#1C1217] outline-none placeholder:text-[#886C7B]"
+                  />
+                )}
+              </div>
             </div>
           </div>
 
