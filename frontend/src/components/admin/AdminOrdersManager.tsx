@@ -411,22 +411,46 @@ export const AdminOrdersManager: React.FC = () => {
                       <strong className="block text-[#2C1E16]">{ord.customerName}</strong>
                       <span className="text-[10px] text-[#7A6B5D]">{ord.email}</span>
                     </td>
-                    <td className="p-4 text-xs">{ord.items}</td>
+                    <td className="p-4 text-xs">
+                      {ord.itemsList && Array.isArray(ord.itemsList) && ord.itemsList.length > 0 ? (
+                        <div className="space-y-1 max-w-xs">
+                          {ord.itemsList.map((it: any, i: number) => (
+                            <div key={i} className="flex items-center gap-1.5 text-xs text-[#232323]">
+                              <span className="font-bold text-[#8B6F4E]">{it.quantity || 1}x</span>
+                              <span className="font-medium truncate">{it.name}</span>
+                              {it.fragrance && <span className="text-[10px] text-[#7D6F63] truncate">({it.fragrance})</span>}
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="max-w-xs text-xs font-medium text-[#232323]">
+                          {ord.items && !ord.items.includes('Maharashtra') && !ord.items.includes('Pradesh')
+                            ? ord.items
+                            : '🕯️ Handcrafted Candle Order'}
+                        </div>
+                      )}
+                    </td>
                     <td className="p-4 font-bold text-[#2C1E16]">₹{ord.totalAmount.toLocaleString('en-IN')}.00</td>
                     <td className="p-4 text-xs font-semibold text-[#7A6B5D]">{ord.paymentMethod}</td>
                     <td className="p-4">
                       <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${ord.status === 'Delivered' ? 'bg-[#2E6F40]/10 text-[#2E6F40]' :
-                          ord.status === 'Shipped' ? 'bg-[#B88B38]/10 text-[#B88B38]' :
+                          ord.status === 'Shipped' ? 'bg-[#8B6F4E]/10 text-[#8B6F4E]' :
                             ord.status === 'Processing' ? 'bg-blue-500/10 text-blue-600' :
                               'bg-[#B93829]/10 text-[#B93829]'
                         }`}>
                         {ord.status}
                       </span>
                     </td>
-                    <td className="p-4 text-right space-x-2">
+                    <td className="p-4 text-right space-x-2 whitespace-nowrap">
                       <button
                         onClick={() => setSelectedPackingOrder(getFullOrderDetails(ord))}
-                        className="px-2 py-1 bg-[#F8F3EA] border border-[#EFE8DB] rounded-lg font-bold text-[10px] hover:border-[#B88B38] cursor-pointer"
+                        className="px-2.5 py-1 bg-[#8B6F4E] text-white hover:bg-[#745A3D] rounded-lg font-bold text-[11px] cursor-pointer shadow-xs transition-all"
+                      >
+                        👁️ View Details
+                      </button>
+                      <button
+                        onClick={() => setSelectedPackingOrder(getFullOrderDetails(ord))}
+                        className="px-2 py-1 bg-[#F8F3EA] border border-[#EFE8DB] rounded-lg font-bold text-[10px] text-[#2C1E16] hover:border-[#8B6F4E] cursor-pointer"
                       >
                         📋 Slip
                       </button>
@@ -447,7 +471,7 @@ export const AdminOrdersManager: React.FC = () => {
                       </select>
                       <button
                         onClick={() => setShipmentOrder(ord.id)}
-                        className="text-[#B88B38] font-bold hover:underline text-xs cursor-pointer"
+                        className="text-[#8B6F4E] font-bold hover:underline text-xs cursor-pointer"
                       >
                         Shipment
                       </button>

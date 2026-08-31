@@ -659,6 +659,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           supabaseFetch<any[]>('sub_categories'),
           supabaseFetch<any[]>('collections'),
           supabaseFetch<any[]>('orders', { query: 'order=created_at.desc' }),
+          supabaseFetch<any[]>('order_items'),
           supabaseFetch<any[]>('customers', { query: 'order=created_at.desc' }),
           supabaseFetch<any[]>('coupons', { query: 'order=created_at.desc' }),
           supabaseFetch<any[]>('admins', { query: 'order=created_at.desc' }),
@@ -669,12 +670,14 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
         // 1. CMS Bundle
         if (cmsBundleRes.status === 'fulfilled' && cmsBundleRes.value) {
-          const b = cmsBundleRes.value;
-          if (b.settings) setSettings(b.settings);
-          if (b.announcement) setAnnouncement(b.announcement);
-          if (b.hero) setHero(b.hero);
-          if (b.pagesContent) setPagesContent(b.pagesContent);
-          if (b.seoSettings) setSeoSettings(b.seoSettings);
+          const bundle = cmsBundleRes.value;
+          if (bundle.settings) setSettings((prev) => ({ ...prev, ...bundle.settings }));
+          if (bundle.announcement) setAnnouncement((prev) => ({ ...prev, ...bundle.announcement }));
+          if (bundle.hero) setHero((prev) => ({ ...prev, ...bundle.hero }));
+          if (bundle.pagesContent) setPagesContent((prev) => ({ ...prev, ...bundle.pagesContent }));
+          if (bundle.seoSettings && Array.isArray(bundle.seoSettings)) setSeoSettings(bundle.seoSettings);
+          if (bundle.collections && Array.isArray(bundle.collections)) setCollections(bundle.collections);
+          if (bundle.mediaItems && Array.isArray(bundle.mediaItems)) setMediaItems(bundle.mediaItems);
         }
 
         // 2. Fragrances
@@ -748,7 +751,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               id: String(c.id),
               name: c.name,
               slug: c.slug,
-              description: c.description,
+              description: c.description || '',
               imageUrl: c.image_url,
               bannerDesktop: c.banner_desktop,
               bannerMobile: c.banner_mobile,
@@ -765,10 +768,10 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           setSubCategories(
             subCategoriesRes.value.map((s) => ({
               id: String(s.id),
-              mainCategoryId: String(s.main_category_id),
+              mainCategoryId: s.main_category_id ? String(s.main_category_id) : '',
               name: s.name,
               slug: s.slug,
-              description: s.description,
+              description: s.description || '',
               imageUrl: s.image_url,
               bannerDesktop: s.banner_desktop,
               bannerMobile: s.banner_mobile,
@@ -788,19 +791,14 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               name: col.name,
               title: col.name,
               slug: col.slug,
-              desc: col.description || '',
               description: col.description || '',
+              desc: col.description || '',
+              bannerImage: col.banner_image,
+              imageUrl: col.image_url || col.banner_image,
               icon: col.icon_symbol || '✨',
-              badge: 'ATELIER',
-              count: 'Curated Selection',
-              scents: col.name,
-              image: col.banner_image || col.image_url || '',
-              bannerImage: col.banner_image || '',
-              imageUrl: col.image_url || '',
-              collectionType: col.collection_type || 'MANUAL',
-              ruleConditions: col.rule_conditions,
-              metaTitle: col.meta_title,
-              metaDescription: col.meta_description,
+              badge: 'CURATED',
+              count: 'Collection',
+              scents: 'Artisanal Scents',
               isFeatured: col.is_featured ?? true,
               isActive: col.is_active ?? true,
               sortOrder: col.sort_order ?? 0,
@@ -808,18 +806,75 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           );
         }
 
-        // 9. Orders
+        // 9. Orders & Order Items
         if (ordersRes.status === 'fulfilled' && Array.isArray(ordersRes.value) && ordersRes.value.length > 0) {
-          const mappedOrders: CMSOrder[] = ordersRes.value.map((o) => ({
-            id: o.order_number || String(o.id).slice(0, 8).toUpperCase(),
-            customerName: o.customer_name || 'Valued Customer',
-            email: o.customer_email || 'customer@thecandlelab.com',
-            items: o.shipping_address || 'Artisanal Candle Selection',
-            totalAmount: Number(o.total_amount || 0),
-            paymentMethod: o.payment_method || 'Online UPI / Card',
-            status: o.order_status || o.payment_status || 'Paid',
-            date: o.created_at ? new Date(o.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-          }));
+          const dbOrderItems = orderItemsRes.status === 'fulfilled' && Array.isArray(orderItemsRes.value)
+            ? orderItemsRes.value
+            : [];
+
+          const itemsByOrderId = new Map<string, any[]>();
+          dbOrderItems.forEach((item: any) => {
+            const ordKey = String(item.order_id);
+            const current = itemsByOrderId.get(ordKey) || [];
+            current.push({
+              name: item.product_name,
+              fragrance: item.fragrance,
+              size: item.size,
+              color: item.color,
+              wickType: item.wick_type,
+              sku: item.sku,
+              quantity: item.quantity || 1,
+              price: Number(item.unit_price || 0),
+            });
+            itemsByOrderId.set(ordKey, current);
+          });
+
+          // Check local storage for offline order items
+          const localOrdersMap = new Map<string, any>();
+          try {
+            const userOrders = JSON.parse(localStorage.getItem('tcl_user_orders') || '[]');
+            const cmsOrders = JSON.parse(localStorage.getItem('tcl_cms_orders') || '[]');
+            [...userOrders, ...cmsOrders].forEach((lo: any) => {
+              if (lo.id) localOrdersMap.set(String(lo.id), lo);
+              if (lo.orderNumber) localOrdersMap.set(String(lo.orderNumber), lo);
+            });
+          } catch {}
+
+          const mappedOrders: CMSOrder[] = ordersRes.value.map((o) => {
+            const ordId = o.order_number || String(o.id).slice(0, 8).toUpperCase();
+            const rawDbId = String(o.id);
+            const localMatch = localOrdersMap.get(ordId) || localOrdersMap.get(rawDbId);
+
+            const itemsList = (itemsByOrderId.get(rawDbId) && itemsByOrderId.get(rawDbId)!.length > 0)
+              ? itemsByOrderId.get(rawDbId)!
+              : (localMatch?.itemsList && localMatch.itemsList.length > 0)
+                ? localMatch.itemsList
+                : [];
+
+            let itemsSummary = '';
+            if (itemsList.length > 0) {
+              itemsSummary = itemsList.map((it: any) => `${it.quantity || 1}x ${it.name}${it.fragrance ? ` (${it.fragrance})` : ''}`).join(', ');
+            } else if (localMatch?.items && localMatch.items !== o.shipping_address) {
+              itemsSummary = localMatch.items;
+            } else {
+              itemsSummary = `${o.customer_name ? o.customer_name + "'s" : 'Artisanal'} Candle Order`;
+            }
+
+            return {
+              id: ordId,
+              customerName: o.customer_name || localMatch?.customerName || 'Valued Customer',
+              email: o.customer_email || localMatch?.customerEmail || localMatch?.email || 'customer@thecandlelab.com',
+              phone: localMatch?.customerPhone || localMatch?.phone || '',
+              address: (o.shipping_address || localMatch?.shippingAddress || localMatch?.address || 'Standard Delivery Destination').replace(/["{}]/g, '').replace(/,/g, ', '),
+              items: itemsSummary,
+              itemsList: itemsList,
+              totalAmount: Number(o.total_amount || localMatch?.totalAmount || 0),
+              paymentMethod: o.payment_method || localMatch?.paymentMethod || 'Online UPI / Card',
+              status: o.order_status || o.payment_status || localMatch?.status || 'Processing',
+              date: o.created_at ? new Date(o.created_at).toISOString().split('T')[0] : (localMatch?.date || new Date().toISOString().split('T')[0]),
+            };
+          });
+
           setOrders(mappedOrders);
           setOrdersCount(mappedOrders.length);
           const totalRev = mappedOrders.reduce((sum, ord) => sum + ord.totalAmount, 0);
@@ -1869,7 +1924,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           payment_method: order.paymentMethod || 'Manual Entry',
           payment_status: 'PAID',
           order_status: order.status || 'Processing',
-          shipping_address: order.items || 'Direct Store Order',
+          shipping_address: order.address || 'Direct Store Order',
         },
       });
     } catch (err) {
