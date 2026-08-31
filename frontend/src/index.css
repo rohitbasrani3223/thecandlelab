@@ -217,3 +217,34 @@ h1, h2, h3, h4, .font-serif-luxury {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Luxury Print Styles */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide interactive web chrome during print */
+  header, footer, nav, aside, .no-print, button, input, select {
+    display: none !important;
+  }
+
+  /* Printable container takes full clean page */
+  .printable-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+}
+

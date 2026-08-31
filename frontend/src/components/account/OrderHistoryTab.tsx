@@ -26,56 +26,79 @@ export const OrderHistoryTab: React.FC<OrderHistoryTabProps> = ({ onNavigateToSh
   const [loading, setLoading] = useState(true);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchOrders = async () => {
-      setLoading(true);
+  const fetchOrders = async () => {
+    setLoading(true);
+    let allLocal: OrderItem[] = [];
+
+    try {
       const storageKey = `thecandlelab_orders_${user?.email || 'guest'}`;
-      let localOrders: OrderItem[] = [];
+      const userSpecific = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      const userOrders = JSON.parse(localStorage.getItem('tcl_user_orders') || '[]');
+      const cmsOrders = JSON.parse(localStorage.getItem('tcl_cms_orders') || '[]');
+      const allGlobalOrders = JSON.parse(localStorage.getItem('thecandlelab_orders_all') || '[]');
 
-      try {
-        const saved = localStorage.getItem(storageKey);
-        if (saved) {
-          localOrders = JSON.parse(saved);
-        }
-      } catch (e) {
-        console.error('Failed to read local orders:', e);
-      }
+      const combinedRaw = [...userSpecific, ...userOrders, ...cmsOrders, ...allGlobalOrders];
 
-      try {
-        if (user?.email) {
-          const res = await fetch(getApiUrl(`orders?email=${encodeURIComponent(user.email)}`));
-          if (res.ok) {
-            const data = await res.json();
-            if (data.success && Array.isArray(data.data) && data.data.length > 0) {
-              const fetchedOrders: OrderItem[] = data.data.map((o: any) => ({
-                id: o.id || o.orderNumber,
-                orderNumber: o.orderNumber || o.id,
-                date: o.date || new Date(o.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
-                status: o.status || 'PROCESSING',
-                badgeVariant: o.status === 'DELIVERED' ? 'success' : 'pink',
-                itemsSummary: o.itemsSummary || (Array.isArray(o.items) ? o.items.map((i: any) => i.name || i.title).join(', ') : 'Botanical Soy Candle'),
-                items: o.items || [],
-                totalAmount: typeof o.totalAmount === 'number' ? `₹${o.totalAmount.toLocaleString('en-IN')}` : o.totalAmount || '₹1,499',
-                trackingNumber: o.trackingNumber,
-              }));
+      allLocal = combinedRaw.map((o: any) => ({
+        id: o.id || o.orderNumber,
+        orderNumber: o.orderNumber || o.id,
+        date: o.date || new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
+        status: o.status || 'Processing',
+        badgeVariant: o.status === 'Delivered' || o.status === 'DELIVERED' ? 'success' : 'pink',
+        itemsSummary: o.itemsSummary || (Array.isArray(o.items) ? o.items.map((i: any) => `${i.quantity || 1}x ${i.name}`).join(', ') : o.items) || 'Handcrafted Soy Candle',
+        items: Array.isArray(o.items) ? o.items : o.itemsList || [],
+        totalAmount: typeof o.totalAmount === 'number' ? `₹${o.totalAmount.toLocaleString('en-IN')}.00` : (o.totalAmount || '₹1,499.00'),
+        trackingNumber: o.trackingNumber,
+      }));
+    } catch (e) {
+      console.error('Failed to read local orders:', e);
+    }
 
-              const combined = [...fetchedOrders, ...localOrders];
-              const uniqueOrders = Array.from(new Map(combined.map((item) => [item.id, item])).values());
-              setOrders(uniqueOrders);
-              setLoading(false);
-              return;
-            }
+    try {
+      if (user?.email) {
+        const res = await fetch(getApiUrl(`orders?email=${encodeURIComponent(user.email)}`));
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+            const fetchedOrders: OrderItem[] = data.data.map((o: any) => ({
+              id: o.id || o.orderNumber,
+              orderNumber: o.orderNumber || o.id,
+              date: o.date || new Date(o.createdAt || Date.now()).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
+              status: o.status || 'Processing',
+              badgeVariant: o.status === 'Delivered' || o.status === 'DELIVERED' ? 'success' : 'pink',
+              itemsSummary: o.itemsSummary || (Array.isArray(o.items) ? o.items.map((i: any) => i.name || i.title).join(', ') : 'Botanical Soy Candle'),
+              items: o.items || [],
+              totalAmount: typeof o.totalAmount === 'number' ? `₹${o.totalAmount.toLocaleString('en-IN')}.00` : o.totalAmount || '₹1,499.00',
+              trackingNumber: o.trackingNumber,
+            }));
+
+            const combined = [...allLocal, ...fetchedOrders];
+            const uniqueOrders = Array.from(new Map(combined.map((item) => [item.id, item])).values());
+            setOrders(uniqueOrders);
+            setLoading(false);
+            return;
           }
         }
-      } catch (err) {
-        // Fallback to local persistent orders
       }
+    } catch (err) {
+      // Fallback to local persistent orders
+    }
 
-      setOrders(localOrders);
-      setLoading(false);
-    };
+    const uniqueLocal = Array.from(new Map(allLocal.map((item) => [item.id, item])).values());
+    setOrders(uniqueLocal);
+    setLoading(false);
+  };
 
+  useEffect(() => {
     fetchOrders();
+
+    const handleUpdate = () => {
+      fetchOrders();
+    };
+    window.addEventListener('tcl-orders-updated', handleUpdate);
+    return () => {
+      window.removeEventListener('tcl-orders-updated', handleUpdate);
+    };
   }, [user]);
 
   return (
@@ -84,7 +107,7 @@ export const OrderHistoryTab: React.FC<OrderHistoryTabProps> = ({ onNavigateToSh
         <div>
           <Badge variant="pink" icon={<SparklesIcon size={12} />}>ORDER ARCHIVE</Badge>
           <h2 className="text-2xl font-serif font-bold text-[#232323] mt-1">
-            Order History & Tracking
+            Order History & Invoices
           </h2>
         </div>
       </div>
@@ -118,12 +141,12 @@ export const OrderHistoryTab: React.FC<OrderHistoryTabProps> = ({ onNavigateToSh
             <Card key={ord.id} variant="bordered" padding="md" className="bg-white border-[#EADDCB] rounded-3xl space-y-3 shadow-xs">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-[#EADDCB] pb-2 text-xs">
                 <div>
-                  <span className="text-[#7D6F63] block">Order Number</span>
+                  <span className="text-[#7D6F63] block text-[10px] uppercase font-bold">Order Number</span>
                   <strong className="font-serif text-[#232323] text-sm">{ord.orderNumber}</strong>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[#7D6F63]">{ord.date}</span>
-                  <Badge variant={ord.status === 'DELIVERED' ? 'success' : 'pink'} size="sm">
+                  <span className="text-[#7D6F63] text-[11px]">{ord.date}</span>
+                  <Badge variant={ord.status === 'Delivered' || ord.status === 'DELIVERED' ? 'success' : 'pink'} size="sm">
                     {ord.status}
                   </Badge>
                 </div>
@@ -139,14 +162,14 @@ export const OrderHistoryTab: React.FC<OrderHistoryTabProps> = ({ onNavigateToSh
                   )}
                 </div>
 
-                <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
+                <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
                   <span className="text-base font-bold text-[#232323] font-serif">{ord.totalAmount}</span>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setSelectedOrderId(ord.id)}
                   >
-                    View Invoice
+                    👁️ View Details & Invoice
                   </Button>
                 </div>
               </div>

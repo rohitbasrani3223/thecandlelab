@@ -299,15 +299,28 @@ export interface CMSMediaItem {
 export interface CMSOrder {
   date: string;
   id: string;
+  orderNumber?: string;
   customerName: string;
   email: string;
+  customerEmail?: string;
   phone?: string;
+  customerPhone?: string;
   address?: string;
+  shippingAddress?: string;
   items: string;
   itemsList?: any[];
+  itemsSummary?: string;
   totalAmount: number;
+  subtotal?: number;
+  discount?: number;
+  shipping?: number;
+  tax?: number;
   paymentMethod: string;
+  paymentId?: string;
   status: string;
+  trackingNumber?: string;
+  courier?: string;
+  notes?: string;
 }
 
 export interface CMSSEOSetting {
@@ -643,6 +656,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           subCategoriesRes,
           collectionsRes,
           ordersRes,
+          orderItemsRes,
           customersRes,
           couponsRes,
           adminsRes,
@@ -793,6 +807,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               slug: col.slug,
               description: col.description || '',
               desc: col.description || '',
+              image: col.image_url || col.banner_image || 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&q=80&w=800',
               bannerImage: col.banner_image,
               imageUrl: col.image_url || col.banner_image,
               icon: col.icon_symbol || '✨',
@@ -807,8 +822,21 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
 
         // 9. Orders & Order Items
+        const localOrdersMap = new Map<string, any>();
+        let localOrdersList: any[] = [];
+        try {
+          const userOrders = JSON.parse(localStorage.getItem('tcl_user_orders') || '[]');
+          const cmsOrders = JSON.parse(localStorage.getItem('tcl_cms_orders') || '[]');
+          const allOrders = JSON.parse(localStorage.getItem('thecandlelab_orders_all') || '[]');
+          localOrdersList = [...userOrders, ...cmsOrders, ...allOrders];
+          localOrdersList.forEach((lo: any) => {
+            if (lo.id) localOrdersMap.set(String(lo.id), lo);
+            if (lo.orderNumber) localOrdersMap.set(String(lo.orderNumber), lo);
+          });
+        } catch {}
+
         if (ordersRes.status === 'fulfilled' && Array.isArray(ordersRes.value) && ordersRes.value.length > 0) {
-          const dbOrderItems = orderItemsRes.status === 'fulfilled' && Array.isArray(orderItemsRes.value)
+          const dbOrderItems = (orderItemsRes && orderItemsRes.status === 'fulfilled' && Array.isArray(orderItemsRes.value))
             ? orderItemsRes.value
             : [];
 
@@ -829,17 +857,6 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             itemsByOrderId.set(ordKey, current);
           });
 
-          // Check local storage for offline order items
-          const localOrdersMap = new Map<string, any>();
-          try {
-            const userOrders = JSON.parse(localStorage.getItem('tcl_user_orders') || '[]');
-            const cmsOrders = JSON.parse(localStorage.getItem('tcl_cms_orders') || '[]');
-            [...userOrders, ...cmsOrders].forEach((lo: any) => {
-              if (lo.id) localOrdersMap.set(String(lo.id), lo);
-              if (lo.orderNumber) localOrdersMap.set(String(lo.orderNumber), lo);
-            });
-          } catch {}
-
           const mappedOrders: CMSOrder[] = ordersRes.value.map((o) => {
             const ordId = o.order_number || String(o.id).slice(0, 8).toUpperCase();
             const rawDbId = String(o.id);
@@ -849,12 +866,12 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               ? itemsByOrderId.get(rawDbId)!
               : (localMatch?.itemsList && localMatch.itemsList.length > 0)
                 ? localMatch.itemsList
-                : [];
+                : Array.isArray(localMatch?.items) ? localMatch.items : [];
 
             let itemsSummary = '';
             if (itemsList.length > 0) {
               itemsSummary = itemsList.map((it: any) => `${it.quantity || 1}x ${it.name}${it.fragrance ? ` (${it.fragrance})` : ''}`).join(', ');
-            } else if (localMatch?.items && localMatch.items !== o.shipping_address) {
+            } else if (localMatch?.items && typeof localMatch.items === 'string' && localMatch.items !== o.shipping_address) {
               itemsSummary = localMatch.items;
             } else {
               itemsSummary = `${o.customer_name ? o.customer_name + "'s" : 'Artisanal'} Candle Order`;
@@ -862,22 +879,92 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
             return {
               id: ordId,
+              orderNumber: ordId,
               customerName: o.customer_name || localMatch?.customerName || 'Valued Customer',
               email: o.customer_email || localMatch?.customerEmail || localMatch?.email || 'customer@thecandlelab.com',
+              customerEmail: o.customer_email || localMatch?.customerEmail || localMatch?.email || 'customer@thecandlelab.com',
               phone: localMatch?.customerPhone || localMatch?.phone || '',
+              customerPhone: localMatch?.customerPhone || localMatch?.phone || '',
               address: (o.shipping_address || localMatch?.shippingAddress || localMatch?.address || 'Standard Delivery Destination').replace(/["{}]/g, '').replace(/,/g, ', '),
+              shippingAddress: (o.shipping_address || localMatch?.shippingAddress || localMatch?.address || 'Standard Delivery Destination').replace(/["{}]/g, '').replace(/,/g, ', '),
               items: itemsSummary,
               itemsList: itemsList,
               totalAmount: Number(o.total_amount || localMatch?.totalAmount || 0),
+              subtotal: localMatch?.subtotal,
+              discount: localMatch?.discount,
+              shipping: localMatch?.shipping,
+              tax: localMatch?.tax,
               paymentMethod: o.payment_method || localMatch?.paymentMethod || 'Online UPI / Card',
+              paymentId: localMatch?.paymentId,
+              trackingNumber: localMatch?.trackingNumber,
+              courier: localMatch?.courier,
               status: o.order_status || o.payment_status || localMatch?.status || 'Processing',
               date: o.created_at ? new Date(o.created_at).toISOString().split('T')[0] : (localMatch?.date || new Date().toISOString().split('T')[0]),
             };
           });
 
-          setOrders(mappedOrders);
-          setOrdersCount(mappedOrders.length);
-          const totalRev = mappedOrders.reduce((sum, ord) => sum + ord.totalAmount, 0);
+          // Merge any purely local orders that aren't yet in Supabase
+          const existingIds = new Set(mappedOrders.map((m) => m.id));
+          const uniqueLocal = localOrdersList
+            .filter((lo: any) => lo && lo.id && !existingIds.has(lo.id))
+            .map((lo: any) => ({
+              id: lo.id,
+              orderNumber: lo.orderNumber || lo.id,
+              customerName: lo.customerName || 'Valued Customer',
+              email: lo.email || lo.customerEmail || 'customer@thecandlelab.com',
+              customerEmail: lo.customerEmail || lo.email || 'customer@thecandlelab.com',
+              phone: lo.phone || lo.customerPhone || '',
+              customerPhone: lo.customerPhone || lo.phone || '',
+              address: lo.address || lo.shippingAddress || 'Store Destination',
+              shippingAddress: lo.shippingAddress || lo.address || 'Store Destination',
+              items: lo.itemsSummary || (Array.isArray(lo.items) ? lo.items.map((i: any) => i.name).join(', ') : lo.items) || 'Handcrafted Candle',
+              itemsList: lo.itemsList || (Array.isArray(lo.items) ? lo.items : []),
+              totalAmount: Number(lo.totalAmount || 0),
+              subtotal: lo.subtotal,
+              discount: lo.discount,
+              shipping: lo.shipping,
+              tax: lo.tax,
+              paymentMethod: lo.paymentMethod || 'Online UPI / Card',
+              paymentId: lo.paymentId,
+              trackingNumber: lo.trackingNumber,
+              courier: lo.courier,
+              status: lo.status || 'Processing',
+              date: lo.date || new Date().toISOString().split('T')[0],
+            }));
+
+          const combinedOrders = [...mappedOrders, ...uniqueLocal];
+          setOrders(combinedOrders);
+          setOrdersCount(combinedOrders.length);
+          const totalRev = combinedOrders.reduce((sum, ord) => sum + (Number(ord.totalAmount) || 0), 0);
+          setTotalRevenue(totalRev);
+        } else if (localOrdersList.length > 0) {
+          const uniqueLocal = Array.from(new Map(localOrdersList.map((lo) => [lo.id, lo])).values()).map((lo: any) => ({
+            id: lo.id,
+            orderNumber: lo.orderNumber || lo.id,
+            customerName: lo.customerName || 'Valued Customer',
+            email: lo.email || lo.customerEmail || 'customer@thecandlelab.com',
+            customerEmail: lo.customerEmail || lo.email || 'customer@thecandlelab.com',
+            phone: lo.phone || lo.customerPhone || '',
+            customerPhone: lo.customerPhone || lo.phone || '',
+            address: lo.address || lo.shippingAddress || 'Store Destination',
+            shippingAddress: lo.shippingAddress || lo.address || 'Store Destination',
+            items: lo.itemsSummary || (Array.isArray(lo.items) ? lo.items.map((i: any) => i.name).join(', ') : lo.items) || 'Handcrafted Candle',
+            itemsList: lo.itemsList || (Array.isArray(lo.items) ? lo.items : []),
+            totalAmount: Number(lo.totalAmount || 0),
+            subtotal: lo.subtotal,
+            discount: lo.discount,
+            shipping: lo.shipping,
+            tax: lo.tax,
+            paymentMethod: lo.paymentMethod || 'Online UPI / Card',
+            paymentId: lo.paymentId,
+            trackingNumber: lo.trackingNumber,
+            courier: lo.courier,
+            status: lo.status || 'Processing',
+            date: lo.date || new Date().toISOString().split('T')[0],
+          }));
+          setOrders(uniqueLocal);
+          setOrdersCount(uniqueLocal.length);
+          const totalRev = uniqueLocal.reduce((sum, ord) => sum + (Number(ord.totalAmount) || 0), 0);
           setTotalRevenue(totalRev);
         }
 
@@ -1913,6 +2000,13 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setOrders((prev) => [order, ...prev]);
     setOrdersCount((prev) => prev + 1);
     setTotalRevenue((prev) => prev + (Number(order.totalAmount) || 0));
+
+    try {
+      const existing = JSON.parse(localStorage.getItem('tcl_cms_orders') || '[]');
+      localStorage.setItem('tcl_cms_orders', JSON.stringify([order, ...existing]));
+      window.dispatchEvent(new Event('tcl-orders-updated'));
+    } catch {}
+
     try {
       await supabaseFetch('orders', {
         method: 'POST',
@@ -1933,7 +2027,15 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updateOrderStatus = async (id: string, status: string) => {
-    setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status } : o)));
+    setOrders((prev) => {
+      const updated = prev.map((o) => (o.id === id ? { ...o, status } : o));
+      try {
+        localStorage.setItem('tcl_cms_orders', JSON.stringify(updated));
+        window.dispatchEvent(new Event('tcl-orders-updated'));
+      } catch {}
+      return updated;
+    });
+
     try {
       await supabaseFetch('orders', {
         method: 'PATCH',
@@ -1952,7 +2054,12 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setTotalRevenue((r) => Math.max(0, r - target.totalAmount));
         setOrdersCount((c) => Math.max(0, c - 1));
       }
-      return prev.filter((o) => o.id !== id);
+      const updated = prev.filter((o) => o.id !== id);
+      try {
+        localStorage.setItem('tcl_cms_orders', JSON.stringify(updated));
+        window.dispatchEvent(new Event('tcl-orders-updated'));
+      } catch {}
+      return updated;
     });
     try {
       await supabaseFetch('orders', {

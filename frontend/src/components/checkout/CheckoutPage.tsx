@@ -112,22 +112,40 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
       image: i.image || '',
     }));
 
+    const userEmail = (address.email || user?.email || '').trim();
+    const userFullName = `${address.firstName} ${address.lastName}`.trim() || 'Valued Patron';
+    const userPhone = address.phone || '';
+    const fullShippingAddress = `${address.street}${address.apartment ? ', ' + address.apartment : ''}, ${address.city}, ${address.state} ${address.zip}`;
+
     const newOrder = {
       id: orderNumber,
       orderNumber,
-      date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      date: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
       status: isCOD ? 'COD_PENDING' : 'PAID',
       badgeVariant: isCOD ? 'warning' : 'pink',
       itemsSummary: itemsSummaryStr,
       items: orderItemsArr,
-      totalAmount: `₹${totalAmount.toLocaleString('en-IN')}`,
+      itemsList: orderItemsArr,
+      subtotal: subtotal,
+      discount: discountAmount,
+      shippingFee: shippingFee,
+      shipping: shippingFee,
+      tax: Math.round(totalAmount - (totalAmount / 1.18)),
+      totalAmount: totalAmount,
       paymentMethod: isCOD ? 'Cash on Delivery (COD)' : 'Razorpay Online (UPI/Cards)',
-      paymentId: paymentId || (isCOD ? 'COD_ORDER' : 'PAY_RAZORPAY_SUCCESS'),
+      paymentId: paymentId || (isCOD ? 'COD_ORDER_VERIFIED' : `PAY_RZP_${orderNumber.replace(/[^A-Za-z0-9]/g, '')}`),
       trackingNumber: `AWB${Date.now().toString().slice(-8)}`,
-      customerName: `${address.firstName} ${address.lastName}`.trim() || 'Valued Customer',
-      customerEmail: address.email || user?.email || '',
-      customerPhone: address.phone || '',
-      shippingAddress: `${address.street}, ${address.apartment ? address.apartment + ', ' : ''}${address.city}, ${address.state} ${address.zip}`,
+      courier: 'Express Air Dispatch',
+      customerName: userFullName,
+      customerEmail: userEmail,
+      email: userEmail,
+      customerPhone: userPhone,
+      phone: userPhone,
+      shippingAddress: fullShippingAddress,
+      address: fullShippingAddress,
+      city: address.city,
+      state: address.state,
+      pincode: address.zip,
     };
 
     setConfirmedOrderNumber(orderNumber);
@@ -135,14 +153,25 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
     try {
       addOrder({
         id: orderNumber,
+        orderNumber: orderNumber,
         customerName: newOrder.customerName,
         email: newOrder.customerEmail,
+        customerEmail: newOrder.customerEmail,
         phone: newOrder.customerPhone,
+        customerPhone: newOrder.customerPhone,
         address: newOrder.shippingAddress,
+        shippingAddress: newOrder.shippingAddress,
         items: itemsSummaryStr,
         itemsList: orderItemsArr,
         totalAmount: totalAmount,
+        subtotal: subtotal,
+        discount: discountAmount,
+        shipping: shippingFee,
+        tax: newOrder.tax,
         paymentMethod: newOrder.paymentMethod,
+        paymentId: newOrder.paymentId,
+        trackingNumber: newOrder.trackingNumber,
+        courier: newOrder.courier,
         status: isCOD ? 'Pending' : 'Processing',
         date: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
       });
@@ -168,11 +197,21 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
     }
 
     try {
-      const existingOrders = JSON.parse(localStorage.getItem('tcl_user_orders') || '[]');
-      localStorage.setItem('tcl_user_orders', JSON.stringify([newOrder, ...existingOrders]));
+      const userOrders = JSON.parse(localStorage.getItem('tcl_user_orders') || '[]');
+      localStorage.setItem('tcl_user_orders', JSON.stringify([newOrder, ...userOrders]));
 
       const cmsOrders = JSON.parse(localStorage.getItem('tcl_cms_orders') || '[]');
       localStorage.setItem('tcl_cms_orders', JSON.stringify([newOrder, ...cmsOrders]));
+
+      const allOrders = JSON.parse(localStorage.getItem('thecandlelab_orders_all') || '[]');
+      localStorage.setItem('thecandlelab_orders_all', JSON.stringify([newOrder, ...allOrders]));
+
+      if (userEmail) {
+        const userSpecificKey = `thecandlelab_orders_${userEmail}`;
+        const existingSpecific = JSON.parse(localStorage.getItem(userSpecificKey) || '[]');
+        localStorage.setItem(userSpecificKey, JSON.stringify([newOrder, ...existingSpecific]));
+      }
+
       window.dispatchEvent(new Event('tcl-orders-updated'));
     } catch (e) {}
 
@@ -253,10 +292,14 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
           orderNumber: confirmedOrderNumber,
           email: address.email || user?.email || '',
           customerName: `${address.firstName} ${address.lastName}`.trim() || 'Valued Customer',
+          phone: address.phone || '',
           items: cartItems,
+          subtotal: subtotal,
+          discount: discountAmount,
+          shippingFee: shippingFee,
           totalAmount: totalAmount,
           isCOD: payment.method === 'cod',
-          shippingAddress: `${address.street}, ${address.city}, ${address.state} ${address.zip}`,
+          shippingAddress: `${address.street}${address.apartment ? ', ' + address.apartment : ''}, ${address.city}, ${address.state} ${address.zip}`,
         }}
         onReturnHome={onReturnHome}
       />
