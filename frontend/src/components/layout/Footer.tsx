@@ -22,19 +22,19 @@ export const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="bg-[#140B10] text-[#FFFFFF] border-t border-[#2C1D25] font-sans pt-16 pb-8">
+    <footer className="bg-[#1F1D1B] text-[#FFFFFF] border-t border-[#2C2623] font-sans pt-16 pb-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 space-y-16">
         {/* Top Newsletter & Brand Statement */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center bg-gradient-to-r from-[#1C1217] via-[#2C1D25] to-[#1C1217] p-8 sm:p-12 rounded-3xl border border-[#F9B8CA]/20 shadow-[0_16px_36px_rgba(20,11,16,0.3)]">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center bg-gradient-to-r from-[#232323] via-[#2C2623] to-[#232323] p-8 sm:p-12 rounded-3xl border border-[#EADDCB]/20 shadow-[0_16px_36px_rgba(20,19,18,0.3)]">
           <div className="lg:col-span-6 space-y-3">
-            <div className="flex items-center gap-2 text-[#F9B8CA] text-xs uppercase font-bold tracking-widest">
-              <SparklesIcon size={14} className="text-[#E8C86D]" />
+            <div className="flex items-center gap-2 text-[#EADDCB] text-xs uppercase font-bold tracking-widest">
+              <SparklesIcon size={14} className="text-[#C8A75A]" />
               <span>THE CANDLE CLUB VIP</span>
             </div>
             <h3 className="font-serif font-bold text-2xl sm:text-3xl text-[#FFFFFF]">
               Receive 15% Off Your First Order
             </h3>
-            <p className="text-xs text-[#FCD5E2] leading-relaxed max-w-lg">
+            <p className="text-xs text-[#DFCFBC] leading-relaxed max-w-lg">
               Subscribe to unlock private vault releases, seasonal scent previews, and exclusive candle care tutorials.
             </p>
           </div>
@@ -46,10 +46,10 @@ export const Footer: React.FC = () => {
                 placeholder="Enter your email address..."
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="bg-[#140B10] text-[#FFFFFF] border-[#422D38] placeholder-[#AC94A1] focus:border-[#E87A96]"
+                className="bg-[#1F1D1B] text-[#FFFFFF] border-[#3D3531] placeholder-[#A39486] focus:border-[#8B6F4E]"
               />
             </div>
-            <Button type="submit" variant="pink" size="md" className="shrink-0 font-bold">
+            <Button type="submit" variant="pink" size="md" className="shrink-0 font-bold bg-[#8B6F4E] hover:bg-[#745A3D] border-[#8B6F4E] text-white">
               Join Club
             </Button>
           </form>
@@ -60,13 +60,13 @@ export const Footer: React.FC = () => {
           {/* Brand Info */}
           <div className="col-span-2 space-y-4">
             <div className="flex items-center gap-3">
-              <img src="/logo.jpeg" alt="The Candle Lab Logo" className="h-10 w-auto object-contain rounded-xl border border-[#422D38]" />
+              <img src="/logo.jpeg" alt="The Candle Lab Logo" className="h-10 w-auto object-contain rounded-xl border border-[#3D3531]" />
               <span className="font-serif font-extrabold text-xl tracking-wider text-[#FFFFFF]">
                 THE CANDLE LAB
               </span>
             </div>
 
-            <p className="text-[#FCD5E2] leading-relaxed max-w-sm text-xs">
+            <p className="text-[#DFCFBC] leading-relaxed max-w-sm text-xs">
               {settings.footerText || 'Artisanal hand-poured soy candles crafted in small batches using 100% natural botanical oils and lead-free cotton wicks.'}
             </p>
             <div className="flex items-center gap-3 pt-2 text-[#F9B8CA]">

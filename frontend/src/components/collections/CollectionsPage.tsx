@@ -121,58 +121,55 @@ export const CollectionsPage: React.FC<CollectionsPageProps> = ({
       });
     }
 
-    const curNameLower = currentCuration.name.toLowerCase();
-    const curId = currentCuration.rawId || currentCuration.id;
+    const curNameLower = currentCuration.name.toLowerCase().trim();
+    const curId = String(currentCuration.rawId || currentCuration.id);
 
     const filtered = products.filter((p) => {
-      const pName = p.name.toLowerCase();
-      const pCat = (p.category || '').toLowerCase();
+      const pCat = (p.category || '').toLowerCase().trim();
+      const pCollection = (p.collection || '').toLowerCase().trim();
 
-      // Collection ID match
-      if (p.collectionIds?.includes(curId) || p.collections?.includes(curId) || p.collections?.includes(currentCuration.name)) {
-        return true;
-      }
-      if (p.collection && p.collection.toLowerCase() === curNameLower) {
-        return true;
-      }
-
-      // Direct Category match
-      if (pCat === curNameLower || p.mainCategoryId === curId) {
+      // 1. Collection ID or raw ID match in product's collectionIds or collections array
+      if (
+        p.collectionIds?.some((id) => String(id) === curId || String(id).toLowerCase() === curNameLower) ||
+        p.collections?.some((col) => String(col) === curId || String(col).toLowerCase() === curNameLower)
+      ) {
         return true;
       }
 
-      // Intelligent keyword fallback matching
-      if (curNameLower.includes('hamper') || curNameLower.includes('gift')) {
-        if (pCat.includes('hamper') || pCat.includes('gift') || pName.includes('bloom') || pName.includes('basket') || pName.includes('hamper') || p.hasGiftPackaging) {
-          return true;
-        }
+      // 2. Collection name match on product.collection
+      if (pCollection === curNameLower || pCollection === curId.toLowerCase()) {
+        return true;
       }
 
-      if (curNameLower.includes('diffuser') || curNameLower.includes('car')) {
-        if (pCat.includes('diffuser') || pCat.includes('oil') || pCat.includes('reed') || pName.includes('diffuser') || pName.includes('car')) {
-          return true;
-        }
+      // 3. Collection productIds array match (assigned in Admin -> Collections)
+      if ((currentCuration as any).productIds?.includes(p.id)) {
+        return true;
       }
 
-      if (curNameLower.includes('sachet') || curNameLower.includes('melt')) {
-        if (pCat.includes('sachet') || pCat.includes('melt') || pName.includes('sachet') || pName.includes('wax')) {
-          return true;
-        }
+      // 4. Category match if curation is a Category or has category ID
+      if (p.mainCategoryId && String(p.mainCategoryId) === curId) {
+        return true;
+      }
+      if (pCat === curNameLower) {
+        return true;
       }
 
-      if (curNameLower.includes('candle') || curNameLower.includes('luxury scented')) {
-        if (pCat.includes('candle') || pCat.includes('jar') || pCat.includes('scented') || pName.includes('candle') || (!pName.includes('diffuser') && !pName.includes('sachet') && !pName.includes('basket'))) {
-          return true;
-        }
+      // 5. Cleaned comparison (handling emojis, extra spaces, slashes e.g. "Cake /Dessert Candles 🧁" vs "Cake / Dessert Candles")
+      const pCatClean = pCat.replace(/[^a-z0-9]/g, '');
+      const curNameClean = curNameLower.replace(/[^a-z0-9]/g, '');
+      if (pCatClean && curNameClean && pCatClean === curNameClean) {
+        return true;
+      }
+
+      const pColClean = pCollection.replace(/[^a-z0-9]/g, '');
+      if (pColClean && curNameClean && pColClean === curNameClean) {
+        return true;
       }
 
       return false;
     });
 
-    // If filtered list is empty for a generic category, show all products rather than empty screen
-    const resultList = filtered.length > 0 ? filtered : products;
-
-    return resultList.sort((a, b) => {
+    return filtered.sort((a, b) => {
       if (sortBy === 'price_asc') return a.price - b.price;
       if (sortBy === 'price_desc') return b.price - a.price;
       if (sortBy === 'rating') return (b.rating || 0) - (a.rating || 0);

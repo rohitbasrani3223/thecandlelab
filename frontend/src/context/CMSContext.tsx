@@ -968,12 +968,12 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               isFeatured: Boolean(p.is_featured),
               isTrending: Boolean(p.is_trending),
               isLimitedEdition: Boolean(p.is_limited_edition),
-              hasFragranceOption: p.has_fragrance_option !== null && p.has_fragrance_option !== undefined ? Boolean(p.has_fragrance_option) : true,
-              hasSizeOption: p.has_size_option !== null && p.has_size_option !== undefined ? Boolean(p.has_size_option) : true,
-              hasColorOption: p.has_color_option !== null && p.has_color_option !== undefined ? Boolean(p.has_color_option) : true,
-              hasWickOption: p.has_wick_option !== null && p.has_wick_option !== undefined ? Boolean(p.has_wick_option) : true,
-              hasGiftPackaging: p.has_gift_packaging !== null && p.has_gift_packaging !== undefined ? Boolean(p.has_gift_packaging) : true,
-              hasCustomMessage: p.has_custom_message !== null && p.has_custom_message !== undefined ? Boolean(p.has_custom_message) : false,
+              hasFragranceOption: p.has_fragrance_option !== null && p.has_fragrance_option !== undefined ? Boolean(p.has_fragrance_option) : undefined,
+              hasSizeOption: p.has_size_option !== null && p.has_size_option !== undefined ? Boolean(p.has_size_option) : undefined,
+              hasColorOption: p.has_color_option !== null && p.has_color_option !== undefined ? Boolean(p.has_color_option) : undefined,
+              hasWickOption: p.has_wick_option !== null && p.has_wick_option !== undefined ? Boolean(p.has_wick_option) : undefined,
+              hasGiftPackaging: p.has_gift_packaging !== null && p.has_gift_packaging !== undefined ? Boolean(p.has_gift_packaging) : undefined,
+              hasCustomMessage: p.has_custom_message !== null && p.has_custom_message !== undefined ? Boolean(p.has_custom_message) : undefined,
               availableFragranceIds: Array.isArray(p.available_fragrance_ids) ? p.available_fragrance_ids.map(String) : [],
               availableSizeIds: Array.isArray(p.available_size_ids) ? p.available_size_ids.map(String) : [],
               availableColorIds: Array.isArray(p.available_color_ids) ? p.available_color_ids.map(String) : [],
@@ -997,20 +997,34 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 (x) => x.name.toLowerCase() === p.name.toLowerCase() || (x.sku && x.sku === p.sku)
               );
               if (existing) {
-                // Ensure existing category edits are preserved over generic fallback
+                // Ensure existing category edits and explicit option toggles are preserved over generic fallback
                 const effectiveCategory = existing.category && existing.category !== 'Scented Soy Candles' && existing.category !== existing.tagline
                   ? existing.category
                   : p.category;
                 const effectiveMainCatId = existing.mainCategoryId || p.mainCategoryId;
                 map.set(existing.id, {
-                  ...existing,
                   ...p,
+                  ...existing,
                   category: effectiveCategory,
                   mainCategoryId: effectiveMainCatId,
                   collectionIds: existing.collectionIds && existing.collectionIds.length > 0 ? existing.collectionIds : p.collectionIds,
+                  hasFragranceOption: p.hasFragranceOption !== undefined ? p.hasFragranceOption : (existing.hasFragranceOption ?? true),
+                  hasSizeOption: p.hasSizeOption !== undefined ? p.hasSizeOption : (existing.hasSizeOption ?? true),
+                  hasColorOption: p.hasColorOption !== undefined ? p.hasColorOption : (existing.hasColorOption ?? false),
+                  hasWickOption: p.hasWickOption !== undefined ? p.hasWickOption : (existing.hasWickOption ?? true),
+                  hasGiftPackaging: p.hasGiftPackaging !== undefined ? p.hasGiftPackaging : (existing.hasGiftPackaging ?? true),
+                  hasCustomMessage: p.hasCustomMessage !== undefined ? p.hasCustomMessage : (existing.hasCustomMessage ?? false),
                 });
               } else {
-                map.set(p.id, p);
+                map.set(p.id, {
+                  ...p,
+                  hasFragranceOption: p.hasFragranceOption ?? true,
+                  hasSizeOption: p.hasSizeOption ?? true,
+                  hasColorOption: p.hasColorOption ?? false,
+                  hasWickOption: p.hasWickOption ?? true,
+                  hasGiftPackaging: p.hasGiftPackaging ?? true,
+                  hasCustomMessage: p.hasCustomMessage ?? false,
+                });
               }
             });
             const result = Array.from(map.values());

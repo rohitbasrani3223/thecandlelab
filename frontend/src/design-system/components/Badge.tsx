@@ -23,15 +23,15 @@ export const Badge: React.FC<BadgeProps> = ({
   };
 
   const variantStyles = {
-    pink: 'bg-[#FDE8EF] text-[#C94C6D] border border-[#F9B8CA]',
-    rose: 'bg-[#FFF0F4] text-[#A83753] border border-[#F293AC]',
-    gold: 'bg-[#FFFBEB] text-[#B45309] border border-[#FDE68A]',
-    espresso: 'bg-[#1C1217] text-[#FFFFFF] border border-[#2C1D25]',
-    success: 'bg-[#F0FDF4] text-[#15803D] border border-[#BBF7D0]',
+    pink: 'bg-[#F5EFE6] text-[#8B6F4E] border border-[#EADDCB]',
+    rose: 'bg-[#EADDCB]/40 text-[#745A3D] border border-[#DFCFBC]',
+    gold: 'bg-[#F9F2DC] text-[#876A2A] border border-[#DFC27E]',
+    espresso: 'bg-[#232323] text-[#FFFFFF] border border-[#3D3531]',
+    success: 'bg-[#EFF1E5] text-[#6B6E4A] border border-[#BFC69E]',
     warning: 'bg-[#FFFBEB] text-[#B45309] border border-[#FDE68A]',
     error: 'bg-[#FFF1F2] text-[#BE123C] border border-[#FECDD3]',
     info: 'bg-[#F0F9FF] text-[#0369A1] border border-[#BAE6FD]',
-    outline: 'bg-transparent text-[#624855] border border-[#EBD6DF]',
+    outline: 'bg-transparent text-[#5C5149] border border-[#DFCFBC]',
   };
 
   const shapeStyle = pill ? 'rounded-full' : 'rounded-md';

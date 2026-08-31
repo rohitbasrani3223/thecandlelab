@@ -148,49 +148,34 @@ export const ExploreCollections: React.FC<ExploreCollectionsProps> = ({ onNaviga
   };
 
   return (
-    <section className="py-16 sm:py-24 bg-[#FFFFFF] border-b border-[#F5E8EE] font-sans relative overflow-hidden">
-      {/* Soft Ambient Background Glows */}
-      <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#F9B8CA]/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-[#E8C86D]/10 rounded-full blur-3xl pointer-events-none" />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 space-y-10 relative z-10">
+    <section id="collections-section" className="py-16 sm:py-24 bg-[#F8F6F0] border-b border-[#EADDCB] font-sans">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 space-y-12">
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-[#F5E8EE]">
-          <div className="space-y-2 max-w-2xl">
-            <div className="inline-flex items-center gap-2">
-              <Badge variant="pink" size="sm" icon={<SparklesIcon size={12} />}>
-                CURATED ATELIER EDITIONS
-              </Badge>
-              <span className="text-[11px] uppercase tracking-wider text-[#886C7B] font-semibold hidden sm:inline-block">
-                • 2026 Fragrance Archives
-              </span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-extrabold text-[#1C1217] tracking-tight">
-              Explore Signature Collections
+        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6 border-b border-[#EADDCB] pb-6">
+          <div className="space-y-2">
+            <Badge variant="gold" icon={<SparklesIcon size={12} />}>
+              EXCLUSIVE CURATIONS
+            </Badge>
+            <h2 className="text-3xl sm:text-5xl font-serif font-bold text-[#232323] tracking-tight">
+              Explore Our Signature Collections
             </h2>
-            <p className="text-sm sm:text-base text-[#624855] font-normal leading-relaxed">
-              Sensory narratives poured in artisanal vessels, formulated with rare botanical essences, cold-pressed extracts, and organic soy wax.
+            <p className="text-xs sm:text-sm text-[#5C5149] max-w-2xl leading-relaxed">
+              Every collection tells a unique aromatic story. Hand-poured with specialized vessel finishes, bespoke wax blends, and custom double-wick profiles.
             </p>
           </div>
 
-          {/* Direct Link to Full Collections Page */}
-          <div className="flex items-center gap-3 shrink-0">
-            <a
-              href="#collections"
-              onClick={(e) => {
-                e.preventDefault();
-                handleCollectionClick('all');
-              }}
-              className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold uppercase tracking-wider text-[#1C1217] hover:text-[#E87A96] bg-[#FFF6F8] hover:bg-[#FDE8EF] border border-[#F5E8EE] px-5 py-3 rounded-full transition-all duration-300 shadow-subtle cursor-pointer group"
-            >
-              <span>View All Collections</span>
-              <ChevronRightIcon size={16} className="group-hover:translate-x-1 transition-transform text-[#E87A96]" />
-            </a>
-          </div>
+          {/* Quick Action Button */}
+          <button
+            onClick={() => handleCollectionClick('all')}
+            className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-[#232323] hover:text-[#8B6F4E] transition-colors cursor-pointer group shrink-0"
+          >
+            <span>View Full Catalog</span>
+            <ChevronRightIcon size={14} className="group-hover:translate-x-1 transition-transform text-[#8B6F4E]" />
+          </button>
         </div>
 
-        {/* Filter Tabs Navigation Bar */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+        {/* Category Tabs */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar">
           {filterTabs.map((tab) => {
             const isActive = activeFilter === tab.id;
             return (
@@ -199,14 +184,14 @@ export const ExploreCollections: React.FC<ExploreCollectionsProps> = ({ onNaviga
                 onClick={() => setActiveFilter(tab.id)}
                 className={`whitespace-nowrap px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 cursor-pointer border flex items-center gap-2 ${
                   isActive
-                    ? 'bg-[#1C1217] text-[#FFFFFF] border-[#1C1217] shadow-sm scale-105'
-                    : 'bg-[#FFF6F8] text-[#624855] border-[#F5E8EE] hover:bg-[#FDE8EF] hover:text-[#1C1217]'
+                    ? 'bg-[#232323] text-[#FFFFFF] border-[#232323] shadow-sm scale-105'
+                    : 'bg-[#FFFFFF] text-[#5C5149] border-[#EADDCB] hover:bg-[#EADDCB] hover:text-[#232323]'
                 }`}
               >
                 <span>{tab.label}</span>
                 <span
                   className={`text-[10px] px-2 py-0.5 rounded-full ${
-                    isActive ? 'bg-[#E87A96] text-white' : 'bg-[#F5E8EE] text-[#624855]'
+                    isActive ? 'bg-[#8B6F4E] text-white' : 'bg-[#FAF7F2] text-[#7D6F63]'
                   }`}
                 >
                   {tab.count}
@@ -224,10 +209,10 @@ export const ExploreCollections: React.FC<ExploreCollectionsProps> = ({ onNaviga
               variant="bordered"
               padding="none"
               onClick={() => handleCollectionClick(col.id)}
-              className="group cursor-pointer flex flex-col justify-between bg-[#FFFFFF] rounded-3xl overflow-hidden border border-[#F5E8EE] hover:border-[#F9B8CA] transition-all duration-400 hover:-translate-y-2 hover:shadow-[0_16px_36px_rgba(230,106,138,0.12)] relative"
+              className="group cursor-pointer flex flex-col justify-between bg-[#FFFFFF] rounded-3xl overflow-hidden border border-[#EADDCB] hover:border-[#8B6F4E] transition-all duration-400 hover:-translate-y-2 hover:shadow-[0_16px_36px_rgba(139,111,78,0.14)] relative"
             >
               {/* Card Image Cover with Subtle Zoom & Gradient Mask */}
-              <div className="relative h-64 sm:h-72 overflow-hidden bg-[#1C1217]">
+              <div className="relative h-64 sm:h-72 overflow-hidden bg-[#232323]">
                 <img
                   src={col.image}
                   alt={col.title}
@@ -238,11 +223,11 @@ export const ExploreCollections: React.FC<ExploreCollectionsProps> = ({ onNaviga
 
                 {/* Top Floating Badges */}
                 <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none">
-                  <span className="bg-[#FFFFFF]/90 backdrop-blur-md text-[#1C1217] text-[11px] font-bold px-3 py-1 rounded-full border border-[#F5E8EE] shadow-subtle flex items-center gap-1.5">
-                    <CandleIcon size={12} className="text-[#E87A96]" />
+                  <span className="bg-[#FFFFFF]/90 backdrop-blur-md text-[#232323] text-[11px] font-bold px-3 py-1 rounded-full border border-[#EADDCB] shadow-subtle flex items-center gap-1.5">
+                    <CandleIcon size={12} className="text-[#8B6F4E]" />
                     {col.itemCount} Fragrances
                   </span>
-                  <Badge variant={col.tagVariant || 'pink'} size="sm">
+                  <Badge variant={col.tagVariant || 'gold'} size="sm">
                     {col.tag}
                   </Badge>
                 </div>
@@ -252,13 +237,13 @@ export const ExploreCollections: React.FC<ExploreCollectionsProps> = ({ onNaviga
                   {col.scentNotes.slice(0, 3).map((note, idx) => (
                     <span
                       key={idx}
-                      className="text-[10px] font-semibold bg-[#1C1217]/85 backdrop-blur-sm text-[#FFF6F8] border border-[#F9B8CA]/30 px-2 py-0.5 rounded-full"
+                      className="text-[10px] font-semibold bg-[#232323]/85 backdrop-blur-sm text-[#FAF7F2] border border-[#EADDCB]/30 px-2 py-0.5 rounded-full"
                     >
                       {note}
                     </span>
                   ))}
                   {col.scentNotes.length > 3 && (
-                    <span className="text-[10px] font-semibold bg-[#1C1217]/85 backdrop-blur-sm text-[#F9B8CA] px-2 py-0.5 rounded-full">
+                    <span className="text-[10px] font-semibold bg-[#232323]/85 backdrop-blur-sm text-[#EADDCB] px-2 py-0.5 rounded-full">
                       +{col.scentNotes.length - 3}
                     </span>
                   )}
@@ -268,44 +253,40 @@ export const ExploreCollections: React.FC<ExploreCollectionsProps> = ({ onNaviga
               {/* Card Body Details */}
               <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between space-y-4">
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between text-xs text-[#886C7B]">
-                    <span className="font-serif italic text-xs text-[#E87A96] font-semibold">
+                  <div className="flex items-center justify-between text-xs text-[#7D6F63]">
+                    <span className="font-serif italic text-xs text-[#8B6F4E] font-semibold">
                       {col.subtitle}
                     </span>
-                    <span className="font-bold text-[#1C1217] bg-[#FFF6F8] px-2.5 py-0.5 rounded-full border border-[#F5E8EE]">
+                    <span className="font-bold text-[#232323] bg-[#FAF7F2] px-2.5 py-0.5 rounded-full border border-[#EADDCB]">
                       {col.price}
                     </span>
                   </div>
 
-                  <h3 className="text-xl sm:text-2xl font-serif font-bold text-[#1C1217] group-hover:text-[#E87A96] transition-colors leading-tight">
+                  <h3 className="text-xl sm:text-2xl font-serif font-bold text-[#232323] group-hover:text-[#8B6F4E] transition-colors leading-tight">
                     {col.title}
                   </h3>
 
-                  <p className="text-xs sm:text-sm text-[#624855] leading-relaxed line-clamp-2">
+                  <p className="text-xs sm:text-sm text-[#5C5149] leading-relaxed line-clamp-2">
                     {col.description}
                   </p>
                 </div>
 
                 {/* Vessel & Burn Time Specifications */}
-                <div className="pt-3 border-t border-[#F5E8EE] grid grid-cols-2 gap-2 text-[11px] text-[#624855]">
+                <div className="pt-3 border-t border-[#EADDCB] grid grid-cols-2 gap-2 text-[11px] text-[#5C5149]">
                   <div className="flex items-center gap-1.5 truncate">
-                    <CandleIcon size={13} className="text-[#E87A96] shrink-0" />
+                    <CandleIcon size={13} className="text-[#8B6F4E] shrink-0" />
                     <span className="truncate">{col.burnTime}</span>
                   </div>
                   <div className="flex items-center gap-1.5 truncate justify-end">
-                    <span className="text-[#886C7B]">{col.vessel}</span>
+                    <span className="text-[#7D6F63]">{col.vessel}</span>
                   </div>
                 </div>
 
                 {/* Bottom Action Button */}
                 <div className="pt-2 flex items-center justify-between">
-                  <span className="text-xs font-semibold text-[#886C7B]">
-                    {col.wax}
+                  <span className="text-xs font-bold uppercase tracking-widest text-[#8B6F4E] group-hover:underline flex items-center gap-1">
+                    Discover Collection →
                   </span>
-                  <div className="inline-flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-[#1C1217] group-hover:text-[#E87A96] transition-colors">
-                    <span>Explore Collection</span>
-                    <ChevronRightIcon size={14} className="group-hover:translate-x-1.5 transition-transform text-[#E87A96]" />
-                  </div>
                 </div>
               </div>
             </Card>

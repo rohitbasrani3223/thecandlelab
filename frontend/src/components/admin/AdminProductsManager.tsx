@@ -105,7 +105,7 @@ export const AdminProductsManager: React.FC = () => {
       images: [],
       hasFragranceOption: true,
       hasSizeOption: true,
-      hasColorOption: true,
+      hasColorOption: false,
       hasWickOption: true,
       hasGiftPackaging: true,
       hasCustomMessage: false,
@@ -144,7 +144,7 @@ export const AdminProductsManager: React.FC = () => {
       imageUrl: existingImages[0] || p.imageUrl || p.image || '',
       hasFragranceOption: p.hasFragranceOption !== false,
       hasSizeOption: p.hasSizeOption !== false,
-      hasColorOption: p.hasColorOption !== false,
+      hasColorOption: p.hasColorOption === true,
       hasWickOption: p.hasWickOption !== false,
       hasGiftPackaging: p.hasGiftPackaging !== false,
       hasCustomMessage: Boolean(p.hasCustomMessage),
@@ -283,10 +283,12 @@ export const AdminProductsManager: React.FC = () => {
       burnTime: formData.burnTime || '60 Hours',
       weightGrams: Number(formData.weightGrams) || 250,
       vesselDescription: formData.vesselDescription || 'Hand-poured in luxury frosted vessel.',
-      hasFragranceOption: formData.hasFragranceOption ?? true,
-      hasSizeOption: formData.hasSizeOption ?? true,
-      hasColorOption: formData.hasColorOption ?? true,
-      hasWickOption: formData.hasWickOption ?? true,
+      hasFragranceOption: Boolean(formData.hasFragranceOption),
+      hasSizeOption: Boolean(formData.hasSizeOption),
+      hasColorOption: Boolean(formData.hasColorOption),
+      hasWickOption: Boolean(formData.hasWickOption),
+      hasGiftPackaging: Boolean(formData.hasGiftPackaging),
+      hasCustomMessage: Boolean(formData.hasCustomMessage),
       price: Number(formData.price),
       originalPrice: Number(formData.originalPrice || formData.price),
       image: formData.images?.[0] || formData.image || formData.imageUrl || '',
@@ -652,7 +654,7 @@ export const AdminProductsManager: React.FC = () => {
                     { key: 'hasGiftPackaging', label: '✨ Luxury Gift Box Option', desc: 'Allow customer to add gold gift box packaging' },
                     { key: 'hasCustomMessage', label: '✍️ Handwritten Gift Note', desc: 'Allow customer to write personal note for recipient' },
                   ].map((opt) => {
-                    const isChecked = (formData as any)[opt.key] ?? true;
+                    const isChecked = Boolean((formData as any)[opt.key]);
                     return (
                       <div
                         key={opt.key}

@@ -17,9 +17,17 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
   const { addToCart } = useCart();
   const { fragrances, sizes, colors, wickTypes } = useCMS();
 
+  // Option Flags Resolution
+  const showFragrance = product?.hasFragranceOption !== false && (product?.hasFragranceOption ?? true);
+  const showSize = product?.hasSizeOption !== false && (product?.hasSizeOption ?? true);
+  const showColor = product?.hasColorOption !== false && (product?.hasColorOption ?? false);
+  const showWick = product?.hasWickOption !== false && (product?.hasWickOption ?? true);
+  const showGiftPackaging = product?.hasGiftPackaging !== false && (product?.hasGiftPackaging ?? true);
+  const showCustomMessage = Boolean(product?.hasCustomMessage);
+
   // 1. DYNAMIC FRAGRANCE OPTIONS
   const availableFragrances = useMemo(() => {
-    if (!product || product.hasFragranceOption === false) return [];
+    if (!product || !showFragrance) return [];
 
     // A. If admin explicitly selected allowed fragrance IDs for this product
     if (product.availableFragranceIds && product.availableFragranceIds.length > 0) {
@@ -70,11 +78,11 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
     }
 
     return [];
-  }, [fragrances, product]);
+  }, [fragrances, product, showFragrance]);
 
   // 2. DYNAMIC SIZE OPTIONS
   const availableSizes = useMemo(() => {
-    if (product.hasSizeOption === false) return [];
+    if (!showSize) return [];
 
     if (product.availableSizeIds && product.availableSizeIds.length > 0) {
       const allowed = sizes.filter((s) => product.availableSizeIds!.includes(s.id));
@@ -86,11 +94,11 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
     }
 
     return [];
-  }, [sizes, product]);
+  }, [sizes, product, showSize]);
 
   // 3. DYNAMIC COLOR / FINISH OPTIONS
   const availableColors = useMemo(() => {
-    if (product.hasColorOption === false) return [];
+    if (!showColor) return [];
 
     if (product.availableColorIds && product.availableColorIds.length > 0) {
       const allowed = colors.filter((c) => product.availableColorIds!.includes(c.id));
@@ -102,11 +110,11 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
     }
 
     return [];
-  }, [colors, product]);
+  }, [colors, product, showColor]);
 
   // 4. DYNAMIC WICK TYPE OPTIONS
   const availableWickTypes = useMemo(() => {
-    if (product.hasWickOption === false) return [];
+    if (!showWick) return [];
 
     if (product.availableWickTypeIds && product.availableWickTypeIds.length > 0) {
       const allowed = wickTypes.filter((w) => product.availableWickTypeIds!.includes(w.id));
@@ -118,7 +126,7 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
     }
 
     return [];
-  }, [wickTypes, product]);
+  }, [wickTypes, product, showWick]);
 
   // Selection states
   const [selectedFragranceId, setSelectedFragranceId] = useState<string>(
@@ -231,9 +239,11 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
   const handleAddToCart = () => {
     if (isOutOfStock) return;
 
-    const finalColorName = selectedColorId === 'custom'
-      ? (customColorText.trim() ? `Custom: ${customColorText.trim()}` : 'Custom Color Shade')
-      : (customColorText.trim() ? `${selectedColor?.name || 'Standard'} (${customColorText.trim()})` : selectedColor?.name);
+    const finalColorName = showColor
+      ? (selectedColorId === 'custom'
+          ? (customColorText.trim() ? `Custom: ${customColorText.trim()}` : 'Custom Color Shade')
+          : (customColorText.trim() ? `${selectedColor?.name || 'Standard'} (${customColorText.trim()})` : selectedColor?.name))
+      : undefined;
 
     addToCart({
       id: product.id,
@@ -241,14 +251,14 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
       price: currentPrice,
       originalPrice: currentOriginalPrice,
       image: currentVariant?.imageUrl || product.image || product.imageUrl,
-      fragrance: selectedFragrance?.name || product.scentProfile || 'Signature',
-      size: selectedSize?.name || 'Standard',
+      fragrance: showFragrance ? (selectedFragrance?.name || product.scentProfile || 'Signature') : undefined,
+      size: showSize ? (selectedSize?.name || 'Standard') : undefined,
       color: finalColorName,
-      wickType: selectedWickType?.name,
+      wickType: showWick ? selectedWickType?.name : undefined,
       sku: currentSku,
       variantId: currentVariant?.id,
-      giftPackaging,
-      customMessage: showGiftMessageInput ? customMessage : undefined,
+      giftPackaging: showGiftPackaging ? giftPackaging : false,
+      customMessage: showCustomMessage && (showGiftMessageInput || !showGiftPackaging) ? customMessage : undefined,
       quantity,
     } as any);
   };
@@ -262,73 +272,72 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
   };
 
   return (
-    <div className="space-y-6 font-sans text-[#1C1217]">
+    <div className="space-y-6 font-sans text-[#232323]">
       {/* Category, SKU & Title */}
       <div>
         <div className="flex items-center justify-between gap-2 flex-wrap mb-2">
-          <span className="text-[11px] font-mono uppercase tracking-widest text-[#E87A96] font-bold">
+          <span className="text-[11px] font-mono uppercase tracking-widest text-[#8B6F4E] font-bold">
             {product.category || 'Artisanal Soy Candles'}
           </span>
-          <span className="text-[11px] font-mono text-[#886C7B]">
-            SKU: <span className="text-[#1C1217] font-semibold">{currentSku}</span>
+          <span className="text-[11px] font-mono text-[#7D6F63]">
+            SKU: <span className="text-[#232323] font-semibold">{currentSku}</span>
           </span>
         </div>
 
-        <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-[#1C1217] font-bold leading-tight">
+        <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-[#232323] font-bold leading-tight">
           {product.name}
         </h1>
 
         {(product.tagline || product.scentProfile) && (
-          <p className="text-sm text-[#624855] mt-2 font-light leading-relaxed">
+          <p className="text-sm text-[#5C5149] mt-2 font-light leading-relaxed">
             {product.tagline || product.scentProfile}
           </p>
         )}
       </div>
 
       {/* Rating & Stock Summary */}
-      <div className="flex items-center gap-3 py-2.5 border-y border-[#F5E8EE]">
-        <div className="flex items-center text-[#E8C86D] text-sm tracking-tighter">
+      <div className="flex items-center gap-3 py-2.5 border-y border-[#EADDCB]">
+        <div className="flex items-center text-[#C8A75A] text-sm tracking-tighter">
           {'★'.repeat(5)}
         </div>
-        <span className="text-xs font-mono text-[#1C1217] font-bold">
+        <span className="text-xs font-mono text-[#232323] font-bold">
           {product.rating ? Number(product.rating).toFixed(1) : '4.9'}
         </span>
-        <span className="text-xs text-[#886C7B]">
+        <span className="text-xs text-[#7D6F63]">
           ({product.reviewsCount || 18} Verified Reviews)
         </span>
-        <span className="text-xs text-[#AC94A1]">•</span>
-        <span className={`text-xs font-semibold ${isOutOfStock ? 'text-rose-600' : 'text-emerald-700'}`}>
+        <span className="text-xs text-[#A39486]">•</span>
+        <span className={`text-xs font-semibold ${isOutOfStock ? 'text-rose-600' : 'text-[#6B6E4A]'}`}>
           {isOutOfStock ? 'Currently Sold Out' : '✓ In Stock & Hand-Poured'}
         </span>
       </div>
 
       {/* Price & Savings Display */}
       <div className="flex items-baseline gap-3">
-        <span className="text-3xl sm:text-4xl font-serif text-[#1C1217] font-bold">
+        <span className="text-3xl sm:text-4xl font-serif text-[#232323] font-bold">
           ₹{currentPrice.toLocaleString('en-IN')}
         </span>
         {currentOriginalPrice > currentPrice && (
           <>
-            <span className="text-base text-[#886C7B] line-through">
+            <span className="text-base text-[#7D6F63] line-through">
               ₹{currentOriginalPrice.toLocaleString('en-IN')}
             </span>
-            <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-[#FFF6F8] text-[#E87A96] border border-[#F9B8CA] font-bold">
+            <span className="text-xs font-mono px-2.5 py-0.5 rounded-full bg-[#FAF7F2] text-[#8B6F4E] border border-[#EADDCB] font-bold">
               SAVE {discountPercent}%
             </span>
           </>
         )}
       </div>
 
-      {/* 1. DYNAMIC FRAGRANCE SELECTOR */}
       {/* 1. DYNAMIC FRAGRANCE SELECTOR DROPDOWN */}
-      {availableFragrances.length > 0 && (
+      {showFragrance && availableFragrances.length > 0 && (
         <div className="space-y-1.5 pt-1">
           <div className="flex items-center justify-between">
-            <label className="text-[11px] font-mono uppercase tracking-wider text-[#624855] font-bold">
+            <label className="text-[11px] font-mono uppercase tracking-wider text-[#5C5149] font-bold">
               Select Fragrance:
             </label>
             {selectedFragrance?.intensity && (
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#FFF6F8] border border-[#F5E8EE] text-[#886C7B]">
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#FAF7F2] border border-[#EADDCB] text-[#7D6F63]">
                 {selectedFragrance.intensity}
               </span>
             )}
@@ -337,7 +346,7 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
             <select
               value={selectedFragranceId}
               onChange={(e) => setSelectedFragranceId(e.target.value)}
-              className="w-full px-4 py-3 bg-white border border-[#E8DCE2] rounded-xl text-sm text-[#1C1217] font-medium appearance-none focus:outline-none focus:border-[#E87A96] focus:ring-1 focus:ring-[#E87A96] transition-all pr-10 cursor-pointer shadow-xs"
+              className="w-full px-4 py-3 bg-white border border-[#EADDCB] rounded-xl text-sm text-[#232323] font-medium appearance-none focus:outline-none focus:border-[#8B6F4E] focus:ring-1 focus:ring-[#8B6F4E] transition-all pr-10 cursor-pointer shadow-xs"
             >
               {availableFragrances.map((frag) => (
                 <option key={frag.id} value={frag.id}>
@@ -345,12 +354,12 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
                 </option>
               ))}
             </select>
-            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#886C7B]">
+            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#7D6F63]">
               <ChevronDownIcon size={16} />
             </div>
           </div>
           {selectedFragrance && (
-            <p className="text-[11px] text-[#886C7B] italic px-1">
+            <p className="text-[11px] text-[#7D6F63] italic px-1">
               ✨ {selectedFragrance.scentProfile || selectedFragrance.topNotes || 'Signature botanical essential oil blend'}
             </p>
           )}
@@ -358,104 +367,106 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
       )}
 
       {/* 2. DYNAMIC COLOR / FINISH SELECTOR DROPDOWN (WITH CUSTOM COLOR SUPPORT) */}
-      <div className="space-y-1.5 pt-1">
-        <div className="flex items-center justify-between">
-          <label className="block text-[11px] font-mono uppercase tracking-wider text-[#624855] font-bold">
-            Select Wax / Vessel Color:
-          </label>
-          <button
-            type="button"
-            onClick={() => {
-              const nextActive = !isCustomColorActive;
-              setIsCustomColorActive(nextActive);
-              if (nextActive) {
-                setSelectedColorId('custom');
-              } else if (availableColors.length > 0) {
-                setSelectedColorId(availableColors[0].id);
-              }
-            }}
-            className="text-[10px] font-mono font-bold text-[#E87A96] hover:underline cursor-pointer flex items-center gap-1"
-          >
-            <span>🎨 {isCustomColorActive || selectedColorId === 'custom' ? 'View Standard Colors' : '+ Custom Color Shade'}</span>
-          </button>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <div className="relative flex-1">
-            <select
-              value={selectedColorId}
-              onChange={(e) => {
-                const val = e.target.value;
-                setSelectedColorId(val);
-                if (val === 'custom') {
-                  setIsCustomColorActive(true);
-                }
-              }}
-              className="w-full px-4 py-3 bg-white border border-[#E8DCE2] rounded-xl text-sm text-[#1C1217] font-medium appearance-none focus:outline-none focus:border-[#E87A96] focus:ring-1 focus:ring-[#E87A96] transition-all pr-10 cursor-pointer shadow-xs"
-            >
-              {availableColors.map((col) => (
-                <option key={col.id} value={col.id}>
-                  {col.name}
-                </option>
-              ))}
-              {availableColors.length === 0 && (
-                <option value="standard">Natural Atelier Soy Wax</option>
-              )}
-              <option value="custom">🎨 Custom / Request Specific Shade...</option>
-            </select>
-            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#886C7B]">
-              <ChevronDownIcon size={16} />
-            </div>
-          </div>
-
-          {/* Color Preview Swatch or Custom Palette Indicator */}
-          {selectedColorId === 'custom' ? (
-            <div
-              className="w-9 h-9 rounded-full border-2 border-white shadow-md shrink-0 bg-gradient-to-tr from-[#F9B8CA] via-[#E8C86D] to-[#88D49E] flex items-center justify-center text-xs ring-1 ring-[#E8DCE2]"
-              title="Custom Color Formulation"
-            >
-              🎨
-            </div>
-          ) : selectedColor?.hexCode ? (
-            <div
-              className="w-9 h-9 rounded-full border-2 border-white shadow-md shrink-0 ring-1 ring-[#E8DCE2]"
-              style={{ backgroundColor: selectedColor.hexCode }}
-              title={selectedColor.name}
-            />
-          ) : (
-            <div
-              className="w-9 h-9 rounded-full border-2 border-white shadow-md shrink-0 bg-[#FDFBF7] ring-1 ring-[#E8DCE2]"
-              title="Natural Soy Cream"
-            />
-          )}
-        </div>
-
-        {/* Custom Color Text Input Field */}
-        {(selectedColorId === 'custom' || isCustomColorActive) && (
-          <div className="pt-1.5 space-y-1">
-            <input
-              type="text"
-              placeholder="Describe your custom color / shade (e.g. Pastel Lavender, Sage Green & Gold)..."
-              value={customColorText}
-              onChange={(e) => setCustomColorText(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-[#FFF6F8] border border-[#F9B8CA] rounded-xl text-xs text-[#1C1217] placeholder:text-[#886C7B] outline-none focus:ring-1 focus:ring-[#E87A96] transition-all font-medium"
-            />
-            <p className="text-[10px] text-[#886C7B] italic px-1">
-              ✨ Hand-tinted specifically to your shade request in small batches.
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* 3. DYNAMIC SIZE SELECTOR DROPDOWN */}
-      {availableSizes.length > 0 && (
+      {showColor && (
         <div className="space-y-1.5 pt-1">
           <div className="flex items-center justify-between">
-            <label className="block text-[11px] font-mono uppercase tracking-wider text-[#624855] font-bold">
+            <label className="block text-[11px] font-mono uppercase tracking-wider text-[#5C5149] font-bold">
+              Select Wax / Vessel Color:
+            </label>
+            <button
+              type="button"
+              onClick={() => {
+                const nextActive = !isCustomColorActive;
+                setIsCustomColorActive(nextActive);
+                if (nextActive) {
+                  setSelectedColorId('custom');
+                } else if (availableColors.length > 0) {
+                  setSelectedColorId(availableColors[0].id);
+                }
+              }}
+              className="text-[10px] font-mono font-bold text-[#8B6F4E] hover:underline cursor-pointer flex items-center gap-1"
+            >
+              <span>🎨 {isCustomColorActive || selectedColorId === 'custom' ? 'View Standard Colors' : '+ Custom Color Shade'}</span>
+            </button>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="relative flex-1">
+              <select
+                value={selectedColorId}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setSelectedColorId(val);
+                  if (val === 'custom') {
+                    setIsCustomColorActive(true);
+                  }
+                }}
+                className="w-full px-4 py-3 bg-white border border-[#EADDCB] rounded-xl text-sm text-[#232323] font-medium appearance-none focus:outline-none focus:border-[#8B6F4E] focus:ring-1 focus:ring-[#8B6F4E] transition-all pr-10 cursor-pointer shadow-xs"
+              >
+                {availableColors.map((col) => (
+                  <option key={col.id} value={col.id}>
+                    {col.name}
+                  </option>
+                ))}
+                {availableColors.length === 0 && (
+                  <option value="standard">Natural Atelier Soy Wax</option>
+                )}
+                <option value="custom">🎨 Custom / Request Specific Shade...</option>
+              </select>
+              <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#7D6F63]">
+                <ChevronDownIcon size={16} />
+              </div>
+            </div>
+
+            {/* Color Preview Swatch or Custom Palette Indicator */}
+            {selectedColorId === 'custom' ? (
+              <div
+                className="w-9 h-9 rounded-full border-2 border-white shadow-md shrink-0 bg-gradient-to-tr from-[#EADDCB] via-[#C8A75A] to-[#8B6F4E] flex items-center justify-center text-xs ring-1 ring-[#EADDCB]"
+                title="Custom Color Formulation"
+              >
+                🎨
+              </div>
+            ) : selectedColor?.hexCode ? (
+              <div
+                className="w-9 h-9 rounded-full border-2 border-white shadow-md shrink-0 ring-1 ring-[#EADDCB]"
+                style={{ backgroundColor: selectedColor.hexCode }}
+                title={selectedColor.name}
+              />
+            ) : (
+              <div
+                className="w-9 h-9 rounded-full border-2 border-white shadow-md shrink-0 bg-[#FAF7F2] ring-1 ring-[#EADDCB]"
+                title="Natural Soy Cream"
+              />
+            )}
+          </div>
+
+          {/* Custom Color Text Input Field */}
+          {(selectedColorId === 'custom' || isCustomColorActive) && (
+            <div className="pt-1.5 space-y-1">
+              <input
+                type="text"
+                placeholder="Describe your custom color / shade (e.g. Pastel Lavender, Sage Green & Gold)..."
+                value={customColorText}
+                onChange={(e) => setCustomColorText(e.target.value)}
+                className="w-full px-3.5 py-2.5 bg-[#FAF7F2] border border-[#EADDCB] rounded-xl text-xs text-[#232323] placeholder:text-[#7D6F63] outline-none focus:ring-1 focus:ring-[#8B6F4E] transition-all font-medium"
+              />
+              <p className="text-[10px] text-[#7D6F63] italic px-1">
+                ✨ Hand-tinted specifically to your shade request in small batches.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 3. DYNAMIC SIZE SELECTOR DROPDOWN */}
+      {showSize && availableSizes.length > 0 && (
+        <div className="space-y-1.5 pt-1">
+          <div className="flex items-center justify-between">
+            <label className="block text-[11px] font-mono uppercase tracking-wider text-[#5C5149] font-bold">
               Select Vessel Size:
             </label>
             {product.burnTime && (
-              <span className="text-[10px] text-[#886C7B] font-mono">
+              <span className="text-[10px] text-[#7D6F63] font-mono">
                 Burn: {product.burnTime}
               </span>
             )}
@@ -464,7 +475,7 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
             <select
               value={selectedSizeId}
               onChange={(e) => setSelectedSizeId(e.target.value)}
-              className="w-full px-4 py-3 bg-white border border-[#E8DCE2] rounded-xl text-sm text-[#1C1217] font-medium appearance-none focus:outline-none focus:border-[#E87A96] focus:ring-1 focus:ring-[#E87A96] transition-all pr-10 cursor-pointer shadow-xs"
+              className="w-full px-4 py-3 bg-white border border-[#EADDCB] rounded-xl text-sm text-[#232323] font-medium appearance-none focus:outline-none focus:border-[#8B6F4E] focus:ring-1 focus:ring-[#8B6F4E] transition-all pr-10 cursor-pointer shadow-xs"
             >
               {availableSizes.map((sz) => {
                 const szMult = sz.value > 300 ? 1.6 : sz.value < 150 ? 0.7 : 1.0;
@@ -476,7 +487,7 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
                 );
               })}
             </select>
-            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#886C7B]">
+            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#7D6F63]">
               <ChevronDownIcon size={16} />
             </div>
           </div>
@@ -484,16 +495,16 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
       )}
 
       {/* 4. DYNAMIC WICK TYPE SELECTOR DROPDOWN */}
-      {availableWickTypes.length > 0 && (
+      {showWick && availableWickTypes.length > 0 && (
         <div className="space-y-1.5 pt-1">
-          <label className="block text-[11px] font-mono uppercase tracking-wider text-[#624855] font-bold">
+          <label className="block text-[11px] font-mono uppercase tracking-wider text-[#5C5149] font-bold">
             Select Wick Type:
           </label>
           <div className="relative">
             <select
               value={selectedWickTypeId}
               onChange={(e) => setSelectedWickTypeId(e.target.value)}
-              className="w-full px-4 py-3 bg-white border border-[#E8DCE2] rounded-xl text-sm text-[#1C1217] font-medium appearance-none focus:outline-none focus:border-[#E87A96] focus:ring-1 focus:ring-[#E87A96] transition-all pr-10 cursor-pointer shadow-xs"
+              className="w-full px-4 py-3 bg-white border border-[#EADDCB] rounded-xl text-sm text-[#232323] font-medium appearance-none focus:outline-none focus:border-[#8B6F4E] focus:ring-1 focus:ring-[#8B6F4E] transition-all pr-10 cursor-pointer shadow-xs"
             >
               {availableWickTypes.map((wk) => (
                 <option key={wk.id} value={wk.id}>
@@ -501,7 +512,7 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
                 </option>
               ))}
             </select>
-            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#886C7B]">
+            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#7D6F63]">
               <ChevronDownIcon size={16} />
             </div>
           </div>
@@ -510,26 +521,26 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
 
       {/* 5. QUANTITY SELECTOR */}
       <div className="space-y-1.5 pt-1">
-        <label className="block text-[11px] font-mono uppercase tracking-wider text-[#624855] font-bold">
+        <label className="block text-[11px] font-mono uppercase tracking-wider text-[#5C5149] font-bold">
           Quantity:
         </label>
-        <div className="flex items-center border border-[#E8DCE2] bg-white rounded-xl overflow-hidden max-w-[140px] shadow-xs">
+        <div className="flex items-center border border-[#EADDCB] bg-white rounded-xl overflow-hidden max-w-[140px] shadow-xs">
           <button
             type="button"
             disabled={quantity <= 1 || isOutOfStock}
             onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-            className="px-4 py-2.5 text-[#1C1217] hover:text-[#E87A96] transition-colors disabled:opacity-30 cursor-pointer font-bold text-base"
+            className="px-4 py-2.5 text-[#232323] hover:text-[#8B6F4E] transition-colors disabled:opacity-30 cursor-pointer font-bold text-base"
           >
             -
           </button>
-          <span className="flex-1 text-center text-sm font-mono text-[#1C1217] font-bold">
+          <span className="flex-1 text-center text-sm font-mono text-[#232323] font-bold">
             {quantity}
           </span>
           <button
             type="button"
             disabled={quantity >= currentStock || isOutOfStock}
             onClick={() => setQuantity((q) => q + 1)}
-            className="px-4 py-2.5 text-[#1C1217] hover:text-[#E87A96] transition-colors disabled:opacity-30 cursor-pointer font-bold text-base"
+            className="px-4 py-2.5 text-[#232323] hover:text-[#8B6F4E] transition-colors disabled:opacity-30 cursor-pointer font-bold text-base"
           >
             +
           </button>
@@ -537,13 +548,13 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
       </div>
 
       {/* 6. ACTION BUTTONS */}
-      <div className="space-y-3 pt-3 border-t border-[#F5E8EE]">
+      <div className="space-y-3 pt-3 border-t border-[#EADDCB]">
         {/* Add to Cart Primary Button */}
         <button
           type="button"
           disabled={isOutOfStock}
           onClick={handleAddToCart}
-          className="w-full py-4 px-6 rounded-2xl font-bold uppercase tracking-widest text-xs sm:text-sm transition-all shadow-md cursor-pointer bg-[#4A3222] hover:bg-[#382417] text-white flex items-center justify-center gap-2.5 disabled:opacity-40 disabled:cursor-not-allowed hover:scale-[1.01] active:scale-[0.99]"
+          className="w-full py-4 px-6 rounded-2xl font-bold uppercase tracking-widest text-xs sm:text-sm transition-all shadow-md cursor-pointer bg-[#232323] hover:bg-[#3D3531] text-white flex items-center justify-center gap-2.5 disabled:opacity-40 disabled:cursor-not-allowed hover:scale-[1.01] active:scale-[0.99]"
         >
           <ShoppingBagIcon size={18} />
           <span>{isOutOfStock ? 'Currently Out of Stock' : `Add to Cart • ₹${(currentPrice * quantity).toLocaleString('en-IN')}`}</span>
@@ -554,7 +565,7 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
           <button
             type="button"
             onClick={handleTriggerBuyNow}
-            className="w-full py-3.5 px-6 rounded-2xl font-bold uppercase tracking-widest text-xs transition-all cursor-pointer bg-[#E87A96] hover:bg-[#D45D7D] text-white shadow-sm flex items-center justify-center gap-2"
+            className="w-full py-3.5 px-6 rounded-2xl font-bold uppercase tracking-widest text-xs transition-all cursor-pointer bg-[#8B6F4E] hover:bg-[#745A3D] text-white shadow-[0_4px_16px_rgba(139,111,78,0.35)] flex items-center justify-center gap-2"
           >
             <SparklesIcon size={16} />
             <span>Instant Buy Now</span>
@@ -563,16 +574,16 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
       </div>
 
       {/* Gift Packaging & Atelier Perks */}
-      {(product.hasGiftPackaging !== false || product.hasCustomMessage !== false) && (
+      {(showGiftPackaging || showCustomMessage) && (
         <div className="pt-2 space-y-2.5">
-          {product.hasGiftPackaging !== false && (
+          {showGiftPackaging && (
             <label className="flex items-center gap-2.5 text-xs text-[#1C1217] cursor-pointer">
               <input
                 type="checkbox"
                 checked={giftPackaging}
                 onChange={(e) => {
                   setGiftPackaging(e.target.checked);
-                  if (product.hasCustomMessage !== false) {
+                  if (showCustomMessage) {
                     setShowGiftMessageInput(e.target.checked);
                   }
                 }}
@@ -582,7 +593,7 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
             </label>
           )}
 
-          {product.hasCustomMessage !== false && (showGiftMessageInput || product.hasGiftPackaging === false) && (
+          {showCustomMessage && (showGiftMessageInput || !showGiftPackaging) && (
             <div className="pt-1">
               <input
                 type="text"

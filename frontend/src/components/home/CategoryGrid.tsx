@@ -10,30 +10,34 @@ export interface CategoryGridProps {
 export const CategoryGrid: React.FC<CategoryGridProps> = ({ onNavigateToShop: _onNavigateToShop, onSelectProduct: _onSelectProduct }) => {
   const { products, mainCategories, collections, settings } = useCMS();
 
-  // Helper for intelligent product matching
+  // Helper for accurate product matching
   const getMatchingProductCount = (name: string, id: string) => {
     if (!products || products.length === 0) return 0;
-    const nameLower = name.toLowerCase();
+    const nameLower = name.toLowerCase().trim();
+    const curId = String(id);
     const count = products.filter((p) => {
-      const pName = p.name.toLowerCase();
-      const pCat = (p.category || '').toLowerCase();
-      if (p.collectionIds?.includes(id) || p.collections?.includes(id) || p.collections?.includes(name)) return true;
-      if (pCat === nameLower || p.mainCategoryId === id) return true;
-      if (nameLower.includes('hamper') || nameLower.includes('gift')) {
-        if (pCat.includes('hamper') || pCat.includes('gift') || pName.includes('bloom') || pName.includes('basket')) return true;
+      const pCat = (p.category || '').toLowerCase().trim();
+      const pCollection = (p.collection || '').toLowerCase().trim();
+      if (
+        p.collectionIds?.some((cId) => String(cId) === curId || String(cId).toLowerCase() === nameLower) ||
+        p.collections?.some((col) => String(col) === curId || String(col).toLowerCase() === nameLower)
+      ) {
+        return true;
       }
-      if (nameLower.includes('diffuser') || nameLower.includes('car')) {
-        if (pCat.includes('diffuser') || pCat.includes('oil') || pCat.includes('reed') || pName.includes('diffuser') || pName.includes('car')) return true;
-      }
-      if (nameLower.includes('sachet') || nameLower.includes('melt')) {
-        if (pCat.includes('sachet') || pCat.includes('melt') || pName.includes('sachet') || pName.includes('wax')) return true;
-      }
-      if (nameLower.includes('candle') || nameLower.includes('luxury scented')) {
-        if (pCat.includes('candle') || pCat.includes('jar') || pCat.includes('scented') || pName.includes('candle')) return true;
-      }
+      if (pCollection === nameLower || pCollection === curId.toLowerCase()) return true;
+      if (p.mainCategoryId && String(p.mainCategoryId) === curId) return true;
+      if (pCat === nameLower) return true;
+
+      const pCatClean = pCat.replace(/[^a-z0-9]/g, '');
+      const nameClean = nameLower.replace(/[^a-z0-9]/g, '');
+      if (pCatClean && nameClean && pCatClean === nameClean) return true;
+
+      const pColClean = pCollection.replace(/[^a-z0-9]/g, '');
+      if (pColClean && nameClean && pColClean === nameClean) return true;
+
       return false;
     }).length;
-    return count > 0 ? count : 1;
+    return count;
   };
 
   // Prepare unified list of Categories and Collections
@@ -109,33 +113,33 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({ onNavigateToShop: _o
   };
 
   return (
-    <section id="categories" className="py-16 sm:py-24 bg-[#FFFFFF] border-b border-[#F5E8EE] font-sans">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 space-y-12">
+    <section id="categories" className="py-16 sm:py-24 bg-[#F8F6F0] border-b border-[#EADDCB] font-sans">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 space-y-10">
         {/* Section Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 border-b border-[#F5E8EE] pb-6">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2">
-              <Badge variant="pink" size="sm" icon={<SparklesIcon size={12} />}>
-                PRODUCT CATEGORIES
+        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 sm:gap-6 border-b border-[#EADDCB] pb-6">
+          <div className="space-y-1.5 sm:space-y-2">
+            <div className="flex items-center gap-2">
+              <Badge variant="gold" icon={<SparklesIcon size={12} />}>
+                CURATED ARTISANAL LINE
               </Badge>
-              <span className="text-[11px] uppercase tracking-wider text-[#886C7B] font-semibold hidden sm:inline-block">
-                • {allCards.length} Categories Available
+              <span className="text-[11px] uppercase tracking-wider text-[#7D6F63] font-semibold hidden sm:inline-block">
+                • {allCards.length} Collections Available
               </span>
             </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-extrabold text-[#1C1217] tracking-tight">
-              Categories & Collections
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-extrabold text-[#232323] tracking-tight">
+              SHOP BY CATEGORY
             </h2>
-            <p className="text-xs sm:text-sm text-[#624855] max-w-2xl leading-relaxed">
+            <p className="text-xs sm:text-sm text-[#5C5149] max-w-2xl leading-relaxed">
               Explore our artisanal product categories. Click any category to view its hand-poured formulations.
             </p>
           </div>
 
           <button
             onClick={() => handleOpenCollectionPage()}
-            className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-[#1C1217] hover:text-[#E87A96] transition-colors cursor-pointer group shrink-0 pb-1"
+            className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-[#232323] hover:text-[#8B6F4E] transition-colors cursor-pointer group shrink-0 pb-1"
           >
-            <span>See All Collections</span>
-            <ChevronRightIcon size={14} className="group-hover:translate-x-1.5 transition-transform text-[#E87A96]" />
+            <span>View All Collections</span>
+            <ChevronRightIcon size={14} className="group-hover:translate-x-1.5 transition-transform text-[#8B6F4E]" />
           </button>
         </div>
 
@@ -143,7 +147,7 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({ onNavigateToShop: _o
         <div className="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-none">
           <button
             onClick={() => handleOpenCollectionPage('all')}
-            className="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shadow-xs bg-[#1C1217] text-[#FFFFFF] hover:bg-[#332029]"
+            className="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shadow-xs bg-[#232323] text-[#FFFFFF] hover:bg-[#8B6F4E]"
           >
             <span>🌟 All Formulations</span>
             <span className="bg-[#FFFFFF]/20 text-[10px] px-2 py-0.5 rounded-full font-mono">
@@ -155,10 +159,10 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({ onNavigateToShop: _o
             <button
               key={card.id}
               onClick={() => handleOpenCollectionPage(card.id)}
-              className="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shadow-xs bg-[#FFF6F8] text-[#624855] border border-[#F5E8EE] hover:bg-[#FDE8EF] hover:border-[#F9B8CA]"
+              className="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shadow-xs bg-[#FFFFFF] text-[#5C5149] border border-[#EADDCB] hover:bg-[#EADDCB] hover:text-[#232323]"
             >
-              <span>{card.type === 'collection' ? '✨' : '🌸'} {card.name}</span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full font-mono bg-[#FFFFFF] text-[#886C7B]">
+              <span>{card.type === 'collection' ? '✨' : '🕯️'} {card.name}</span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full font-mono bg-[#F5EFE6] text-[#7D6F63]">
                 {card.count}
               </span>
             </button>
@@ -171,46 +175,46 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({ onNavigateToShop: _o
             <div
               key={item.id}
               onClick={() => handleOpenCollectionPage(item.id)}
-              className="group cursor-pointer rounded-3xl overflow-hidden bg-[#FFFFFF] border border-[#F5E8EE] hover:border-[#F9B8CA] hover:shadow-[0_16px_36px_rgba(232,122,150,0.16)] transition-all duration-500 flex flex-col justify-between relative hover:-translate-y-1.5"
+              className="group cursor-pointer rounded-3xl overflow-hidden bg-[#FFFFFF] border border-[#EADDCB] hover:border-[#8B6F4E] hover:shadow-[0_16px_36px_rgba(139,111,78,0.14)] transition-all duration-500 flex flex-col justify-between relative hover:-translate-y-1.5"
             >
               {/* Image Container */}
-              <div className="relative aspect-4/3 overflow-hidden bg-[#140B10]">
+              <div className="relative aspect-4/3 overflow-hidden bg-[#232323]">
                 <img
                   src={item.image}
                   alt={item.name}
                   loading="lazy"
                   className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out brightness-95 group-hover:brightness-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#140B10]/80 via-[#140B10]/20 to-transparent opacity-70 group-hover:opacity-50 transition-opacity" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#232323]/80 via-[#232323]/20 to-transparent opacity-70 group-hover:opacity-50 transition-opacity" />
 
                 {/* Tag Badge */}
                 <div className="absolute top-2.5 left-2.5 z-10">
-                  <span className="bg-[#FFFFFF]/95 backdrop-blur-xs text-[#C94C6D] text-[9px] font-extrabold uppercase px-2.5 py-0.5 rounded-full border border-[#F9B8CA] shadow-sm">
+                  <span className="bg-[#FFFFFF]/95 backdrop-blur-xs text-[#8B6F4E] text-[9px] font-extrabold uppercase px-2.5 py-0.5 rounded-full border border-[#EADDCB] shadow-sm">
                     {item.tag}
                   </span>
                 </div>
 
                 {/* Count Pill */}
                 <div className="absolute top-2.5 right-2.5 z-10">
-                  <span className="bg-[#140B10]/80 backdrop-blur-xs text-[#FFF6F8] text-[10px] font-semibold px-2.5 py-0.5 rounded-full border border-white/10">
+                  <span className="bg-[#232323]/80 backdrop-blur-xs text-[#FFFFFF] text-[10px] font-semibold px-2.5 py-0.5 rounded-full border border-white/10">
                     {item.count} items
                   </span>
                 </div>
 
                 {/* Bottom Image Overlay Title */}
                 <div className="absolute bottom-2.5 left-2.5 right-2.5 text-white">
-                  <h3 className="font-serif text-sm sm:text-base font-bold text-[#FFFFFF] drop-shadow-md truncate group-hover:text-[#F9B8CA] transition-colors">
+                  <h3 className="font-serif text-sm sm:text-base font-bold text-[#FFFFFF] drop-shadow-md truncate group-hover:text-[#EADDCB] transition-colors">
                     {item.name}
                   </h3>
                 </div>
               </div>
 
               {/* Bottom Strip */}
-              <div className="p-3 bg-[#FFF6F8] flex items-center justify-between border-t border-[#F5E8EE] text-[11px]">
-                <span className="text-[#624855] font-medium truncate pr-1">
+              <div className="p-3 bg-[#FAF7F2] flex items-center justify-between border-t border-[#EADDCB] text-[11px]">
+                <span className="text-[#5C5149] font-medium truncate pr-1">
                   {item.subtitle}
                 </span>
-                <span className="text-[#E87A96] font-bold shrink-0 group-hover:underline flex items-center gap-0.5">
+                <span className="text-[#8B6F4E] font-bold shrink-0 group-hover:underline flex items-center gap-0.5">
                   Explore →
                 </span>
               </div>

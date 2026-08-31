@@ -21,11 +21,11 @@ export const Card: React.FC<CardProps> = ({
   };
 
   const variantStyles = {
-    flat: 'bg-[#FFF6F8]',
-    bordered: 'bg-[#FFFFFF] border border-[#F5E8EE] shadow-[0_2px_12px_rgba(230,106,138,0.04)]',
-    elevated: 'bg-[#FFFFFF] border border-[#F5E8EE] shadow-[0_8px_30px_rgba(230,106,138,0.08)] hover:shadow-[0_16px_40px_rgba(230,106,138,0.14)] transition-shadow duration-300',
-    'gold-border': 'bg-[#FFFFFF] border border-[#E8C86D]/60 shadow-[0_4px_20px_rgba(232,200,109,0.15)] hover:border-[#CCA243] transition-all duration-300',
-    'pink-glow': 'bg-[#FFFFFF] border border-[#F9B8CA] shadow-[0_4px_24px_rgba(249,184,202,0.35)] hover:shadow-[0_8px_32px_rgba(249,184,202,0.5)] transition-all duration-300',
+    flat: 'bg-[#F5EFE6]',
+    bordered: 'bg-[#FFFFFF] border border-[#EADDCB] shadow-[0_2px_12px_rgba(35,35,35,0.03)]',
+    elevated: 'bg-[#FFFFFF] border border-[#EADDCB] shadow-[0_8px_30px_rgba(139,111,78,0.08)] hover:shadow-[0_16px_40px_rgba(139,111,78,0.14)] transition-shadow duration-300',
+    'gold-border': 'bg-[#FFFFFF] border border-[#C8A75A]/60 shadow-[0_4px_20px_rgba(200,167,90,0.15)] hover:border-[#C8A75A] transition-all duration-300',
+    'pink-glow': 'bg-[#FFFFFF] border border-[#EADDCB] shadow-[0_4px_24px_rgba(234,221,203,0.4)] hover:shadow-[0_8px_32px_rgba(234,221,203,0.6)] transition-all duration-300',
   };
 
   return (

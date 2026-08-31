@@ -1,58 +1,73 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Poppins:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 :root {
   /* Fonts */
   --font-serif: 'Playfair Display', Georgia, serif;
   --font-accent: 'Cormorant Garamond', Georgia, serif;
-  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-sans: 'Poppins', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
 
-  /* Luxury White & Baby Pink Candle Atelier Palette */
+  /* Brand Palette - The Candle Lab */
   --color-white: #FFFFFF;
   --color-white-pure: #FFFFFF;
-  --color-pearl-50: #FCF9FA;
-  --color-pearl-100: #FBF6F8;
-  --color-pearl-200: #F7EFF2;
-  --color-pearl-300: #EFE3E8;
 
-  /* Baby Pink & Blush Rose */
-  --color-pink-50: #FFF6F8;
-  --color-pink-100: #FDE8EF;
-  --color-pink-200: #FCD5E2;
-  --color-pink-300: #F9B8CA;
-  --color-pink-400: #F293AC;
-  --color-pink-500: #E66A8A;
-  --color-pink-600: #C94C6D;
-  --color-pink-700: #A83753;
+  /* Ivory White & Canvas Backgrounds */
+  --color-ivory: #F8F6F0;
+  --color-ivory-50: #FAF7F2;
+  --color-ivory-100: #F8F6F0;
+  --color-ivory-200: #F3EFE6;
+  --color-ivory-300: #EAE3D6;
 
-  /* Rose Gold & Mauve Tones */
-  --color-rose-100: #F8E7EC;
-  --color-rose-200: #EFC8D4;
-  --color-rose-300: #E2A7B8;
-  --color-rose-400: #CF7E94;
-  --color-rose-500: #B75670;
+  /* Warm Beige (Primary Accent from Brand Style Guide) */
+  --color-beige-50: #F9F6F0;
+  --color-beige-100: #F5EFE6;
+  --color-beige-200: #EADDCB;
+  --color-beige-300: #DFCFBC;
+  --color-beige-400: #D1BEA6;
+  --color-beige-500: #C3AC90;
 
-  /* Deep Velvet Plum & Noir (High Contrast Luxury Text & Dark Accents) */
-  --color-noir-950: #140B10;
-  --color-noir-900: #1C1217;
-  --color-noir-800: #2C1D25;
-  --color-noir-700: #422D38;
-  --color-noir-600: #624855;
-  --color-noir-500: #886C7B;
-  --color-noir-400: #AC94A1;
+  /* Earth Brown (Artisanal Accent & CTA from Brand Style Guide) */
+  --color-earth-brown: #8B6F4E;
+  --color-brown-100: #F2EAE1;
+  --color-brown-200: #E2D1C0;
+  --color-brown-300: #C8B199;
+  --color-brown-400: #A88E72;
+  --color-brown-500: #8B6F4E;
+  --color-brown-600: #745A3D;
+  --color-brown-700: #5D462E;
+  --color-brown-800: #453320;
+  --color-brown-900: #2E2114;
 
-  /* Warm Candle Gold & Champagne */
-  --color-gold-200: #FDF3D0;
-  --color-gold-300: #F7E5A5;
-  --color-gold-400: #E8C86D;
-  --color-gold-500: #CCA243;
-  --color-gold-600: #AC802B;
-  --color-gold-700: #8E651E;
+  /* Dark Charcoal & Noir */
+  --color-charcoal: #232323;
+  --color-noir-950: #141312;
+  --color-noir-900: #1F1D1B;
+  --color-noir-800: #232323;
+  --color-noir-700: #3D3531;
+  --color-noir-600: #5C5149;
+  --color-noir-500: #7D6F63;
+  --color-noir-400: #A39486;
 
-  /* Rose Mist Borders */
-  --color-border-subtle: #F5E8EE;
-  --color-border-medium: #EBD6DF;
-  --color-border-dark: #D4B9C6;
+  /* Gold Accent */
+  --color-gold-200: #F9F2DC;
+  --color-gold-300: #EFE0B3;
+  --color-gold-400: #DFC27E;
+  --color-gold-500: #C8A75A;
+  --color-gold-600: #AA893E;
+  --color-gold-700: #876A2A;
+
+  /* Olive Green */
+  --color-olive-100: #EFF1E5;
+  --color-olive-200: #DFE3CD;
+  --color-olive-300: #BFC69E;
+  --color-olive-400: #949970;
+  --color-olive-500: #6B6E4A;
+  --color-olive-600: #555837;
+
+  /* Warm Beige & Earth Borders */
+  --color-border-subtle: #EADDCB;
+  --color-border-medium: #DFCFBC;
+  --color-border-dark: #C8B199;
 
   /* Semantic Feedback */
   --color-success-bg: #F0FDF4;
@@ -64,14 +79,14 @@
   --color-info-bg: #F0F9FF;
   --color-info: #0369A1;
 
-  /* Elevation Shadows with Soft Rose Aura */
-  --shadow-subtle: 0 2px 10px rgba(44, 29, 37, 0.03);
-  --shadow-card: 0 4px 20px rgba(230, 106, 138, 0.07), 0 1px 3px rgba(28, 18, 23, 0.03);
-  --shadow-hover: 0 16px 36px rgba(230, 106, 138, 0.12), 0 4px 14px rgba(28, 18, 23, 0.06);
-  --shadow-pink-glow: 0 0 28px rgba(249, 184, 202, 0.45);
-  --shadow-gold-glow: 0 0 28px rgba(204, 162, 67, 0.35);
-  --shadow-modal: 0 20px 50px rgba(20, 11, 16, 0.3);
-  --shadow-drawer: -10px 0 40px rgba(20, 11, 16, 0.2);
+  /* Elevation Shadows with Warm Glow */
+  --shadow-subtle: 0 2px 10px rgba(35, 35, 35, 0.03);
+  --shadow-card: 0 4px 20px rgba(139, 111, 78, 0.07), 0 1px 3px rgba(35, 35, 35, 0.03);
+  --shadow-hover: 0 16px 36px rgba(139, 111, 78, 0.12), 0 4px 14px rgba(35, 35, 35, 0.06);
+  --shadow-warm-glow: 0 0 28px rgba(234, 221, 203, 0.55);
+  --shadow-gold-glow: 0 0 28px rgba(200, 167, 90, 0.35);
+  --shadow-modal: 0 20px 50px rgba(20, 19, 18, 0.35);
+  --shadow-drawer: -10px 0 40px rgba(20, 19, 18, 0.25);
 }
 
 *, *::before, *::after {
@@ -92,8 +107,8 @@ body {
   min-width: 320px;
   position: relative;
   font-family: var(--font-sans);
-  background-color: #FAF6F8;
-  color: #1C1217;
+  background-color: #F8F6F0;
+  color: #232323;
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
@@ -127,12 +142,12 @@ h1, h2, h3, h4, .font-serif-luxury {
   0%, 100% {
     transform: scale(1) rotate(-1deg);
     opacity: 0.95;
-    filter: drop-shadow(0 0 8px rgba(249, 184, 202, 0.6)) drop-shadow(0 0 14px rgba(232, 200, 109, 0.5));
+    filter: drop-shadow(0 0 8px rgba(200, 167, 90, 0.6)) drop-shadow(0 0 14px rgba(234, 221, 203, 0.5));
   }
   50% {
     transform: scale(1.08) rotate(1deg);
     opacity: 1;
-    filter: drop-shadow(0 0 12px rgba(242, 147, 172, 0.8)) drop-shadow(0 0 18px rgba(253, 243, 208, 0.7));
+    filter: drop-shadow(0 0 12px rgba(200, 167, 90, 0.8)) drop-shadow(0 0 18px rgba(249, 242, 220, 0.7));
   }
 }
 
@@ -152,9 +167,9 @@ h1, h2, h3, h4, .font-serif-luxury {
 .animate-shimmer {
   background: linear-gradient(
     90deg,
-    #FDE8EF 25%,
+    #F5EFE6 25%,
     #FFFFFF 50%,
-    #FDE8EF 75%
+    #F5EFE6 75%
   );
   background-size: 200% 100%;
   animation: shimmer 1.8s infinite linear;
@@ -178,45 +193,27 @@ h1, h2, h3, h4, .font-serif-luxury {
   animation: slideInRight 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-@keyframes slideInLeft {
-  from { transform: translateX(-100%); }
-  to { transform: translateX(0); }
-}
-
-.animate-slide-left {
-  animation: slideInLeft 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes slideUp {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
-}
-
-.animate-slide-up {
-  animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes modalZoom {
-  from { opacity: 0; transform: scale(0.94); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-.animate-modal-zoom {
-  animation: modalZoom 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-/* Custom Luxury Pink & Pearl Scrollbar */
+/* Custom Luxury Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #FAF6F8;
+  background: #F8F6F0;
 }
 ::-webkit-scrollbar-thumb {
-  background: #FCD5E2;
-  border-radius: 4px;
+  background: #DFCFBC;
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #F293AC;
+  background: #8B6F4E;
+}
+
+/* Hide scrollbar for tabs */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

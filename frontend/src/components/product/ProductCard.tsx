@@ -57,10 +57,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   return (
     <div
       onClick={handleClick}
-      className="group relative bg-[#FFFFFF] border border-[#F5E8EE] rounded-3xl overflow-hidden hover:border-[#F9B8CA] transition-all duration-300 flex flex-col justify-between cursor-pointer shadow-subtle hover:shadow-[0_16px_36px_rgba(230,106,138,0.12)] font-sans hover:-translate-y-1"
+      className="group relative bg-[#FFFFFF] border border-[#EADDCB] rounded-3xl overflow-hidden hover:border-[#8B6F4E] transition-all duration-300 flex flex-col justify-between cursor-pointer shadow-subtle hover:shadow-[0_16px_36px_rgba(139,111,78,0.14)] font-sans hover:-translate-y-1"
     >
       {/* Image Container */}
-      <div className="relative aspect-[4/5] overflow-hidden bg-[#FFF6F8]">
+      <div className="relative aspect-[4/5] overflow-hidden bg-[#FAF7F2]">
         <img
           src={imageSrc}
           alt={product.name}
@@ -72,22 +72,22 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         {/* Badges from live DB flags */}
         <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10 pointer-events-none">
           {product.isBestSeller && (
-            <span className="text-[9px] font-mono font-bold uppercase bg-[#E87A96] text-white px-2.5 py-0.5 rounded-full shadow font-sans">
+            <span className="text-[9px] font-mono font-bold uppercase bg-[#8B6F4E] text-white px-2.5 py-0.5 rounded-full shadow font-sans">
               ★ BESTSELLER
             </span>
           )}
           {product.isNew && (
-            <span className="text-[9px] font-mono font-bold uppercase bg-[#FFFFFF]/90 text-[#E87A96] border border-[#F9B8CA] px-2.5 py-0.5 rounded-full shadow backdrop-blur-sm">
+            <span className="text-[9px] font-mono font-bold uppercase bg-[#FFFFFF]/95 text-[#8B6F4E] border border-[#EADDCB] px-2.5 py-0.5 rounded-full shadow backdrop-blur-sm">
               NEW
             </span>
           )}
           {product.isTrending && (
-            <span className="text-[9px] font-mono font-bold uppercase bg-[#FDE8EF] text-[#C94C6D] border border-[#F9B8CA] px-2.5 py-0.5 rounded-full shadow backdrop-blur-sm">
+            <span className="text-[9px] font-mono font-bold uppercase bg-[#F5EFE6] text-[#745A3D] border border-[#EADDCB] px-2.5 py-0.5 rounded-full shadow backdrop-blur-sm">
               TRENDING
             </span>
           )}
           {product.isLimitedEdition && (
-            <span className="text-[9px] font-mono font-bold uppercase bg-[#1C1217]/80 text-[#FCD5E2] border border-[#F9B8CA]/30 px-2.5 py-0.5 rounded-full shadow backdrop-blur-sm">
+            <span className="text-[9px] font-mono font-bold uppercase bg-[#232323]/85 text-[#EADDCB] border border-[#EADDCB]/30 px-2.5 py-0.5 rounded-full shadow backdrop-blur-sm">
               LIMITED
             </span>
           )}
@@ -96,7 +96,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         {/* Size Badge Top Right */}
         {sizeLabel && (
           <div className="absolute top-3 right-3 z-10 pointer-events-none">
-            <span className="text-[9px] font-mono font-semibold bg-[#FFFFFF]/90 backdrop-blur-xs text-[#1C1217] border border-[#F5E8EE] px-2.5 py-0.5 rounded-full shadow-xs">
+            <span className="text-[9px] font-mono font-semibold bg-[#FFFFFF]/90 backdrop-blur-xs text-[#232323] border border-[#EADDCB] px-2.5 py-0.5 rounded-full shadow-xs">
               {sizeLabel}
             </span>
           </div>
@@ -105,8 +105,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         {/* Bottom Scent Notes Overlay Pill */}
         {fragranceLabel && (
           <div className="absolute bottom-3 left-3 right-12 z-10 pointer-events-none">
-            <span className="inline-block text-[10px] font-semibold bg-[#1C1217]/85 backdrop-blur-md text-[#FCD5E2] border border-[#F9B8CA]/30 px-2.5 py-0.5 rounded-full truncate max-w-full">
-              🌸 {fragranceLabel}
+            <span className="inline-block text-[10px] font-semibold bg-[#232323]/85 backdrop-blur-md text-[#EADDCB] border border-[#EADDCB]/30 px-2.5 py-0.5 rounded-full truncate max-w-full">
+              ✨ {fragranceLabel}
             </span>
           </div>
         )}
@@ -115,7 +115,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         <button
           type="button"
           onClick={handleAddToCart}
-          className="absolute bottom-2.5 right-2.5 bg-[#E87A96] hover:bg-[#D45D7D] text-white p-2.5 rounded-full shadow-xl opacity-0 group-hover:opacity-100 transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 cursor-pointer font-bold"
+          className="absolute bottom-2.5 right-2.5 bg-[#232323] hover:bg-[#8B6F4E] text-white p-2.5 rounded-full shadow-xl opacity-0 group-hover:opacity-100 transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 cursor-pointer font-bold"
           title="Quick add to bag"
         >
           <span className="text-xs">🛍️</span>
@@ -125,38 +125,38 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       {/* Product Details */}
       <div className="p-4 space-y-2 flex-1 flex flex-col justify-between">
         <div>
-          <div className="flex items-center justify-between text-[10px] font-mono text-[#E87A96] mb-1">
+          <div className="flex items-center justify-between text-[10px] font-mono text-[#8B6F4E] mb-1">
             <span className="truncate uppercase font-bold tracking-wider">{product.category || 'Soy Candle'}</span>
             {hasRating && (
-              <span className="text-[#886C7B] font-bold">★ {Number(product.rating).toFixed(1)}</span>
+              <span className="text-[#C8A75A] font-bold">★ {Number(product.rating).toFixed(1)}</span>
             )}
           </div>
 
-          <h3 className="font-serif text-sm sm:text-base font-bold text-[#1C1217] group-hover:text-[#E87A96] transition-colors line-clamp-1">
+          <h3 className="font-serif text-sm sm:text-base font-bold text-[#232323] group-hover:text-[#8B6F4E] transition-colors line-clamp-1">
             {product.name}
           </h3>
 
           {/* Fragrance / Top Notes preview */}
           {product.topNotes && (
-            <p className="text-[11px] text-[#624855] line-clamp-1 mt-0.5">
-              <span className="text-[#886C7B] font-medium">Notes:</span> {product.topNotes}
+            <p className="text-[11px] text-[#5C5149] line-clamp-1 mt-0.5">
+              <span className="text-[#7D6F63] font-medium">Notes:</span> {product.topNotes}
             </p>
           )}
         </div>
 
-        <div className="flex items-baseline justify-between pt-2.5 border-t border-[#F5E8EE]">
+        <div className="flex items-baseline justify-between pt-2.5 border-t border-[#EADDCB]">
           <div className="flex items-baseline gap-1.5">
-            <span className="text-base font-serif font-bold text-[#1C1217]">
+            <span className="text-base font-serif font-bold text-[#232323]">
               ₹{Number(product.price).toLocaleString('en-IN')}
             </span>
             {hasDiscount && (
-              <span className="text-[11px] text-[#886C7B] line-through">
+              <span className="text-[11px] text-[#7D6F63] line-through">
                 ₹{Number(product.originalPrice!).toLocaleString('en-IN')}
               </span>
             )}
           </div>
 
-          <span className="text-[11px] font-bold text-[#E87A96] group-hover:translate-x-0.5 transition-transform">
+          <span className="text-[11px] font-bold text-[#8B6F4E] group-hover:translate-x-0.5 transition-transform">
             View Details →
           </span>
         </div>

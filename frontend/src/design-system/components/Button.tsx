@@ -34,12 +34,12 @@ export const Button: React.FC<ButtonProps> = ({
 
   // Variant variations
   const variantStyles = {
-    primary: "bg-[#1C1217] text-[#FFFFFF] hover:bg-[#2C1D25] border border-[#1C1217] shadow-sm hover:shadow-md active:translate-y-[1px]",
-    pink: "bg-gradient-to-r from-[#F9B8CA] via-[#E87A96] to-[#D45D7D] text-white hover:brightness-105 border border-[#E87A96] shadow-[0_4px_16px_rgba(249,184,202,0.45)] active:translate-y-[1px]",
-    gold: "bg-gradient-to-r from-[#F7E5A5] via-[#E8C86D] to-[#CCA243] text-[#1C1217] hover:brightness-105 border border-[#E8C86D] shadow-[0_4px_16px_rgba(232,200,109,0.35)] active:translate-y-[1px]",
-    secondary: "bg-[#FFFFFF] text-[#1C1217] hover:bg-[#FFF6F8] hover:text-[#C94C6D] border border-[#F5E8EE] shadow-xs active:translate-y-[1px]",
-    outline: "bg-transparent text-[#1C1217] border border-[#EAD3DC] hover:bg-[#FFF6F8] hover:border-[#E87A96] hover:text-[#C94C6D] active:translate-y-[1px]",
-    ghost: "bg-transparent text-[#624855] hover:bg-[#FDE8EF] hover:text-[#1C1217] rounded-full",
+    primary: "bg-[#232323] text-[#FFFFFF] hover:bg-[#3D3531] border border-[#232323] shadow-sm hover:shadow-md active:translate-y-[1px]",
+    pink: "bg-gradient-to-r from-[#8B6F4E] via-[#9E8160] to-[#745A3D] text-white hover:brightness-105 border border-[#8B6F4E] shadow-[0_4px_16px_rgba(139,111,78,0.35)] active:translate-y-[1px]",
+    gold: "bg-gradient-to-r from-[#EFE0B3] via-[#C8A75A] to-[#AA893E] text-[#232323] hover:brightness-105 border border-[#C8A75A] shadow-[0_4px_16px_rgba(200,167,90,0.35)] active:translate-y-[1px]",
+    secondary: "bg-[#FFFFFF] text-[#232323] hover:bg-[#EADDCB] hover:text-[#232323] border border-[#DFCFBC] shadow-xs active:translate-y-[1px]",
+    outline: "bg-transparent text-[#232323] border border-[#232323] hover:bg-[#EADDCB]/30 hover:text-[#232323] active:translate-y-[1px]",
+    ghost: "bg-transparent text-[#5C5149] hover:bg-[#EADDCB]/30 hover:text-[#232323] rounded-full",
     danger: "bg-[#BE123C] text-white hover:bg-[#9F1239] border border-[#BE123C] active:translate-y-[1px]",
   };
 

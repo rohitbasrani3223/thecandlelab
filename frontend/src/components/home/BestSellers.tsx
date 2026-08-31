@@ -58,13 +58,13 @@ export const BestSellers: React.FC<BestSellersProps> = ({ onSelectProduct }) => 
     });
 
   return (
-    <section className="py-16 sm:py-24 bg-[#FFF6F8] border-b border-[#F5E8EE] font-sans">
+    <section className="py-16 sm:py-24 bg-[#F8F6F0] border-b border-[#EADDCB] font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 space-y-10">
         {/* Section Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 sm:gap-6 border-b border-[#F5E8EE] pb-6 w-full max-w-full min-w-0">
+        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 sm:gap-6 border-b border-[#EADDCB] pb-6 w-full max-w-full min-w-0">
           <div className="space-y-1 sm:space-y-2">
-            <Badge variant="pink" icon={<SparklesIcon size={12} />}>MOST LOVED FORMULATIONS</Badge>
-            <h2 className="text-2xl sm:text-4xl font-serif font-bold text-[#1C1217]">
+            <Badge variant="gold" icon={<SparklesIcon size={12} />}>MOST LOVED FORMULATIONS</Badge>
+            <h2 className="text-2xl sm:text-4xl font-serif font-bold text-[#232323]">
               Boutique Best Sellers
             </h2>
           </div>
@@ -83,8 +83,8 @@ export const BestSellers: React.FC<BestSellersProps> = ({ onSelectProduct }) => 
                 onClick={() => setActiveTab(tab.id as CategoryTab)}
                 className={`px-4 py-2 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap shrink-0 cursor-pointer min-h-[38px] sm:min-h-[32px] flex items-center justify-center ${
                   activeTab === tab.id
-                    ? 'bg-[#1C1217] text-[#FFFFFF] shadow-sm'
-                    : 'bg-[#FFFFFF] text-[#624855] hover:text-[#C94C6D] hover:bg-[#FDE8EF] border border-[#F5E8EE]'
+                    ? 'bg-[#232323] text-[#FFFFFF] shadow-sm'
+                    : 'bg-[#FFFFFF] text-[#5C5149] hover:text-[#232323] hover:bg-[#EADDCB] border border-[#EADDCB]'
                 }`}
               >
                 {tab.label}
@@ -106,16 +106,16 @@ export const BestSellers: React.FC<BestSellersProps> = ({ onSelectProduct }) => 
                 variant="bordered"
                 padding="none"
                 onClick={() => handleProductClick(prod)}
-                className="bg-[#FFFFFF] group flex flex-col justify-between overflow-hidden hover:shadow-[0_16px_36px_rgba(230,106,138,0.12)] hover:border-[#F9B8CA] border border-[#F5E8EE] transition-all duration-300 relative cursor-pointer rounded-3xl"
+                className="bg-[#FFFFFF] group flex flex-col justify-between overflow-hidden hover:shadow-[0_16px_36px_rgba(139,111,78,0.14)] hover:border-[#8B6F4E] border border-[#EADDCB] transition-all duration-300 relative cursor-pointer rounded-3xl"
               >
                 {/* Vessel Image Container */}
-                <div className="relative h-64 bg-[#FFF6F8] flex items-center justify-center overflow-hidden">
+                <div className="relative h-64 bg-[#FAF7F2] flex items-center justify-center overflow-hidden">
                   <img
                     src={prod.image || prod.imageUrl || prod.images?.[0] || 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80'}
                     alt={prod.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#140B10]/60 via-transparent to-transparent opacity-40 group-hover:opacity-20 transition-opacity" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#232323]/60 via-transparent to-transparent opacity-40 group-hover:opacity-20 transition-opacity" />
 
                   {/* Rank Badge */}
                   <div className="absolute top-3 left-3 z-10">
@@ -128,17 +128,17 @@ export const BestSellers: React.FC<BestSellersProps> = ({ onSelectProduct }) => 
                   <button
                     onClick={(e) => toggleWishlist(prod.id, prod.name, e)}
                     className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-colors z-20 cursor-pointer shadow-sm ${isWishlisted
-                        ? 'bg-[#E87A96] text-white'
-                        : 'bg-[#140B10]/50 text-white hover:bg-[#E87A96] hover:text-white'
+                        ? 'bg-[#8B6F4E] text-white'
+                        : 'bg-[#232323]/60 text-white hover:bg-[#8B6F4E] hover:text-white'
                       }`}
                   >
                     <HeartIcon size={16} />
                   </button>
 
                   {/* Scent Notes Overlay */}
-                  <div className="absolute bottom-3 left-3 right-3 bg-[#140B10]/90 text-[#FFFFFF] p-2.5 rounded-xl text-[10px] space-y-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-xs z-10 border border-[#F9B8CA]/20">
-                    <div className="font-semibold text-[#F9B8CA] uppercase tracking-wider">Fragrance Notes:</div>
-                    <div className="truncate text-[#FCD5E2]">
+                  <div className="absolute bottom-3 left-3 right-3 bg-[#232323]/90 text-[#FFFFFF] p-2.5 rounded-xl text-[10px] space-y-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-xs z-10 border border-[#EADDCB]/20">
+                    <div className="font-semibold text-[#EADDCB] uppercase tracking-wider">Fragrance Notes:</div>
+                    <div className="truncate text-[#DFCFBC]">
                       Top: {prod.topNotes || 'Bergamot'} | Heart: {prod.heartNotes || 'Rose'} | Base: {prod.baseNotes || 'Amber'}
                     </div>
                   </div>
@@ -148,23 +148,23 @@ export const BestSellers: React.FC<BestSellersProps> = ({ onSelectProduct }) => 
                 <div className="p-5 space-y-3 flex-1 flex flex-col justify-between">
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="text-[#886C7B] font-medium">{prod.scentProfile || prod.category}</span>
-                      <div className="flex items-center gap-1 text-[#E8C86D] font-bold">
-                        <StarIcon size={14} className="fill-current text-[#E8C86D]" />
+                      <span className="text-[#7D6F63] font-medium">{prod.scentProfile || prod.category}</span>
+                      <div className="flex items-center gap-1 text-[#C8A75A] font-bold">
+                        <StarIcon size={14} className="fill-current text-[#C8A75A]" />
                         <span>{prod.rating || 4.9}</span>
-                        <span className="text-[#886C7B] font-normal">({prod.reviewsCount || 42})</span>
+                        <span className="text-[#7D6F63] font-normal">({prod.reviewsCount || 42})</span>
                       </div>
                     </div>
 
-                    <h3 className="text-base font-serif font-bold text-[#1C1217] group-hover:text-[#E87A96] transition-colors leading-snug">
+                    <h3 className="text-base font-serif font-bold text-[#232323] group-hover:text-[#8B6F4E] transition-colors leading-snug">
                       {prod.name}
                     </h3>
                   </div>
 
-                  <div className="pt-3 border-t border-[#F5E8EE] space-y-3">
+                  <div className="pt-3 border-t border-[#EADDCB] space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-lg font-bold text-[#1C1217] font-serif">{formattedPrice}</span>
-                      <span className="text-[10px] text-[#886C7B] font-mono">{prod.burnTime || '60 Hours'}</span>
+                      <span className="text-lg font-bold text-[#232323] font-serif">{formattedPrice}</span>
+                      <span className="text-[10px] text-[#7D6F63] font-mono">{prod.burnTime || '60 Hours'}</span>
                     </div>
 
                     <Button
