@@ -5,6 +5,7 @@ export interface MobileNavProps {
   isOpen: boolean;
   onClose: () => void;
   onOpenSearch: () => void;
+  onOpenTrackOrder?: () => void;
   onNavigate?: (page: any) => void;
   cartCount?: number;
   wishlistCount?: number;
@@ -14,6 +15,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({
   isOpen,
   onClose,
   onOpenSearch,
+  onOpenTrackOrder,
   onNavigate,
   cartCount = 0,
   wishlistCount = 0,
@@ -147,15 +149,26 @@ export const MobileNav: React.FC<MobileNavProps> = ({
           </a>
         </nav>
 
-        {/* Wishlist & Account Shortcuts */}
-        <div className="pt-2 flex items-center justify-around bg-[#FAF7F2] p-3 rounded-xl border border-[#EADDCB]">
-          <a href="#wishlist" onClick={(e) => handleLink(e, 'wishlist')} className="flex items-center gap-1.5 text-xs font-semibold text-[#232323]">
-            <HeartIcon size={16} className="text-[#8B6F4E]" />
-            <span>Wishlist ({wishlistCount})</span>
+        {/* Wishlist, Account & Live Tracking Shortcuts */}
+        <div className="pt-2 grid grid-cols-3 gap-2 bg-[#FAF7F2] p-3 rounded-2xl border border-[#EADDCB] text-center text-xs font-semibold text-[#232323]">
+          <a href="#wishlist" onClick={(e) => handleLink(e, 'wishlist')} className="p-2 hover:bg-white rounded-xl transition-colors">
+            <HeartIcon size={16} className="text-[#8B6F4E] mx-auto mb-1" />
+            <span className="block text-[10px]">Wishlist ({wishlistCount})</span>
           </a>
-          <div className="h-4 w-px bg-[#EADDCB]" />
-          <a href="#account" onClick={(e) => handleLink(e, 'account')} className="flex items-center gap-1.5 text-xs font-semibold text-[#232323]">
-            <span>My Account</span>
+          <button
+            onClick={() => {
+              onClose();
+              if (onOpenTrackOrder) onOpenTrackOrder();
+              else window.dispatchEvent(new Event('tcl-open-track-order'));
+            }}
+            className="p-2 hover:bg-white rounded-xl transition-colors cursor-pointer"
+          >
+            <span className="text-base block mb-0.5">📍</span>
+            <span className="block text-[10px]">Track Order</span>
+          </button>
+          <a href="#account" onClick={(e) => handleLink(e, 'account')} className="p-2 hover:bg-white rounded-xl transition-colors">
+            <span className="text-base block mb-0.5">👤</span>
+            <span className="block text-[10px]">Account</span>
           </a>
         </div>
       </div>

@@ -104,8 +104,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
         {/* Bottom Scent Notes Overlay Pill */}
         {fragranceLabel && (
-          <div className="absolute bottom-3 left-3 right-12 z-10 pointer-events-none">
-            <span className="inline-block text-[10px] font-semibold bg-[#232323]/85 backdrop-blur-md text-[#EADDCB] border border-[#EADDCB]/30 px-2.5 py-0.5 rounded-full truncate max-w-full">
+          <div className="absolute bottom-3 left-3 right-14 z-10 pointer-events-none">
+            <span className="inline-block text-[10px] font-semibold bg-[#232323]/90 text-[#FAF7F2] border border-[#EADDCB]/20 px-2.5 py-1 rounded-full truncate max-w-full shadow-xs">
               ✨ {fragranceLabel}
             </span>
           </div>
@@ -115,7 +115,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         <button
           type="button"
           onClick={handleAddToCart}
-          className="absolute bottom-2.5 right-2.5 bg-[#232323] hover:bg-[#8B6F4E] text-white p-2.5 rounded-full shadow-xl opacity-0 group-hover:opacity-100 transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 cursor-pointer font-bold"
+          className="absolute bottom-2.5 right-2.5 bg-[#8B6F4E] hover:bg-[#745A3D] text-white p-2.5 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 cursor-pointer font-bold active:scale-95"
           title="Quick add to bag"
         >
           <span className="text-xs">🛍️</span>
@@ -150,7 +150,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               ₹{Number(product.price).toLocaleString('en-IN')}
             </span>
             {hasDiscount && (
-              <span className="text-[11px] text-[#7D6F63] line-through">
+              <span className="text-[11px] text-[#7D6F63] line-through font-normal">
                 ₹{Number(product.originalPrice!).toLocaleString('en-IN')}
               </span>
             )}

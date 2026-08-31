@@ -73,24 +73,32 @@ function numberToWordsINR(num: number): string {
 }
 
 export function generateInvoiceHTML(order: InvoiceOrderData, mode: 'invoice' | 'packingslip' = 'invoice'): string {
-  const orderId = order.orderNumber || order.id || `#TCL-${Date.now().toString().slice(-6)}`;
+  const orderId = order.orderNumber || order.id || '';
   const cleanId = orderId.replace(/^#/, '');
-  const invoiceNo = `INV-2026-${cleanId.replace(/[^A-Za-z0-9]/g, '')}`;
+  const invoiceNo = orderId ? `INV-${cleanId.replace(/[^A-Za-z0-9]/g, '')}` : '';
   
-  const formattedDate = order.date || new Date().toLocaleDateString('en-IN', {
+  const formattedDate = order.date || (order.createdAt ? new Date(order.createdAt).toLocaleDateString('en-IN', {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
-  });
+  }) : '');
   const formattedTime = new Date().toLocaleTimeString('en-IN', {
     hour: '2-digit',
     minute: '2-digit',
   });
 
-  const customerName = order.customerName || 'Valued Patron';
-  const customerEmail = order.customerEmail || order.email || 'concierge@thecandlelab.in';
-  const customerPhone = order.customerPhone || order.phone || '+91 98765 43210';
-  const shippingAddress = order.shippingAddress || order.address || '402 Sanctuary Lane, Bandra West, Mumbai, MH - 400050';
+  const customerName = order.customerName || '';
+  const customerEmail = order.customerEmail || order.email || '';
+  const customerPhone = order.customerPhone || order.phone || '';
+  const shippingAddress = order.shippingAddress || order.address || '';
+
+  // Parse total amount
+  let totalAmount = 0;
+  if (typeof order.totalAmount === 'number') {
+    totalAmount = order.totalAmount;
+  } else if (typeof order.totalAmount === 'string') {
+    totalAmount = Number(order.totalAmount.replace(/[^0-9.]/g, '')) || 0;
+  }
 
   // Normalize items
   let parsedItems: InvoiceItem[] = [];
@@ -102,46 +110,23 @@ export function generateInvoiceHTML(order: InvoiceOrderData, mode: 'invoice' | '
     parsedItems = [{
       name: order.items,
       quantity: 1,
-      price: typeof order.totalAmount === 'number' ? order.totalAmount : 1499,
-      fragrance: 'Signature Blend',
-      size: 'Classic 250g',
-      wickType: 'Organic Wood Wick',
-    }];
-  } else {
-    parsedItems = [{
-      name: 'Handcrafted Artisanal Soy Candle',
-      quantity: 1,
-      price: typeof order.totalAmount === 'number' ? order.totalAmount : 1499,
-      fragrance: 'Signature Blend',
-      size: 'Classic 250g',
-      wickType: 'Organic Wood Wick',
+      price: totalAmount,
+      fragrance: '',
+      size: '',
+      wickType: '',
     }];
   }
 
-  // Parse total amount
-  let totalAmount = 0;
-  if (typeof order.totalAmount === 'number') {
-    totalAmount = order.totalAmount;
-  } else if (typeof order.totalAmount === 'string') {
-    totalAmount = Number(order.totalAmount.replace(/[^0-9.]/g, '')) || 0;
-  }
-  if (totalAmount === 0 && parsedItems.length > 0) {
-    totalAmount = parsedItems.reduce((sum, item) => sum + (Number(item.price || 0) * Number(item.quantity || 1)), 0);
-  }
-
-  const subtotal = order.subtotal || Math.round(totalAmount / 1.18);
-  const taxAmount = order.tax || Math.round(totalAmount - subtotal);
-  const cgst = Math.round(taxAmount / 2);
-  const sgst = Math.round(taxAmount / 2);
   const discount = order.discount || 0;
   const shippingFee = order.shippingFee !== undefined ? order.shippingFee : (order.shipping || 0);
+  const subtotal = order.subtotal !== undefined ? order.subtotal : (totalAmount > 0 ? (totalAmount - shippingFee + discount) : 0);
 
   const paymentMethod = order.paymentMethod || 'Online (Razorpay / UPI)';
   const isCOD = paymentMethod.toLowerCase().includes('cod') || paymentMethod.toLowerCase().includes('cash');
   const paymentStatus = isCOD ? 'PENDING (Cash on Delivery)' : 'PAID (Online Verified)';
-  const paymentRef = order.paymentId || (isCOD ? 'COD_ORDER_VERIFIED' : `PAY_RZP_${cleanId}`);
-  const trackingAWB = order.trackingNumber || order.awb || `AWB-TCL-${cleanId}`;
-  const courier = order.courier || 'Express Air Courier (Shiprocket/Delhivery)';
+  const paymentRef = order.paymentId || (isCOD ? 'COD_VERIFIED' : (cleanId ? `PAY_${cleanId}` : '—'));
+  const trackingAWB = order.trackingNumber || order.awb || '—';
+  const courier = order.courier || 'Express Air Courier';
 
   const totalQuantity = parsedItems.reduce((acc, it) => acc + (Number(it.quantity) || 1), 0);
   const amountWords = numberToWordsINR(totalAmount);
@@ -587,7 +572,7 @@ export function generateInvoiceHTML(order: InvoiceOrderData, mode: 'invoice' | '
             <td class="text-right" style="font-weight: 700;">${totalQuantity} Units</td>
           </tr>
           <tr>
-            <td style="color: #7D6F63;">Taxable Subtotal:</td>
+            <td style="color: #7D6F63;">Subtotal:</td>
             <td class="text-right font-medium">₹${subtotal.toLocaleString('en-IN')}.00</td>
           </tr>
           ${discount > 0 ? `
@@ -597,12 +582,8 @@ export function generateInvoiceHTML(order: InvoiceOrderData, mode: 'invoice' | '
           </tr>
           ` : ''}
           <tr>
-            <td style="color: #7D6F63;">Express Courier Delivery:</td>
-            <td class="text-right font-medium">${shippingFee === 0 ? '<span style="color: #15803D; font-weight: 700;">FREE (Atelier Special)</span>' : `₹${shippingFee.toLocaleString('en-IN')}.00`}</td>
-          </tr>
-          <tr>
-            <td style="color: #7D6F63;">CGST (9%) + SGST (9%):</td>
-            <td class="text-right font-medium">₹${cgst.toLocaleString('en-IN')}.00 + ₹${sgst.toLocaleString('en-IN')}.00</td>
+            <td style="color: #7D6F63;">Courier Delivery:</td>
+            <td class="text-right font-medium">${shippingFee === 0 ? '<span style="color: #15803D; font-weight: 700;">FREE</span>' : `₹${shippingFee.toLocaleString('en-IN')}.00`}</td>
           </tr>
           <tr class="grand-total">
             <td>${isCOD ? 'AMOUNT DUE ON DELIVERY' : 'GRAND TOTAL (INR)'}:</td>

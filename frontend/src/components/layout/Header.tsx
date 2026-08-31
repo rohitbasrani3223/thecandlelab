@@ -16,6 +16,7 @@ export interface HeaderProps {
   onOpenMobileNav: () => void;
   onOpenSearch: () => void;
   onOpenCart: () => void;
+  onOpenTrackOrder?: () => void;
   onNavigate?: (page: any) => void;
   currentPage?: string;
   cartCount?: number;
@@ -26,6 +27,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenMobileNav,
   onOpenSearch,
   onOpenCart,
+  onOpenTrackOrder,
   onNavigate,
   currentPage = 'home',
   cartCount = 0,
@@ -194,7 +196,16 @@ export const Header: React.FC<HeaderProps> = ({
               align="right"
               items={[
                 { key: 'profile', label: 'My Account', icon: <UserIcon size={14} />, onClick: () => onNavigate?.('account' as any) },
-                { key: 'orders', label: 'Orders & Tracking', icon: <ShoppingBagIcon size={14} />, onClick: () => onNavigate?.('account' as any) },
+                { key: 'orders', label: 'Order History', icon: <ShoppingBagIcon size={14} />, onClick: () => onNavigate?.('account' as any) },
+                {
+                  key: 'tracking',
+                  label: 'Track Any Order',
+                  icon: <span>📍</span>,
+                  onClick: () => {
+                    if (onOpenTrackOrder) onOpenTrackOrder();
+                    else window.dispatchEvent(new Event('tcl-open-track-order'));
+                  },
+                },
                 { key: 'wishlist', label: 'Saved Wishlist', icon: <HeartIcon size={14} />, onClick: () => onNavigate?.('wishlist' as any) },
                 'divider',
                 {

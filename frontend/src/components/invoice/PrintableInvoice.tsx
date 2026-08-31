@@ -13,33 +13,20 @@ export const PrintableInvoice: React.FC<PrintableInvoiceProps> = ({
   mode = 'invoice',
   onClose,
 }) => {
-  const orderId = order.orderNumber || order.id || `#TCL-${Date.now().toString().slice(-6)}`;
+  const orderId = order.orderNumber || order.id || '';
   const cleanId = orderId.replace(/^#/, '');
-  const invoiceNo = `INV-2026-${cleanId.replace(/[^A-Za-z0-9]/g, '')}`;
+  const invoiceNo = orderId ? `INV-${cleanId.replace(/[^A-Za-z0-9]/g, '')}` : '';
 
-  const formattedDate = order.date || new Date().toLocaleDateString('en-IN', {
+  const formattedDate = order.date || (order.createdAt ? new Date(order.createdAt).toLocaleDateString('en-IN', {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
-  });
+  }) : '');
 
-  const customerName = order.customerName || 'Valued Patron';
-  const customerEmail = order.customerEmail || order.email || 'concierge@thecandlelab.in';
-  const customerPhone = order.customerPhone || order.phone || '+91 98765 43210';
-  const shippingAddress = order.shippingAddress || order.address || '402 Sanctuary Lane, Bandra West, Mumbai, MH - 400050';
-
-  let parsedItems = Array.isArray(order.itemsList) && order.itemsList.length > 0
-    ? order.itemsList
-    : Array.isArray(order.items) && order.items.length > 0
-      ? order.items
-      : [{
-          name: typeof order.items === 'string' ? order.items : 'Handcrafted Botanical Soy Candle',
-          quantity: 1,
-          price: typeof order.totalAmount === 'number' ? order.totalAmount : 1499,
-          fragrance: 'Signature Blend',
-          size: 'Classic 250g',
-          wickType: 'Wood Wick',
-        }];
+  const customerName = order.customerName || '';
+  const customerEmail = order.customerEmail || order.email || '';
+  const customerPhone = order.customerPhone || order.phone || '';
+  const shippingAddress = order.shippingAddress || order.address || '';
 
   let totalAmount = 0;
   if (typeof order.totalAmount === 'number') {
@@ -47,22 +34,34 @@ export const PrintableInvoice: React.FC<PrintableInvoiceProps> = ({
   } else if (typeof order.totalAmount === 'string') {
     totalAmount = Number(order.totalAmount.replace(/[^0-9.]/g, '')) || 0;
   }
+
+  let parsedItems = Array.isArray(order.itemsList) && order.itemsList.length > 0
+    ? order.itemsList
+    : Array.isArray(order.items) && order.items.length > 0
+      ? order.items
+      : (typeof order.items === 'string' && order.items.trim())
+        ? [{
+            name: order.items,
+            quantity: 1,
+            price: totalAmount,
+            fragrance: '',
+            size: '',
+            wickType: '',
+          }]
+        : [];
+
   if (totalAmount === 0 && parsedItems.length > 0) {
     totalAmount = parsedItems.reduce((sum, item) => sum + (Number(item.price || 0) * Number(item.quantity || 1)), 0);
   }
-
-  const subtotal = order.subtotal || Math.round(totalAmount / 1.18);
-  const taxAmount = order.tax || Math.round(totalAmount - subtotal);
-  const cgst = Math.round(taxAmount / 2);
-  const sgst = Math.round(taxAmount / 2);
   const discount = order.discount || 0;
   const shippingFee = order.shippingFee !== undefined ? order.shippingFee : (order.shipping || 0);
+  const subtotal = order.subtotal !== undefined ? order.subtotal : (totalAmount > 0 ? (totalAmount - shippingFee + discount) : 0);
 
   const paymentMethod = order.paymentMethod || 'Online (Razorpay / UPI)';
   const isCOD = paymentMethod.toLowerCase().includes('cod') || paymentMethod.toLowerCase().includes('cash');
   const paymentStatus = isCOD ? 'PENDING (Cash on Delivery)' : 'PAID (Online Verified)';
-  const paymentRef = order.paymentId || (isCOD ? 'COD_ORDER_VERIFIED' : `PAY_RZP_${cleanId}`);
-  const trackingAWB = order.trackingNumber || order.awb || `AWB-TCL-${cleanId}`;
+  const paymentRef = order.paymentId || (isCOD ? 'COD_VERIFIED' : (cleanId ? `PAY_${cleanId}` : '—'));
+  const trackingAWB = order.trackingNumber || order.awb || '—';
 
   return (
     <div className="bg-white border border-[#EADDCB] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl max-w-4xl mx-auto font-sans text-xs text-[#232323]">
@@ -258,7 +257,7 @@ export const PrintableInvoice: React.FC<PrintableInvoiceProps> = ({
             <table className="w-full text-xs">
               <tbody className="divide-y divide-[#F0E6D8]">
                 <tr>
-                  <td className="p-2.5 text-[#7D6F63]">Taxable Subtotal:</td>
+                  <td className="p-2.5 text-[#7D6F63]">Subtotal:</td>
                   <td className="p-2.5 text-right font-medium">₹{subtotal.toLocaleString('en-IN')}.00</td>
                 </tr>
                 {discount > 0 && (
@@ -272,10 +271,6 @@ export const PrintableInvoice: React.FC<PrintableInvoiceProps> = ({
                   <td className="p-2.5 text-right font-medium">
                     {shippingFee === 0 ? <span className="text-[#15803D] font-bold">FREE</span> : `₹${shippingFee.toLocaleString('en-IN')}.00`}
                   </td>
-                </tr>
-                <tr>
-                  <td className="p-2.5 text-[#7D6F63]">GST (18%):</td>
-                  <td className="p-2.5 text-right font-medium">₹{cgst + sgst}.00</td>
                 </tr>
                 <tr className="bg-[#232323] text-white font-bold">
                   <td className="p-3 text-sm">{isCOD ? 'Due on Delivery:' : 'Grand Total:'}</td>

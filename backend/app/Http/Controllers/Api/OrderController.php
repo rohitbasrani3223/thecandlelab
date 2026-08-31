@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Services\EmailNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -109,10 +110,19 @@ class OrderController extends Controller
                 $order->items()->create($itemData);
             }
 
+            $createdOrder = $order->load('items');
+
+            // Dispatch Order Confirmation Email
+            try {
+                EmailNotificationService::sendOrderConfirmationEmail($createdOrder->toArray());
+            } catch (\Exception $e) {
+                logger()->error('Order confirmation email trigger note: ' . $e->getMessage());
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Order placed successfully',
-                'data' => $order->load('items'),
+                'data' => $createdOrder,
             ], 201);
         });
     }
@@ -128,6 +138,17 @@ class OrderController extends Controller
 
         $order = Order::where('id', $id)->orWhere('order_number', $id)->firstOrFail();
         $order->update(['status' => $request->status]);
+
+        // Dispatch Status-based Emails
+        try {
+            if ($request->status === 'Shipped') {
+                EmailNotificationService::sendOrderShippedEmail($order->toArray());
+            } elseif ($request->status === 'Delivered') {
+                EmailNotificationService::sendOrderDeliveredEmail($order->toArray());
+            }
+        } catch (\Exception $e) {
+            logger()->error('Order status email trigger note: ' . $e->getMessage());
+        }
 
         return response()->json([
             'success' => true,

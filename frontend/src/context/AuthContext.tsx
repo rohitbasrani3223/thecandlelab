@@ -126,6 +126,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     safeLocalStorageSet(STORAGE_KEY, userData);
     safeLocalStorageSet(TOKEN_KEY, token);
     safeLocalStorageSet(STORAGE_KEY + '_expiry', String(Date.now() + TWO_DAYS_MS));
+
+    // Proactive Sync: If there are any guest orders matching this user's email, sync them to user's order history
+    try {
+      if (userData.email) {
+        const userEmailLower = userData.email.trim().toLowerCase();
+        const userKey = `thecandlelab_orders_${userEmailLower}`;
+        const guestOrders = JSON.parse(localStorage.getItem('thecandlelab_guest_orders') || '[]');
+        const existingUserOrders = JSON.parse(localStorage.getItem(userKey) || '[]');
+
+        const matchingGuestOrders = guestOrders.filter((g: any) =>
+          g && (g.customerEmail?.toLowerCase() === userEmailLower || g.email?.toLowerCase() === userEmailLower)
+        );
+
+        if (matchingGuestOrders.length > 0) {
+          const combined = [...matchingGuestOrders, ...existingUserOrders];
+          const uniqueCombined = Array.from(new Map(combined.map((o: any) => [o.id || o.orderNumber, o])).values());
+          localStorage.setItem(userKey, JSON.stringify(uniqueCombined));
+          window.dispatchEvent(new Event('tcl-orders-updated'));
+        }
+      }
+    } catch {}
   };
 
   // Strict Administrator Login: Authenticates EXCLUSIVELY against Supabase 'admins' table
@@ -295,6 +316,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
 
       saveSession(newUser);
+
+      // Dispatch Luxury Welcome Email via SMTP
+      try {
+        fetch(getApiUrl('send-email/welcome'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: data.email, name: data.name }),
+        }).catch(() => {});
+      } catch {}
+
       closeAuthModal();
       setIsLoading(false);
       return {

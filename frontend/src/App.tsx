@@ -278,6 +278,7 @@ export function App() {
                   <ProductDetailsPage
                     product={selectedProduct}
                     onNavigateToShop={() => handleNavigate('shop')}
+                    onNavigateToCheckout={() => handleNavigate('checkout')}
                   />
                 ) : currentPage === 'shop' ? (
                   <ShopPage onSelectProduct={handleSelectProduct} />

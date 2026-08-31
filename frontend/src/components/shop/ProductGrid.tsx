@@ -31,7 +31,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
   const handleAddToCartDirect = (prod: ShopProduct, e: React.MouseEvent) => {
     e.stopPropagation();
     const inrPrice = Math.round(prod.price || 0);
-    const inrOriginal = prod.originalPrice ? Math.round(prod.originalPrice) : Math.round(inrPrice * 1.25);
+    const inrOriginal = (prod.originalPrice && prod.originalPrice > inrPrice) ? Math.round(prod.originalPrice) : undefined;
 
     const itemToAdd = {
       id: prod.id,
@@ -70,8 +70,8 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
       {products.map((prod) => {
         const isWishlisted = wishlist.includes(prod.id);
         const inrPrice = Math.round(prod.price || 0);
-        const inrOriginal = prod.originalPrice ? Math.round(prod.originalPrice) : Math.round(inrPrice * 1.25);
-        const discountAmount = inrOriginal - inrPrice;
+        const inrOriginal = (prod.originalPrice && prod.originalPrice > inrPrice) ? Math.round(prod.originalPrice) : null;
+        const discountAmount = inrOriginal ? inrOriginal - inrPrice : 0;
 
         return (
           <div
@@ -160,20 +160,20 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
               {/* Bottom Price & Add to Cart Row */}
               <div className="pt-3 border-t border-[#EADDCB] flex items-center justify-between gap-2">
                 <div className="flex items-baseline gap-1.5">
-                  {inrOriginal && (
+                  <span className="text-base font-bold text-[#232323]">
+                    ₹{inrPrice.toLocaleString('en-IN')}
+                  </span>
+                  {inrOriginal && inrOriginal > inrPrice && (
                     <span className="text-xs text-[#7D6F63] line-through font-normal">
-                      ₹{inrOriginal}
+                      ₹{inrOriginal.toLocaleString('en-IN')}
                     </span>
                   )}
-                  <span className="text-base font-bold text-[#232323]">
-                    ₹{inrPrice}
-                  </span>
                 </div>
 
                 <div className="flex items-center gap-1.5">
                   <button
                     onClick={(e) => handleAddToCartDirect(prod, e)}
-                    className="bg-[#8B6F4E] hover:bg-[#745A3D] text-white font-bold text-xs py-2 px-3.5 rounded-full flex items-center gap-1.5 shadow-xs transition-all cursor-pointer shrink-0"
+                    className="bg-[#8B6F4E] hover:bg-[#745A3D] text-white font-bold text-xs py-2 px-3.5 rounded-full flex items-center gap-1.5 shadow-xs transition-all cursor-pointer shrink-0 active:scale-95"
                   >
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 11h14l1 12H4L5 11z" />
@@ -190,16 +190,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
 
     {/* ─── Cart Added Notification (Top Right Below Header) ─── */}
     {cartAddedProduct && (
-      <div
-        className="fixed top-16 left-3 right-3 sm:left-auto sm:right-6 sm:w-80 z-[9999] bg-white border border-[#EADDCB] rounded-3xl shadow-2xl overflow-hidden animate-slide-right font-sans"
-        style={{ animation: 'slideInRight 0.35s cubic-bezier(0.16,1,0.3,1)' }}
-      >
-        <style>{`
-          @keyframes slideInRight {
-            from { transform: translateX(110%); opacity: 0; }
-            to   { transform: translateX(0);    opacity: 1; }
-          }
-        `}</style>
+      <div className="fixed top-16 left-3 right-3 sm:left-auto sm:right-6 sm:w-80 z-[9999] bg-white border border-[#EADDCB] rounded-3xl shadow-2xl overflow-hidden font-sans transition-all duration-300">
         <div className="p-4 space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-[11px] uppercase font-bold text-[#15803D] flex items-center gap-1">

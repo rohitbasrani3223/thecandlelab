@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\PaymentController;
+use App\Http\Controllers\Api\EmailNotificationController;
 use App\Http\Controllers\Api\Admin\MainCategoryController;
 use App\Http\Controllers\Api\Admin\SubCategoryController;
 use App\Http\Controllers\Api\Admin\CollectionController;
@@ -168,6 +169,12 @@ Route::post('/auth/verify-otp', [AuthController::class, 'verifyOtp']);
 Route::get('/orders', [OrderController::class, 'index']);
 Route::post('/orders', [OrderController::class, 'store']);
 Route::patch('/orders/{id}/status', [OrderController::class, 'updateStatus']);
+
+// Luxury Email Notification Dispatch APIs
+Route::post('/send-email/welcome', [EmailNotificationController::class, 'sendWelcome']);
+Route::post('/send-email/order-confirmation', [EmailNotificationController::class, 'sendOrderConfirmation']);
+Route::post('/send-email/order-shipped', [EmailNotificationController::class, 'sendOrderShipped']);
+Route::post('/send-email/order-delivered', [EmailNotificationController::class, 'sendOrderDelivered']);
 
 // Sanctum Authenticated Group
 Route::middleware('auth:sanctum')->group(function () {

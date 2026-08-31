@@ -44,9 +44,10 @@ export const StorefrontProductCard: React.FC<StorefrontProductCardProps> = ({
   ctaLabel = 'View details',
 }) => {
   const imageSrc = product.image || product.imageUrl || PRODUCT_IMAGE_PLACEHOLDER;
-  const price = `${currencySymbol}${Math.round(product.price || 0)}`;
-  const original = product.originalPrice
-    ? `${currencySymbol}${Math.round(product.originalPrice)}`
+  const inrPrice = Math.round(product.price || 0);
+  const price = `${currencySymbol}${inrPrice.toLocaleString('en-IN')}`;
+  const original = (product.originalPrice && product.originalPrice > product.price)
+    ? `${currencySymbol}${Math.round(product.originalPrice).toLocaleString('en-IN')}`
     : null;
 
   return (

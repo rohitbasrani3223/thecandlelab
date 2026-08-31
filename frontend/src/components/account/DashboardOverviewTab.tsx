@@ -9,16 +9,22 @@ export interface DashboardOverviewTabProps {
 
 export const DashboardOverviewTab: React.FC<DashboardOverviewTabProps> = ({
   onNavigateTab,
+  onViewOrderDetails,
 }) => {
   const { user } = useAuth();
   const userName = user?.name || user?.email?.split('@')[0] || 'Valued Customer';
+  const userEmailLower = (user?.email || '').trim().toLowerCase();
 
-  const storageKey = `thecandlelab_addresses_${user?.email || 'guest'}`;
+  const addressStorageKey = `thecandlelab_addresses_${userEmailLower || 'guest'}`;
+  const ordersStorageKey = `thecandlelab_orders_${userEmailLower}`;
+
   const [primaryAddress, setPrimaryAddress] = useState<any | null>(null);
+  const [latestOrder, setLatestOrder] = useState<any | null>(null);
 
   useEffect(() => {
+    // Load primary address
     try {
-      const saved = localStorage.getItem(storageKey);
+      const saved = localStorage.getItem(addressStorageKey);
       if (saved) {
         const list = JSON.parse(saved);
         if (Array.isArray(list) && list.length > 0) {
@@ -30,10 +36,31 @@ export const DashboardOverviewTab: React.FC<DashboardOverviewTabProps> = ({
       } else {
         setPrimaryAddress(null);
       }
-    } catch (e) {
+    } catch {
       setPrimaryAddress(null);
     }
-  }, [user, storageKey]);
+
+    // Load strictly this user's latest order
+    if (userEmailLower) {
+      try {
+        const savedOrders = localStorage.getItem(ordersStorageKey);
+        if (savedOrders) {
+          const orderList = JSON.parse(savedOrders);
+          if (Array.isArray(orderList) && orderList.length > 0) {
+            setLatestOrder(orderList[0]);
+          } else {
+            setLatestOrder(null);
+          }
+        } else {
+          setLatestOrder(null);
+        }
+      } catch {
+        setLatestOrder(null);
+      }
+    } else {
+      setLatestOrder(null);
+    }
+  }, [user, addressStorageKey, ordersStorageKey, userEmailLower]);
 
   return (
     <div className="space-y-6 font-sans">
@@ -56,32 +83,69 @@ export const DashboardOverviewTab: React.FC<DashboardOverviewTabProps> = ({
         </Button>
       </div>
 
-      {/* 2. Order Spotlight */}
-      <Card variant="bordered" padding="lg" className="bg-[#FFFFFF] border-[#EADDCB] rounded-3xl space-y-4 shadow-xs">
+      {/* 2. Order Spotlight (User-Scoped) */}
+      <Card variant="bordered" padding="lg" className="bg-[#FFFFFF] border-[#EADDCB] rounded-3xl space-y-4 shadow-card">
         <div className="flex items-center justify-between border-b border-[#EADDCB] pb-3">
           <div className="space-y-0.5">
-            <span className="text-[10px] text-[#7D6F63] uppercase font-bold tracking-wider">Order History</span>
-            <h4 className="font-serif font-bold text-base text-[#232323]">My Recent Orders</h4>
+            <span className="text-[10px] text-[#7D6F63] uppercase font-bold tracking-wider">Order Management</span>
+            <h4 className="font-serif font-bold text-base text-[#232323]">Recent Purchases & Tracking</h4>
           </div>
-          <Badge variant="pink" size="sm">ACTIVE SESSION</Badge>
+          <Badge variant="pink" size="sm">ACTIVE CONNOISSEUR</Badge>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs py-2">
-          <div className="space-y-1">
-            <span className="text-[#5C5149] block">Ready to explore handcrafted candle formulations?</span>
-            <span className="text-[#7D6F63]">Your saved items and order history will appear here.</span>
-          </div>
+        {latestOrder ? (
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs py-2 bg-[#FAF7F2] p-4 rounded-2xl border border-[#EADDCB]">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-bold uppercase text-[#7D6F63]">Latest Order:</span>
+                <strong className="font-serif text-[#232323] text-sm">{latestOrder.orderNumber || latestOrder.id}</strong>
+                <Badge variant={latestOrder.status?.toLowerCase().includes('deliver') ? 'success' : 'pink'} size="sm">
+                  {latestOrder.status || 'Processing'}
+                </Badge>
+              </div>
+              <p className="text-[#5C5149]">
+                {latestOrder.itemsSummary || (Array.isArray(latestOrder.items) ? latestOrder.items.map((i: any) => `${i.quantity || 1}x ${i.name}`).join(', ') : 'Artisan Soy Candle')}
+              </p>
+              <span className="text-[11px] text-[#7D6F63] block">
+                Total: <strong className="text-[#8B6F4E] font-serif">{typeof latestOrder.totalAmount === 'number' ? `₹${latestOrder.totalAmount.toLocaleString('en-IN')}.00` : (latestOrder.totalAmount || '₹0.00')}</strong>
+              </span>
+            </div>
 
-          <Button variant="outline" size="sm" onClick={() => onNavigateTab('orders')}>
-            View Order History →
-          </Button>
-        </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onViewOrderDetails(latestOrder.id || latestOrder.orderNumber)}
+              >
+                👁️ View Details
+              </Button>
+              <Button
+                variant="pink"
+                size="sm"
+                onClick={() => onNavigateTab('orders')}
+              >
+                All Orders →
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs py-2">
+            <div className="space-y-1">
+              <span className="text-[#5C5149] block font-medium">Ready to explore handcrafted candle formulations?</span>
+              <span className="text-[#7D6F63]">Your verified orders, shipment tracking, and invoices will appear here.</span>
+            </div>
+
+            <Button variant="outline" size="sm" onClick={() => onNavigateTab('orders')}>
+              View Order History →
+            </Button>
+          </div>
+        )}
       </Card>
 
       {/* 3. Account Highlights Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         {/* Primary Address Card */}
-        <Card padding="md" className="bg-white border border-[#EADDCB] rounded-3xl space-y-3 shadow-xs">
+        <Card padding="md" className="bg-white border border-[#EADDCB] rounded-3xl space-y-3 shadow-card">
           <div className="flex items-center justify-between border-b border-[#EADDCB] pb-2">
             <h4 className="font-serif font-bold text-sm text-[#232323]">PRIMARY SHIPPING ADDRESS</h4>
             <button
@@ -113,16 +177,16 @@ export const DashboardOverviewTab: React.FC<DashboardOverviewTabProps> = ({
         </Card>
 
         {/* Quick Sanctuary Shortcuts */}
-        <Card padding="md" className="bg-white border border-[#EADDCB] rounded-3xl space-y-3 shadow-xs">
+        <Card padding="md" className="bg-white border border-[#EADDCB] rounded-3xl space-y-3 shadow-card">
           <h4 className="font-serif font-bold text-sm text-[#232323] border-b border-[#EADDCB] pb-2">
-            QUICK SHORTCUTS
+            QUICK SANCTUARY SHORTCUTS
           </h4>
           <div className="grid grid-cols-2 gap-2 text-xs">
             <button
               onClick={() => onNavigateTab('orders')}
               className="p-2.5 bg-[#FAF7F2] hover:bg-[#FDE8EF] rounded-2xl text-left text-[#232323] font-semibold transition-colors cursor-pointer"
             >
-              📦 Order History
+              📦 My Orders
             </button>
             <button
               onClick={() => onNavigateTab('wishlist')}
@@ -131,10 +195,10 @@ export const DashboardOverviewTab: React.FC<DashboardOverviewTabProps> = ({
               💖 Saved Wishlist
             </button>
             <button
-              onClick={() => onNavigateTab('notifications')}
+              onClick={() => onNavigateTab('addresses')}
               className="p-2.5 bg-[#FAF7F2] hover:bg-[#FDE8EF] rounded-2xl text-left text-[#232323] font-semibold transition-colors cursor-pointer"
             >
-              🔔 Notifications
+              📍 Address Book
             </button>
             <button
               onClick={() => onNavigateTab('security')}

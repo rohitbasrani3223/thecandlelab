@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button, Badge, SparklesIcon, useToast } from '../../design-system';
 import { printOrderInvoice } from '../../utils/printInvoice';
 import { PrintableInvoice } from '../invoice/PrintableInvoice';
+import { TrackOrderModal } from '../common/TrackOrderModal';
 
 export interface OrderSuccessPageProps {
   onReturnHome?: () => void;
@@ -23,18 +24,44 @@ export interface OrderSuccessPageProps {
   };
 }
 
-export const OrderSuccessPage: React.FC<OrderSuccessPageProps> = ({ onReturnHome, orderDetails }) => {
+export const OrderSuccessPage: React.FC<OrderSuccessPageProps> = ({ onReturnHome, orderDetails: propsOrderDetails }) => {
   const { toast } = useToast();
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
+  const [showTrackModal, setShowTrackModal] = useState(false);
 
-  const orderId = orderDetails?.orderNumber || '#TCL-2026-8841';
-  const totalAmount = orderDetails?.totalAmount || 0;
-  const isCOD = orderDetails?.isCOD ?? false;
-  const items = orderDetails?.items || [];
-  const customerEmail = orderDetails?.email || '';
-  const customerName = orderDetails?.customerName || 'Valued Patron';
-  const customerPhone = orderDetails?.phone || '';
-  const shippingAddress = orderDetails?.shippingAddress || 'Sanctuary Address';
+  // Hydrate from localStorage if props missing or items empty
+  const latestLocalOrder = (() => {
+    try {
+      const userOrders = JSON.parse(localStorage.getItem('tcl_user_orders') || '[]');
+      return userOrders[0] || null;
+    } catch {
+      return null;
+    }
+  })();
+
+  const orderDetails = (propsOrderDetails && propsOrderDetails.items && propsOrderDetails.items.length > 0)
+    ? propsOrderDetails
+    : (latestLocalOrder || propsOrderDetails);
+
+  const orderId = orderDetails?.orderNumber || orderDetails?.id || '';
+  const totalAmount = Number(orderDetails?.totalAmount) || 0;
+  const isCOD = Boolean(
+    orderDetails?.isCOD ||
+    (orderDetails?.paymentMethod && (
+      orderDetails.paymentMethod.toLowerCase().includes('cod') ||
+      orderDetails.paymentMethod.toLowerCase().includes('cash')
+    ))
+  );
+  const items = Array.isArray(orderDetails?.itemsList) && orderDetails.itemsList.length > 0
+    ? orderDetails.itemsList
+    : Array.isArray(orderDetails?.items) && orderDetails.items.length > 0
+      ? orderDetails.items
+      : [];
+
+  const customerEmail = orderDetails?.email || orderDetails?.customerEmail || '';
+  const customerName = orderDetails?.customerName || '';
+  const customerPhone = orderDetails?.phone || orderDetails?.customerPhone || '';
+  const shippingAddress = orderDetails?.shippingAddress || orderDetails?.address || '';
 
   // Delivery estimation date range (3 days from today)
   const today = new Date();
@@ -59,16 +86,16 @@ export const OrderSuccessPage: React.FC<OrderSuccessPageProps> = ({ onReturnHome
     address: shippingAddress,
     items: items,
     itemsList: items,
-    subtotal: orderDetails?.subtotal || Math.round(totalAmount / 1.18),
+    subtotal: orderDetails?.subtotal !== undefined ? orderDetails.subtotal : totalAmount,
     discount: orderDetails?.discount || 0,
-    shippingFee: orderDetails?.shippingFee || 0,
-    tax: Math.round(totalAmount - (orderDetails?.subtotal || Math.round(totalAmount / 1.18))),
+    shippingFee: orderDetails?.shippingFee !== undefined ? orderDetails.shippingFee : (orderDetails?.shipping || 0),
+    tax: 0,
     totalAmount: totalAmount,
-    paymentMethod: isCOD ? 'Cash on Delivery (COD)' : (orderDetails?.paymentMethod || 'Razorpay Online (UPI/Card)'),
-    paymentId: orderDetails?.paymentId || (isCOD ? 'COD_ORDER' : `PAY_${orderId.replace(/[^A-Za-z0-9]/g, '')}`),
-    status: isCOD ? 'COD_PENDING' : 'PAID',
-    trackingNumber: `AWB${Date.now().toString().slice(-8)}`,
-    courier: 'Express Air Courier',
+    paymentMethod: isCOD ? 'Cash on Delivery (COD)' : (orderDetails?.paymentMethod || 'Razorpay Online (UPI/Cards)'),
+    paymentId: orderDetails?.paymentId || (isCOD ? 'COD_VERIFIED' : `PAY_${orderId.replace(/[^A-Za-z0-9]/g, '')}`),
+    status: isCOD ? 'Pending COD' : (orderDetails?.status || 'Paid'),
+    trackingNumber: orderDetails?.trackingNumber || '',
+    courier: orderDetails?.courier || '',
   };
 
   return (
@@ -155,7 +182,7 @@ export const OrderSuccessPage: React.FC<OrderSuccessPageProps> = ({ onReturnHome
             {items.length === 0 ? (
               <p className="text-[#7D6F63] italic text-center py-4">Handcrafted candle formulations ordered.</p>
             ) : (
-              items.map((item, idx) => {
+              items.map((item: any, idx: number) => {
                 const variantLabel = [item.fragrance, item.size, item.wickType || item.wick, item.color]
                   .filter(Boolean)
                   .join(' • ');
@@ -209,8 +236,8 @@ export const OrderSuccessPage: React.FC<OrderSuccessPageProps> = ({ onReturnHome
           {/* Pricing Totals Breakdown */}
           <div className="pt-4 border-t border-[#EADDCB] space-y-1.5 text-xs">
             <div className="flex justify-between text-[#7D6F63]">
-              <span>Taxable Items Subtotal</span>
-              <span>₹{(orderDetails?.subtotal || Math.round(totalAmount / 1.18)).toLocaleString('en-IN')}.00</span>
+              <span>Items Subtotal</span>
+              <span>₹{(orderDetails?.subtotal !== undefined ? orderDetails.subtotal : totalAmount).toLocaleString('en-IN')}.00</span>
             </div>
             {Boolean(orderDetails?.discount) && (
               <div className="flex justify-between text-[#15803D] font-semibold">
@@ -221,10 +248,6 @@ export const OrderSuccessPage: React.FC<OrderSuccessPageProps> = ({ onReturnHome
             <div className="flex justify-between text-[#7D6F63]">
               <span>Courier Delivery</span>
               <span>{orderDetails?.shippingFee === 0 || !orderDetails?.shippingFee ? <strong className="text-[#15803D]">FREE</strong> : `₹${orderDetails.shippingFee}.00`}</span>
-            </div>
-            <div className="flex justify-between text-[#7D6F63]">
-              <span>GST (18% Integrated Tax)</span>
-              <span>₹{Math.round(totalAmount - (orderDetails?.subtotal || Math.round(totalAmount / 1.18)))}.00</span>
             </div>
             <div className="pt-2 border-t border-[#EADDCB] flex items-center justify-between text-base font-bold">
               <span className="text-[#232323]">{isCOD ? 'Amount Due on Courier Delivery' : 'Total Amount Paid'}</span>
@@ -237,6 +260,14 @@ export const OrderSuccessPage: React.FC<OrderSuccessPageProps> = ({ onReturnHome
         <div className="flex flex-wrap items-center justify-center gap-3">
           <Button
             variant="pink"
+            size="md"
+            onClick={() => setShowTrackModal(true)}
+          >
+            📍 Track Live Shipment
+          </Button>
+
+          <Button
+            variant="outline"
             size="md"
             onClick={() => {
               printOrderInvoice(invoiceOrderData, 'invoice');
@@ -263,6 +294,15 @@ export const OrderSuccessPage: React.FC<OrderSuccessPageProps> = ({ onReturnHome
           </Button>
         </div>
       </div>
+
+      {/* Track Order Modal */}
+      {showTrackModal && (
+        <TrackOrderModal
+          isOpen={showTrackModal}
+          onClose={() => setShowTrackModal(false)}
+          initialOrderId={orderId}
+        />
+      )}
 
       {/* Invoice Modal Preview */}
       {showInvoiceModal && (

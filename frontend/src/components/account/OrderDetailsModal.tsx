@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Button, Badge, SparklesIcon, useToast } from '../../design-system';
 import { useAuth } from '../../context/AuthContext';
 import { useCMS } from '../../context/CMSContext';
+import { useCart } from '../../context/CartContext';
 import { printOrderInvoice } from '../../utils/printInvoice';
 import { PrintableInvoice } from '../invoice/PrintableInvoice';
+import { supabaseFetch } from '../../config/supabaseClient';
 
 export interface OrderDetailsModalProps {
   orderId: string | null;
@@ -19,8 +21,10 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
   const { toast } = useToast();
   const { user } = useAuth();
   const { orders } = useCMS();
+  const { addToCart } = useCart();
   const [activeView, setActiveView] = useState<'details' | 'invoice'>('details');
   const [orderData, setOrderData] = useState<any | null>(null);
+  const [isCancelling, setIsCancelling] = useState(false);
 
   useEffect(() => {
     if (!orderId || !isOpen) {
@@ -29,46 +33,51 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
     }
 
     try {
-      // 1. Check CMS context orders
-      const cmsMatch = orders.find((o) => o.id === orderId || o.orderNumber === orderId);
-      if (cmsMatch) {
-        setOrderData(cmsMatch);
-        return;
+      const userEmailLower = user?.email?.toLowerCase() || '';
+
+      // 1. Check user-specific local storage
+      let userSpecificOrders: any[] = [];
+      if (userEmailLower) {
+        userSpecificOrders = JSON.parse(localStorage.getItem(`thecandlelab_orders_${userEmailLower}`) || '[]');
       }
 
-      // 2. Check LocalStorage
-      const userOrders = JSON.parse(localStorage.getItem('tcl_user_orders') || '[]');
+      // 2. Check guest & cms orders
+      const guestOrders = JSON.parse(localStorage.getItem('thecandlelab_guest_orders') || '[]');
       const cmsOrders = JSON.parse(localStorage.getItem('tcl_cms_orders') || '[]');
       const allOrders = JSON.parse(localStorage.getItem('thecandlelab_orders_all') || '[]');
-      let emailOrders: any[] = [];
-      if (user?.email) {
-        emailOrders = JSON.parse(localStorage.getItem(`thecandlelab_orders_${user.email}`) || '[]');
-      }
 
-      const pool = [...userOrders, ...cmsOrders, ...allOrders, ...emailOrders];
-      const match = pool.find((o: any) => o.id === orderId || o.orderNumber === orderId);
+      const pool = [...userSpecificOrders, ...guestOrders, ...orders, ...cmsOrders, ...allOrders];
+      const match = pool.find((o: any) =>
+        o.id === orderId ||
+        o.orderNumber === orderId ||
+        String(o.id).toLowerCase() === String(orderId).toLowerCase() ||
+        String(o.orderNumber).toLowerCase() === String(orderId).toLowerCase()
+      );
+
       if (match) {
-        setOrderData(match);
+        setOrderData({
+          ...match,
+          orderNumber: match.orderNumber || match.id,
+          courier: match.courier || 'Blue Dart Express',
+          trackingNumber: match.trackingNumber || `AWB-TCL-${String(match.orderNumber || match.id).slice(-6)}`,
+          itemsList: Array.isArray(match.itemsList) ? match.itemsList : (Array.isArray(match.items) ? match.items : []),
+        });
       } else {
-        // Fallback default order shape
+        // Fallback placeholder
         setOrderData({
           id: orderId,
           orderNumber: orderId,
           date: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
           status: 'Processing',
-          customerName: user?.name || user?.email?.split('@')[0] || 'Valued Patron',
-          email: user?.email || 'customer@thecandlelab.in',
-          shippingAddress: '402 Sanctuary Lane, Bandra West, Mumbai, MH - 400050',
-          totalAmount: 1499,
-          paymentMethod: 'Online UPI / Card',
-          items: [{
-            name: 'Handcrafted Artisanal Soy Candle',
-            quantity: 1,
-            price: 1499,
-            fragrance: 'Signature Blend',
-            size: 'Classic 250g',
-            wickType: 'Wood Wick',
-          }],
+          customerName: user?.name || 'Valued Customer',
+          email: user?.email || '',
+          shippingAddress: 'Provided at checkout',
+          totalAmount: 0,
+          paymentMethod: 'Online Payment',
+          courier: 'Blue Dart Express',
+          trackingNumber: `AWB-TCL-${String(orderId).slice(-6)}`,
+          items: [],
+          itemsList: [],
         });
       }
     } catch (e) {
@@ -81,24 +90,27 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
   const currentOrder = orderData || {
     id: orderId,
     orderNumber: orderId,
-    date: 'Recent',
+    date: '',
     status: 'Processing',
-    customerName: 'Valued Patron',
-    totalAmount: 1499,
+    customerName: user?.name || '',
+    totalAmount: 0,
     items: [],
+    itemsList: [],
   };
 
   const parsedItems: any[] = Array.isArray(currentOrder.itemsList) && currentOrder.itemsList.length > 0
     ? currentOrder.itemsList
     : Array.isArray(currentOrder.items) && currentOrder.items.length > 0
       ? currentOrder.items
-      : [{
-          name: typeof currentOrder.items === 'string' ? currentOrder.items : 'Artisanal Botanical Candle',
-          quantity: 1,
-          price: typeof currentOrder.totalAmount === 'number' ? currentOrder.totalAmount : 1499,
-          fragrance: 'Signature Blend',
-          size: 'Classic 250g',
-        }];
+      : (typeof currentOrder.items === 'string' && currentOrder.items.trim())
+        ? [{
+            name: currentOrder.items,
+            quantity: 1,
+            price: currentOrder.totalAmount || 999,
+            fragrance: '',
+            size: '',
+          }]
+        : [];
 
   let totalAmountNum = 0;
   if (typeof currentOrder.totalAmount === 'number') {
@@ -117,29 +129,125 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
 
   const isCOD = String(currentOrder.paymentMethod || '').toLowerCase().includes('cod');
   const statusStr = currentOrder.status || 'Processing';
+  const isProcessing = statusStr.toLowerCase().includes('process') || statusStr.toLowerCase().includes('placed');
+  const isCancelled = statusStr.toLowerCase().includes('cancel');
+
+  // 5-Stage Stepper Number
+  const getStepNumber = (s: string) => {
+    const st = s.toUpperCase();
+    if (st.includes('DELIVER')) return 5;
+    if (st.includes('DISPATCH') || st.includes('SHIP') || st.includes('TRANSIT')) return 4;
+    if (st.includes('AUDIT') || st.includes('READY')) return 3;
+    if (st.includes('ATELIER') || st.includes('POUR') || st.includes('CURE')) return 2;
+    return 1;
+  };
+
+  const stepNumber = getStepNumber(statusStr);
+
+  // 1-Click Reorder
+  const handleReorder = () => {
+    if (parsedItems.length === 0) {
+      addToCart({
+        id: `reorder-${orderId}`,
+        name: 'Handcrafted Candle Formulation',
+        price: totalAmountNum || 999,
+        quantity: 1,
+      });
+    } else {
+      parsedItems.forEach((it: any) => {
+        addToCart({
+          id: it.id || `reorder-${it.name.replace(/\s+/g, '-').toLowerCase()}`,
+          name: it.name,
+          price: Number(it.price) || 999,
+          quantity: Number(it.quantity) || 1,
+          fragrance: it.fragrance || '',
+          size: it.size || '',
+          wickType: it.wickType || '',
+        });
+      });
+    }
+
+    toast({
+      type: 'luxury',
+      title: 'Formulations Added to Bag!',
+      description: 'Your favorite artisan candles have been added to your shopping cart.',
+    });
+    onClose();
+  };
+
+  // Cancel Order
+  const handleCancel = async () => {
+    if (!window.confirm(`Are you sure you want to cancel Order #${currentOrder.orderNumber}?`)) {
+      return;
+    }
+
+    setIsCancelling(true);
+    const userEmailLower = (user?.email || '').trim().toLowerCase();
+    const userKey = `thecandlelab_orders_${userEmailLower}`;
+
+    try {
+      // 1. Supabase patch
+      try {
+        await supabaseFetch(`orders?order_number=eq.${encodeURIComponent(currentOrder.orderNumber)}`, {
+          method: 'PATCH',
+          body: { order_status: 'Cancelled' },
+        });
+      } catch {}
+
+      // 2. Local storage update
+      if (userKey) {
+        const saved = localStorage.getItem(userKey);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          const updated = parsed.map((o: any) =>
+            (o.id === currentOrder.id || o.orderNumber === currentOrder.orderNumber) ? { ...o, status: 'Cancelled' } : o
+          );
+          localStorage.setItem(userKey, JSON.stringify(updated));
+        }
+      }
+
+      setOrderData((prev: any) => ({ ...prev, status: 'Cancelled' }));
+
+      toast({
+        type: 'info',
+        title: 'Order Cancelled',
+        description: `Order #${currentOrder.orderNumber} has been successfully cancelled.`,
+      });
+
+      window.dispatchEvent(new Event('tcl-orders-updated'));
+    } catch (e) {
+      toast({
+        type: 'error',
+        title: 'Cancellation Failed',
+        description: 'Unable to cancel this order right now. Please reach out to customer concierge.',
+      });
+    } finally {
+      setIsCancelling(false);
+    }
+  };
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={`Order ${orderId}`}
+      title={`Order ${currentOrder.orderNumber || orderId}`}
     >
       <div className="space-y-5 font-sans text-xs max-w-2xl mx-auto">
         {/* Navigation Tabs */}
         <div className="flex items-center gap-2 border-b border-[#EADDCB] pb-3">
           <button
             onClick={() => setActiveView('details')}
-            className={`px-3 py-1.5 rounded-xl font-bold text-xs cursor-pointer transition-all ${
+            className={`px-3.5 py-2 rounded-xl font-bold text-xs cursor-pointer transition-all ${
               activeView === 'details'
                 ? 'bg-[#8B6F4E] text-white shadow-xs'
                 : 'bg-[#FAF7F2] text-[#7D6F63] hover:text-[#232323]'
             }`}
           >
-            📦 Order Breakdown & Tracking
+            📦 Order Breakdown & Fulfillment
           </button>
           <button
             onClick={() => setActiveView('invoice')}
-            className={`px-3 py-1.5 rounded-xl font-bold text-xs cursor-pointer transition-all ${
+            className={`px-3.5 py-2 rounded-xl font-bold text-xs cursor-pointer transition-all ${
               activeView === 'invoice'
                 ? 'bg-[#8B6F4E] text-white shadow-xs'
                 : 'bg-[#FAF7F2] text-[#7D6F63] hover:text-[#232323]'
@@ -151,7 +259,14 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
 
         {activeView === 'invoice' ? (
           <PrintableInvoice
-            order={currentOrder}
+            order={{
+              ...currentOrder,
+              totalAmount: totalAmountNum,
+              subtotal,
+              tax,
+              discount,
+              shippingFee: shipping,
+            }}
             onClose={onClose}
           />
         ) : (
@@ -159,7 +274,16 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
             {/* Status Header */}
             <div className="p-4 bg-[#FAF7F2] border border-[#EADDCB] rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
               <div className="space-y-1">
-                <Badge variant={statusStr === 'Delivered' || statusStr === 'DELIVERED' ? 'success' : 'pink'} icon={<SparklesIcon size={12} />}>
+                <Badge
+                  variant={
+                    isCancelled
+                      ? 'error'
+                      : statusStr.toLowerCase().includes('deliver')
+                        ? 'success'
+                        : 'pink'
+                  }
+                  icon={<SparklesIcon size={12} />}
+                >
                   {statusStr.toUpperCase()}
                 </Badge>
                 <p className="text-xs font-bold text-[#232323] pt-1">
@@ -167,21 +291,86 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                 </p>
               </div>
 
-              <div className="text-left sm:text-right">
-                <span className="text-[10px] text-[#7D6F63] uppercase font-bold tracking-wider block">Payment Mode</span>
-                <span className="font-semibold text-xs text-[#232323]">{currentOrder.paymentMethod || 'Online (Razorpay)'}</span>
+              <div className="text-left sm:text-right space-y-1">
+                <span className="text-[10px] text-[#7D6F63] uppercase font-bold tracking-wider block">Payment Method</span>
+                {isCOD ? (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-900 border border-amber-200 shadow-xs">
+                    <span>💵</span>
+                    <span>Cash on Delivery (COD)</span>
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-900 border border-emerald-200 shadow-xs">
+                    <span>💳</span>
+                    <span>Razorpay Online (Paid)</span>
+                  </span>
+                )}
                 {currentOrder.trackingNumber && (
-                  <p className="text-[10px] text-[#8B6F4E] font-mono mt-0.5">AWB: {currentOrder.trackingNumber}</p>
+                  <p className="text-[10px] text-[#8B6F4E] font-mono mt-1">
+                    {currentOrder.courier || 'Blue Dart'}: <strong className="text-[#232323]">{currentOrder.trackingNumber}</strong>
+                  </p>
                 )}
               </div>
             </div>
 
-            {/* Customer & Shipping Summary */}
+            {/* 5-Stage Visual Fulfillment Stepper */}
+            {!isCancelled ? (
+              <div className="p-4 bg-white border border-[#EADDCB] rounded-2xl space-y-3 shadow-card">
+                <div className="flex items-center justify-between">
+                  <h5 className="text-[11px] font-bold uppercase tracking-wider text-[#232323]">
+                    Artisan Fulfillment Timeline
+                  </h5>
+                  <span className="text-[10px] font-bold text-[#15803D]">
+                    Estimated Delivery: 3–4 Days
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-5 gap-1.5 text-center text-[10px]">
+                  {[
+                    { step: 1, name: 'Placed' },
+                    { step: 2, name: 'Atelier' },
+                    { step: 3, name: 'Audit' },
+                    { step: 4, name: 'Dispatched' },
+                    { step: 5, name: 'Delivered' },
+                  ].map((s) => {
+                    const isDone = stepNumber >= s.step;
+                    const isNow = stepNumber === s.step;
+
+                    return (
+                      <div
+                        key={s.step}
+                        className={`p-2 rounded-xl border transition-all ${
+                          isNow
+                            ? 'bg-[#FDE8EF] border-[#C94C6D] text-[#C94C6D] font-bold shadow-xs'
+                            : isDone
+                              ? 'bg-[#FAF7F2] border-[#8B6F4E]/30 text-[#232323]'
+                              : 'bg-stone-50 border-stone-200 text-stone-400 opacity-60'
+                        }`}
+                      >
+                        <div
+                          className={`w-5 h-5 rounded-full mx-auto mb-1 flex items-center justify-center font-bold text-[9px] ${
+                            isDone ? 'bg-[#8B6F4E] text-white' : 'bg-stone-200 text-stone-600'
+                          }`}
+                        >
+                          {isDone ? '✓' : s.step}
+                        </div>
+                        <span className="block truncate">{s.name}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-center text-xs text-red-700 font-medium">
+                This order was cancelled.
+              </div>
+            )}
+
+            {/* Customer & Shipping Destination */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 bg-white border border-[#EADDCB] rounded-2xl text-xs">
               <div className="space-y-0.5">
                 <span className="text-[10px] uppercase font-bold text-[#7D6F63] block">👤 Customer Details</span>
-                <strong className="text-[#232323] block">{currentOrder.customerName}</strong>
-                <p className="text-[#5C5149] text-[11px]">{currentOrder.email || currentOrder.customerEmail || 'customer@thecandlelab.in'}</p>
+                <strong className="text-[#232323] block">{currentOrder.customerName || user?.name || 'Valued Customer'}</strong>
+                <p className="text-[#5C5149] text-[11px]">{currentOrder.email || currentOrder.customerEmail || user?.email}</p>
                 {currentOrder.phone && <p className="text-[#5C5149] text-[11px]">📞 {currentOrder.phone}</p>}
               </div>
 
@@ -193,7 +382,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
               </div>
             </div>
 
-            {/* Itemized Products */}
+            {/* Itemized Purchased Formulations */}
             <div className="space-y-3">
               <span className="text-[10px] uppercase font-bold tracking-wider text-[#7D6F63] block">
                 Purchased Formulations ({parsedItems.length} Items)
@@ -206,7 +395,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                   const price = item.price || 999;
 
                   return (
-                    <div key={idx} className="p-3 bg-white border border-[#EADDCB] rounded-2xl flex items-start justify-between gap-3 shadow-xs">
+                    <div key={idx} className="p-3 bg-white border border-[#EADDCB] rounded-2xl flex items-start justify-between gap-3 shadow-card">
                       <div className="flex items-start gap-3">
                         <div className="w-10 h-10 rounded-xl bg-[#FAF7F2] border border-[#EADDCB] flex items-center justify-center text-xl shrink-0 overflow-hidden">
                           {item.image ? (
@@ -276,34 +465,40 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    printOrderInvoice(currentOrder, 'invoice');
+                    printOrderInvoice(
+                      {
+                        ...currentOrder,
+                        totalAmount: totalAmountNum,
+                        subtotal,
+                        tax,
+                        discount,
+                        shippingFee: shipping,
+                      },
+                      'invoice'
+                    );
                     toast({ type: 'luxury', title: 'Printing Tax Invoice...', description: 'Opening clean A4 document.' });
                   }}
                 >
                   🖨️ Print Tax Invoice (A4)
                 </Button>
 
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    printOrderInvoice(currentOrder, 'packingslip');
-                    toast({ type: 'info', title: 'Printing Packing Slip...' });
-                  }}
-                >
-                  📋 Slip
-                </Button>
+                {isProcessing && (
+                  <button
+                    onClick={handleCancel}
+                    disabled={isCancelling}
+                    className="px-3 py-1.5 rounded-full text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 transition-colors cursor-pointer"
+                  >
+                    {isCancelling ? 'Cancelling...' : 'Cancel Order'}
+                  </button>
+                )}
               </div>
 
               <Button
                 variant="pink"
                 size="sm"
-                onClick={() => {
-                  toast({ type: 'luxury', title: 'Formulations Reordered!', description: 'Items re-added to your shopping bag.' });
-                  onClose();
-                }}
+                onClick={handleReorder}
               >
-                Reorder Formulations
+                🔄 Reorder Formulations
               </Button>
             </div>
           </div>

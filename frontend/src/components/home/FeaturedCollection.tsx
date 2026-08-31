@@ -8,7 +8,7 @@ export interface FeaturedCollectionProps {
 
 export const FeaturedCollection: React.FC<FeaturedCollectionProps> = ({ onSelectProduct }) => {
   const { toast } = useToast();
-  const { products, settings } = useCMS();
+  const { products } = useCMS();
   const [wishlist, setWishlist] = useState<string[]>([]);
 
   const toggleWishlist = (id: string, name: string) => {
@@ -35,7 +35,7 @@ export const FeaturedCollection: React.FC<FeaturedCollectionProps> = ({ onSelect
   const handleAddToCart = (prod: any, e: React.MouseEvent) => {
     e.stopPropagation();
     const inrPrice = Math.round(prod.price || 0);
-    const inrOriginal = prod.originalPrice ? Math.round(prod.originalPrice) : Math.round(inrPrice * 1.25);
+    const inrOriginal = (prod.originalPrice && prod.originalPrice > inrPrice) ? Math.round(prod.originalPrice) : undefined;
 
     const itemToAdd = {
       id: prod.id,
@@ -97,8 +97,8 @@ export const FeaturedCollection: React.FC<FeaturedCollectionProps> = ({ onSelect
           {featuredList.map((prod) => {
             const isWishlisted = wishlist.includes(prod.id);
             const inrPrice = Math.round(prod.price || 0);
-            const formattedPrice = `${settings.currencySymbol}${inrPrice}`;
-            const origPrice = prod.originalPrice ? `${settings.currencySymbol}${Math.round(prod.originalPrice)}` : null;
+            const formattedPrice = `₹${inrPrice.toLocaleString('en-IN')}`;
+            const origPrice = (prod.originalPrice && prod.originalPrice > inrPrice) ? `₹${Math.round(prod.originalPrice).toLocaleString('en-IN')}` : null;
 
             return (
               <Card

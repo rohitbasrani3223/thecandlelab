@@ -29,8 +29,8 @@ export const WishlistGrid: React.FC<WishlistGridProps> = ({
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 font-sans">
       {items.map((item) => {
         const inrPrice = Math.round(item.price || 0);
-        const inrOriginal = item.originalPrice ? Math.round(item.originalPrice) : Math.round(inrPrice * 1.25);
-        const discount = inrOriginal - inrPrice;
+        const inrOriginal = (item.originalPrice && item.originalPrice > inrPrice) ? Math.round(item.originalPrice) : null;
+        const discount = inrOriginal ? inrOriginal - inrPrice : 0;
 
         return (
           <div
@@ -58,24 +58,24 @@ export const WishlistGrid: React.FC<WishlistGridProps> = ({
               </button>
 
               {/* Center Icon */}
-              <div className="w-16 h-16 rounded-2xl bg-white shadow-xs flex items-center justify-center border border-[#EADDCB] group-hover:scale-110 transition-transform duration-500 text-3xl">
+              <div className="w-24 h-24 rounded-full bg-white border border-[#EADDCB] flex items-center justify-center text-4xl shadow-xs group-hover:scale-105 transition-transform">
                 🕯️
               </div>
             </div>
 
-            {/* Lower Details Content */}
-            <div className="p-5 space-y-2.5 flex-1 flex flex-col justify-between bg-white">
+            {/* Content Details */}
+            <div className="p-5 space-y-3 flex-1 flex flex-col justify-between">
               <div className="space-y-1">
                 <span className="text-[10px] uppercase font-bold tracking-widest text-[#8B6F4E] block">
                   {item.category}
                 </span>
 
-                <h3 className="text-base font-serif font-bold text-[#232323] group-hover:text-[#8B6F4E] transition-colors leading-snug truncate">
+                <h3 className="text-base font-serif font-bold text-[#232323] leading-snug">
                   {item.name}
                 </h3>
 
-                <p className="text-xs text-[#5C5149] italic truncate">
-                  Notes: {item.notes}
+                <p className="text-xs text-[#5C5149] italic">
+                  {item.notes}
                 </p>
 
                 {/* Rating */}
@@ -94,10 +94,10 @@ export const WishlistGrid: React.FC<WishlistGridProps> = ({
               <div className="pt-3 border-t border-[#EADDCB] space-y-3">
                 <div className="flex items-baseline justify-between">
                   <div className="flex items-baseline gap-1.5">
+                    <span className="text-base font-bold text-[#232323]">₹{inrPrice.toLocaleString('en-IN')}</span>
                     {inrOriginal && (
-                      <span className="text-xs text-[#7D6F63] line-through">₹{inrOriginal}</span>
+                      <span className="text-xs text-[#7D6F63] line-through">₹{inrOriginal.toLocaleString('en-IN')}</span>
                     )}
-                    <span className="text-base font-bold text-[#232323]">₹{inrPrice}</span>
                   </div>
                   <span className="text-[10px] text-[#15803D] font-bold">✓ In Stock</span>
                 </div>

@@ -3,6 +3,7 @@ import { supabaseFetch } from '../config/supabaseClient';
 import { fetchCmsBundle, saveCmsBundle } from '../services/cmsRemote';
 import { PRODUCT_IMAGE_PLACEHOLDER } from '../config/placeholders';
 import { safeLocalStorageSet } from '../utils/storage';
+import { getApiUrl } from '../config/api';
 
 // Storage keys
 const PRODUCTS_STORAGE_KEY = 'tcl_cms_products';
@@ -830,8 +831,14 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           const allOrders = JSON.parse(localStorage.getItem('thecandlelab_orders_all') || '[]');
           localOrdersList = [...userOrders, ...cmsOrders, ...allOrders];
           localOrdersList.forEach((lo: any) => {
-            if (lo.id) localOrdersMap.set(String(lo.id), lo);
-            if (lo.orderNumber) localOrdersMap.set(String(lo.orderNumber), lo);
+            if (lo.id) {
+              localOrdersMap.set(String(lo.id), lo);
+              localOrdersMap.set(String(lo.id).toLowerCase(), lo);
+            }
+            if (lo.orderNumber) {
+              localOrdersMap.set(String(lo.orderNumber), lo);
+              localOrdersMap.set(String(lo.orderNumber).toLowerCase(), lo);
+            }
           });
         } catch {}
 
@@ -842,62 +849,76 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
           const itemsByOrderId = new Map<string, any[]>();
           dbOrderItems.forEach((item: any) => {
-            const ordKey = String(item.order_id);
-            const current = itemsByOrderId.get(ordKey) || [];
-            current.push({
-              name: item.product_name,
-              fragrance: item.fragrance,
-              size: item.size,
-              color: item.color,
-              wickType: item.wick_type,
-              sku: item.sku,
-              quantity: item.quantity || 1,
-              price: Number(item.unit_price || 0),
-            });
-            itemsByOrderId.set(ordKey, current);
+            const rawKey = String(item.order_id || '');
+            const pushItem = (k: string) => {
+              const current = itemsByOrderId.get(k) || [];
+              current.push({
+                name: item.product_name || 'Handcrafted Soy Candle',
+                fragrance: item.fragrance || '',
+                size: item.size || '250g Classic',
+                color: item.color || 'Amber Glass',
+                wickType: item.wick_type || 'Organic Wood Wick',
+                sku: item.sku || 'TCL-CANDLE',
+                quantity: Number(item.quantity) || 1,
+                price: Number(item.unit_price) || 999,
+              });
+              itemsByOrderId.set(k, current);
+            };
+            if (rawKey) {
+              pushItem(rawKey);
+              pushItem(rawKey.toLowerCase());
+            }
           });
 
           const mappedOrders: CMSOrder[] = ordersRes.value.map((o) => {
             const ordId = o.order_number || String(o.id).slice(0, 8).toUpperCase();
             const rawDbId = String(o.id);
-            const localMatch = localOrdersMap.get(ordId) || localOrdersMap.get(rawDbId);
+            const localMatch = localOrdersMap.get(ordId) || localOrdersMap.get(ordId.toLowerCase()) || localOrdersMap.get(rawDbId) || localOrdersMap.get(rawDbId.toLowerCase());
 
-            const itemsList = (itemsByOrderId.get(rawDbId) && itemsByOrderId.get(rawDbId)!.length > 0)
-              ? itemsByOrderId.get(rawDbId)!
+            const dbMatchedItems = itemsByOrderId.get(rawDbId) || itemsByOrderId.get(rawDbId.toLowerCase()) || itemsByOrderId.get(ordId) || itemsByOrderId.get(ordId.toLowerCase());
+
+            const itemsList = (dbMatchedItems && dbMatchedItems.length > 0)
+              ? dbMatchedItems
               : (localMatch?.itemsList && localMatch.itemsList.length > 0)
                 ? localMatch.itemsList
-                : Array.isArray(localMatch?.items) ? localMatch.items : [];
+                : Array.isArray(localMatch?.items) && localMatch.items.length > 0
+                  ? localMatch.items
+                  : [];
 
             let itemsSummary = '';
             if (itemsList.length > 0) {
               itemsSummary = itemsList.map((it: any) => `${it.quantity || 1}x ${it.name}${it.fragrance ? ` (${it.fragrance})` : ''}`).join(', ');
-            } else if (localMatch?.items && typeof localMatch.items === 'string' && localMatch.items !== o.shipping_address) {
-              itemsSummary = localMatch.items;
-            } else {
-              itemsSummary = `${o.customer_name ? o.customer_name + "'s" : 'Artisanal'} Candle Order`;
+            } else if (localMatch?.itemsSummary) {
+              itemsSummary = localMatch.itemsSummary;
+            } else if (typeof o.items === 'string' && o.items) {
+              itemsSummary = o.items;
             }
+
+            const cleanAddress = (o.shipping_address || localMatch?.shippingAddress || localMatch?.address || '')
+              .replace(/["{}]/g, '')
+              .replace(/,/g, ', ');
 
             return {
               id: ordId,
               orderNumber: ordId,
-              customerName: o.customer_name || localMatch?.customerName || 'Valued Customer',
-              email: o.customer_email || localMatch?.customerEmail || localMatch?.email || 'customer@thecandlelab.com',
-              customerEmail: o.customer_email || localMatch?.customerEmail || localMatch?.email || 'customer@thecandlelab.com',
+              customerName: o.customer_name || localMatch?.customerName || '',
+              email: o.customer_email || localMatch?.customerEmail || localMatch?.email || '',
+              customerEmail: o.customer_email || localMatch?.customerEmail || localMatch?.email || '',
               phone: localMatch?.customerPhone || localMatch?.phone || '',
               customerPhone: localMatch?.customerPhone || localMatch?.phone || '',
-              address: (o.shipping_address || localMatch?.shippingAddress || localMatch?.address || 'Standard Delivery Destination').replace(/["{}]/g, '').replace(/,/g, ', '),
-              shippingAddress: (o.shipping_address || localMatch?.shippingAddress || localMatch?.address || 'Standard Delivery Destination').replace(/["{}]/g, '').replace(/,/g, ', '),
+              address: cleanAddress,
+              shippingAddress: cleanAddress,
               items: itemsSummary,
               itemsList: itemsList,
               totalAmount: Number(o.total_amount || localMatch?.totalAmount || 0),
-              subtotal: localMatch?.subtotal,
-              discount: localMatch?.discount,
-              shipping: localMatch?.shipping,
-              tax: localMatch?.tax,
-              paymentMethod: o.payment_method || localMatch?.paymentMethod || 'Online UPI / Card',
-              paymentId: localMatch?.paymentId,
-              trackingNumber: localMatch?.trackingNumber,
-              courier: localMatch?.courier,
+              subtotal: localMatch?.subtotal || Number(o.total_amount || 0),
+              discount: localMatch?.discount || 0,
+              shipping: localMatch?.shipping || 0,
+              tax: 0,
+              paymentMethod: o.payment_method || localMatch?.paymentMethod || 'Razorpay Online',
+              paymentId: localMatch?.paymentId || (o.payment_method?.includes('COD') ? 'COD_VERIFIED' : `PAY_${ordId.replace(/[^A-Za-z0-9]/g, '')}`),
+              trackingNumber: localMatch?.trackingNumber || o.tracking_number || '',
+              courier: localMatch?.courier || '',
               status: o.order_status || o.payment_status || localMatch?.status || 'Processing',
               date: o.created_at ? new Date(o.created_at).toISOString().split('T')[0] : (localMatch?.date || new Date().toISOString().split('T')[0]),
             };
@@ -910,24 +931,24 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             .map((lo: any) => ({
               id: lo.id,
               orderNumber: lo.orderNumber || lo.id,
-              customerName: lo.customerName || 'Valued Customer',
-              email: lo.email || lo.customerEmail || 'customer@thecandlelab.com',
-              customerEmail: lo.customerEmail || lo.email || 'customer@thecandlelab.com',
+              customerName: lo.customerName || '',
+              email: lo.email || lo.customerEmail || '',
+              customerEmail: lo.customerEmail || lo.email || '',
               phone: lo.phone || lo.customerPhone || '',
               customerPhone: lo.customerPhone || lo.phone || '',
-              address: lo.address || lo.shippingAddress || 'Store Destination',
-              shippingAddress: lo.shippingAddress || lo.address || 'Store Destination',
-              items: lo.itemsSummary || (Array.isArray(lo.items) ? lo.items.map((i: any) => i.name).join(', ') : lo.items) || 'Handcrafted Candle',
+              address: lo.address || lo.shippingAddress || '',
+              shippingAddress: lo.shippingAddress || lo.address || '',
+              items: lo.itemsSummary || (Array.isArray(lo.items) ? lo.items.map((i: any) => i.name).join(', ') : lo.items) || '',
               itemsList: lo.itemsList || (Array.isArray(lo.items) ? lo.items : []),
               totalAmount: Number(lo.totalAmount || 0),
-              subtotal: lo.subtotal,
-              discount: lo.discount,
-              shipping: lo.shipping,
-              tax: lo.tax,
-              paymentMethod: lo.paymentMethod || 'Online UPI / Card',
-              paymentId: lo.paymentId,
-              trackingNumber: lo.trackingNumber,
-              courier: lo.courier,
+              subtotal: lo.subtotal || Number(lo.totalAmount || 0),
+              discount: lo.discount || 0,
+              shipping: lo.shipping || 0,
+              tax: 0,
+              paymentMethod: lo.paymentMethod || 'Online',
+              paymentId: lo.paymentId || '',
+              trackingNumber: lo.trackingNumber || '',
+              courier: lo.courier || '',
               status: lo.status || 'Processing',
               date: lo.date || new Date().toISOString().split('T')[0],
             }));
@@ -2008,18 +2029,35 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     } catch {}
 
     try {
+      const dbOrderId = generateUUID();
       await supabaseFetch('orders', {
         method: 'POST',
         body: {
+          id: dbOrderId,
           order_number: order.id,
           customer_name: order.customerName,
-          customer_email: order.email,
+          customer_email: order.email || order.customerEmail,
           total_amount: order.totalAmount,
           payment_method: order.paymentMethod || 'Manual Entry',
           payment_status: 'PAID',
           order_status: order.status || 'Processing',
-          shipping_address: order.address || 'Direct Store Order',
+          shipping_address: order.address || order.shippingAddress || 'Direct Store Order',
         },
+      });
+
+      const itemsToInsert = order.itemsList && Array.isArray(order.itemsList) && order.itemsList.length > 0
+        ? order.itemsList
+        : [{ name: typeof order.items === 'string' ? order.items : 'Artisanal Soy Candle', quantity: 1, price: order.totalAmount }];
+
+      await supabaseFetch('order_items', {
+        method: 'POST',
+        body: itemsToInsert.map((it: any) => ({
+          order_id: dbOrderId,
+          product_name: `${it.name}${it.fragrance ? ` (${it.fragrance})` : ''}`,
+          quantity: Number(it.quantity) || 1,
+          unit_price: Number(it.price) || Number(order.totalAmount) || 999,
+          total_price: (Number(it.price) || Number(order.totalAmount) || 999) * (Number(it.quantity) || 1),
+        })),
       });
     } catch (err) {
       console.warn('Order Supabase insert note:', err);
@@ -2042,6 +2080,24 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         query: `order_number=eq.${encodeURIComponent(id)}`,
         body: { order_status: status },
       });
+
+      // Dispatch Email Notification based on updated status
+      const targetOrder = orders.find((o) => o.id === id || o.orderNumber === id);
+      if (targetOrder) {
+        if (status.toLowerCase().includes('ship') || status.toLowerCase().includes('dispatch')) {
+          fetch(getApiUrl('send-email/order-shipped'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ...targetOrder, status: 'Shipped' }),
+          }).catch(() => {});
+        } else if (status.toLowerCase().includes('deliver')) {
+          fetch(getApiUrl('send-email/order-delivered'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ...targetOrder, status: 'Delivered' }),
+          }).catch(() => {});
+        }
+      }
     } catch (err) {
       console.warn('Order Supabase status update note:', err);
     }

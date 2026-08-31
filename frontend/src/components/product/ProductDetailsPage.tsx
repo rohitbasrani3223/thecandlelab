@@ -10,11 +10,13 @@ import { useCMS, type CMSProduct, type CMSProductVariant } from '../../context/C
 export interface ProductDetailsPageProps {
   product?: any | null;
   onNavigateToShop?: () => void;
+  onNavigateToCheckout?: () => void;
 }
 
 export const ProductDetailsPage: React.FC<ProductDetailsPageProps> = ({
   product: passedProduct,
   onNavigateToShop,
+  onNavigateToCheckout,
 }) => {
   const { products } = useCMS();
   const [activeVariantImage, setActiveVariantImage] = useState<string | undefined>(undefined);
@@ -69,7 +71,11 @@ export const ProductDetailsPage: React.FC<ProductDetailsPageProps> = ({
   };
 
   const handleBuyNow = () => {
-    window.location.hash = '#checkout';
+    if (onNavigateToCheckout) {
+      onNavigateToCheckout();
+    } else {
+      window.location.hash = '#checkout';
+    }
   };
 
   return (

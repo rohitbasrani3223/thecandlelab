@@ -225,7 +225,7 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
   const basePrice = Number(product.price) || 999;
   const sizeMultiplier = selectedSize?.value ? (selectedSize.value > 300 ? 1.6 : selectedSize.value < 150 ? 0.7 : 1.0) : 1.0;
   const currentPrice = currentVariant ? currentVariant.price : Math.round((basePrice * sizeMultiplier) / 10) * 10;
-  const currentOriginalPrice = currentVariant?.originalPrice || (product.originalPrice ? Math.round((product.originalPrice * sizeMultiplier) / 10) * 10 : Math.round(currentPrice * 1.25));
+  const currentOriginalPrice = currentVariant?.originalPrice || (product.originalPrice && product.originalPrice > product.price ? Math.round((product.originalPrice * sizeMultiplier) / 10) * 10 : 0);
   const discountPercent =
     currentOriginalPrice > currentPrice
       ? Math.round(((currentOriginalPrice - currentPrice) / currentOriginalPrice) * 100)
@@ -264,11 +264,56 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
   };
 
   const handleTriggerBuyNow = () => {
-    handleAddToCart();
+    if (isOutOfStock) return;
+
+    const finalColorName = showColor
+      ? (selectedColorId === 'custom'
+          ? (customColorText.trim() ? `Custom: ${customColorText.trim()}` : 'Custom Color Shade')
+          : (customColorText.trim() ? `${selectedColor?.name || 'Standard'} (${customColorText.trim()})` : selectedColor?.name))
+      : undefined;
+
+    const newItem = {
+      id: product.id,
+      name: product.name,
+      price: currentPrice,
+      originalPrice: currentOriginalPrice,
+      image: currentVariant?.imageUrl || product.image || product.imageUrl,
+      fragrance: showFragrance ? (selectedFragrance?.name || product.scentProfile || 'Signature') : undefined,
+      size: showSize ? (selectedSize?.name || 'Standard') : undefined,
+      color: finalColorName,
+      wickType: showWick ? selectedWickType?.name : undefined,
+      sku: currentSku,
+      variantId: currentVariant?.id,
+      giftPackaging: showGiftPackaging ? giftPackaging : false,
+      customMessage: showCustomMessage && (showGiftMessageInput || !showGiftPackaging) ? customMessage : undefined,
+      quantity,
+    };
+
+    // 1. Synchronously persist to localStorage so CheckoutPage immediately has the item
+    try {
+      const saved = localStorage.getItem('tcl_cart_items');
+      const currentList: any[] = saved ? JSON.parse(saved) : [];
+      const index = currentList.findIndex(
+        (i) => (i.variantId && i.variantId === newItem.variantId) || (i.id === newItem.id && i.fragrance === newItem.fragrance && i.size === newItem.size)
+      );
+      if (index > -1) {
+        currentList[index].quantity += quantity;
+      } else {
+        currentList.push(newItem);
+      }
+      localStorage.setItem('tcl_cart_items', JSON.stringify(currentList));
+      window.dispatchEvent(new Event('tcl-cart-updated'));
+    } catch {}
+
+    // 2. Update React Cart Context
+    addToCart(newItem as any);
+
+    // 3. Immediately trigger navigation to checkout
     if (onBuyNow) {
       onBuyNow();
+    } else {
+      window.location.hash = '#checkout';
     }
-    window.location.hash = '#checkout';
   };
 
   return (

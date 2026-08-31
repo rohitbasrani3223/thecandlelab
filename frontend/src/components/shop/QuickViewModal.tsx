@@ -35,7 +35,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
   const imageSrc = product.image || product.imageUrl || product.images?.[0] || 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80';
   const currency = settings.currencySymbol || '₹';
   const price = Math.round(Number(product.price) || 0);
-  const origPrice = product.originalPrice ? Math.round(Number(product.originalPrice)) : null;
+  const origPrice = (product.originalPrice && Number(product.originalPrice) > price) ? Math.round(Number(product.originalPrice)) : null;
 
   const handleAddToCart = () => {
     const chosenColor = colors.find((c) => c.id === selectedColorId);

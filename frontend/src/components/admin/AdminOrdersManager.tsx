@@ -35,20 +35,38 @@ export const AdminOrdersManager: React.FC = () => {
       const userOrders = JSON.parse(localStorage.getItem('tcl_user_orders') || '[]');
       const cmsOrders = JSON.parse(localStorage.getItem('tcl_cms_orders') || '[]');
       const allOrders = JSON.parse(localStorage.getItem('thecandlelab_orders_all') || '[]');
-      const match = [...userOrders, ...cmsOrders, ...allOrders].find((o: any) => o.id === ord.id || o.orderNumber === ord.id);
-      
-      if (match) {
-        return {
-          ...ord,
-          ...match,
-          itemsList: (match.itemsList && match.itemsList.length > 0) ? match.itemsList : (ord.itemsList || []),
-          shippingAddress: match.shippingAddress || match.address || ord.shippingAddress || ord.address,
-          customerPhone: match.customerPhone || match.phone || ord.customerPhone || ord.phone,
-          customerEmail: match.customerEmail || match.email || ord.customerEmail || ord.email,
-          customerName: match.customerName || ord.customerName,
-        };
-      }
-      return ord;
+      const match = [...userOrders, ...cmsOrders, ...allOrders].find(
+        (o: any) => o.id === ord.id || o.orderNumber === ord.id || String(o.id).toLowerCase() === String(ord.id).toLowerCase()
+      );
+
+      const resolvedItems = (ord.itemsList && Array.isArray(ord.itemsList) && ord.itemsList.length > 0)
+        ? ord.itemsList
+        : (match?.itemsList && Array.isArray(match.itemsList) && match.itemsList.length > 0)
+          ? match.itemsList
+          : Array.isArray(ord.items) && ord.items.length > 0
+            ? ord.items
+            : (typeof ord.items === 'string' && ord.items.trim())
+              ? [{ name: ord.items, quantity: 1, price: Number(ord.totalAmount) || 0 }]
+              : [];
+
+      const orderTot = Number(ord.totalAmount) || Number(match?.totalAmount) || 0;
+      const orderSub = ord.subtotal !== undefined ? ord.subtotal : (match?.subtotal !== undefined ? match.subtotal : Math.round(orderTot / 1.18));
+      const orderTax = ord.tax !== undefined ? ord.tax : (match?.tax !== undefined ? match.tax : Math.round(orderTot - orderSub));
+
+      return {
+        ...ord,
+        ...(match || {}),
+        itemsList: resolvedItems,
+        items: resolvedItems,
+        customerName: ord.customerName || match?.customerName || '',
+        customerEmail: ord.customerEmail || ord.email || match?.customerEmail || match?.email || '',
+        customerPhone: ord.customerPhone || ord.phone || match?.customerPhone || match?.phone || '',
+        shippingAddress: ord.shippingAddress || ord.address || match?.shippingAddress || match?.address || '',
+        paymentMethod: ord.paymentMethod || match?.paymentMethod || 'Online',
+        totalAmount: orderTot,
+        subtotal: orderSub,
+        tax: orderTax,
+      };
     } catch {
       return ord;
     }
@@ -519,8 +537,19 @@ export const AdminOrdersManager: React.FC = () => {
                         </div>
                       )}
                     </td>
-                    <td className="p-4 font-bold text-[#2C1E16]">₹{ord.totalAmount.toLocaleString('en-IN')}.00</td>
-                    <td className="p-4 text-xs font-semibold text-[#7A6B5D]">{ord.paymentMethod}</td>
+                    <td className="p-4 text-xs font-semibold">
+                      {String(ord.paymentMethod || '').toLowerCase().includes('cod') || String(ord.status || '').toLowerCase().includes('cod') ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-900 border border-amber-200 shadow-xs">
+                          <span>💵</span>
+                          <span>COD</span>
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-900 border border-emerald-200 shadow-xs">
+                          <span>💳</span>
+                          <span>Razorpay</span>
+                        </span>
+                      )}
+                    </td>
                     <td className="p-4">
                       <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
                         ord.status === 'Delivered' || ord.status === 'DELIVERED' ? 'bg-[#2E6F40]/10 text-[#2E6F40]' :

@@ -2,7 +2,11 @@ import React, { useState } from 'react';
 import { Input, Button, useToast, SparklesIcon } from '../../design-system';
 import { useCMS } from '../../context/CMSContext';
 
-export const Footer: React.FC = () => {
+export interface FooterProps {
+  onOpenTrackOrder?: () => void;
+}
+
+export const Footer: React.FC<FooterProps> = ({ onOpenTrackOrder }) => {
   const [email, setEmail] = useState('');
   const { toast } = useToast();
   const { settings } = useCMS();
@@ -152,7 +156,18 @@ export const Footer: React.FC = () => {
               <li><a href="#refund-policy" className="hover:text-[#FFFFFF] transition-colors">Refund & Returns Policy</a></li>
               <li><a href="#faq" className="hover:text-[#FFFFFF] transition-colors">FAQ & Help Center</a></li>
               <li><a href="#contact" className="hover:text-[#FFFFFF] transition-colors">Contact Concierge</a></li>
-              <li><a href="#account" className="hover:text-[#FFFFFF] transition-colors">Order Tracking</a></li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (onOpenTrackOrder) onOpenTrackOrder();
+                    else window.dispatchEvent(new Event('tcl-open-track-order'));
+                  }}
+                  className="hover:text-[#FFFFFF] text-[#EFC8D4] transition-colors cursor-pointer text-left"
+                >
+                  Track Your Order 📍
+                </button>
+              </li>
             </ul>
           </div>
         </div>

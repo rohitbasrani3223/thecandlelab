@@ -15,6 +15,7 @@ import { useCMS } from '../../context/CMSContext';
 import { processRazorpayPayment } from '../../services/razorpay';
 import { useToast, Button } from '../../design-system';
 import { supabaseFetch } from '../../config/supabaseClient';
+import { getApiUrl } from '../../config/api';
 
 export interface CheckoutPageProps {
   onReturnHome?: () => void;
@@ -54,8 +55,8 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
     phone: user?.phone || '',
     street: '',
     apartment: '',
-    city: 'Mumbai',
-    state: 'Maharashtra',
+    city: '',
+    state: '',
     zip: '',
     country: 'IN',
     saveAddress: true,
@@ -77,6 +78,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
   });
   const [payment, setPayment] = useState<PaymentData>(initialPayment);
   const [confirmedOrderNumber, setConfirmedOrderNumber] = useState('');
+  const [completedOrder, setCompletedOrder] = useState<any | null>(null);
 
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
   const [discountPercent, setDiscountPercent] = useState<number>(0);
@@ -113,15 +115,15 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
     }));
 
     const userEmail = (address.email || user?.email || '').trim();
-    const userFullName = `${address.firstName} ${address.lastName}`.trim() || 'Valued Patron';
-    const userPhone = address.phone || '';
+    const userFullName = `${address.firstName} ${address.lastName}`.trim() || user?.name || 'Valued Customer';
+    const userPhone = address.phone || user?.phone || '';
     const fullShippingAddress = `${address.street}${address.apartment ? ', ' + address.apartment : ''}, ${address.city}, ${address.state} ${address.zip}`;
 
     const newOrder = {
       id: orderNumber,
       orderNumber,
       date: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
-      status: isCOD ? 'COD_PENDING' : 'PAID',
+      status: isCOD ? 'Pending COD' : 'Paid',
       badgeVariant: isCOD ? 'warning' : 'pink',
       itemsSummary: itemsSummaryStr,
       items: orderItemsArr,
@@ -130,7 +132,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
       discount: discountAmount,
       shippingFee: shippingFee,
       shipping: shippingFee,
-      tax: Math.round(totalAmount - (totalAmount / 1.18)),
+      tax: 0,
       totalAmount: totalAmount,
       paymentMethod: isCOD ? 'Cash on Delivery (COD)' : 'Razorpay Online (UPI/Cards)',
       paymentId: paymentId || (isCOD ? 'COD_ORDER_VERIFIED' : `PAY_RZP_${orderNumber.replace(/[^A-Za-z0-9]/g, '')}`),
@@ -146,9 +148,11 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
       city: address.city,
       state: address.state,
       pincode: address.zip,
+      isCOD,
     };
 
     setConfirmedOrderNumber(orderNumber);
+    setCompletedOrder(newOrder);
 
     try {
       addOrder({
@@ -172,7 +176,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
         paymentId: newOrder.paymentId,
         trackingNumber: newOrder.trackingNumber,
         courier: newOrder.courier,
-        status: isCOD ? 'Pending' : 'Processing',
+        status: isCOD ? 'Pending COD' : 'Paid',
         date: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
       });
     } catch (e) {
@@ -180,9 +184,18 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
     }
 
     try {
+      const dbOrderId = (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function')
+        ? crypto.randomUUID()
+        : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+            const r = (Math.random() * 16) | 0;
+            const v = c === 'x' ? r : (r & 0x3) | 0x8;
+            return v.toString(16);
+          });
+
       await supabaseFetch('orders', {
         method: 'POST',
         body: {
+          id: dbOrderId,
           order_number: orderNumber,
           customer_name: newOrder.customerName,
           customer_email: newOrder.customerEmail,
@@ -192,25 +205,54 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
           shipping_address: newOrder.shippingAddress,
         },
       });
+
+      if (orderItemsArr.length > 0) {
+        await supabaseFetch('order_items', {
+          method: 'POST',
+          body: orderItemsArr.map((it) => ({
+            order_id: dbOrderId,
+            product_name: `${it.name}${it.fragrance ? ` (${it.fragrance})` : ''}`,
+            quantity: it.quantity || 1,
+            unit_price: it.price || 999,
+            total_price: (it.price || 999) * (it.quantity || 1),
+          })),
+        });
+      }
     } catch (e) {
       console.warn('Supabase order insert note:', e);
     }
 
     try {
-      const userOrders = JSON.parse(localStorage.getItem('tcl_user_orders') || '[]');
-      localStorage.setItem('tcl_user_orders', JSON.stringify([newOrder, ...userOrders]));
+      // 1. If logged in, save strictly to user-specific order storage
+      if (userEmail) {
+        const userSpecificKey = `thecandlelab_orders_${userEmail.toLowerCase()}`;
+        const existingSpecific = JSON.parse(localStorage.getItem(userSpecificKey) || '[]');
+        localStorage.setItem(userSpecificKey, JSON.stringify([newOrder, ...existingSpecific]));
+        // Also keep tcl_user_orders pointing to this user's latest orders
+        localStorage.setItem('tcl_user_orders', JSON.stringify([newOrder, ...existingSpecific]));
+      } else {
+        // 2. Guest Order storage
+        const guestOrders = JSON.parse(localStorage.getItem('thecandlelab_guest_orders') || '[]');
+        localStorage.setItem('thecandlelab_guest_orders', JSON.stringify([newOrder, ...guestOrders]));
+        localStorage.setItem('thecandlelab_last_guest_order', JSON.stringify(newOrder));
+        localStorage.setItem('tcl_user_orders', JSON.stringify([newOrder]));
+      }
 
+      // 3. Admin Portal pool & global dispatch
       const cmsOrders = JSON.parse(localStorage.getItem('tcl_cms_orders') || '[]');
       localStorage.setItem('tcl_cms_orders', JSON.stringify([newOrder, ...cmsOrders]));
 
       const allOrders = JSON.parse(localStorage.getItem('thecandlelab_orders_all') || '[]');
       localStorage.setItem('thecandlelab_orders_all', JSON.stringify([newOrder, ...allOrders]));
 
-      if (userEmail) {
-        const userSpecificKey = `thecandlelab_orders_${userEmail}`;
-        const existingSpecific = JSON.parse(localStorage.getItem(userSpecificKey) || '[]');
-        localStorage.setItem(userSpecificKey, JSON.stringify([newOrder, ...existingSpecific]));
-      }
+      // 4. Dispatch Real Order Confirmation Email via SMTP
+      try {
+        fetch(getApiUrl('send-email/order-confirmation'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newOrder),
+        }).catch(() => {});
+      } catch {}
 
       window.dispatchEvent(new Event('tcl-orders-updated'));
     } catch (e) {}
@@ -239,30 +281,30 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
     }
 
     try {
-      const fullName = `${address.firstName} ${address.lastName}`.trim() || 'Valued Customer';
+      const fullName = `${address.firstName} ${address.lastName}`.trim() || user?.name || 'Valued Customer';
       const email = (address.email || user?.email || '').trim();
-      const phone = (address.phone || '').replace(/[^0-9+]/g, '');
+      const phone = (address.phone || user?.phone || '').replace(/[^0-9+]/g, '');
 
       await processRazorpayPayment({
         amountInRupees: totalAmount,
         customerName: fullName,
         customerEmail: email,
         customerPhone: phone,
-        description: 'Payment for The Candle Lab Luxury Soy Candles',
-        onSuccess: async (paymentId: string, orderId: string) => {
+        description: 'The Candle Lab Luxury Artisanal Soy Candles',
+        onSuccess: async (paymentId: string, razorpayOrderId: string) => {
           toast({
             type: 'luxury',
             title: 'Payment Successful!',
-            description: `Payment ID: ${paymentId}. Confirming your order...`,
+            description: `Payment ID: ${paymentId}. Order confirmed!`,
           });
-          await completeOrderSave(paymentId, orderId);
+          await completeOrderSave(paymentId, razorpayOrderId);
         },
         onFailure: (errorMessage: string) => {
           setIsProcessing(false);
           toast({
             type: 'error',
             title: 'Payment Failed',
-            description: errorMessage || 'Payment could not be completed. Please try again or select Cash on Delivery.',
+            description: errorMessage || 'Transaction could not be completed.',
           });
         },
         onDismiss: () => {
@@ -288,11 +330,11 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
   if (step === 4) {
     return (
       <OrderSuccessPage
-        orderDetails={{
-          orderNumber: confirmedOrderNumber,
+        orderDetails={completedOrder || {
+          orderNumber: confirmedOrderNumber || '#TCL-2026-8841',
           email: address.email || user?.email || '',
-          customerName: `${address.firstName} ${address.lastName}`.trim() || 'Valued Customer',
-          phone: address.phone || '',
+          customerName: `${address.firstName} ${address.lastName}`.trim() || user?.name || 'Valued Customer',
+          phone: address.phone || user?.phone || '',
           items: cartItems,
           subtotal: subtotal,
           discount: discountAmount,

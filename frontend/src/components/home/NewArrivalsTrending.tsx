@@ -8,7 +8,7 @@ export interface NewArrivalsTrendingProps {
 
 export const NewArrivalsTrending: React.FC<NewArrivalsTrendingProps> = ({ onSelectProduct }) => {
   const { toast } = useToast();
-  const { products, settings } = useCMS();
+  const { products } = useCMS();
 
   const handleProductClick = (prod: any) => {
     try {
@@ -29,7 +29,7 @@ export const NewArrivalsTrending: React.FC<NewArrivalsTrendingProps> = ({ onSele
       name: item.name,
       category: item.category || 'Glass Jars',
       price: inrPrice,
-      originalPrice: item.originalPrice ? Math.round(item.originalPrice) : Math.round(inrPrice * 1.25),
+      originalPrice: (item.originalPrice && item.originalPrice > inrPrice) ? Math.round(item.originalPrice) : undefined,
       image: item.image || item.imageUrl || 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80',
       quantity: 1,
       size: '12oz',
@@ -86,7 +86,7 @@ export const NewArrivalsTrending: React.FC<NewArrivalsTrendingProps> = ({ onSele
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {items.map((item) => {
             const inrPrice = Math.round(item.price || 0);
-            const formattedPrice = `${settings.currencySymbol}${inrPrice}`;
+            const inrOriginal = (item.originalPrice && item.originalPrice > inrPrice) ? Math.round(item.originalPrice) : null;
             const badgeText = item.isNew ? 'NEW BATCH' : 'TRENDING';
 
             return (
@@ -142,7 +142,12 @@ export const NewArrivalsTrending: React.FC<NewArrivalsTrendingProps> = ({ onSele
                 </div>
 
                 <div className="pt-4 border-t border-[#EADDCB] flex items-center justify-between mt-6">
-                  <span className="text-base font-bold text-[#232323] font-serif">{formattedPrice}</span>
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-base font-bold text-[#232323] font-serif">₹{inrPrice.toLocaleString('en-IN')}</span>
+                    {inrOriginal && (
+                      <span className="text-xs text-[#7D6F63] line-through font-normal">₹{inrOriginal.toLocaleString('en-IN')}</span>
+                    )}
+                  </div>
                   <Button
                     variant="pink"
                     size="sm"

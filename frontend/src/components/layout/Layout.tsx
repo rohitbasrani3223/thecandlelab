@@ -5,6 +5,7 @@ import { SearchOverlayModal } from '../search';
 import { CartDrawerUpgrade } from '../cart';
 import { MobileNav } from './MobileNav';
 import { Footer } from './Footer';
+import { TrackOrderModal } from '../common/TrackOrderModal';
 
 export interface LayoutProps {
   children?: React.ReactNode;
@@ -17,6 +18,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, onNavigate, currentPag
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isTrackOrderOpen, setIsTrackOrderOpen] = useState(false);
 
   const [cartCount, setCartCount] = useState<number>(() => {
     try {
@@ -49,15 +51,21 @@ export const Layout: React.FC<LayoutProps> = ({ children, onNavigate, currentPag
       }
     };
 
+    const handleOpenTracker = () => {
+      setIsTrackOrderOpen(true);
+    };
+
     syncCounts();
     window.addEventListener('storage', syncCounts);
     window.addEventListener('tcl-cart-updated', syncCounts);
     window.addEventListener('tcl-wishlist-updated', syncCounts);
+    window.addEventListener('tcl-open-track-order', handleOpenTracker);
 
     return () => {
       window.removeEventListener('storage', syncCounts);
       window.removeEventListener('tcl-cart-updated', syncCounts);
       window.removeEventListener('tcl-wishlist-updated', syncCounts);
+      window.removeEventListener('tcl-open-track-order', handleOpenTracker);
     };
   }, []);
 
@@ -71,6 +79,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, onNavigate, currentPag
         onOpenMobileNav={() => setIsMobileNavOpen(true)}
         onOpenSearch={() => setIsSearchOpen(true)}
         onOpenCart={() => setIsCartOpen(true)}
+        onOpenTrackOrder={() => setIsTrackOrderOpen(true)}
         onNavigate={onNavigate}
         currentPage={currentPage}
         cartCount={cartCount}
@@ -88,6 +97,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, onNavigate, currentPag
         isOpen={isMobileNavOpen}
         onClose={() => setIsMobileNavOpen(false)}
         onOpenSearch={() => setIsSearchOpen(true)}
+        onOpenTrackOrder={() => setIsTrackOrderOpen(true)}
         onNavigate={onNavigate}
         cartCount={cartCount}
         wishlistCount={wishlistCount}
@@ -101,13 +111,19 @@ export const Layout: React.FC<LayoutProps> = ({ children, onNavigate, currentPag
         onCheckout={() => onNavigate?.('checkout' as any)}
       />
 
-      {/* 6. Main Content Viewport */}
+      {/* 6. Dedicated Live Order Tracker Modal */}
+      <TrackOrderModal
+        isOpen={isTrackOrderOpen}
+        onClose={() => setIsTrackOrderOpen(false)}
+      />
+
+      {/* 7. Main Content Viewport */}
       <main className="flex-1">
         {children}
       </main>
 
-      {/* 7. Footer */}
-      <Footer />
+      {/* 8. Footer */}
+      <Footer onOpenTrackOrder={() => setIsTrackOrderOpen(true)} />
     </div>
   );
 };
