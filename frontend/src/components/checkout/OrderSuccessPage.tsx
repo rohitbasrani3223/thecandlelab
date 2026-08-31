@@ -33,10 +33,10 @@ export const OrderSuccessPage: React.FC<OrderSuccessPageProps> = ({ onReturnHome
     d.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
 
   return (
-    <div className="w-full bg-[#FAF6F8] min-h-screen font-sans py-12 px-6 sm:px-12">
+    <div className="w-full bg-[#F8F6F0] min-h-screen font-sans py-12 px-6 sm:px-12">
       <div className="max-w-3xl mx-auto space-y-8 text-center">
         {/* Animated Celebration Icon */}
-        <div className="w-20 h-20 bg-gradient-to-tr from-[#F9B8CA] via-[#E87A96] to-[#D45D7D] text-white rounded-full flex items-center justify-center text-4xl mx-auto shadow-pink-glow animate-bounce">
+        <div className="w-20 h-20 bg-gradient-to-tr from-[#EADDCB] via-[#8B6F4E] to-[#745A3D] text-white rounded-full flex items-center justify-center text-4xl mx-auto shadow-pink-glow animate-bounce">
           ✨
         </div>
 
@@ -44,10 +44,10 @@ export const OrderSuccessPage: React.FC<OrderSuccessPageProps> = ({ onReturnHome
           <Badge variant={isCOD ? 'warning' : 'pink'} icon={<SparklesIcon size={12} />}>
             {isCOD ? 'COD ORDER PLACED • PENDING DELIVERY' : 'ONLINE PAYMENT VERIFIED & ORDER CONFIRMED'}
           </Badge>
-          <h1 className="text-4xl sm:text-6xl font-serif font-extrabold text-[#1C1217]">
+          <h1 className="text-4xl sm:text-6xl font-serif font-extrabold text-[#232323]">
             Thank You for Your Order!
           </h1>
-          <p className="text-sm text-[#624855] max-w-lg mx-auto font-light leading-relaxed">
+          <p className="text-sm text-[#5C5149] max-w-lg mx-auto font-light leading-relaxed">
             {isCOD
               ? 'Your COD order has been received. Please pay cash upon courier delivery.'
               : 'Your online payment has been verified. Our master artisans are preparing your hand-poured formulations.'}
@@ -55,33 +55,33 @@ export const OrderSuccessPage: React.FC<OrderSuccessPageProps> = ({ onReturnHome
         </div>
 
         {/* Order Details Banner */}
-        <div className="p-6 bg-[#FFFFFF] border border-[#F5E8EE] rounded-3xl space-y-4 shadow-card text-left">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-[#F5E8EE] pb-4">
+        <div className="p-6 bg-[#FFFFFF] border border-[#EADDCB] rounded-3xl space-y-4 shadow-card text-left">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-[#EADDCB] pb-4">
             <div>
-              <span className="text-xs text-[#886C7B] font-bold uppercase tracking-wider block">Order Confirmation Number</span>
-              <span className="text-2xl font-serif font-bold text-[#1C1217]">{orderId}</span>
-              {customerEmail && <span className="text-xs text-[#886C7B] block mt-0.5">Confirmation sent to {customerEmail}</span>}
+              <span className="text-xs text-[#7D6F63] font-bold uppercase tracking-wider block">Order Confirmation Number</span>
+              <span className="text-2xl font-serif font-bold text-[#232323]">{orderId}</span>
+              {customerEmail && <span className="text-xs text-[#7D6F63] block mt-0.5">Confirmation sent to {customerEmail}</span>}
             </div>
             <div className="text-left sm:text-right">
-              <span className="text-xs text-[#886C7B] font-bold uppercase tracking-wider block">Estimated Delivery</span>
+              <span className="text-xs text-[#7D6F63] font-bold uppercase tracking-wider block">Estimated Delivery</span>
               <span className="text-sm font-bold text-[#15803D]">{formatDate(deliveryStart)} - {formatDate(deliveryEnd)}</span>
             </div>
           </div>
 
           {/* Delivery Timeline Tracker */}
           <div className="space-y-2 pt-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#886C7B] block">Order Status Timeline</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-[#7D6F63] block">Order Status Timeline</span>
             <div className="grid grid-cols-4 gap-2 text-center text-[10px] font-bold">
-              <div className="p-2 bg-[#1C1217] text-white rounded-xl">
+              <div className="p-2 bg-[#232323] text-white rounded-xl">
                 1. Order Placed ✓
               </div>
-              <div className="p-2 bg-[#E87A96] text-white rounded-xl animate-pulse">
+              <div className="p-2 bg-[#8B6F4E] text-white rounded-xl animate-pulse">
                 2. Hand-Pouring
               </div>
-              <div className="p-2 bg-[#FFF6F8] border border-[#F5E8EE] text-[#886C7B] rounded-xl">
+              <div className="p-2 bg-[#FAF7F2] border border-[#EADDCB] text-[#7D6F63] rounded-xl">
                 3. Quality Check
               </div>
-              <div className="p-2 bg-[#FFF6F8] border border-[#F5E8EE] text-[#886C7B] rounded-xl">
+              <div className="p-2 bg-[#FAF7F2] border border-[#EADDCB] text-[#7D6F63] rounded-xl">
                 4. Shipped
               </div>
             </div>
@@ -89,14 +89,14 @@ export const OrderSuccessPage: React.FC<OrderSuccessPageProps> = ({ onReturnHome
         </div>
 
         {/* Order Summary Items */}
-        <div className="p-6 bg-[#FFFFFF] border border-[#F5E8EE] rounded-3xl text-left space-y-4 shadow-card">
-          <h3 className="font-serif font-bold text-base text-[#1C1217] border-b border-[#F5E8EE] pb-2">
+        <div className="p-6 bg-[#FFFFFF] border border-[#EADDCB] rounded-3xl text-left space-y-4 shadow-card">
+          <h3 className="font-serif font-bold text-base text-[#232323] border-b border-[#EADDCB] pb-2">
             Formulations Included in Order ({items.length})
           </h3>
 
           <div className="space-y-3 text-xs">
             {items.length === 0 ? (
-              <p className="text-[#886C7B] italic text-center py-2">Order details not available.</p>
+              <p className="text-[#7D6F63] italic text-center py-2">Order details not available.</p>
             ) : (
               items.map((item, idx) => {
                 const variantLabel = [item.fragrance, item.size, item.wickType || item.wick]
@@ -107,16 +107,16 @@ export const OrderSuccessPage: React.FC<OrderSuccessPageProps> = ({ onReturnHome
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">🕯️</span>
                       <div>
-                        <strong className="text-[#1C1217] block">{item.quantity}x {item.name}</strong>
+                        <strong className="text-[#232323] block">{item.quantity}x {item.name}</strong>
                         {variantLabel && (
-                          <span className="text-[#886C7B]">{variantLabel}</span>
+                          <span className="text-[#7D6F63]">{variantLabel}</span>
                         )}
                         {item.sku && (
-                          <span className="text-[11px] font-mono text-[#E87A96] block">SKU: {item.sku}</span>
+                          <span className="text-[11px] font-mono text-[#8B6F4E] block">SKU: {item.sku}</span>
                         )}
                       </div>
                     </div>
-                    <span className="font-bold text-[#1C1217]">
+                    <span className="font-bold text-[#232323]">
                       ₹{Math.round((item.price || 0) * (item.quantity || 1)).toLocaleString('en-IN')}
                     </span>
                   </div>
@@ -125,9 +125,9 @@ export const OrderSuccessPage: React.FC<OrderSuccessPageProps> = ({ onReturnHome
             )}
           </div>
 
-          <div className="pt-3 border-t border-[#F5E8EE] flex items-center justify-between text-sm font-bold">
-            <span className="text-[#1C1217]">{isCOD ? 'Amount Due on Delivery (COD)' : 'Total Paid'}</span>
-            <span className="text-xl font-serif text-[#E87A96]">₹{totalAmount.toLocaleString('en-IN')}</span>
+          <div className="pt-3 border-t border-[#EADDCB] flex items-center justify-between text-sm font-bold">
+            <span className="text-[#232323]">{isCOD ? 'Amount Due on Delivery (COD)' : 'Total Paid'}</span>
+            <span className="text-xl font-serif text-[#8B6F4E]">₹{totalAmount.toLocaleString('en-IN')}</span>
           </div>
         </div>
 

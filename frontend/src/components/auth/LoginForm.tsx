@@ -63,22 +63,22 @@ export const LoginForm: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-full font-sans text-[#1C1217] px-1 sm:px-0 box-border">
+    <div className="w-full max-w-full font-sans text-[#232323] px-1 sm:px-0 box-border">
       {/* Top Floating Badge & Icon Header */}
       <div className="flex flex-col items-center text-center mb-5 sm:mb-6">
-        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#FFF6F8] border border-[#F9B8CA] flex items-center justify-center shadow-xs mb-2.5 sm:mb-3 text-xl sm:text-2xl text-[#E87A96]">
+        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#FAF7F2] border border-[#EADDCB] flex items-center justify-center shadow-xs mb-2.5 sm:mb-3 text-xl sm:text-2xl text-[#8B6F4E]">
           🕯️
         </div>
-        <h2 className="font-serif text-xl sm:text-3xl font-bold tracking-tight text-[#1C1217]">
+        <h2 className="font-serif text-xl sm:text-3xl font-bold tracking-tight text-[#232323]">
           Welcome Back
         </h2>
-        <p className="text-[11px] sm:text-xs text-[#886C7B] mt-1 max-w-xs sm:max-w-none">
+        <p className="text-[11px] sm:text-xs text-[#7D6F63] mt-1 max-w-xs sm:max-w-none">
           Sign in to access your saved candles, wishlist & exclusive rewards.
         </p>
       </div>
 
       {/* Switch between Email and Phone Login */}
-      <div className="flex bg-[#FFF6F8] p-1 rounded-2xl border border-[#F5E8EE] mb-4 sm:mb-5">
+      <div className="flex bg-[#FAF7F2] p-1 rounded-2xl border border-[#EADDCB] mb-4 sm:mb-5">
         <button
           type="button"
           onClick={() => {
@@ -87,8 +87,8 @@ export const LoginForm: React.FC = () => {
           }}
           className={`flex-1 py-2 text-[10px] sm:text-xs font-bold uppercase tracking-wider rounded-xl transition-all cursor-pointer ${
             loginType === 'email'
-              ? 'bg-white text-[#1C1217] shadow-xs'
-              : 'text-[#886C7B] hover:text-[#1C1217]'
+              ? 'bg-white text-[#232323] shadow-xs'
+              : 'text-[#7D6F63] hover:text-[#232323]'
           }`}
         >
           Email & Password
@@ -101,8 +101,8 @@ export const LoginForm: React.FC = () => {
           }}
           className={`flex-1 py-2 text-[10px] sm:text-xs font-bold uppercase tracking-wider rounded-xl transition-all cursor-pointer ${
             loginType === 'phone'
-              ? 'bg-white text-[#1C1217] shadow-xs'
-              : 'text-[#886C7B] hover:text-[#1C1217]'
+              ? 'bg-white text-[#232323] shadow-xs'
+              : 'text-[#7D6F63] hover:text-[#232323]'
           }`}
         >
           Phone OTP
@@ -112,11 +112,11 @@ export const LoginForm: React.FC = () => {
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Email or Phone Input */}
         <div className="space-y-1">
-          <label className="block text-xs font-semibold text-[#624855]">
+          <label className="block text-xs font-semibold text-[#5C5149]">
             {loginType === 'email' ? 'Email Address' : 'Phone Number'}
           </label>
           <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-[#886C7B]">
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-[#7D6F63]">
               {loginType === 'email' ? '✉️' : '📱'}
             </span>
             <input
@@ -125,8 +125,8 @@ export const LoginForm: React.FC = () => {
               onChange={(e) => setEmailOrPhone(e.target.value)}
               placeholder={loginType === 'email' ? 'client@sanctuary.com' : '+91 98765 43210'}
               className={`w-full bg-[#FFFFFF] border ${
-                errors.emailOrPhone ? 'border-red-500' : 'border-[#F5E8EE] focus:border-[#E87A96]'
-              } rounded-2xl pl-10 pr-4 py-3 text-xs text-[#1C1217] placeholder-[#AC94A1] focus:outline-none focus:ring-2 focus:ring-[#F9B8CA]/30 transition-all`}
+                errors.emailOrPhone ? 'border-red-500' : 'border-[#EADDCB] focus:border-[#8B6F4E]'
+              } rounded-2xl pl-10 pr-4 py-3 text-xs text-[#232323] placeholder-[#A39486] focus:outline-none focus:ring-2 focus:ring-[#EADDCB]/30 transition-all`}
             />
           </div>
           {errors.emailOrPhone && <p className="text-[11px] text-red-500 font-medium">{errors.emailOrPhone}</p>}
@@ -136,30 +136,30 @@ export const LoginForm: React.FC = () => {
         {loginType === 'email' && (
           <div className="space-y-1">
             <div className="flex items-center justify-between">
-              <label className="block text-xs font-semibold text-[#624855]">Password</label>
+              <label className="block text-xs font-semibold text-[#5C5149]">Password</label>
               <button
                 type="button"
                 onClick={() => setAuthViewMode('forgot-password')}
-                className="text-[11px] font-semibold text-[#E87A96] hover:underline cursor-pointer"
+                className="text-[11px] font-semibold text-[#8B6F4E] hover:underline cursor-pointer"
               >
                 Forgot?
               </button>
             </div>
             <div className="relative">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-[#886C7B]">🔒</span>
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-[#7D6F63]">🔒</span>
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••••••"
                 className={`w-full bg-[#FFFFFF] border ${
-                  errors.password ? 'border-red-500' : 'border-[#F5E8EE] focus:border-[#E87A96]'
-                } rounded-2xl pl-10 pr-10 py-3 text-xs text-[#1C1217] placeholder-[#AC94A1] focus:outline-none focus:ring-2 focus:ring-[#F9B8CA]/30 transition-all`}
+                  errors.password ? 'border-red-500' : 'border-[#EADDCB] focus:border-[#8B6F4E]'
+                } rounded-2xl pl-10 pr-10 py-3 text-xs text-[#232323] placeholder-[#A39486] focus:outline-none focus:ring-2 focus:ring-[#EADDCB]/30 transition-all`}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-[#886C7B] hover:text-[#1C1217] cursor-pointer"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-[#7D6F63] hover:text-[#232323] cursor-pointer"
               >
                 {showPassword ? 'Hide' : 'Show'}
               </button>
@@ -170,12 +170,12 @@ export const LoginForm: React.FC = () => {
 
         {/* Remember Me */}
         <div className="flex items-center justify-between pt-1">
-          <label className="flex items-center gap-2 cursor-pointer text-xs text-[#624855]">
+          <label className="flex items-center gap-2 cursor-pointer text-xs text-[#5C5149]">
             <input
               type="checkbox"
               checked={rememberMe}
               onChange={(e) => setRememberMe(e.target.checked)}
-              className="rounded text-[#E87A96]"
+              className="rounded text-[#8B6F4E]"
             />
             <span>Remember this device</span>
           </label>
@@ -185,7 +185,7 @@ export const LoginForm: React.FC = () => {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-[#E87A96] hover:bg-[#D45D7D] text-white font-bold py-3 px-4 rounded-full text-xs uppercase tracking-wider shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+          className="w-full bg-[#8B6F4E] hover:bg-[#745A3D] text-white font-bold py-3 px-4 rounded-full text-xs uppercase tracking-wider shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
         >
           {isSubmitting ? (
             <span className="inline-block animate-spin">⏳</span>
@@ -201,12 +201,12 @@ export const LoginForm: React.FC = () => {
       <SocialLoginButtons labelPrefix="or continue with" />
 
       {/* Sign Up Redirect Switch */}
-      <div className="mt-6 text-center text-xs text-[#886C7B]">
+      <div className="mt-6 text-center text-xs text-[#7D6F63]">
         Don't have a sanctuary account yet?{' '}
         <button
           type="button"
           onClick={() => setAuthViewMode('register')}
-          className="font-bold text-[#E87A96] hover:underline ml-1 cursor-pointer"
+          className="font-bold text-[#8B6F4E] hover:underline ml-1 cursor-pointer"
         >
           Create One
         </button>

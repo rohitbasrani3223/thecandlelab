@@ -25,7 +25,7 @@ export const Badge: React.FC<BadgeProps> = ({
   const variantStyles = {
     pink: 'bg-[#F5EFE6] text-[#8B6F4E] border border-[#EADDCB]',
     rose: 'bg-[#EADDCB]/40 text-[#745A3D] border border-[#DFCFBC]',
-    gold: 'bg-[#F9F2DC] text-[#876A2A] border border-[#DFC27E]',
+    gold: 'bg-[#F8F6F0] text-[#5D462E] border border-[#EADDCB]',
     espresso: 'bg-[#232323] text-[#FFFFFF] border border-[#3D3531]',
     success: 'bg-[#EFF1E5] text-[#6B6E4A] border border-[#BFC69E]',
     warning: 'bg-[#FFFBEB] text-[#B45309] border border-[#FDE68A]',

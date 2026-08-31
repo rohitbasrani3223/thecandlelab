@@ -79,13 +79,13 @@ export const colors = {
   },
   // Gold Accent
   gold: {
-    200: '#F9F2DC',
-    300: '#EFE0B3',
-    400: '#DFC27E',
-    500: '#C8A75A',
-    600: '#AA893E',
-    700: '#876A2A',
-    DEFAULT: '#C8A75A',
+    200: '#F8F6F0',
+    300: '#EADDCB',
+    400: '#EADDCB',
+    500: '#8B6F4E',
+    600: '#745A3D',
+    700: '#5D462E',
+    DEFAULT: '#8B6F4E',
   },
   // Olive Green
   olive: {
@@ -138,7 +138,7 @@ export const colors = {
     babyPink: 'linear-gradient(135deg, #F9F6F0 0%, #EADDCB 100%)',
     roseGold: 'linear-gradient(135deg, #EADDCB 0%, #8B6F4E 100%)',
     velvetNoir: 'linear-gradient(135deg, #2C2623 0%, #1F1D1B 100%)',
-    goldGlow: 'linear-gradient(135deg, #F9F2DC 0%, #C8A75A 100%)',
+    goldGlow: 'linear-gradient(135deg, #F8F6F0 0%, #8B6F4E 100%)',
   },
   status: {
     success: {

@@ -53,7 +53,7 @@ export const ProductDetailsPage: React.FC<ProductDetailsPageProps> = ({
   if (!activeProduct) {
     return (
       <div className="max-w-7xl mx-auto px-6 py-16 font-sans space-y-6">
-        <div className="text-center text-xs font-bold text-[#E87A96] uppercase tracking-widest animate-pulse">
+        <div className="text-center text-xs font-bold text-[#8B6F4E] uppercase tracking-widest animate-pulse">
           Loading Formulation Details...
         </div>
       </div>
@@ -73,30 +73,30 @@ export const ProductDetailsPage: React.FC<ProductDetailsPageProps> = ({
   };
 
   return (
-    <div className="w-full bg-[#FAF6F8] text-[#1C1217] min-h-screen font-sans pb-20">
+    <div className="w-full bg-[#F8F6F0] text-[#232323] min-h-screen font-sans pb-20">
       {/* Breadcrumb Header */}
-      <div className="bg-[#FFFFFF] border-b border-[#F5E8EE] py-3.5 px-6 sm:px-12 text-xs text-[#886C7B]">
+      <div className="bg-[#FFFFFF] border-b border-[#EADDCB] py-3.5 px-6 sm:px-12 text-xs text-[#7D6F63]">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <a href="#home" className="hover:text-[#E87A96] transition-colors">
+            <a href="#home" className="hover:text-[#8B6F4E] transition-colors">
               Home
             </a>
             <span>/</span>
             <button
               onClick={onNavigateToShop}
-              className="hover:text-[#E87A96] transition-colors cursor-pointer"
+              className="hover:text-[#8B6F4E] transition-colors cursor-pointer"
             >
               Shop All
             </button>
             <span>/</span>
-            <span className="text-[#1C1217] font-medium truncate max-w-[200px] sm:max-w-md">
+            <span className="text-[#232323] font-medium truncate max-w-[200px] sm:max-w-md">
               {productName}
             </span>
           </div>
 
           <button
             onClick={onNavigateToShop}
-            className="hidden sm:inline-block text-xs font-mono uppercase tracking-wider text-[#E87A96] hover:underline cursor-pointer"
+            className="hidden sm:inline-block text-xs font-mono uppercase tracking-wider text-[#8B6F4E] hover:underline cursor-pointer"
           >
             ← Back to Catalog
           </button>
@@ -116,7 +116,7 @@ export const ProductDetailsPage: React.FC<ProductDetailsPageProps> = ({
           </div>
 
           {/* Right Column: Dynamic Purchase Summary */}
-          <div className="lg:col-span-6 bg-[#FFFFFF] p-4 sm:p-6 lg:p-8 rounded-3xl border border-[#F5E8EE] shadow-card">
+          <div className="lg:col-span-6 bg-[#FFFFFF] p-4 sm:p-6 lg:p-8 rounded-3xl border border-[#EADDCB] shadow-card">
             <ProductSummary
               product={activeProduct}
               onVariantChange={handleVariantChange}

@@ -13,7 +13,7 @@ export const AnnouncementBar: React.FC = () => {
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
         {/* Left Side Tag */}
         <div className="hidden sm:flex items-center gap-1.5 text-[#EADDCB] font-bold text-[11px] uppercase tracking-wider">
-          <SparklesIcon size={12} className="text-[#C8A75A]" />
+          <SparklesIcon size={12} className="text-[#8B6F4E]" />
           <span>FREE SHIPPING</span>
         </div>
 
@@ -21,7 +21,7 @@ export const AnnouncementBar: React.FC = () => {
         <div className="flex-1 text-center font-medium tracking-wide truncate px-2 text-[11px] text-[#FFFFFF]">
           <span>{announcement.text || 'FREE SHIPPING ON ORDERS ABOVE ₹999'} </span>
           {announcement.couponCode && (
-            <span className="font-mono font-bold text-[#C8A75A] bg-[#2C2623] px-2 py-0.5 rounded-sm mx-1 border border-[#C8A75A]/30">{announcement.couponCode}</span>
+            <span className="font-mono font-bold text-[#8B6F4E] bg-[#2C2623] px-2 py-0.5 rounded-sm mx-1 border border-[#8B6F4E]/30">{announcement.couponCode}</span>
           )}
           {announcement.discountText && (
             <span className="text-[#EADDCB]"> {announcement.discountText}</span>

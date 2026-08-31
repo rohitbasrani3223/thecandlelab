@@ -294,22 +294,22 @@ export const ExploreCollections: React.FC<ExploreCollectionsProps> = ({ onNaviga
         </div>
 
         {/* Atelier Quality Assurance Pill Strip */}
-        <div className="p-4 sm:p-6 bg-[#FFF6F8] rounded-3xl border border-[#F5E8EE] grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+        <div className="p-4 sm:p-6 bg-[#FAF7F2] rounded-3xl border border-[#EADDCB] grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
           <div className="space-y-0.5">
-            <span className="text-xs sm:text-sm font-serif font-bold text-[#1C1217] block">100% Organic Soy</span>
-            <span className="text-[10px] text-[#886C7B]">Clean, non-toxic burn</span>
+            <span className="text-xs sm:text-sm font-serif font-bold text-[#232323] block">100% Organic Soy</span>
+            <span className="text-[10px] text-[#7D6F63]">Clean, non-toxic burn</span>
           </div>
-          <div className="space-y-0.5 border-l border-[#F5E8EE]">
-            <span className="text-xs sm:text-sm font-serif font-bold text-[#1C1217] block">Crackling Wood Wicks</span>
-            <span className="text-[10px] text-[#886C7B]">FSC-certified natural wood</span>
+          <div className="space-y-0.5 border-l border-[#EADDCB]">
+            <span className="text-xs sm:text-sm font-serif font-bold text-[#232323] block">Crackling Wood Wicks</span>
+            <span className="text-[10px] text-[#7D6F63]">FSC-certified natural wood</span>
           </div>
-          <div className="space-y-0.5 border-l border-[#F5E8EE]">
-            <span className="text-xs sm:text-sm font-serif font-bold text-[#1C1217] block">IFRA Certified Oils</span>
-            <span className="text-[10px] text-[#886C7B]">Pure botanical essences</span>
+          <div className="space-y-0.5 border-l border-[#EADDCB]">
+            <span className="text-xs sm:text-sm font-serif font-bold text-[#232323] block">IFRA Certified Oils</span>
+            <span className="text-[10px] text-[#7D6F63]">Pure botanical essences</span>
           </div>
-          <div className="space-y-0.5 border-l border-[#F5E8EE]">
-            <span className="text-xs sm:text-sm font-serif font-bold text-[#1C1217] block">Small-Batch Hand Poured</span>
-            <span className="text-[10px] text-[#886C7B]">Poured with care in Delhi</span>
+          <div className="space-y-0.5 border-l border-[#EADDCB]">
+            <span className="text-xs sm:text-sm font-serif font-bold text-[#232323] block">Small-Batch Hand Poured</span>
+            <span className="text-[10px] text-[#7D6F63]">Poured with care in Delhi</span>
           </div>
         </div>
       </div>

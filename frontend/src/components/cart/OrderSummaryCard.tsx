@@ -17,13 +17,13 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
   const grandTotal = Math.max(0, Math.round(subtotal - discountAmount + shippingFee));
 
   return (
-    <div className="bg-[#FFFFFF] border border-[#F5E8EE] rounded-3xl p-6 shadow-hover space-y-6 font-sans">
-      <h3 className="font-serif font-bold text-xl text-[#1C1217] border-b border-[#F5E8EE] pb-3">
+    <div className="bg-[#FFFFFF] border border-[#EADDCB] rounded-3xl p-6 shadow-hover space-y-6 font-sans">
+      <h3 className="font-serif font-bold text-xl text-[#232323] border-b border-[#EADDCB] pb-3">
         Order Summary
       </h3>
 
       <div className="space-y-3 text-xs">
-        <div className="flex items-center justify-between text-[#1C1217]">
+        <div className="flex items-center justify-between text-[#232323]">
           <span>Bag Subtotal</span>
           <span className="font-bold">₹{Math.round(subtotal).toLocaleString('en-IN')}</span>
         </div>
@@ -35,7 +35,7 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
           </div>
         )}
 
-        <div className="flex items-center justify-between text-[#1C1217]">
+        <div className="flex items-center justify-between text-[#232323]">
           <span>Atelier Express Shipping</span>
           <span>
             {isFreeShipping || shippingFee === 0 ? (
@@ -46,14 +46,14 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
           </span>
         </div>
 
-        <div className="flex items-center justify-between text-[#1C1217]">
+        <div className="flex items-center justify-between text-[#232323]">
           <span>GST / Taxes</span>
           <span className="text-[#15803D] font-medium">Included in Price</span>
         </div>
 
-        <div className="pt-3 border-t border-[#F5E8EE] flex items-baseline justify-between text-base">
-          <span className="font-serif font-bold text-[#1C1217]">Estimated Total</span>
-          <span className="font-serif font-bold text-2xl text-[#E87A96]">
+        <div className="pt-3 border-t border-[#EADDCB] flex items-baseline justify-between text-base">
+          <span className="font-serif font-bold text-[#232323]">Estimated Total</span>
+          <span className="font-serif font-bold text-2xl text-[#8B6F4E]">
             ₹{grandTotal.toLocaleString('en-IN')}
           </span>
         </div>
@@ -70,10 +70,10 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
         </Button>
 
         <div className="text-center space-y-1">
-          <span className="text-[10px] text-[#886C7B] block">
+          <span className="text-[10px] text-[#7D6F63] block">
             🔒 256-Bit SSL Encrypted & Guaranteed Safe Checkout
           </span>
-          <span className="text-[10px] text-[#886C7B] block">
+          <span className="text-[10px] text-[#7D6F63] block">
             Accepts UPI (GPay, PhonePe, Paytm), Cards, NetBanking & COD
           </span>
         </div>

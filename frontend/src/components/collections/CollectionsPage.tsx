@@ -183,15 +183,15 @@ export const CollectionsPage: React.FC<CollectionsPageProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF6F8] text-[#1C1217] py-8 sm:py-12 px-4 sm:px-6 lg:px-8 font-sans">
+    <div className="min-h-screen bg-[#F8F6F0] text-[#232323] py-8 sm:py-12 px-4 sm:px-6 lg:px-8 font-sans">
       <div className="max-w-7xl mx-auto space-y-8 sm:space-y-10">
         {/* Curations Tab Bar */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-xs uppercase font-bold tracking-wider text-[#886C7B]">
+            <span className="text-xs uppercase font-bold tracking-wider text-[#7D6F63]">
               Select Collection or Category
             </span>
-            <span className="text-xs font-mono text-[#E87A96] font-bold">
+            <span className="text-xs font-mono text-[#8B6F4E] font-bold">
               {unifiedCurations.length} Curations Available
             </span>
           </div>
@@ -206,8 +206,8 @@ export const CollectionsPage: React.FC<CollectionsPageProps> = ({
                   onClick={() => handleSelectCuration(cur.id)}
                   className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 rounded-full border text-xs font-bold whitespace-nowrap shrink-0 transition-all cursor-pointer shadow-xs ${
                     isSelected
-                      ? 'bg-[#E87A96] border-[#E87A96] text-white shadow-card scale-105 ring-2 ring-[#F9B8CA]'
-                      : 'bg-white border-[#F5E8EE] text-[#624855] hover:border-[#F9B8CA] hover:bg-[#FFF6F8]'
+                      ? 'bg-[#8B6F4E] border-[#8B6F4E] text-white shadow-card scale-105 ring-2 ring-[#EADDCB]'
+                      : 'bg-white border-[#EADDCB] text-[#5C5149] hover:border-[#EADDCB] hover:bg-[#FAF7F2]'
                   }`}
                 >
                   <span className="text-base">{cur.icon}</span>
@@ -219,35 +219,35 @@ export const CollectionsPage: React.FC<CollectionsPageProps> = ({
         </div>
 
         {/* Collection / Category Hero Card with Cover Photo */}
-        <div className="relative rounded-3xl overflow-hidden border border-[#F5E8EE] bg-white p-6 sm:p-10 lg:p-12 shadow-card flex flex-col md:flex-row items-center justify-between gap-8">
+        <div className="relative rounded-3xl overflow-hidden border border-[#EADDCB] bg-white p-6 sm:p-10 lg:p-12 shadow-card flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="relative z-10 max-w-xl space-y-3">
             <div className="flex items-center gap-2">
               <Badge variant="pink" size="sm" icon={<SparklesIcon size={12} />}>
                 {currentCuration.badge}
               </Badge>
-              <span className="text-xs font-mono text-[#886C7B] font-semibold">
+              <span className="text-xs font-mono text-[#7D6F63] font-semibold">
                 • {curationProducts.length} Formulations
               </span>
             </div>
 
-            <h1 className="font-serif text-2xl sm:text-4xl lg:text-5xl font-extrabold text-[#1C1217] leading-tight">
+            <h1 className="font-serif text-2xl sm:text-4xl lg:text-5xl font-extrabold text-[#232323] leading-tight">
               {currentCuration.name}
             </h1>
 
-            <p className="text-xs sm:text-sm text-[#624855] leading-relaxed">
+            <p className="text-xs sm:text-sm text-[#5C5149] leading-relaxed">
               {currentCuration.description}
             </p>
           </div>
 
-          <div className="w-full md:w-80 h-48 sm:h-56 rounded-2xl overflow-hidden bg-[#FFF6F8] border border-[#F5E8EE] shrink-0 shadow-subtle relative group">
+          <div className="w-full md:w-80 h-48 sm:h-56 rounded-2xl overflow-hidden bg-[#FAF7F2] border border-[#EADDCB] shrink-0 shadow-subtle relative group">
             <img
               src={currentCuration.imageUrl || currentCuration.bannerImage || '/hero_candle.png'}
               alt={currentCuration.name}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#140B10]/50 via-transparent to-transparent opacity-60" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#141312]/50 via-transparent to-transparent opacity-60" />
             <div className="absolute bottom-3 left-3 text-white">
-              <span className="text-[10px] uppercase tracking-wider font-bold bg-[#E87A96] px-2.5 py-0.5 rounded-full">
+              <span className="text-[10px] uppercase tracking-wider font-bold bg-[#8B6F4E] px-2.5 py-0.5 rounded-full">
                 {currentCuration.type === 'category' ? 'Category' : 'Curated Collection'}
               </span>
             </div>
@@ -256,16 +256,16 @@ export const CollectionsPage: React.FC<CollectionsPageProps> = ({
 
         {/* Collection Product Grid */}
         <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-[#F5E8EE] shadow-xs">
-            <span className="text-xs font-bold text-[#1C1217]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-[#EADDCB] shadow-xs">
+            <span className="text-xs font-bold text-[#232323]">
               Showing {curationProducts.length} Handcrafted Candle{curationProducts.length === 1 ? '' : 's'} in {currentCuration.name}
             </span>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-[#886C7B] font-medium">Sort by:</span>
+              <span className="text-xs text-[#7D6F63] font-medium">Sort by:</span>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="bg-[#FFF6F8] border border-[#F5E8EE] rounded-xl px-3 py-1.5 text-xs text-[#1C1217] font-semibold outline-none cursor-pointer"
+                className="bg-[#FAF7F2] border border-[#EADDCB] rounded-xl px-3 py-1.5 text-xs text-[#232323] font-semibold outline-none cursor-pointer"
               >
                 <option value="featured">Featured First</option>
                 <option value="price_asc">Price: Low to High</option>
@@ -286,13 +286,13 @@ export const CollectionsPage: React.FC<CollectionsPageProps> = ({
               ))}
             </div>
           ) : (
-            <div className="p-16 text-center bg-white rounded-3xl border border-[#F5E8EE] space-y-3 shadow-xs">
+            <div className="p-16 text-center bg-white rounded-3xl border border-[#EADDCB] space-y-3 shadow-xs">
               <p className="text-3xl">🕯️</p>
-              <p className="font-serif text-lg font-bold text-[#1C1217]">No products in this curation yet.</p>
-              <p className="text-xs text-[#886C7B]">Please select another collection or view all formulations.</p>
+              <p className="font-serif text-lg font-bold text-[#232323]">No products in this curation yet.</p>
+              <p className="text-xs text-[#7D6F63]">Please select another collection or view all formulations.</p>
               <button
                 onClick={() => handleSelectCuration('all')}
-                className="px-5 py-2 bg-[#E87A96] text-white text-xs font-bold rounded-full shadow-xs cursor-pointer hover:bg-[#D45D7D]"
+                className="px-5 py-2 bg-[#8B6F4E] text-white text-xs font-bold rounded-full shadow-xs cursor-pointer hover:bg-[#745A3D]"
               >
                 View All Formulations
               </button>

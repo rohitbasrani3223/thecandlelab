@@ -181,10 +181,10 @@ export const AddressFormStep: React.FC<AddressFormStepProps> = ({ initialData, c
   return (
     <form onSubmit={handleSubmit} className="space-y-6 font-sans">
       {/* Step Header */}
-      <div className="flex items-center justify-between border-b border-[#F5E8EE] pb-4">
+      <div className="flex items-center justify-between border-b border-[#EADDCB] pb-4">
         <div>
           <Badge variant="pink" size="sm" icon={<SparklesIcon size={12} />}>STEP 1 OF 3</Badge>
-          <h2 className="text-2xl font-serif font-bold text-[#1C1217] mt-1">
+          <h2 className="text-2xl font-serif font-bold text-[#232323] mt-1">
             Order Summary & Shipping Address
           </h2>
         </div>
@@ -192,12 +192,12 @@ export const AddressFormStep: React.FC<AddressFormStepProps> = ({ initialData, c
 
       {/* 1. Itemized Order Summary Box Inside Step 1 */}
       {cartItems && cartItems.length > 0 && (
-        <div className="p-4 bg-[#FFF6F8] border border-[#F9B8CA]/60 rounded-3xl space-y-3 shadow-xs">
-          <div className="flex items-center justify-between border-b border-[#F9B8CA]/40 pb-2">
+        <div className="p-4 bg-[#FAF7F2] border border-[#EADDCB]/60 rounded-3xl space-y-3 shadow-xs">
+          <div className="flex items-center justify-between border-b border-[#EADDCB]/40 pb-2">
             <span className="text-xs font-bold uppercase tracking-wider text-[#C94C6D] flex items-center gap-1.5">
               <span>🛍️</span> Your Order Items ({cartItems.reduce((s, i) => s + (i.quantity || 1), 0)})
             </span>
-            <span className="text-xs font-bold text-[#1C1217]">
+            <span className="text-xs font-bold text-[#232323]">
               Subtotal: ₹{Math.round(subtotal).toLocaleString('en-IN')}
             </span>
           </div>
@@ -206,9 +206,9 @@ export const AddressFormStep: React.FC<AddressFormStepProps> = ({ initialData, c
             {cartItems.map((item, idx) => (
               <div
                 key={item.id || idx}
-                className="p-3 bg-[#FFFFFF] border border-[#F5E8EE] rounded-2xl flex items-center justify-between gap-3 text-xs"
+                className="p-3 bg-[#FFFFFF] border border-[#EADDCB] rounded-2xl flex items-center justify-between gap-3 text-xs"
               >
-                <div className="w-12 h-12 rounded-xl bg-[#FFF6F8] border border-[#F5E8EE] shrink-0 overflow-hidden flex items-center justify-center">
+                <div className="w-12 h-12 rounded-xl bg-[#FAF7F2] border border-[#EADDCB] shrink-0 overflow-hidden flex items-center justify-center">
                   {item.image ? (
                     <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                   ) : (
@@ -217,25 +217,25 @@ export const AddressFormStep: React.FC<AddressFormStepProps> = ({ initialData, c
                 </div>
 
                 <div className="flex-1 min-w-0 space-y-0.5">
-                  <h4 className="font-bold text-[#1C1217] truncate">{item.name}</h4>
-                  <div className="flex flex-wrap items-center gap-1.5 text-[10px] text-[#886C7B]">
+                  <h4 className="font-bold text-[#232323] truncate">{item.name}</h4>
+                  <div className="flex flex-wrap items-center gap-1.5 text-[10px] text-[#7D6F63]">
                     {item.fragrance && (
-                      <span className="text-[#C94C6D] font-semibold bg-[#FFF6F8] px-1.5 py-0.5 rounded border border-[#F9B8CA]/40">
+                      <span className="text-[#C94C6D] font-semibold bg-[#FAF7F2] px-1.5 py-0.5 rounded border border-[#EADDCB]/40">
                         🌸 {item.fragrance}
                       </span>
                     )}
                     {item.size && (
-                      <span className="bg-[#FFFFFF] px-1.5 py-0.5 rounded border border-[#F5E8EE]">
+                      <span className="bg-[#FFFFFF] px-1.5 py-0.5 rounded border border-[#EADDCB]">
                         📏 {item.size}
                       </span>
                     )}
                     {item.wickType && (
-                      <span className="bg-[#FFFFFF] px-1.5 py-0.5 rounded border border-[#F5E8EE]">
+                      <span className="bg-[#FFFFFF] px-1.5 py-0.5 rounded border border-[#EADDCB]">
                         🕯️ {item.wickType}
                       </span>
                     )}
                     {item.color && (
-                      <span className="bg-[#FFFFFF] px-1.5 py-0.5 rounded border border-[#F5E8EE]">
+                      <span className="bg-[#FFFFFF] px-1.5 py-0.5 rounded border border-[#EADDCB]">
                         🎨 {item.color}
                       </span>
                     )}
@@ -248,10 +248,10 @@ export const AddressFormStep: React.FC<AddressFormStepProps> = ({ initialData, c
                 </div>
 
                 <div className="text-right shrink-0">
-                  <span className="font-bold text-[#1C1217] block">
+                  <span className="font-bold text-[#232323] block">
                     ₹{Math.round((item.price || 0) * (item.quantity || 1)).toLocaleString('en-IN')}
                   </span>
-                  <span className="text-[10px] text-[#886C7B]">Qty: {item.quantity || 1}</span>
+                  <span className="text-[10px] text-[#7D6F63]">Qty: {item.quantity || 1}</span>
                 </div>
               </div>
             ))}
@@ -261,7 +261,7 @@ export const AddressFormStep: React.FC<AddressFormStepProps> = ({ initialData, c
 
       {/* Saved Addresses Section (If Available) */}
       {savedAddresses.length > 0 && (
-        <div className="space-y-3 p-4 bg-[#FFF6F8] border border-[#F9B8CA]/60 rounded-2xl shadow-xs">
+        <div className="space-y-3 p-4 bg-[#FAF7F2] border border-[#EADDCB]/60 rounded-2xl shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-[#C94C6D]">
               📍 Select Saved Address ({savedAddresses.length})
@@ -269,7 +269,7 @@ export const AddressFormStep: React.FC<AddressFormStepProps> = ({ initialData, c
             <button
               type="button"
               onClick={handleAddNewAddressClick}
-              className="text-xs font-bold text-[#E87A96] hover:underline cursor-pointer flex items-center gap-1"
+              className="text-xs font-bold text-[#8B6F4E] hover:underline cursor-pointer flex items-center gap-1"
             >
               ➕ Add New Address
             </button>
@@ -282,18 +282,18 @@ export const AddressFormStep: React.FC<AddressFormStepProps> = ({ initialData, c
                 onClick={() => handleSelectSavedAddress(addr, idx)}
                 className={`p-3 rounded-xl border text-xs cursor-pointer transition-all ${
                   selectedAddressIdx === idx
-                    ? 'border-[#E87A96] bg-[#FFFFFF] shadow-card ring-1 ring-[#E87A96]'
-                    : 'border-[#F5E8EE] bg-[#FFFFFF]/70 hover:border-[#F9B8CA]'
+                    ? 'border-[#8B6F4E] bg-[#FFFFFF] shadow-card ring-1 ring-[#8B6F4E]'
+                    : 'border-[#EADDCB] bg-[#FFFFFF]/70 hover:border-[#EADDCB]'
                 }`}
               >
-                <div className="flex items-center justify-between font-bold text-[#1C1217] mb-1">
+                <div className="flex items-center justify-between font-bold text-[#232323] mb-1">
                   <span>{addr.firstName} {addr.lastName}</span>
                   {selectedAddressIdx === idx && (
-                    <span className="text-[10px] bg-[#E87A96] text-white px-2 py-0.5 rounded-full font-bold">✓ Selected</span>
+                    <span className="text-[10px] bg-[#8B6F4E] text-white px-2 py-0.5 rounded-full font-bold">✓ Selected</span>
                   )}
                 </div>
-                <p className="text-[#624855] truncate font-medium">{addr.street}</p>
-                <p className="text-[#886C7B]">{addr.city}, {addr.state} {addr.zip}</p>
+                <p className="text-[#5C5149] truncate font-medium">{addr.street}</p>
+                <p className="text-[#7D6F63]">{addr.city}, {addr.state} {addr.zip}</p>
               </div>
             ))}
           </div>
@@ -301,12 +301,12 @@ export const AddressFormStep: React.FC<AddressFormStepProps> = ({ initialData, c
       )}
 
       {/* Guest vs Logged-in Toggle */}
-      <div className="p-4 bg-[#FFFFFF] border border-[#F5E8EE] rounded-2xl flex items-center justify-between text-xs shadow-xs">
+      <div className="p-4 bg-[#FFFFFF] border border-[#EADDCB] rounded-2xl flex items-center justify-between text-xs shadow-xs">
         <div>
-          <span className="font-bold text-[#1C1217] block">
+          <span className="font-bold text-[#232323] block">
             {formData.isGuest ? 'Checking out as Guest' : 'Welcome back!'}
           </span>
-          <span className="text-[#886C7B]">
+          <span className="text-[#7D6F63]">
             {formData.isGuest ? 'Sign in to use your saved addresses & rewards' : 'Using saved shipping address'}
           </span>
         </div>
@@ -322,7 +322,7 @@ export const AddressFormStep: React.FC<AddressFormStepProps> = ({ initialData, c
 
       {/* Contact Info */}
       <div className="space-y-4">
-        <h3 className="text-xs uppercase font-bold tracking-wider text-[#886C7B]">Contact Information</h3>
+        <h3 className="text-xs uppercase font-bold tracking-wider text-[#7D6F63]">Contact Information</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
             label="Email Address (for order updates)"
@@ -345,7 +345,7 @@ export const AddressFormStep: React.FC<AddressFormStepProps> = ({ initialData, c
 
       {/* Shipping Address Inputs */}
       <div className="space-y-4 pt-2">
-        <h3 className="text-xs uppercase font-bold tracking-wider text-[#886C7B]">Shipping Location</h3>
+        <h3 className="text-xs uppercase font-bold tracking-wider text-[#7D6F63]">Shipping Location</h3>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
@@ -377,7 +377,7 @@ export const AddressFormStep: React.FC<AddressFormStepProps> = ({ initialData, c
                 placeholder="e.g. 400001"
               />
               {pincodeLoading && (
-                <span className="text-[10px] text-[#E87A96] font-bold mt-1 block animate-pulse">
+                <span className="text-[10px] text-[#8B6F4E] font-bold mt-1 block animate-pulse">
                   ⏳ Detecting City & State from Indian Postal Service...
                 </span>
               )}
@@ -390,7 +390,7 @@ export const AddressFormStep: React.FC<AddressFormStepProps> = ({ initialData, c
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-[#1C1217] block mb-1">Country *</label>
+              <label className="text-xs font-semibold text-[#232323] block mb-1">Country *</label>
               <Select
                 options={[
                   { value: 'IN', label: '🇮🇳 India' },
@@ -426,11 +426,11 @@ export const AddressFormStep: React.FC<AddressFormStepProps> = ({ initialData, c
           {/* State Input */}
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-xs font-semibold text-[#1C1217]">State / Region *</label>
+              <label className="text-xs font-semibold text-[#232323]">State / Region *</label>
               <button
                 type="button"
                 onClick={() => setIsCustomState(!isCustomState)}
-                className="text-[10px] font-bold text-[#E87A96] hover:underline cursor-pointer"
+                className="text-[10px] font-bold text-[#8B6F4E] hover:underline cursor-pointer"
               >
                 {isCustomState ? '📋 List' : '✏️ Custom'}
               </button>
@@ -471,11 +471,11 @@ export const AddressFormStep: React.FC<AddressFormStepProps> = ({ initialData, c
           {/* City Input */}
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-xs font-semibold text-[#1C1217]">City *</label>
+              <label className="text-xs font-semibold text-[#232323]">City *</label>
               <button
                 type="button"
                 onClick={() => setIsCustomCity(!isCustomCity)}
-                className="text-[10px] font-bold text-[#E87A96] hover:underline cursor-pointer"
+                className="text-[10px] font-bold text-[#8B6F4E] hover:underline cursor-pointer"
               >
                 {isCustomCity ? '📋 List' : '✏️ Custom'}
               </button>
@@ -509,7 +509,7 @@ export const AddressFormStep: React.FC<AddressFormStepProps> = ({ initialData, c
         </div>
 
         <Checkbox
-          label={<span className="text-xs text-[#1C1217]">Save this address to my profile for future orders</span>}
+          label={<span className="text-xs text-[#232323]">Save this address to my profile for future orders</span>}
           checked={formData.saveAddress}
           onChange={(e) => setFormData({ ...formData, saveAddress: e.target.checked })}
         />

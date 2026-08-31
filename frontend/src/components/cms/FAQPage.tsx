@@ -66,16 +66,16 @@ export const FAQPage: React.FC = () => {
   });
 
   return (
-    <div className="w-full bg-[#FAF6F8] min-h-screen font-sans pb-16">
+    <div className="w-full bg-[#F8F6F0] min-h-screen font-sans pb-16">
       {/* Hero Header */}
-      <section className="bg-white text-[#1C1217] py-16 sm:py-24 px-6 sm:px-12 text-center relative overflow-hidden border-b border-[#F5E8EE]">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-[#F9B8CA]/20 rounded-full blur-3xl pointer-events-none" />
+      <section className="bg-white text-[#232323] py-16 sm:py-24 px-6 sm:px-12 text-center relative overflow-hidden border-b border-[#EADDCB]">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-[#EADDCB]/20 rounded-full blur-3xl pointer-events-none" />
         <div className="max-w-4xl mx-auto space-y-4 relative z-10">
           <Badge variant="pink" icon={<SparklesIcon size={12} />}>HELP CENTER & KNOWLEDGE BASE</Badge>
-          <h1 className="text-4xl sm:text-6xl font-serif font-bold text-[#1C1217]">
+          <h1 className="text-4xl sm:text-6xl font-serif font-bold text-[#232323]">
             Frequently Asked Questions
           </h1>
-          <p className="text-sm sm:text-base text-[#624855] font-light max-w-xl mx-auto leading-relaxed">
+          <p className="text-sm sm:text-base text-[#5C5149] font-light max-w-xl mx-auto leading-relaxed">
             Find immediate answers regarding candle maintenance, shipping timelines, payment options, and return procedures.
           </p>
 
@@ -85,7 +85,7 @@ export const FAQPage: React.FC = () => {
               placeholder="Search FAQ questions (e.g. shipping, wick, return)..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-white text-[#1C1217] border-[#F5E8EE]"
+              className="bg-white text-[#232323] border-[#EADDCB]"
             />
           </div>
         </div>
@@ -108,8 +108,8 @@ export const FAQPage: React.FC = () => {
               onClick={() => setActiveCategory(cat.id)}
               className={`px-4 py-2 rounded-full text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
                 activeCategory === cat.id
-                  ? 'bg-[#E87A96] text-white shadow-xs'
-                  : 'bg-white text-[#624855] border border-[#F5E8EE] hover:border-[#F9B8CA]'
+                  ? 'bg-[#8B6F4E] text-white shadow-xs'
+                  : 'bg-white text-[#5C5149] border border-[#EADDCB] hover:border-[#EADDCB]'
               }`}
             >
               {cat.label}
@@ -125,24 +125,24 @@ export const FAQPage: React.FC = () => {
               <div
                 key={faq.id}
                 className={`bg-white border rounded-3xl overflow-hidden transition-all shadow-xs ${
-                  isOpen ? 'border-[#E87A96] ring-2 ring-[#F9B8CA]/20' : 'border-[#F5E8EE]'
+                  isOpen ? 'border-[#8B6F4E] ring-2 ring-[#EADDCB]/20' : 'border-[#EADDCB]'
                 }`}
               >
                 <button
                   type="button"
                   onClick={() => setExpandedId(isOpen ? null : faq.id)}
-                  className="w-full p-5 sm:p-6 text-left flex items-center justify-between gap-4 cursor-pointer hover:bg-[#FFF6F8] transition-colors"
+                  className="w-full p-5 sm:p-6 text-left flex items-center justify-between gap-4 cursor-pointer hover:bg-[#FAF7F2] transition-colors"
                 >
-                  <h3 className="font-serif font-bold text-base text-[#1C1217]">
+                  <h3 className="font-serif font-bold text-base text-[#232323]">
                     {faq.question}
                   </h3>
-                  <span className={`text-sm font-bold text-[#E87A96] transition-transform ${isOpen ? 'rotate-180' : ''}`}>
+                  <span className={`text-sm font-bold text-[#8B6F4E] transition-transform ${isOpen ? 'rotate-180' : ''}`}>
                     ▼
                   </span>
                 </button>
 
                 {isOpen && (
-                  <div className="px-5 sm:px-6 pb-6 pt-2 text-xs sm:text-sm text-[#624855] leading-relaxed border-t border-[#F5E8EE] font-light">
+                  <div className="px-5 sm:px-6 pb-6 pt-2 text-xs sm:text-sm text-[#5C5149] leading-relaxed border-t border-[#EADDCB] font-light">
                     {faq.answer}
                   </div>
                 )}

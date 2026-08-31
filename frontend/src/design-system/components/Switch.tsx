@@ -28,8 +28,8 @@ export const Switch: React.FC<SwitchProps> = ({
     >
       {(label || description) && (
         <div className="flex flex-col">
-          {label && <span className="text-sm font-medium text-[#1C1217]">{label}</span>}
-          {description && <span className="text-xs text-[#886C7B]">{description}</span>}
+          {label && <span className="text-sm font-medium text-[#232323]">{label}</span>}
+          {description && <span className="text-xs text-[#7D6F63]">{description}</span>}
         </div>
       )}
       <button
@@ -39,7 +39,7 @@ export const Switch: React.FC<SwitchProps> = ({
         aria-checked={checked}
         disabled={disabled}
         onClick={() => !disabled && onChange(!checked)}
-        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#F9B8CA]/50 ${checked ? 'bg-[#E87A96]' : 'bg-[#F5E8EE]'}`}
+        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#EADDCB]/50 ${checked ? 'bg-[#8B6F4E]' : 'bg-[#EADDCB]'}`}
       >
         <span
           className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-[#FFFFFF] shadow-md ring-0 transition duration-200 ease-in-out ${checked ? 'translate-x-5' : 'translate-x-0'}`}

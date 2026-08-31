@@ -265,17 +265,17 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
 
   if (cartItems.length === 0) {
     return (
-      <div className="w-full bg-[#FAF6F8] min-h-screen font-sans">
+      <div className="w-full bg-[#F8F6F0] min-h-screen font-sans">
         <CheckoutHeader currentStep={1} onStepClick={() => {}} />
         <div className="max-w-xl mx-auto px-4 py-20 text-center space-y-6">
-          <div className="w-20 h-20 bg-[#FFF6F8] rounded-full flex items-center justify-center mx-auto text-4xl border border-[#F5E8EE] shadow-sm">
+          <div className="w-20 h-20 bg-[#FAF7F2] rounded-full flex items-center justify-center mx-auto text-4xl border border-[#EADDCB] shadow-sm">
             🕯️
           </div>
           <div className="space-y-2">
-            <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#1C1217]">
+            <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#232323]">
               Your Shopping Bag is Empty
             </h2>
-            <p className="text-xs sm:text-sm text-[#886C7B] leading-relaxed">
+            <p className="text-xs sm:text-sm text-[#7D6F63] leading-relaxed">
               Please add at least one handcrafted candle or botanical diffuser to proceed with checkout.
             </p>
           </div>
@@ -294,12 +294,12 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
   }
 
   return (
-    <div className="w-full bg-[#FAF6F8] min-h-screen font-sans">
+    <div className="w-full bg-[#F8F6F0] min-h-screen font-sans">
       <CheckoutHeader currentStep={step as CheckoutStep} onStepClick={(s) => setStep(s)} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          <div className="lg:col-span-8 min-w-0 bg-[#FFFFFF] p-4 sm:p-8 rounded-3xl border border-[#F5E8EE] shadow-card">
+          <div className="lg:col-span-8 min-w-0 bg-[#FFFFFF] p-4 sm:p-8 rounded-3xl border border-[#EADDCB] shadow-card">
             {step === 1 && (
               <AddressFormStep
                 initialData={address}
@@ -337,20 +337,20 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
           </div>
 
           <div className="lg:col-span-4 space-y-5 lg:sticky lg:top-24">
-            <div className="bg-[#FFFFFF] border border-[#F5E8EE] rounded-3xl p-5 space-y-4 shadow-card">
-              <div className="flex items-center justify-between border-b border-[#F5E8EE] pb-3">
-                <h3 className="font-serif font-bold text-base text-[#1C1217]">
+            <div className="bg-[#FFFFFF] border border-[#EADDCB] rounded-3xl p-5 space-y-4 shadow-card">
+              <div className="flex items-center justify-between border-b border-[#EADDCB] pb-3">
+                <h3 className="font-serif font-bold text-base text-[#232323]">
                   Order Items ({cartItems.reduce((sum, i) => sum + (i.quantity || 1), 0)})
                 </h3>
-                <span className="text-[10px] font-bold text-[#E87A96] bg-[#FFF6F8] px-2.5 py-0.5 rounded-full border border-[#F9B8CA]">
+                <span className="text-[10px] font-bold text-[#8B6F4E] bg-[#FAF7F2] px-2.5 py-0.5 rounded-full border border-[#EADDCB]">
                   {isFreeShippingEligible ? 'FREE SHIPPING' : '₹999+ FREE'}
                 </span>
               </div>
 
               <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
                 {cartItems.map((item, idx) => (
-                  <div key={item.id || idx} className="flex items-start gap-3 text-xs border-b border-[#F5E8EE]/60 pb-3 last:border-0 last:pb-0">
-                    <div className="w-12 h-12 rounded-xl bg-[#FFF6F8] border border-[#F5E8EE] shrink-0 overflow-hidden flex items-center justify-center">
+                  <div key={item.id || idx} className="flex items-start gap-3 text-xs border-b border-[#EADDCB]/60 pb-3 last:border-0 last:pb-0">
+                    <div className="w-12 h-12 rounded-xl bg-[#FAF7F2] border border-[#EADDCB] shrink-0 overflow-hidden flex items-center justify-center">
                       {item.image ? (
                         <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                       ) : (
@@ -359,8 +359,8 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
                     </div>
 
                     <div className="flex-1 min-w-0 space-y-0.5">
-                      <h4 className="font-bold text-[#1C1217] truncate">{item.name}</h4>
-                      <div className="text-[10px] text-[#886C7B] space-y-0.5">
+                      <h4 className="font-bold text-[#232323] truncate">{item.name}</h4>
+                      <div className="text-[10px] text-[#7D6F63] space-y-0.5">
                         {item.fragrance && (
                           <span className="text-[#C94C6D] font-medium block truncate">
                             🌸 {item.fragrance}
@@ -378,10 +378,10 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
                     </div>
 
                     <div className="text-right shrink-0">
-                      <span className="font-bold text-[#1C1217] block">
+                      <span className="font-bold text-[#232323] block">
                         ₹{Math.round((item.price || 0) * (item.quantity || 1)).toLocaleString('en-IN')}
                       </span>
-                      <span className="text-[10px] text-[#886C7B]">Qty: {item.quantity || 1}</span>
+                      <span className="text-[10px] text-[#7D6F63]">Qty: {item.quantity || 1}</span>
                     </div>
                   </div>
                 ))}
@@ -402,10 +402,10 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
                 />
               </div>
 
-              <div className="pt-3 border-t border-[#F5E8EE] space-y-2 text-xs">
-                <div className="flex justify-between text-[#886C7B]">
+              <div className="pt-3 border-t border-[#EADDCB] space-y-2 text-xs">
+                <div className="flex justify-between text-[#7D6F63]">
                   <span>Subtotal</span>
-                  <span className="font-semibold text-[#1C1217]">₹{subtotal.toLocaleString('en-IN')}</span>
+                  <span className="font-semibold text-[#232323]">₹{subtotal.toLocaleString('en-IN')}</span>
                 </div>
 
                 {discountAmount > 0 && (
@@ -415,7 +415,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
                   </div>
                 )}
 
-                <div className="flex justify-between text-[#886C7B]">
+                <div className="flex justify-between text-[#7D6F63]">
                   <span>Delivery ({isFreeShippingEligible ? 'Pan-India Free Express' : 'Standard Express'})</span>
                   <span>
                     {shippingFee === 0 ? (
@@ -426,9 +426,9 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
                   </span>
                 </div>
 
-                <div className="flex justify-between items-baseline pt-2 border-t border-[#F5E8EE] text-sm font-bold text-[#1C1217]">
+                <div className="flex justify-between items-baseline pt-2 border-t border-[#EADDCB] text-sm font-bold text-[#232323]">
                   <span className="font-serif">Grand Total</span>
-                  <span className="text-xl font-serif text-[#E87A96]">
+                  <span className="text-xl font-serif text-[#8B6F4E]">
                     ₹{totalAmount.toLocaleString('en-IN')}
                   </span>
                 </div>

@@ -38,16 +38,16 @@ export interface ShopByOccasionProps {
 
 export const ShopByOccasion: React.FC<ShopByOccasionProps> = ({ onSelectOccasion }) => {
   return (
-    <section className="py-16 sm:py-24 bg-[#FFFFFF] border-b border-[#F5E8EE] font-sans">
+    <section className="py-16 sm:py-24 bg-[#FFFFFF] border-b border-[#EADDCB] font-sans">
       <div className="max-w-7xl mx-auto px-6 sm:px-12 space-y-12">
-        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 border-b border-[#F5E8EE] pb-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 border-b border-[#EADDCB] pb-6">
           <div>
             <Badge variant="pink" icon={<SparklesIcon size={12} />}>MOMENTS & GATHERINGS</Badge>
-            <h2 className="text-3xl sm:text-5xl font-serif font-bold text-[#1C1217] mt-2">
+            <h2 className="text-3xl sm:text-5xl font-serif font-bold text-[#232323] mt-2">
               Shop by Special Occasion
             </h2>
           </div>
-          <p className="text-xs text-[#886C7B] max-w-xs">
+          <p className="text-xs text-[#7D6F63] max-w-xs">
             Handcrafted candle formulations matched to life’s cherished moments.
           </p>
         </div>
@@ -58,26 +58,26 @@ export const ShopByOccasion: React.FC<ShopByOccasionProps> = ({ onSelectOccasion
               key={occ.id}
               variant="bordered"
               padding="lg"
-              className="bg-[#FFFFFF] rounded-3xl group cursor-pointer flex flex-col justify-between h-72 border-[#F5E8EE] hover:border-[#F9B8CA] hover:shadow-card transition-all"
+              className="bg-[#FFFFFF] rounded-3xl group cursor-pointer flex flex-col justify-between h-72 border-[#EADDCB] hover:border-[#EADDCB] hover:shadow-card transition-all"
               onClick={() => onSelectOccasion?.(occ.id)}
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Badge variant="pink" size="sm">{occ.tag}</Badge>
-                  <span className="text-[10px] text-[#886C7B] uppercase font-mono">Curated Pairings</span>
+                  <span className="text-[10px] text-[#7D6F63] uppercase font-mono">Curated Pairings</span>
                 </div>
 
-                <h3 className="text-xl font-serif font-bold text-[#1C1217] group-hover:text-[#E87A96] transition-colors">
+                <h3 className="text-xl font-serif font-bold text-[#232323] group-hover:text-[#8B6F4E] transition-colors">
                   {occ.title}
                 </h3>
 
-                <p className="text-xs text-[#624855] leading-relaxed font-light">
+                <p className="text-xs text-[#5C5149] leading-relaxed font-light">
                   {occ.subtitle}
                 </p>
               </div>
 
-              <div className="pt-4 border-t border-[#F5E8EE] space-y-3">
-                <div className="text-[11px] text-[#E87A96] font-semibold">Matched Note: {occ.scent}</div>
+              <div className="pt-4 border-t border-[#EADDCB] space-y-3">
+                <div className="text-[11px] text-[#8B6F4E] font-semibold">Matched Note: {occ.scent}</div>
                 <Button variant="outline" size="sm" fullWidth>
                   Explore Occasion →
                 </Button>

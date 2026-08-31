@@ -65,19 +65,19 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
   return (
     <div className={`space-y-6 font-sans ${isMobile ? 'p-6 bg-white' : 'w-64 shrink-0'}`}>
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-[#F5E8EE] pb-3">
-        <h3 className="text-xs uppercase font-mono font-bold tracking-widest text-[#1C1217]">
+      <div className="flex items-center justify-between border-b border-[#EADDCB] pb-3">
+        <h3 className="text-xs uppercase font-mono font-bold tracking-widest text-[#232323]">
           Refine Selection
         </h3>
         <div className="flex items-center gap-2">
           <button
             onClick={onResetFilters}
-            className="text-[10px] font-mono uppercase tracking-wider text-[#E87A96] hover:underline cursor-pointer"
+            className="text-[10px] font-mono uppercase tracking-wider text-[#8B6F4E] hover:underline cursor-pointer"
           >
             Reset
           </button>
           {isMobile && onCloseMobile && (
-            <button onClick={onCloseMobile} className="text-[#886C7B] hover:text-[#1C1217] p-1 cursor-pointer">
+            <button onClick={onCloseMobile} className="text-[#7D6F63] hover:text-[#232323] p-1 cursor-pointer">
               <CloseIcon size={18} />
             </button>
           )}
@@ -85,33 +85,33 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
       </div>
 
       {/* 1. In Stock Toggle */}
-      <div className="bg-[#FFFFFF] p-3.5 rounded-2xl border border-[#F5E8EE] shadow-xs">
+      <div className="bg-[#FFFFFF] p-3.5 rounded-2xl border border-[#EADDCB] shadow-xs">
         <label className="flex items-center justify-between cursor-pointer">
-          <span className="text-xs text-[#1C1217] font-medium">In Stock Only</span>
+          <span className="text-xs text-[#232323] font-medium">In Stock Only</span>
           <input
             type="checkbox"
             checked={filters.inStockOnly}
             onChange={(e) => onFilterChange({ ...filters, inStockOnly: e.target.checked })}
-            className="rounded text-[#E87A96]"
+            className="rounded text-[#8B6F4E]"
           />
         </label>
       </div>
 
       {/* 2. Main Categories */}
       {mainCategories.length > 0 && (
-        <div className="space-y-3 border-b border-[#F5E8EE] pb-4">
-          <div className="flex items-center justify-between font-bold text-xs uppercase font-mono tracking-wider text-[#1C1217]">
+        <div className="space-y-3 border-b border-[#EADDCB] pb-4">
+          <div className="flex items-center justify-between font-bold text-xs uppercase font-mono tracking-wider text-[#232323]">
             <span>Categories</span>
-            <ChevronDownIcon size={14} className="text-[#886C7B]" />
+            <ChevronDownIcon size={14} className="text-[#7D6F63]" />
           </div>
           <div className="space-y-2 pt-1">
             {mainCategories.map((item) => (
-              <label key={item.id} className="flex items-center gap-2 cursor-pointer text-xs text-[#624855] hover:text-[#1C1217]">
+              <label key={item.id} className="flex items-center gap-2 cursor-pointer text-xs text-[#5C5149] hover:text-[#232323]">
                 <input
                   type="checkbox"
                   checked={filters.categories.includes(item.id) || filters.categories.includes(item.name)}
                   onChange={() => toggleCategory(item.id)}
-                  className="rounded text-[#E87A96]"
+                  className="rounded text-[#8B6F4E]"
                 />
                 <span>{item.name}</span>
               </label>
@@ -122,19 +122,19 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
 
       {/* 3. Curated Collections */}
       {cmsCollections.length > 0 && (
-        <div className="space-y-3 border-b border-[#F5E8EE] pb-4">
-          <div className="flex items-center justify-between font-bold text-xs uppercase font-mono tracking-wider text-[#1C1217]">
+        <div className="space-y-3 border-b border-[#EADDCB] pb-4">
+          <div className="flex items-center justify-between font-bold text-xs uppercase font-mono tracking-wider text-[#232323]">
             <span>Collections</span>
-            <ChevronDownIcon size={14} className="text-[#886C7B]" />
+            <ChevronDownIcon size={14} className="text-[#7D6F63]" />
           </div>
           <div className="space-y-2 pt-1">
             {cmsCollections.map((item) => (
-              <label key={item.id} className="flex items-center gap-2 cursor-pointer text-xs text-[#624855] hover:text-[#1C1217]">
+              <label key={item.id} className="flex items-center gap-2 cursor-pointer text-xs text-[#5C5149] hover:text-[#232323]">
                 <input
                   type="checkbox"
                   checked={filters.collections.includes(item.id) || filters.collections.includes(item.name)}
                   onChange={() => toggleCollection(item.id)}
-                  className="rounded text-[#E87A96]"
+                  className="rounded text-[#8B6F4E]"
                 />
                 <span>{item.name}</span>
               </label>
@@ -145,19 +145,19 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
 
       {/* 4. Fragrance Selector Facet */}
       {fragrances.length > 0 && (
-        <div className="space-y-3 border-b border-[#F5E8EE] pb-4">
-          <div className="flex items-center justify-between font-bold text-xs uppercase font-mono tracking-wider text-[#1C1217]">
+        <div className="space-y-3 border-b border-[#EADDCB] pb-4">
+          <div className="flex items-center justify-between font-bold text-xs uppercase font-mono tracking-wider text-[#232323]">
             <span>Fragrance Accord</span>
-            <ChevronDownIcon size={14} className="text-[#886C7B]" />
+            <ChevronDownIcon size={14} className="text-[#7D6F63]" />
           </div>
           <div className="space-y-2 pt-1 max-h-48 overflow-y-auto pr-1 scrollbar-none">
             {fragrances.map((item) => (
-              <label key={item.id} className="flex items-center gap-2 cursor-pointer text-xs text-[#624855] hover:text-[#1C1217]">
+              <label key={item.id} className="flex items-center gap-2 cursor-pointer text-xs text-[#5C5149] hover:text-[#232323]">
                 <input
                   type="checkbox"
                   checked={(filters.fragrances || []).includes(item.id)}
                   onChange={() => toggleFragrance(item.id)}
-                  className="rounded text-[#E87A96]"
+                  className="rounded text-[#8B6F4E]"
                 />
                 <span className="truncate">{item.name}</span>
               </label>
@@ -168,10 +168,10 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
 
       {/* 5. Generic Sizes Facet */}
       {sizes.length > 0 && (
-        <div className="space-y-3 border-b border-[#F5E8EE] pb-4">
-          <div className="flex items-center justify-between font-bold text-xs uppercase font-mono tracking-wider text-[#1C1217]">
+        <div className="space-y-3 border-b border-[#EADDCB] pb-4">
+          <div className="flex items-center justify-between font-bold text-xs uppercase font-mono tracking-wider text-[#232323]">
             <span>Product Size</span>
-            <ChevronDownIcon size={14} className="text-[#886C7B]" />
+            <ChevronDownIcon size={14} className="text-[#7D6F63]" />
           </div>
           <div className="flex flex-wrap gap-1.5 pt-1">
             {sizes.map((sz) => {
@@ -183,8 +183,8 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
                   onClick={() => toggleSize(sz.id)}
                   className={`text-[10px] font-mono px-3 py-1 rounded-full border transition-colors cursor-pointer ${
                     isSelected
-                      ? 'bg-[#FFF6F8] text-[#E87A96] border-[#F9B8CA] font-semibold'
-                      : 'bg-white text-[#624855] border-[#F5E8EE] hover:text-[#1C1217]'
+                      ? 'bg-[#FAF7F2] text-[#8B6F4E] border-[#EADDCB] font-semibold'
+                      : 'bg-white text-[#5C5149] border-[#EADDCB] hover:text-[#232323]'
                   }`}
                 >
                   {sz.name}
@@ -196,31 +196,31 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
       )}
 
       {/* 6. Price Range Inputs */}
-      <div className="space-y-3 border-b border-[#F5E8EE] pb-4">
-        <div className="flex items-center justify-between font-bold text-xs uppercase font-mono tracking-wider text-[#1C1217]">
+      <div className="space-y-3 border-b border-[#EADDCB] pb-4">
+        <div className="flex items-center justify-between font-bold text-xs uppercase font-mono tracking-wider text-[#232323]">
           <span>Price Range</span>
-          <span className="text-[11px] text-[#E87A96] font-mono">
+          <span className="text-[11px] text-[#8B6F4E] font-mono">
             ₹{filters.priceMin} - ₹{filters.priceMax}
           </span>
         </div>
         <div className="flex items-center gap-3 pt-1">
           <div className="flex-1 space-y-1">
-            <span className="text-[10px] font-mono text-[#886C7B] uppercase">Min</span>
+            <span className="text-[10px] font-mono text-[#7D6F63] uppercase">Min</span>
             <input
               type="number"
               value={filters.priceMin}
               onChange={(e) => onFilterChange({ ...filters, priceMin: Number(e.target.value) || 0 })}
-              className="w-full bg-[#FFFFFF] border border-[#F5E8EE] rounded-xl p-2 text-xs text-[#1C1217] outline-none focus:border-[#E87A96]"
+              className="w-full bg-[#FFFFFF] border border-[#EADDCB] rounded-xl p-2 text-xs text-[#232323] outline-none focus:border-[#8B6F4E]"
             />
           </div>
-          <span className="text-[#886C7B] mt-4">-</span>
+          <span className="text-[#7D6F63] mt-4">-</span>
           <div className="flex-1 space-y-1">
-            <span className="text-[10px] font-mono text-[#886C7B] uppercase">Max</span>
+            <span className="text-[10px] font-mono text-[#7D6F63] uppercase">Max</span>
             <input
               type="number"
               value={filters.priceMax}
               onChange={(e) => onFilterChange({ ...filters, priceMax: Number(e.target.value) || 5000 })}
-              className="w-full bg-[#FFFFFF] border border-[#F5E8EE] rounded-xl p-2 text-xs text-[#1C1217] outline-none focus:border-[#E87A96]"
+              className="w-full bg-[#FFFFFF] border border-[#EADDCB] rounded-xl p-2 text-xs text-[#232323] outline-none focus:border-[#8B6F4E]"
             />
           </div>
         </div>

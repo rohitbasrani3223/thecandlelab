@@ -15,8 +15,8 @@ export const WishlistEmptyState: React.FC<WishlistEmptyStateProps> = ({ onExplor
         onAction={onExploreCatalog}
       />
 
-      <div className="pt-8 border-t border-[#F5E8EE] max-w-md mx-auto space-y-3">
-        <span className="text-xs font-bold uppercase tracking-wider text-[#886C7B]">Need Inspiration?</span>
+      <div className="pt-8 border-t border-[#EADDCB] max-w-md mx-auto space-y-3">
+        <span className="text-xs font-bold uppercase tracking-wider text-[#7D6F63]">Need Inspiration?</span>
         <div className="flex justify-center gap-3">
           <Button variant="outline" size="sm" onClick={onExploreCatalog}>
             View Best Sellers

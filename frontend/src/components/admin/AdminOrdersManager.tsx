@@ -190,16 +190,16 @@ export const AdminOrdersManager: React.FC = () => {
 
                       {/* Gift Packaging & Message */}
                       {(item.giftPackaging || item.customMessage) && (
-                        <div className="p-2.5 bg-[#FFF6F8] border border-[#F9B8CA] rounded-xl text-xs space-y-1">
+                        <div className="p-2.5 bg-[#FAF7F2] border border-[#EADDCB] rounded-xl text-xs space-y-1">
                           {item.giftPackaging && (
                             <span className="font-bold text-[#C94C6D] flex items-center gap-1">
                               <span>🎁</span> Pack in Luxury Blush Rose Gift Box (+ Wax Seal)
                             </span>
                           )}
                           {item.customMessage && (
-                            <div className="bg-white p-2 rounded-lg border border-[#F9B8CA]/40">
-                              <span className="text-[10px] font-bold uppercase text-[#886C7B] block">💌 Handwritten Card Note:</span>
-                              <p className="italic text-[#1C1217] font-serif">"{item.customMessage}"</p>
+                            <div className="bg-white p-2 rounded-lg border border-[#EADDCB]/40">
+                              <span className="text-[10px] font-bold uppercase text-[#7D6F63] block">💌 Handwritten Card Note:</span>
+                              <p className="italic text-[#232323] font-serif">"{item.customMessage}"</p>
                             </div>
                           )}
                         </div>

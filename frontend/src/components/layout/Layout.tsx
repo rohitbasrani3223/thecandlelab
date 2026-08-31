@@ -62,7 +62,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, onNavigate, currentPag
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF6F8] text-[#1C1217] font-sans">
+    <div className="min-h-screen flex flex-col bg-[#F8F6F0] text-[#232323] font-sans">
       {/* 1. Announcement Bar */}
       <AnnouncementBar />
 

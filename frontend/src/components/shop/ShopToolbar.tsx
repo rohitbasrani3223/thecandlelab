@@ -42,11 +42,11 @@ export const ShopToolbar: React.FC<ShopToolbarProps> = ({
   };
 
   return (
-    <div className="bg-white border border-[#F5E8EE] rounded-3xl p-3 sm:p-4 shadow-subtle flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 sm:gap-4 font-sans max-w-7xl mx-auto mb-8 w-full max-w-full min-w-0">
+    <div className="bg-white border border-[#EADDCB] rounded-3xl p-3 sm:p-4 shadow-subtle flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 sm:gap-4 font-sans max-w-7xl mx-auto mb-8 w-full max-w-full min-w-0">
       {/* Left: Category Pill Selectors */}
       <div className="flex items-center gap-2 overflow-x-auto w-full lg:w-auto no-scrollbar py-1 min-w-0 touch-pan-x -mx-1 px-1 sm:mx-0 sm:px-0">
-        <span className="text-xs font-bold text-[#1C1217] flex items-center gap-1 shrink-0 mr-1">
-          <svg className="w-4 h-4 text-[#E87A96]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <span className="text-xs font-bold text-[#232323] flex items-center gap-1 shrink-0 mr-1">
+          <svg className="w-4 h-4 text-[#8B6F4E]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
           </svg>
           Category:
@@ -60,8 +60,8 @@ export const ShopToolbar: React.FC<ShopToolbarProps> = ({
               onClick={() => handleCategorySelect(pill.id)}
               className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap shrink-0 cursor-pointer shadow-xs ${
                 isSelected
-                  ? 'bg-[#E87A96] text-white'
-                  : 'bg-[#FFF6F8] text-[#624855] border border-[#F5E8EE] hover:bg-[#FDE8EF]'
+                  ? 'bg-[#8B6F4E] text-white'
+                  : 'bg-[#FAF7F2] text-[#5C5149] border border-[#EADDCB] hover:bg-[#FDE8EF]'
               }`}
             >
               {pill.label}
@@ -72,8 +72,8 @@ export const ShopToolbar: React.FC<ShopToolbarProps> = ({
 
       {/* Right: Sort By Dropdown */}
       <div className="flex items-center gap-2 shrink-0 self-end lg:self-auto text-xs">
-        <span className="font-bold text-[#1C1217] flex items-center gap-1">
-          <svg className="w-4 h-4 text-[#E87A96]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <span className="font-bold text-[#232323] flex items-center gap-1">
+          <svg className="w-4 h-4 text-[#8B6F4E]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
           </svg>
           Sort:
@@ -82,7 +82,7 @@ export const ShopToolbar: React.FC<ShopToolbarProps> = ({
         <select
           value={sortBy}
           onChange={(e) => onSortByChange(e.target.value)}
-          className="bg-[#FFF6F8] border border-[#F5E8EE] text-[#1C1217] font-semibold rounded-xl px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#E87A96] cursor-pointer"
+          className="bg-[#FAF7F2] border border-[#EADDCB] text-[#232323] font-semibold rounded-xl px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#8B6F4E] cursor-pointer"
         >
           <option value="featured">Featured Items</option>
           <option value="price-asc">Price: Low to High</option>

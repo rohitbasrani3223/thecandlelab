@@ -36,7 +36,7 @@ export const Button: React.FC<ButtonProps> = ({
   const variantStyles = {
     primary: "bg-[#232323] text-[#FFFFFF] hover:bg-[#3D3531] border border-[#232323] shadow-sm hover:shadow-md active:translate-y-[1px]",
     pink: "bg-gradient-to-r from-[#8B6F4E] via-[#9E8160] to-[#745A3D] text-white hover:brightness-105 border border-[#8B6F4E] shadow-[0_4px_16px_rgba(139,111,78,0.35)] active:translate-y-[1px]",
-    gold: "bg-gradient-to-r from-[#EFE0B3] via-[#C8A75A] to-[#AA893E] text-[#232323] hover:brightness-105 border border-[#C8A75A] shadow-[0_4px_16px_rgba(200,167,90,0.35)] active:translate-y-[1px]",
+    gold: "bg-gradient-to-r from-[#EADDCB] via-[#8B6F4E] to-[#745A3D] text-[#232323] hover:brightness-105 border border-[#8B6F4E] shadow-[0_4px_16px_rgba(139, 111, 78,0.35)] active:translate-y-[1px]",
     secondary: "bg-[#FFFFFF] text-[#232323] hover:bg-[#EADDCB] hover:text-[#232323] border border-[#DFCFBC] shadow-xs active:translate-y-[1px]",
     outline: "bg-transparent text-[#232323] border border-[#232323] hover:bg-[#EADDCB]/30 hover:text-[#232323] active:translate-y-[1px]",
     ghost: "bg-transparent text-[#5C5149] hover:bg-[#EADDCB]/30 hover:text-[#232323] rounded-full",

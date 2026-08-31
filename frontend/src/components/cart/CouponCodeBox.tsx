@@ -67,25 +67,25 @@ export const CouponCodeBox: React.FC<CouponCodeBoxProps> = ({
   };
 
   return (
-    <div className="p-4 bg-[#FFFFFF] border border-[#F5E8EE] rounded-2xl space-y-3 font-sans shadow-xs">
+    <div className="p-4 bg-[#FFFFFF] border border-[#EADDCB] rounded-2xl space-y-3 font-sans shadow-xs">
       <div className="flex items-center justify-between">
-        <span className="text-xs uppercase font-bold tracking-wider text-[#886C7B]">
+        <span className="text-xs uppercase font-bold tracking-wider text-[#7D6F63]">
           Promo / Voucher Code
         </span>
         <button
           type="button"
           onClick={() => setShowOffers(!showOffers)}
-          className="text-xs font-bold text-[#E87A96] hover:underline cursor-pointer flex items-center gap-1"
+          className="text-xs font-bold text-[#8B6F4E] hover:underline cursor-pointer flex items-center gap-1"
         >
           <span>🏷️ {showOffers ? 'Hide Offers' : 'See All Offers'}</span>
         </button>
       </div>
 
       {appliedCoupon ? (
-        <div className="flex items-center justify-between p-3 bg-[#FFF6F8] border border-[#F9B8CA] rounded-xl text-xs">
+        <div className="flex items-center justify-between p-3 bg-[#FAF7F2] border border-[#EADDCB] rounded-xl text-xs">
           <div className="flex items-center gap-2">
             <Badge variant="pink" size="sm">✓ APPLIED</Badge>
-            <span className="font-bold text-[#1C1217]">{appliedCoupon}</span>
+            <span className="font-bold text-[#232323]">{appliedCoupon}</span>
             <span className="text-[#15803D] font-semibold">({discountPercentage}% Off)</span>
           </div>
           <button
@@ -106,7 +106,7 @@ export const CouponCodeBox: React.FC<CouponCodeBoxProps> = ({
               placeholder="Enter code (e.g. SAVE10)"
               value={inputCode}
               onChange={(e) => setInputCode(e.target.value)}
-              className="flex-1 text-xs p-2.5 bg-[#FFF6F8] border border-[#F5E8EE] rounded-xl font-mono uppercase text-[#1C1217] outline-none focus:border-[#E87A96] focus:ring-2 focus:ring-[#F9B8CA]/40"
+              className="flex-1 text-xs p-2.5 bg-[#FAF7F2] border border-[#EADDCB] rounded-xl font-mono uppercase text-[#232323] outline-none focus:border-[#8B6F4E] focus:ring-2 focus:ring-[#EADDCB]/40"
             />
             <Button variant="pink" size="sm" onClick={() => handleApply()}>
               Apply
@@ -115,7 +115,7 @@ export const CouponCodeBox: React.FC<CouponCodeBoxProps> = ({
 
           {/* Available Offers Accordion */}
           {showOffers && (
-            <div className="p-3 bg-[#FFF6F8] border border-[#F9B8CA]/50 rounded-xl space-y-2 text-xs">
+            <div className="p-3 bg-[#FAF7F2] border border-[#EADDCB]/50 rounded-xl space-y-2 text-xs">
               <span className="text-[11px] font-bold text-[#C94C6D] uppercase block">
                 ✨ Available Sanctuary Vouchers:
               </span>
@@ -123,23 +123,23 @@ export const CouponCodeBox: React.FC<CouponCodeBoxProps> = ({
                 {activeCouponsList.slice(0, 3).map((cpn) => (
                   <div
                     key={cpn.code}
-                    className="p-2.5 bg-[#FFFFFF] border border-[#F5E8EE] rounded-lg flex items-center justify-between gap-2"
+                    className="p-2.5 bg-[#FFFFFF] border border-[#EADDCB] rounded-lg flex items-center justify-between gap-2"
                   >
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-mono font-bold text-[#1C1217] bg-[#FFF6F8] px-2 py-0.5 rounded border border-[#F9B8CA]">
+                        <span className="font-mono font-bold text-[#232323] bg-[#FAF7F2] px-2 py-0.5 rounded border border-[#EADDCB]">
                           {cpn.code}
                         </span>
                         <span className="text-[11px] font-bold text-[#15803D]">
                           {cpn.discount}% OFF
                         </span>
                       </div>
-                      <p className="text-[10px] text-[#886C7B] mt-0.5">{cpn.desc}</p>
+                      <p className="text-[10px] text-[#7D6F63] mt-0.5">{cpn.desc}</p>
                     </div>
                     <button
                       type="button"
                       onClick={() => handleApply(cpn.code)}
-                      className="px-3 py-1 bg-[#E87A96] hover:bg-[#D45D7D] text-white text-[11px] font-bold rounded-full cursor-pointer shadow-xs"
+                      className="px-3 py-1 bg-[#8B6F4E] hover:bg-[#745A3D] text-white text-[11px] font-bold rounded-full cursor-pointer shadow-xs"
                     >
                       Apply
                     </button>

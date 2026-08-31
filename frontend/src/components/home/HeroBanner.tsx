@@ -43,7 +43,7 @@ export const HeroBanner: React.FC = () => {
       </div>
 
       {/* 2. Floating Warm Beige & Gold Candle Flame Ambient Glow */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[400px] sm:max-w-[600px] h-[350px] sm:h-[500px] bg-gradient-to-tr from-[#EADDCB]/25 via-[#C8A75A]/20 to-transparent rounded-full blur-3xl pointer-events-none animate-pulse" />
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[400px] sm:max-w-[600px] h-[350px] sm:h-[500px] bg-gradient-to-tr from-[#EADDCB]/25 via-[#8B6F4E]/20 to-transparent rounded-full blur-3xl pointer-events-none animate-pulse" />
 
       {/* 3. Hero Content Container */}
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 relative z-10">
@@ -85,7 +85,7 @@ export const HeroBanner: React.FC = () => {
               variant="outline"
               size="lg"
               className="w-full sm:w-auto bg-[#232323]/60 backdrop-blur-md border border-[#EADDCB]/60 text-[#FFFFFF] hover:bg-[#FFFFFF] hover:text-[#232323] hover:border-[#FFFFFF] rounded-full px-8 sm:px-10 py-3.5 sm:py-4 transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer shadow-lg text-sm sm:text-base"
-              leftIcon={<CandleIcon size={18} className="text-[#C8A75A]" />}
+              leftIcon={<CandleIcon size={18} className="text-[#8B6F4E]" />}
               onClick={() => {
                 const el = document.getElementById('scent-quiz-section');
                 if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -103,7 +103,7 @@ export const HeroBanner: React.FC = () => {
               <span className="text-[9px] sm:text-[11px] text-[#DFCFBC]/80">Clean & Non-Toxic</span>
             </div>
             <div className="bg-[#232323]/75 backdrop-blur-md p-3 sm:p-4 rounded-2xl border border-[#EADDCB]/25 shadow-xl">
-              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[#C8A75A] block">Essential Oils</span>
+              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[#8B6F4E] block">Essential Oils</span>
               <span className="text-[9px] sm:text-[11px] text-[#DFCFBC]/80">IFRA Certified</span>
             </div>
             <div className="bg-[#232323]/75 backdrop-blur-md p-3 sm:p-4 rounded-2xl border border-[#EADDCB]/25 shadow-xl">
@@ -122,7 +122,7 @@ export const HeroBanner: React.FC = () => {
       <div className="bg-[#1F1D1B] border-t border-[#2C2623] py-2.5 px-3 text-center text-[10px] sm:text-xs text-[#EADDCB] font-semibold tracking-wider flex flex-wrap items-center justify-center gap-2 sm:gap-6 overflow-hidden w-full">
         <span>✨ Pan-India Free Delivery Above ₹999</span>
         <span className="hidden sm:inline text-[#8B6F4E]">✦</span>
-        <span className="hidden sm:inline">🏷️ 10% OFF Code: <strong className="text-[#C8A75A]">SAVE10</strong></span>
+        <span className="hidden sm:inline">🏷️ 10% OFF Code: <strong className="text-[#8B6F4E]">SAVE10</strong></span>
         <span className="hidden md:inline text-[#8B6F4E]">✦</span>
         <span className="hidden md:inline">🎁 Complimentary Premium Gift Packaging</span>
       </div>

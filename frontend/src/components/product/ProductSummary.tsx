@@ -204,7 +204,7 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
       return {
         id: 'custom',
         name: customColorText.trim() ? `Custom: ${customColorText.trim()}` : 'Custom Shade',
-        hexCode: '#F9B8CA',
+        hexCode: '#EADDCB',
       };
     }
     return availableColors.find((c) => c.id === selectedColorId) || availableColors[0];
@@ -297,7 +297,7 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
 
       {/* Rating & Stock Summary */}
       <div className="flex items-center gap-3 py-2.5 border-y border-[#EADDCB]">
-        <div className="flex items-center text-[#C8A75A] text-sm tracking-tighter">
+        <div className="flex items-center text-[#8B6F4E] text-sm tracking-tighter">
           {'★'.repeat(5)}
         </div>
         <span className="text-xs font-mono text-[#232323] font-bold">
@@ -421,7 +421,7 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
             {/* Color Preview Swatch or Custom Palette Indicator */}
             {selectedColorId === 'custom' ? (
               <div
-                className="w-9 h-9 rounded-full border-2 border-white shadow-md shrink-0 bg-gradient-to-tr from-[#EADDCB] via-[#C8A75A] to-[#8B6F4E] flex items-center justify-center text-xs ring-1 ring-[#EADDCB]"
+                className="w-9 h-9 rounded-full border-2 border-white shadow-md shrink-0 bg-gradient-to-tr from-[#EADDCB] via-[#8B6F4E] to-[#8B6F4E] flex items-center justify-center text-xs ring-1 ring-[#EADDCB]"
                 title="Custom Color Formulation"
               >
                 🎨
@@ -577,7 +577,7 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
       {(showGiftPackaging || showCustomMessage) && (
         <div className="pt-2 space-y-2.5">
           {showGiftPackaging && (
-            <label className="flex items-center gap-2.5 text-xs text-[#1C1217] cursor-pointer">
+            <label className="flex items-center gap-2.5 text-xs text-[#232323] cursor-pointer">
               <input
                 type="checkbox"
                 checked={giftPackaging}
@@ -587,7 +587,7 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
                     setShowGiftMessageInput(e.target.checked);
                   }
                 }}
-                className="rounded text-[#E87A96] focus:ring-0"
+                className="rounded text-[#8B6F4E] focus:ring-0"
               />
               <span>✨ Add Luxury Blush Gift Box Packaging (+₹149)</span>
             </label>
@@ -600,7 +600,7 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
                 placeholder="Enter handwritten gift message for recipient..."
                 value={customMessage}
                 onChange={(e) => setCustomMessage(e.target.value)}
-                className="w-full bg-[#FFF6F8] border border-[#F5E8EE] rounded-xl px-3 py-2 text-xs text-[#1C1217] outline-none focus:border-[#E87A96]"
+                className="w-full bg-[#FAF7F2] border border-[#EADDCB] rounded-xl px-3 py-2 text-xs text-[#232323] outline-none focus:border-[#8B6F4E]"
               />
             </div>
           )}

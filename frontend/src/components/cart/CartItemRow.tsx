@@ -37,10 +37,10 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({
   const wickDisplay = item.wickType || item.wick;
 
   return (
-    <div className="p-4 bg-[#FFFFFF] border border-[#F5E8EE] rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 font-sans hover:border-[#F9B8CA] shadow-xs transition-all">
+    <div className="p-4 bg-[#FFFFFF] border border-[#EADDCB] rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 font-sans hover:border-[#EADDCB] shadow-xs transition-all">
       {/* Product Image & Details */}
       <div className="flex items-center gap-4 flex-1 min-w-0">
-        <div className="w-16 h-16 rounded-xl bg-[#FFF6F8] border border-[#F5E8EE] shrink-0 overflow-hidden flex items-center justify-center">
+        <div className="w-16 h-16 rounded-xl bg-[#FAF7F2] border border-[#EADDCB] shrink-0 overflow-hidden flex items-center justify-center">
           {item.image ? (
             <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
           ) : (
@@ -49,12 +49,12 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({
         </div>
 
         <div className="space-y-1 min-w-0 flex-1">
-          <h4 className="font-serif font-medium text-sm text-[#1C1217] truncate">
+          <h4 className="font-serif font-medium text-sm text-[#232323] truncate">
             {item.name}
           </h4>
 
           {/* Dynamic Variant Attributes Display */}
-          <div className="flex items-center gap-2 text-[11px] text-[#886C7B] flex-wrap">
+          <div className="flex items-center gap-2 text-[11px] text-[#7D6F63] flex-wrap">
             {fragranceDisplay && (
               <span className="text-[#C94C6D] font-medium">
                 🌸 {fragranceDisplay}
@@ -63,19 +63,19 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({
             {sizeDisplay && (
               <>
                 <span>•</span>
-                <span>Size: <strong className="text-[#1C1217] font-mono">{sizeDisplay}</strong></span>
+                <span>Size: <strong className="text-[#232323] font-mono">{sizeDisplay}</strong></span>
               </>
             )}
             {wickDisplay && wickDisplay !== 'N/A' && (
               <>
                 <span>•</span>
-                <span className="text-[#886C7B]">{wickDisplay}</span>
+                <span className="text-[#7D6F63]">{wickDisplay}</span>
               </>
             )}
             {item.color && (
               <>
                 <span>•</span>
-                <span className={item.color.toLowerCase().includes('custom') ? 'text-[#E87A96] font-semibold bg-[#FFF6F8] px-1.5 py-0.5 rounded border border-[#F9B8CA]' : 'text-[#886C7B]'}>
+                <span className={item.color.toLowerCase().includes('custom') ? 'text-[#8B6F4E] font-semibold bg-[#FAF7F2] px-1.5 py-0.5 rounded border border-[#EADDCB]' : 'text-[#7D6F63]'}>
                   🎨 {item.color}
                 </span>
               </>
@@ -84,13 +84,13 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({
 
           {/* Gift Packaging & Message Notes */}
           {item.giftPackaging && (
-            <span className="inline-block text-[10px] font-mono text-[#C94C6D] bg-[#FDE8EF] px-2 py-0.5 rounded-full border border-[#F9B8CA]">
+            <span className="inline-block text-[10px] font-mono text-[#C94C6D] bg-[#FDE8EF] px-2 py-0.5 rounded-full border border-[#EADDCB]">
               🎁 Luxury Gift Box Included
             </span>
           )}
 
           {item.customMessage && (
-            <p className="text-[10px] text-[#886C7B] italic truncate max-w-sm">
+            <p className="text-[10px] text-[#7D6F63] italic truncate max-w-sm">
               Note: "{item.customMessage}"
             </p>
           )}
@@ -98,21 +98,21 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({
       </div>
 
       {/* Quantity & Actions */}
-      <div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-[#F5E8EE]">
+      <div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-[#EADDCB]">
         {/* Quantity Counter */}
-        <div className="flex items-center border border-[#F5E8EE] rounded-full bg-[#FFF6F8]">
+        <div className="flex items-center border border-[#EADDCB] rounded-full bg-[#FAF7F2]">
           <button
             type="button"
             onClick={() => onUpdateQuantity(item.id, -1)}
-            className="px-3 py-1 text-xs font-bold text-[#624855] hover:text-[#1C1217]"
+            className="px-3 py-1 text-xs font-bold text-[#5C5149] hover:text-[#232323]"
           >
             −
           </button>
-          <span className="px-2 py-1 text-xs font-mono font-semibold text-[#1C1217]">{item.quantity}</span>
+          <span className="px-2 py-1 text-xs font-mono font-semibold text-[#232323]">{item.quantity}</span>
           <button
             type="button"
             onClick={() => onUpdateQuantity(item.id, 1)}
-            className="px-3 py-1 text-xs font-bold text-[#624855] hover:text-[#1C1217]"
+            className="px-3 py-1 text-xs font-bold text-[#5C5149] hover:text-[#232323]"
           >
             +
           </button>
@@ -120,10 +120,10 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({
 
         {/* Total Price */}
         <div className="text-right">
-          <span className="text-sm font-serif font-semibold text-[#1C1217] block">
+          <span className="text-sm font-serif font-semibold text-[#232323] block">
             ₹{(item.price * item.quantity).toLocaleString('en-IN')}
           </span>
-          <span className="text-[10px] font-mono text-[#886C7B]">
+          <span className="text-[10px] font-mono text-[#7D6F63]">
             ₹{item.price.toLocaleString('en-IN')} each
           </span>
         </div>
@@ -133,7 +133,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({
           <button
             type="button"
             onClick={() => onSaveForLater(item)}
-            className="text-[10px] font-mono text-[#886C7B] hover:text-[#E87A96] bg-[#FFF6F8] px-2 py-1 rounded-full border border-[#F5E8EE]"
+            className="text-[10px] font-mono text-[#7D6F63] hover:text-[#8B6F4E] bg-[#FAF7F2] px-2 py-1 rounded-full border border-[#EADDCB]"
             title="Save for Later"
           >
             Save

@@ -61,17 +61,17 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, activeMenu,
     return (
       <div
         onMouseLeave={onClose}
-        className="absolute top-full left-1/4 -translate-x-1/4 w-80 bg-white border border-[#F5E8EE] rounded-2xl shadow-hover z-50 animate-fade-in font-sans p-4 mt-2"
+        className="absolute top-full left-1/4 -translate-x-1/4 w-80 bg-white border border-[#EADDCB] rounded-2xl shadow-hover z-50 animate-fade-in font-sans p-4 mt-2"
       >
-        <div className="border-b border-[#FFF6F8] pb-2 mb-3 px-2 flex items-center justify-between">
-          <span className="text-[10px] uppercase font-bold tracking-widest text-[#E87A96]">
+        <div className="border-b border-[#FAF7F2] pb-2 mb-3 px-2 flex items-center justify-between">
+          <span className="text-[10px] uppercase font-bold tracking-widest text-[#8B6F4E]">
             CURATED COLLECTIONS ({displayCollections.length})
           </span>
-          <span className="w-1.5 h-1.5 rounded-full bg-[#E87A96] animate-pulse"></span>
+          <span className="w-1.5 h-1.5 rounded-full bg-[#8B6F4E] animate-pulse"></span>
         </div>
 
         {displayCollections.length === 0 ? (
-          <div className="p-4 text-center text-xs text-[#886C7B]">
+          <div className="p-4 text-center text-xs text-[#7D6F63]">
             No collections created yet.
           </div>
         ) : (
@@ -81,16 +81,16 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, activeMenu,
                 key={idx}
                 href={item.hash}
                 onClick={(e) => handleLinkClick(e, 'collections')}
-                className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-[#FFF6F8] transition-colors group cursor-pointer"
+                className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-[#FAF7F2] transition-colors group cursor-pointer"
               >
                 <div className="w-8 h-8 rounded-full bg-[#FDE8EF] text-sm flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                   {item.icon}
                 </div>
                 <div className="min-w-0">
-                  <h5 className="text-xs font-bold text-[#1C1217] group-hover:text-[#E87A96] transition-colors tracking-wide">
+                  <h5 className="text-xs font-bold text-[#232323] group-hover:text-[#8B6F4E] transition-colors tracking-wide">
                     {item.title}
                   </h5>
-                  <p className="text-[10px] text-[#886C7B] truncate font-light">
+                  <p className="text-[10px] text-[#7D6F63] truncate font-light">
                     {item.desc}
                   </p>
                 </div>
@@ -105,27 +105,27 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, activeMenu,
   return (
     <div
       onMouseLeave={onClose}
-      className="absolute top-full left-0 w-full bg-[#FFFFFF] border-b border-[#F5E8EE] shadow-hover z-40 animate-fade-in font-sans"
+      className="absolute top-full left-0 w-full bg-[#FFFFFF] border-b border-[#EADDCB] shadow-hover z-40 animate-fade-in font-sans"
     >
       <div className="max-w-7xl mx-auto px-6 sm:px-12 py-8 grid grid-cols-1 md:grid-cols-4 gap-8">
         {/* Column 1: Primary Categories */}
         <div className="space-y-3">
-          <h4 className="text-xs uppercase font-bold tracking-widest text-[#E87A96] border-b border-[#F5E8EE] pb-2">
+          <h4 className="text-xs uppercase font-bold tracking-widest text-[#8B6F4E] border-b border-[#EADDCB] pb-2">
             Shop by Category
           </h4>
           {dynamicCategories.length === 0 ? (
-            <p className="text-xs text-[#886C7B]">No categories created yet.</p>
+            <p className="text-xs text-[#7D6F63]">No categories created yet.</p>
           ) : (
-            <ul className="space-y-2.5 text-xs text-[#1C1217]">
+            <ul className="space-y-2.5 text-xs text-[#232323]">
               {dynamicCategories.map((cat, idx) => (
                 <li key={idx}>
                   <a
                     href="#shop"
                     onClick={(e) => handleLinkClick(e, 'shop')}
-                    className="hover:text-[#E87A96] transition-colors flex items-center justify-between group cursor-pointer"
+                    className="hover:text-[#8B6F4E] transition-colors flex items-center justify-between group cursor-pointer"
                   >
                     <span className="font-semibold">{cat.name}</span>
-                    <span className="text-[10px] text-[#886C7B] group-hover:text-[#E87A96]">
+                    <span className="text-[10px] text-[#7D6F63] group-hover:text-[#8B6F4E]">
                       {cat.count} items
                     </span>
                   </a>
@@ -137,21 +137,21 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, activeMenu,
 
         {/* Column 2: Scent Profiles */}
         <div className="space-y-3">
-          <h4 className="text-xs uppercase font-bold tracking-widest text-[#E87A96] border-b border-[#F5E8EE] pb-2">
+          <h4 className="text-xs uppercase font-bold tracking-widest text-[#8B6F4E] border-b border-[#EADDCB] pb-2">
             Scent Profiles
           </h4>
           {dynamicScents.length === 0 ? (
-            <p className="text-xs text-[#886C7B]">Add products in Admin to see scent notes.</p>
+            <p className="text-xs text-[#7D6F63]">Add products in Admin to see scent notes.</p>
           ) : (
-            <ul className="space-y-2.5 text-xs text-[#1C1217]">
+            <ul className="space-y-2.5 text-xs text-[#232323]">
               {dynamicScents.map((scent, idx) => (
                 <li key={idx}>
                   <a
                     href="#shop"
                     onClick={(e) => handleLinkClick(e, 'shop')}
-                    className="hover:text-[#E87A96] transition-colors flex items-center gap-2 cursor-pointer"
+                    className="hover:text-[#8B6F4E] transition-colors flex items-center gap-2 cursor-pointer"
                   >
-                    <span className="w-2 h-2 rounded-full bg-[#E87A96]"></span>
+                    <span className="w-2 h-2 rounded-full bg-[#8B6F4E]"></span>
                     <span>{scent}</span>
                   </a>
                 </li>
@@ -162,20 +162,20 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, activeMenu,
 
         {/* Column 3: Featured Product Card Banner */}
         {featuredProduct ? (
-          <div className="bg-[#FFF6F8] border border-[#F5E8EE] p-4 rounded-2xl flex flex-col justify-between relative overflow-hidden group shadow-xs">
+          <div className="bg-[#FAF7F2] border border-[#EADDCB] p-4 rounded-2xl flex flex-col justify-between relative overflow-hidden group shadow-xs">
             <div className="space-y-2">
               <Badge variant="pink" icon={<SparklesIcon size={12} />}>
                 {featuredProduct.isFeatured ? 'FEATURED ATELIER' : 'HANDCRAFTED CANDLE'}
               </Badge>
-              <h5 className="font-serif font-bold text-base text-[#1C1217] group-hover:text-[#E87A96] transition-colors">
+              <h5 className="font-serif font-bold text-base text-[#232323] group-hover:text-[#8B6F4E] transition-colors">
                 {featuredProduct.name}
               </h5>
-              <p className="text-xs text-[#624855] leading-relaxed line-clamp-2">
+              <p className="text-xs text-[#5C5149] leading-relaxed line-clamp-2">
                 {featuredProduct.vesselDescription || featuredProduct.scentProfile}
               </p>
             </div>
-            <div className="mt-4 flex items-center justify-between pt-2 border-t border-[#F5E8EE]">
-              <span className="text-xs font-bold text-[#1C1217]">
+            <div className="mt-4 flex items-center justify-between pt-2 border-t border-[#EADDCB]">
+              <span className="text-xs font-bold text-[#232323]">
                 {settings.currencySymbol || '₹'}{Math.round(featuredProduct.price)}
               </span>
               <Button
@@ -193,15 +193,15 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, activeMenu,
             </div>
           </div>
         ) : (
-          <div className="bg-[#FFF6F8] border border-[#F5E8EE] p-4 rounded-2xl flex items-center justify-center text-xs text-[#886C7B] text-center">
+          <div className="bg-[#FAF7F2] border border-[#EADDCB] p-4 rounded-2xl flex items-center justify-center text-xs text-[#7D6F63] text-center">
             No featured product set yet.
           </div>
         )}
 
         {/* Column 4: Scent Quiz Banner */}
-        <div className="bg-gradient-to-br from-[#1C1217] to-[#2C1D25] text-[#FFFFFF] p-5 rounded-2xl flex flex-col justify-between shadow-card border border-[#F9B8CA]/20">
+        <div className="bg-gradient-to-br from-[#232323] to-[#2C1D25] text-[#FFFFFF] p-5 rounded-2xl flex flex-col justify-between shadow-card border border-[#EADDCB]/20">
           <div className="space-y-2">
-            <span className="text-[10px] uppercase font-bold tracking-widest text-[#F9B8CA]">
+            <span className="text-[10px] uppercase font-bold tracking-widest text-[#EADDCB]">
               Live Atelier Studio
             </span>
             <h5 className="font-serif font-bold text-lg text-[#FFFFFF]">
@@ -214,7 +214,7 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, activeMenu,
           <Button
             variant="outline"
             size="sm"
-            className="mt-4 border-[#F9B8CA] text-[#F9B8CA] hover:bg-[#F9B8CA] hover:text-[#1C1217]"
+            className="mt-4 border-[#EADDCB] text-[#EADDCB] hover:bg-[#EADDCB] hover:text-[#232323]"
             onClick={(e) => handleLinkClick(e, 'shop')}
           >
             Browse All Candles

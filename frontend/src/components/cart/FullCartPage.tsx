@@ -111,20 +111,20 @@ export const FullCartPage: React.FC<FullCartPageProps> = ({ onNavigateToShop, on
   const isFreeShipping = subtotal >= 1499.0;
 
   return (
-    <div className="w-full bg-[#FAF6F8] min-h-screen font-sans">
+    <div className="w-full bg-[#F8F6F0] min-h-screen font-sans">
       {/* Breadcrumb Header */}
-      <div className="bg-[#FFFFFF] border-b border-[#F5E8EE] py-3.5 px-6 sm:px-12 text-xs text-[#886C7B]">
+      <div className="bg-[#FFFFFF] border-b border-[#EADDCB] py-3.5 px-6 sm:px-12 text-xs text-[#7D6F63]">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <a href="#home" className="hover:text-[#E87A96] transition-colors">Home</a>
+            <a href="#home" className="hover:text-[#8B6F4E] transition-colors">Home</a>
             <span>/</span>
-            <span className="text-[#1C1217] font-bold">Shopping Bag & Order Summary</span>
+            <span className="text-[#232323] font-bold">Shopping Bag & Order Summary</span>
           </div>
 
           {onNavigateToShop && (
             <button
               onClick={onNavigateToShop}
-              className="text-xs font-bold uppercase tracking-wider text-[#E87A96] hover:underline"
+              className="text-xs font-bold uppercase tracking-wider text-[#8B6F4E] hover:underline"
             >
               ← Continue Shopping
             </button>
@@ -134,12 +134,12 @@ export const FullCartPage: React.FC<FullCartPageProps> = ({ onNavigateToShop, on
 
       {/* Main Viewport */}
       <div className="max-w-7xl mx-auto px-6 sm:px-12 py-10">
-        <div className="border-b border-[#F5E8EE] pb-6 mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="border-b border-[#EADDCB] pb-6 mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <span className="text-xs font-bold uppercase tracking-widest text-[#E87A96]">
+            <span className="text-xs font-bold uppercase tracking-widest text-[#8B6F4E]">
               LUXURY SANCTUARY CHECKOUT
             </span>
-            <h1 className="text-3xl sm:text-5xl font-serif font-bold text-[#1C1217] mt-1">
+            <h1 className="text-3xl sm:text-5xl font-serif font-bold text-[#232323] mt-1">
               Your Shopping Bag ({items.reduce((s, i) => s + i.quantity, 0)})
             </h1>
           </div>
@@ -147,7 +147,7 @@ export const FullCartPage: React.FC<FullCartPageProps> = ({ onNavigateToShop, on
           {onNavigateToShop && (
             <button
               onClick={onNavigateToShop}
-              className="text-xs font-bold uppercase tracking-wider text-[#1C1217] hover:text-[#E87A96] underline"
+              className="text-xs font-bold uppercase tracking-wider text-[#232323] hover:text-[#8B6F4E] underline"
             >
               Add More Candles
             </button>

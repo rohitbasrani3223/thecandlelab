@@ -79,15 +79,15 @@ export const FeaturedCollection: React.FC<FeaturedCollectionProps> = ({ onSelect
   }
 
   return (
-    <section className="py-16 sm:py-24 bg-[#FFFFFF] border-b border-[#F5E8EE] font-sans">
+    <section className="py-16 sm:py-24 bg-[#FFFFFF] border-b border-[#EADDCB] font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 space-y-12">
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto space-y-3">
           <Badge variant="pink" icon={<SparklesIcon size={12} />}>2026 ROYAL RESERVE</Badge>
-          <h2 className="text-3xl sm:text-5xl font-serif font-bold text-[#1C1217]">
+          <h2 className="text-3xl sm:text-5xl font-serif font-bold text-[#232323]">
             Featured Royal Collection
           </h2>
-          <p className="text-sm text-[#624855] leading-relaxed">
+          <p className="text-sm text-[#5C5149] leading-relaxed">
             Hand-poured in numbered small batches with custom-blended essential oils and pure blush rose gold labeling.
           </p>
         </div>
@@ -106,16 +106,16 @@ export const FeaturedCollection: React.FC<FeaturedCollectionProps> = ({ onSelect
                 variant="bordered"
                 padding="none"
                 onClick={() => handleProductClick(prod)}
-                className="bg-[#FFFFFF] group flex flex-col justify-between overflow-hidden hover:shadow-[0_16px_36px_rgba(230,106,138,0.12)] border border-[#F5E8EE] hover:border-[#F9B8CA] transition-all duration-300 relative cursor-pointer rounded-3xl"
+                className="bg-[#FFFFFF] group flex flex-col justify-between overflow-hidden hover:shadow-[0_16px_36px_rgba(230,106,138,0.12)] border border-[#EADDCB] hover:border-[#EADDCB] transition-all duration-300 relative cursor-pointer rounded-3xl"
               >
                 {/* Product Image Container */}
-                <div className="relative h-64 bg-[#FFF6F8] flex items-center justify-center overflow-hidden">
+                <div className="relative h-64 bg-[#FAF7F2] flex items-center justify-center overflow-hidden">
                   <img
                     src={prod.image || prod.imageUrl || prod.images?.[0] || 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80'}
                     alt={prod.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#140B10]/60 via-transparent to-transparent opacity-40 group-hover:opacity-20 transition-opacity" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#141312]/60 via-transparent to-transparent opacity-40 group-hover:opacity-20 transition-opacity" />
 
                   {/* Tag Badge */}
                   <div className="absolute top-3 left-3">
@@ -128,15 +128,15 @@ export const FeaturedCollection: React.FC<FeaturedCollectionProps> = ({ onSelect
                       e.stopPropagation();
                       toggleWishlist(prod.id, prod.name);
                     }}
-                    className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-colors shadow-sm ${isWishlisted ? 'bg-[#E87A96] text-white' : 'bg-[#140B10]/50 text-white hover:bg-[#E87A96] hover:text-white'}`}
+                    className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-colors shadow-sm ${isWishlisted ? 'bg-[#8B6F4E] text-white' : 'bg-[#141312]/50 text-white hover:bg-[#8B6F4E] hover:text-white'}`}
                     aria-label="Wishlist"
                   >
                     <HeartIcon size={16} />
                   </button>
 
                   {/* Scent Pyramid Pill Hover overlay */}
-                  <div className="absolute bottom-3 left-3 right-3 bg-[#140B10]/90 text-[#FFFFFF] p-2.5 rounded-xl text-[10px] space-y-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-xs border border-[#F9B8CA]/20">
-                    <div className="font-semibold text-[#F9B8CA] uppercase tracking-wider">Fragrance Notes:</div>
+                  <div className="absolute bottom-3 left-3 right-3 bg-[#141312]/90 text-[#FFFFFF] p-2.5 rounded-xl text-[10px] space-y-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-xs border border-[#EADDCB]/20">
+                    <div className="font-semibold text-[#EADDCB] uppercase tracking-wider">Fragrance Notes:</div>
                     <div className="truncate text-[#FCD5E2]">Top: {prod.topNotes || 'Bergamot'} • Heart: {prod.heartNotes || 'Rose'} • Base: {prod.baseNotes || 'Amber'}</div>
                   </div>
                 </div>
@@ -145,23 +145,23 @@ export const FeaturedCollection: React.FC<FeaturedCollectionProps> = ({ onSelect
                 <div className="p-5 space-y-3 flex-1 flex flex-col justify-between">
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="text-[#886C7B] font-medium">{prod.scentProfile || prod.category}</span>
+                      <span className="text-[#7D6F63] font-medium">{prod.scentProfile || prod.category}</span>
                       <div className="flex items-center gap-1 text-[#E8C86D] font-bold">
                         <StarIcon size={14} className="fill-current text-[#E8C86D]" />
                         <span>{prod.rating || 4.9}</span>
-                        <span className="text-[#886C7B] font-normal">({prod.reviewsCount || 88})</span>
+                        <span className="text-[#7D6F63] font-normal">({prod.reviewsCount || 88})</span>
                       </div>
                     </div>
 
-                    <h3 className="text-base font-serif font-bold text-[#1C1217] group-hover:text-[#E87A96] transition-colors leading-snug">
+                    <h3 className="text-base font-serif font-bold text-[#232323] group-hover:text-[#8B6F4E] transition-colors leading-snug">
                       {prod.name}
                     </h3>
                   </div>
 
-                  <div className="pt-3 border-t border-[#F5E8EE] flex items-center justify-between">
+                  <div className="pt-3 border-t border-[#EADDCB] flex items-center justify-between">
                     <div className="flex items-baseline gap-2">
-                      <span className="text-base font-bold text-[#1C1217]">{formattedPrice}</span>
-                      {origPrice && <span className="text-xs text-[#886C7B] line-through">{origPrice}</span>}
+                      <span className="text-base font-bold text-[#232323]">{formattedPrice}</span>
+                      {origPrice && <span className="text-xs text-[#7D6F63] line-through">{origPrice}</span>}
                     </div>
 
                     <Button

@@ -72,10 +72,10 @@ export const ShippingMethodStep: React.FC<ShippingMethodStepProps> = ({
 
   return (
     <div className="space-y-6 font-sans">
-      <div className="flex items-center justify-between border-b border-[#F5E8EE] pb-4">
+      <div className="flex items-center justify-between border-b border-[#EADDCB] pb-4">
         <div>
           <Badge variant="pink" size="sm" icon={<SparklesIcon size={12} />}>STEP 2 OF 3</Badge>
-          <h2 className="text-2xl font-serif font-bold text-[#1C1217] mt-1">
+          <h2 className="text-2xl font-serif font-bold text-[#232323] mt-1">
             Select Delivery Method
           </h2>
         </div>
@@ -86,24 +86,24 @@ export const ShippingMethodStep: React.FC<ShippingMethodStepProps> = ({
           <div
             key={opt.id}
             onClick={() => setSelectedId(opt.id)}
-            className={`p-4 bg-[#FFFFFF] rounded-2xl border text-left cursor-pointer transition-all flex items-center justify-between gap-4 ${selectedId === opt.id ? 'border-[#E87A96] ring-2 ring-[#F9B8CA]/40 bg-[#FFF6F8] shadow-xs' : 'border-[#F5E8EE] hover:bg-[#FFF6F8]'}`}
+            className={`p-4 bg-[#FFFFFF] rounded-2xl border text-left cursor-pointer transition-all flex items-center justify-between gap-4 ${selectedId === opt.id ? 'border-[#8B6F4E] ring-2 ring-[#EADDCB]/40 bg-[#FAF7F2] shadow-xs' : 'border-[#EADDCB] hover:bg-[#FAF7F2]'}`}
           >
             <div className="flex items-center gap-3">
-              <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${selectedId === opt.id ? 'border-[#E87A96] bg-[#E87A96]' : 'border-[#AC94A1]'}`}>
+              <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${selectedId === opt.id ? 'border-[#8B6F4E] bg-[#8B6F4E]' : 'border-[#A39486]'}`}>
                 {selectedId === opt.id && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
               </div>
 
               <div className="space-y-0.5">
                 <div className="flex items-center gap-2">
-                  <h4 className="font-serif font-bold text-sm text-[#1C1217]">{opt.name}</h4>
+                  <h4 className="font-serif font-bold text-sm text-[#232323]">{opt.name}</h4>
                   {opt.badge && <Badge variant="pink" size="sm">{opt.badge}</Badge>}
                 </div>
-                <span className="text-xs font-semibold text-[#E87A96] block">{opt.timeframe}</span>
-                <p className="text-[11px] text-[#886C7B]">{opt.description}</p>
+                <span className="text-xs font-semibold text-[#8B6F4E] block">{opt.timeframe}</span>
+                <p className="text-[11px] text-[#7D6F63]">{opt.description}</p>
               </div>
             </div>
 
-            <span className="text-sm font-bold text-[#1C1217] shrink-0">
+            <span className="text-sm font-bold text-[#232323] shrink-0">
               {opt.price === 0 ? <strong className="text-[#15803D]">FREE</strong> : `₹${opt.price}`}
             </span>
           </div>

@@ -989,49 +989,12 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             };
           });
 
-          setProducts((prev) => {
-            const map = new Map<string, CMSProduct>();
-            prev.forEach((p) => map.set(p.id, p));
-            mapped.forEach((p) => {
-              const existing = map.get(p.id) || Array.from(map.values()).find(
-                (x) => x.name.toLowerCase() === p.name.toLowerCase() || (x.sku && x.sku === p.sku)
-              );
-              if (existing) {
-                // Ensure existing category edits and explicit option toggles are preserved over generic fallback
-                const effectiveCategory = existing.category && existing.category !== 'Scented Soy Candles' && existing.category !== existing.tagline
-                  ? existing.category
-                  : p.category;
-                const effectiveMainCatId = existing.mainCategoryId || p.mainCategoryId;
-                map.set(existing.id, {
-                  ...p,
-                  ...existing,
-                  category: effectiveCategory,
-                  mainCategoryId: effectiveMainCatId,
-                  collectionIds: existing.collectionIds && existing.collectionIds.length > 0 ? existing.collectionIds : p.collectionIds,
-                  hasFragranceOption: p.hasFragranceOption !== undefined ? p.hasFragranceOption : (existing.hasFragranceOption ?? true),
-                  hasSizeOption: p.hasSizeOption !== undefined ? p.hasSizeOption : (existing.hasSizeOption ?? true),
-                  hasColorOption: p.hasColorOption !== undefined ? p.hasColorOption : (existing.hasColorOption ?? false),
-                  hasWickOption: p.hasWickOption !== undefined ? p.hasWickOption : (existing.hasWickOption ?? true),
-                  hasGiftPackaging: p.hasGiftPackaging !== undefined ? p.hasGiftPackaging : (existing.hasGiftPackaging ?? true),
-                  hasCustomMessage: p.hasCustomMessage !== undefined ? p.hasCustomMessage : (existing.hasCustomMessage ?? false),
-                });
-              } else {
-                map.set(p.id, {
-                  ...p,
-                  hasFragranceOption: p.hasFragranceOption ?? true,
-                  hasSizeOption: p.hasSizeOption ?? true,
-                  hasColorOption: p.hasColorOption ?? false,
-                  hasWickOption: p.hasWickOption ?? true,
-                  hasGiftPackaging: p.hasGiftPackaging ?? true,
-                  hasCustomMessage: p.hasCustomMessage ?? false,
-                });
-              }
-            });
-            const result = Array.from(map.values());
+          setProducts(() => {
             try {
-              localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(result));
+              localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(mapped));
+              window.dispatchEvent(new Event('tcl-cms-updated'));
             } catch {}
-            return result;
+            return mapped;
           });
         }
       } catch (err) {
@@ -1645,9 +1608,16 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       variants: product.variants || [],
     };
 
-    setProducts((prev) => [newProduct, ...prev]);
-    syncProductImages(realId, newProduct.image, newProduct.images);
-    syncProductVariants(realId, newProduct.variants);
+    setProducts((prev) => {
+      const next = [newProduct, ...prev.filter((p) => p.id !== realId)];
+      try {
+        localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(next));
+        window.dispatchEvent(new Event('tcl-cms-updated'));
+      } catch {}
+      return next;
+    });
+    await syncProductImages(realId, newProduct.image, newProduct.images);
+    await syncProductVariants(realId, newProduct.variants);
 
     try {
       await supabaseFetch('products', {
@@ -1753,8 +1723,21 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const deleteProduct = async (id: string) => {
-    setProducts((prev) => prev.filter((p) => p.id !== id));
+    setProducts((prev) => {
+      const next = prev.filter((p) => p.id !== id);
+      try {
+        localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(next));
+        window.dispatchEvent(new Event('tcl-cms-updated'));
+      } catch {}
+      return next;
+    });
+
     try {
+      // 1. Delete associated images in Supabase
+      await supabaseFetch('product_images', { method: 'DELETE', query: `product_id=eq.${id}` });
+      // 2. Delete associated variants in Supabase
+      await supabaseFetch('product_variants', { method: 'DELETE', query: `product_id=eq.${id}` });
+      // 3. Delete product row in Supabase
       await supabaseFetch('products', { method: 'DELETE', query: `id=eq.${id}` });
     } catch (err) {
       console.warn('Product DB delete note:', err);

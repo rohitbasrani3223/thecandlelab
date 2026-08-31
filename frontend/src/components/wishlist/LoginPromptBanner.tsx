@@ -8,17 +8,17 @@ export const LoginPromptBanner: React.FC = () => {
   if (isDismissed) return null;
 
   return (
-    <div className="bg-gradient-to-r from-[#FFF6F8] via-[#FDE8EF] to-[#FFF6F8] text-[#1C1217] p-6 rounded-3xl border border-[#F9B8CA] shadow-card flex flex-col sm:flex-row items-center justify-between gap-4 font-sans relative overflow-hidden">
+    <div className="bg-gradient-to-r from-[#FAF7F2] via-[#FDE8EF] to-[#FAF7F2] text-[#232323] p-6 rounded-3xl border border-[#EADDCB] shadow-card flex flex-col sm:flex-row items-center justify-between gap-4 font-sans relative overflow-hidden">
       <div className="space-y-1 text-center sm:text-left">
         <div className="flex items-center justify-center sm:justify-start gap-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#E87A96]">
+          <span className="text-xs font-bold uppercase tracking-wider text-[#8B6F4E]">
             🔒 Sync Across Devices
           </span>
         </div>
-        <h4 className="font-serif font-bold text-base text-[#1C1217]">
+        <h4 className="font-serif font-bold text-base text-[#232323]">
           Sign in to save your wishlist permanently
         </h4>
-        <p className="text-xs text-[#624855] max-w-lg leading-relaxed font-light">
+        <p className="text-xs text-[#5C5149] max-w-lg leading-relaxed font-light">
           Your saved candle formulations are currently stored locally. Create a free account or sign in to access your wishlist on any device.
         </p>
       </div>
@@ -33,7 +33,7 @@ export const LoginPromptBanner: React.FC = () => {
         </Button>
         <button
           onClick={() => setIsDismissed(true)}
-          className="text-xs text-[#886C7B] hover:text-[#1C1217] p-1 cursor-pointer"
+          className="text-xs text-[#7D6F63] hover:text-[#232323] p-1 cursor-pointer"
           aria-label="Dismiss banner"
         >
           ✕

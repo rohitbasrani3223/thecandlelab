@@ -50,14 +50,14 @@ export interface CategoryCardsProps {
 
 export const CategoryCards: React.FC<CategoryCardsProps> = ({ onSelectCategory }) => {
   return (
-    <section className="py-16 sm:py-24 bg-[#FFFFFF] border-b border-[#F5E8EE] font-sans">
+    <section className="py-16 sm:py-24 bg-[#FFFFFF] border-b border-[#EADDCB] font-sans">
       <div className="max-w-7xl mx-auto px-6 sm:px-12 space-y-12">
         <div className="text-center max-w-2xl mx-auto space-y-3">
           <Badge variant="pink" icon={<SparklesIcon size={12} />}>VESSEL TYPES</Badge>
-          <h2 className="text-3xl sm:text-5xl font-serif font-bold text-[#1C1217]">
+          <h2 className="text-3xl sm:text-5xl font-serif font-bold text-[#232323]">
             Category Catalogue
           </h2>
-          <p className="text-sm text-[#624855]">
+          <p className="text-sm text-[#5C5149]">
             Select your preferred vessel format designed for specific home spaces.
           </p>
         </div>
@@ -69,28 +69,28 @@ export const CategoryCards: React.FC<CategoryCardsProps> = ({ onSelectCategory }
               variant="bordered"
               padding="lg"
               onClick={() => onSelectCategory?.(cat.id)}
-              className="bg-[#FFFFFF] border-[#F5E8EE] rounded-3xl group cursor-pointer flex flex-col justify-between h-72 hover:-translate-y-1 hover:border-[#F9B8CA] hover:shadow-card transition-all duration-300 relative overflow-hidden"
+              className="bg-[#FFFFFF] border-[#EADDCB] rounded-3xl group cursor-pointer flex flex-col justify-between h-72 hover:-translate-y-1 hover:border-[#EADDCB] hover:shadow-card transition-all duration-300 relative overflow-hidden"
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <div className="w-12 h-12 rounded-2xl bg-[#FFF6F8] text-2xl flex items-center justify-center shadow-subtle group-hover:scale-110 transition-transform">
+                  <div className="w-12 h-12 rounded-2xl bg-[#FAF7F2] text-2xl flex items-center justify-center shadow-subtle group-hover:scale-110 transition-transform">
                     {cat.icon}
                   </div>
                   <Badge variant="pink" size="sm">{cat.tag}</Badge>
                 </div>
 
-                <h3 className="text-lg font-serif font-bold text-[#1C1217] group-hover:text-[#E87A96] transition-colors">
+                <h3 className="text-lg font-serif font-bold text-[#232323] group-hover:text-[#8B6F4E] transition-colors">
                   {cat.name}
                 </h3>
 
-                <p className="text-xs text-[#886C7B] leading-relaxed font-light">
+                <p className="text-xs text-[#7D6F63] leading-relaxed font-light">
                   {cat.description}
                 </p>
               </div>
 
-              <div className="pt-4 border-t border-[#F5E8EE] flex items-center justify-between text-xs">
-                <span className="font-semibold text-[#624855]">{cat.itemsCount}</span>
-                <span className="text-[#E87A96] font-bold uppercase tracking-wider group-hover:translate-x-1 transition-transform">
+              <div className="pt-4 border-t border-[#EADDCB] flex items-center justify-between text-xs">
+                <span className="font-semibold text-[#5C5149]">{cat.itemsCount}</span>
+                <span className="text-[#8B6F4E] font-bold uppercase tracking-wider group-hover:translate-x-1 transition-transform">
                   Explore →
                 </span>
               </div>

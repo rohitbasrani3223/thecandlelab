@@ -41,11 +41,11 @@ export const ProductReviewsSection: React.FC = () => {
   const { toast } = useToast();
 
   return (
-    <section id="reviews" className="space-y-8 font-sans border-t border-[#F5E8EE] pt-12">
+    <section id="reviews" className="space-y-8 font-sans border-t border-[#EADDCB] pt-12">
       {/* Header Summary */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border-b border-[#F5E8EE] pb-8">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border-b border-[#EADDCB] pb-8">
         <div className="space-y-2">
-          <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#1C1217]">
+          <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#232323]">
             Connoisseur Reviews
           </h2>
           <div className="flex items-center gap-3 text-sm">
@@ -54,8 +54,8 @@ export const ProductReviewsSection: React.FC = () => {
                 <StarIcon key={i} size={18} className="fill-current text-[#E8C86D]" />
               ))}
             </div>
-            <span className="font-bold text-[#1C1217]">4.95 out of 5</span>
-            <span className="text-[#886C7B]">Based on 142 reviews</span>
+            <span className="font-bold text-[#232323]">4.95 out of 5</span>
+            <span className="text-[#7D6F63]">Based on 142 reviews</span>
           </div>
         </div>
 
@@ -69,9 +69,9 @@ export const ProductReviewsSection: React.FC = () => {
       </div>
 
       {/* Rating Distribution Progress Bars */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center bg-[#FFFFFF] p-6 rounded-3xl border border-[#F5E8EE] shadow-xs">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center bg-[#FFFFFF] p-6 rounded-3xl border border-[#EADDCB] shadow-xs">
         <div className="md:col-span-4 text-center md:text-left space-y-1">
-          <div className="text-4xl font-serif font-bold text-[#1C1217]">98%</div>
+          <div className="text-4xl font-serif font-bold text-[#232323]">98%</div>
           <span className="text-xs font-semibold text-[#15803D]">of buyers recommend this formulation</span>
         </div>
 
@@ -84,11 +84,11 @@ export const ProductReviewsSection: React.FC = () => {
             { stars: '1 Star', percent: '0%', count: '0' },
           ].map((bar) => (
             <div key={bar.stars} className="flex items-center gap-3">
-              <span className="w-14 text-[#886C7B] font-medium">{bar.stars}</span>
-              <div className="flex-1 h-2 bg-[#FFF6F8] rounded-full overflow-hidden border border-[#F5E8EE]">
-                <div className="h-full bg-[#E87A96] rounded-full" style={{ width: bar.percent }} />
+              <span className="w-14 text-[#7D6F63] font-medium">{bar.stars}</span>
+              <div className="flex-1 h-2 bg-[#FAF7F2] rounded-full overflow-hidden border border-[#EADDCB]">
+                <div className="h-full bg-[#8B6F4E] rounded-full" style={{ width: bar.percent }} />
               </div>
-              <span className="w-10 text-right text-[#1C1217] font-semibold">{bar.count}</span>
+              <span className="w-10 text-right text-[#232323] font-semibold">{bar.count}</span>
             </div>
           ))}
         </div>
@@ -97,7 +97,7 @@ export const ProductReviewsSection: React.FC = () => {
       {/* Reviews Cards List */}
       <div className="space-y-4">
         {customerReviews.map((rev) => (
-          <Card key={rev.id} variant="bordered" padding="lg" className="bg-[#FFFFFF] border-[#F5E8EE] rounded-3xl space-y-3 shadow-xs">
+          <Card key={rev.id} variant="bordered" padding="lg" className="bg-[#FFFFFF] border-[#EADDCB] rounded-3xl space-y-3 shadow-xs">
             <div className="flex items-start justify-between">
               <div>
                 <div className="flex items-center gap-2">
@@ -108,19 +108,19 @@ export const ProductReviewsSection: React.FC = () => {
                   </div>
                   <Badge variant="pink" size="sm">✓ Verified Buyer</Badge>
                 </div>
-                <h4 className="font-serif font-bold text-base text-[#1C1217] mt-1">{rev.title}</h4>
+                <h4 className="font-serif font-bold text-base text-[#232323] mt-1">{rev.title}</h4>
               </div>
 
-              <span className="text-[11px] text-[#886C7B]">{rev.date}</span>
+              <span className="text-[11px] text-[#7D6F63]">{rev.date}</span>
             </div>
 
-            <p className="text-xs text-[#624855] leading-relaxed italic">
+            <p className="text-xs text-[#5C5149] leading-relaxed italic">
               "{rev.comment}"
             </p>
 
-            <div className="pt-2 border-t border-[#F5E8EE] flex items-center justify-between text-[11px] text-[#886C7B]">
-              <span>By <strong className="text-[#1C1217]">{rev.author}</strong> ({rev.location})</span>
-              <span className="text-[#E87A96] font-semibold">Scent Throw Rating: {rev.scentThrow}</span>
+            <div className="pt-2 border-t border-[#EADDCB] flex items-center justify-between text-[11px] text-[#7D6F63]">
+              <span>By <strong className="text-[#232323]">{rev.author}</strong> ({rev.location})</span>
+              <span className="text-[#8B6F4E] font-semibold">Scent Throw Rating: {rev.scentThrow}</span>
             </div>
           </Card>
         ))}

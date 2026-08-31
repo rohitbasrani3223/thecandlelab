@@ -23,8 +23,8 @@ export const NewsletterSection: React.FC = () => {
   return (
     <section className="py-16 sm:py-24 bg-[#FFFFFF] font-sans">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-12">
-        <div className="bg-gradient-to-br from-[#1C1217] via-[#2C1D25] to-[#140B10] text-[#FFFFFF] p-8 sm:p-16 rounded-3xl border border-[#F9B8CA]/25 shadow-[0_20px_50px_rgba(20,11,16,0.3)] text-center space-y-6 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-[#F9B8CA]/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="bg-gradient-to-br from-[#232323] via-[#2C1D25] to-[#141312] text-[#FFFFFF] p-8 sm:p-16 rounded-3xl border border-[#EADDCB]/25 shadow-[0_20px_50px_rgba(20,11,16,0.3)] text-center space-y-6 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-80 h-80 bg-[#EADDCB]/15 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#E8C86D]/10 rounded-full blur-3xl pointer-events-none" />
 
           <div className="space-y-3 max-w-xl mx-auto relative z-10">
@@ -44,7 +44,7 @@ export const NewsletterSection: React.FC = () => {
                 placeholder="Enter your VIP email..."
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="bg-[#140B10] text-[#FFFFFF] border-[#422D38] placeholder-[#AC94A1] focus:border-[#E87A96]"
+                className="bg-[#141312] text-[#FFFFFF] border-[#422D38] placeholder-[#A39486] focus:border-[#8B6F4E]"
               />
             </div>
             <Button type="submit" variant="pink" size="md" className="shrink-0 font-bold">
@@ -52,7 +52,7 @@ export const NewsletterSection: React.FC = () => {
             </Button>
           </form>
 
-          <span className="block text-[11px] text-[#AC94A1] relative z-10">
+          <span className="block text-[11px] text-[#A39486] relative z-10">
             No spam. Unsubscribe anytime with 1 click.
           </span>
         </div>

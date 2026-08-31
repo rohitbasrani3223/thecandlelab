@@ -28,14 +28,14 @@ export const FaqSection: React.FC = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <section className="py-16 sm:py-24 bg-[#FFF6F8] border-b border-[#F5E8EE] font-sans">
+    <section className="py-16 sm:py-24 bg-[#FAF7F2] border-b border-[#EADDCB] font-sans">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-12 space-y-12">
         <div className="text-center space-y-3">
           <Badge variant="pink" icon={<SparklesIcon size={12} />}>CLEAR ANSWERS</Badge>
-          <h2 className="text-3xl sm:text-5xl font-serif font-bold text-[#1C1217]">
+          <h2 className="text-3xl sm:text-5xl font-serif font-bold text-[#232323]">
             Frequently Asked Questions
           </h2>
-          <p className="text-sm text-[#624855]">
+          <p className="text-sm text-[#5C5149]">
             Everything you need to know about our organic soy wax, wood wicks, and atelier deliveries.
           </p>
         </div>
@@ -45,18 +45,18 @@ export const FaqSection: React.FC = () => {
           {faqs.map((faq, index) => (
             <div
               key={index}
-              className="bg-[#FFFFFF] rounded-2xl border border-[#F5E8EE] overflow-hidden shadow-subtle hover:border-[#F9B8CA] transition-all"
+              className="bg-[#FFFFFF] rounded-2xl border border-[#EADDCB] overflow-hidden shadow-subtle hover:border-[#EADDCB] transition-all"
             >
               <button
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                className="w-full text-left p-5 sm:p-6 font-serif font-bold text-base sm:text-lg text-[#1C1217] hover:text-[#E87A96] flex items-center justify-between gap-4 transition-colors cursor-pointer"
+                className="w-full text-left p-5 sm:p-6 font-serif font-bold text-base sm:text-lg text-[#232323] hover:text-[#8B6F4E] flex items-center justify-between gap-4 transition-colors cursor-pointer"
               >
                 <span>{faq.question}</span>
-                <ChevronDownIcon size={18} className={`shrink-0 transition-transform ${openIndex === index ? 'rotate-180 text-[#E87A96]' : 'text-[#886C7B]'}`} />
+                <ChevronDownIcon size={18} className={`shrink-0 transition-transform ${openIndex === index ? 'rotate-180 text-[#8B6F4E]' : 'text-[#7D6F63]'}`} />
               </button>
 
               {openIndex === index && (
-                <div className="px-5 sm:px-6 pb-6 text-xs sm:text-sm text-[#624855] leading-relaxed border-t border-[#F5E8EE] pt-4 animate-fade-in font-sans">
+                <div className="px-5 sm:px-6 pb-6 text-xs sm:text-sm text-[#5C5149] leading-relaxed border-t border-[#EADDCB] pt-4 animate-fade-in font-sans">
                   {faq.answer}
                 </div>
               )}

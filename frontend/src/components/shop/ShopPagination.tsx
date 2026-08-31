@@ -19,9 +19,9 @@ export const ShopPagination: React.FC<ShopPaginationProps> = ({
   if (totalPages <= 1) return null;
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-[#F5E8EE] font-sans">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-[#EADDCB] font-sans">
       {/* Page Size Selector */}
-      <div className="flex items-center gap-2 text-xs text-[#886C7B]">
+      <div className="flex items-center gap-2 text-xs text-[#7D6F63]">
         <span>Show per page:</span>
         <div className="w-24">
           <Select
@@ -42,7 +42,7 @@ export const ShopPagination: React.FC<ShopPaginationProps> = ({
         <button
           disabled={currentPage === 1}
           onClick={() => onPageChange(currentPage - 1)}
-          className="p-2 rounded-full border border-[#F5E8EE] bg-[#FFFFFF] text-[#1C1217] hover:bg-[#FFF6F8] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="p-2 rounded-full border border-[#EADDCB] bg-[#FFFFFF] text-[#232323] hover:bg-[#FAF7F2] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           aria-label="Previous Page"
         >
           <ChevronLeftIcon size={16} />
@@ -55,7 +55,7 @@ export const ShopPagination: React.FC<ShopPaginationProps> = ({
             <button
               key={pageNum}
               onClick={() => onPageChange(pageNum)}
-              className={`w-8 h-8 rounded-full text-xs font-bold transition-all cursor-pointer ${isActive ? 'bg-[#E87A96] text-white shadow-xs' : 'bg-[#FFFFFF] border border-[#F5E8EE] text-[#1C1217] hover:bg-[#FFF6F8]'}`}
+              className={`w-8 h-8 rounded-full text-xs font-bold transition-all cursor-pointer ${isActive ? 'bg-[#8B6F4E] text-white shadow-xs' : 'bg-[#FFFFFF] border border-[#EADDCB] text-[#232323] hover:bg-[#FAF7F2]'}`}
             >
               {pageNum}
             </button>
@@ -65,7 +65,7 @@ export const ShopPagination: React.FC<ShopPaginationProps> = ({
         <button
           disabled={currentPage === totalPages}
           onClick={() => onPageChange(currentPage + 1)}
-          className="p-2 rounded-full border border-[#F5E8EE] bg-[#FFFFFF] text-[#1C1217] hover:bg-[#FFF6F8] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="p-2 rounded-full border border-[#EADDCB] bg-[#FFFFFF] text-[#232323] hover:bg-[#FAF7F2] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           aria-label="Next Page"
         >
           <ChevronRightIcon size={16} />

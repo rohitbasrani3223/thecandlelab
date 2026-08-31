@@ -61,20 +61,20 @@ export const WishlistPage: React.FC<WishlistPageProps> = ({ onNavigateToShop }) 
   };
 
   return (
-    <div className="w-full bg-[#FAF6F8] min-h-screen font-sans">
+    <div className="w-full bg-[#F8F6F0] min-h-screen font-sans">
       {/* Breadcrumb Header */}
-      <div className="bg-white border-b border-[#F5E8EE] py-3.5 px-6 sm:px-12 text-xs text-[#886C7B]">
+      <div className="bg-white border-b border-[#EADDCB] py-3.5 px-6 sm:px-12 text-xs text-[#7D6F63]">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <a href="#home" className="hover:text-[#E87A96] transition-colors">Home</a>
+            <a href="#home" className="hover:text-[#8B6F4E] transition-colors">Home</a>
             <span>/</span>
-            <span className="text-[#1C1217] font-bold">My Saved Wishlist</span>
+            <span className="text-[#232323] font-bold">My Saved Wishlist</span>
           </div>
 
           {onNavigateToShop && (
             <button
               onClick={onNavigateToShop}
-              className="text-xs font-bold uppercase tracking-wider text-[#E87A96] hover:underline cursor-pointer"
+              className="text-xs font-bold uppercase tracking-wider text-[#8B6F4E] hover:underline cursor-pointer"
             >
               ← Continue Shopping
             </button>

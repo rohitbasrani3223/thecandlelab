@@ -24,7 +24,7 @@ export const Card: React.FC<CardProps> = ({
     flat: 'bg-[#F5EFE6]',
     bordered: 'bg-[#FFFFFF] border border-[#EADDCB] shadow-[0_2px_12px_rgba(35,35,35,0.03)]',
     elevated: 'bg-[#FFFFFF] border border-[#EADDCB] shadow-[0_8px_30px_rgba(139,111,78,0.08)] hover:shadow-[0_16px_40px_rgba(139,111,78,0.14)] transition-shadow duration-300',
-    'gold-border': 'bg-[#FFFFFF] border border-[#C8A75A]/60 shadow-[0_4px_20px_rgba(200,167,90,0.15)] hover:border-[#C8A75A] transition-all duration-300',
+    'gold-border': 'bg-[#FFFFFF] border border-[#8B6F4E]/60 shadow-[0_4px_20px_rgba(139, 111, 78,0.15)] hover:border-[#8B6F4E] transition-all duration-300',
     'pink-glow': 'bg-[#FFFFFF] border border-[#EADDCB] shadow-[0_4px_24px_rgba(234,221,203,0.4)] hover:shadow-[0_8px_32px_rgba(234,221,203,0.6)] transition-all duration-300',
   };
 
@@ -39,7 +39,7 @@ export const Card: React.FC<CardProps> = ({
 };
 
 export const CardHeader: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ children, className = '', ...props }) => (
-  <div className={`border-b border-[#F5E8EE] pb-4 mb-4 ${className}`} {...props}>
+  <div className={`border-b border-[#EADDCB] pb-4 mb-4 ${className}`} {...props}>
     {children}
   </div>
 );
@@ -51,7 +51,7 @@ export const CardBody: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ child
 );
 
 export const CardFooter: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ children, className = '', ...props }) => (
-  <div className={`border-t border-[#F5E8EE] pt-4 mt-4 flex items-center justify-between ${className}`} {...props}>
+  <div className={`border-t border-[#EADDCB] pt-4 mt-4 flex items-center justify-between ${className}`} {...props}>
     {children}
   </div>
 );

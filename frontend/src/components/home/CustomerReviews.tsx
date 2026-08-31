@@ -42,9 +42,9 @@ export const CustomerReviews: React.FC = () => {
             Words From Our Connoisseurs
           </h2>
           <div className="flex items-center justify-center gap-2 pt-1 text-sm font-bold text-[#232323]">
-            <div className="flex text-[#C8A75A]">
+            <div className="flex text-[#8B6F4E]">
               {[...Array(5)].map((_, i) => (
-                <StarIcon key={i} size={18} className="fill-current text-[#C8A75A]" />
+                <StarIcon key={i} size={18} className="fill-current text-[#8B6F4E]" />
               ))}
             </div>
             <span>4.95 / 5 Rating</span>
@@ -58,9 +58,9 @@ export const CustomerReviews: React.FC = () => {
             <Card key={rev.id} variant="bordered" padding="lg" className="bg-[#FFFFFF] border border-[#EADDCB] rounded-3xl space-y-4 flex flex-col justify-between hover:shadow-[0_16px_36px_rgba(139,111,78,0.14)] transition-all">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <div className="flex text-[#C8A75A]">
+                  <div className="flex text-[#8B6F4E]">
                     {[...Array(rev.rating)].map((_, i) => (
-                      <StarIcon key={i} size={14} className="fill-current text-[#C8A75A]" />
+                      <StarIcon key={i} size={14} className="fill-current text-[#8B6F4E]" />
                     ))}
                   </div>
                   <span className="text-[10px] uppercase font-bold text-[#6B6E4A] bg-[#EFF1E5] px-3 py-0.5 rounded-full border border-[#BFC69E]">

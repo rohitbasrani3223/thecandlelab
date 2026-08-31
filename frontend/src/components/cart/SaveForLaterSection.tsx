@@ -15,9 +15,9 @@ export const SaveForLaterSection: React.FC<SaveForLaterSectionProps> = ({
   if (savedItems.length === 0) return null;
 
   return (
-    <div className="space-y-4 pt-8 border-t border-[#F5E8EE] font-sans">
-      <div className="flex items-center justify-between border-b border-[#F5E8EE] pb-3">
-        <h3 className="font-serif font-bold text-lg text-[#1C1217]">
+    <div className="space-y-4 pt-8 border-t border-[#EADDCB] font-sans">
+      <div className="flex items-center justify-between border-b border-[#EADDCB] pb-3">
+        <h3 className="font-serif font-bold text-lg text-[#232323]">
           Saved for Later ({savedItems.length})
         </h3>
       </div>
@@ -26,15 +26,15 @@ export const SaveForLaterSection: React.FC<SaveForLaterSectionProps> = ({
         {savedItems.map((item) => (
           <div
             key={item.id}
-            className="p-4 bg-[#FFFFFF] border border-[#F5E8EE] rounded-2xl flex items-center justify-between gap-3 shadow-xs"
+            className="p-4 bg-[#FFFFFF] border border-[#EADDCB] rounded-2xl flex items-center justify-between gap-3 shadow-xs"
           >
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-[#FFF6F8] text-xl rounded-xl flex items-center justify-center border border-[#F5E8EE]">
+              <div className="w-12 h-12 bg-[#FAF7F2] text-xl rounded-xl flex items-center justify-center border border-[#EADDCB]">
                 🕯️
               </div>
               <div className="space-y-0.5">
-                <h5 className="text-xs font-bold text-[#1C1217]">{item.name}</h5>
-                <span className="text-[10px] text-[#886C7B] block">₹{Math.round(item.price)}</span>
+                <h5 className="text-xs font-bold text-[#232323]">{item.name}</h5>
+                <span className="text-[10px] text-[#7D6F63] block">₹{Math.round(item.price)}</span>
               </div>
             </div>
 

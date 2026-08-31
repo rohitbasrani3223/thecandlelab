@@ -38,11 +38,11 @@ export const FrequentlyBoughtTogether: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#FFFFFF] border border-[#F5E8EE] rounded-3xl p-6 shadow-card space-y-6 font-sans">
-      <div className="flex items-center justify-between border-b border-[#F5E8EE] pb-3">
+    <div className="bg-[#FFFFFF] border border-[#EADDCB] rounded-3xl p-6 shadow-card space-y-6 font-sans">
+      <div className="flex items-center justify-between border-b border-[#EADDCB] pb-3">
         <div className="flex items-center gap-2">
           <Badge variant="pink" icon={<SparklesIcon size={12} />}>ATELIER BUNDLE SAVINGS</Badge>
-          <h3 className="font-serif font-bold text-lg text-[#1C1217]">Frequently Bought Together</h3>
+          <h3 className="font-serif font-bold text-lg text-[#232323]">Frequently Bought Together</h3>
         </div>
         {hasDiscount && (
           <Badge variant="success" size="sm">Save ₹200 Bonus</Badge>
@@ -57,13 +57,13 @@ export const FrequentlyBoughtTogether: React.FC = () => {
               <React.Fragment key={item.id}>
                 <div
                   onClick={() => toggleItem(item.id)}
-                  className={`p-3 rounded-2xl border text-center transition-all cursor-pointer w-32 shrink-0 ${selectedItems.includes(item.id) ? 'border-[#E87A96] bg-[#FFF6F8] ring-2 ring-[#F9B8CA]/40' : 'border-[#F5E8EE] bg-[#FFFFFF] opacity-50'}`}
+                  className={`p-3 rounded-2xl border text-center transition-all cursor-pointer w-32 shrink-0 ${selectedItems.includes(item.id) ? 'border-[#8B6F4E] bg-[#FAF7F2] ring-2 ring-[#EADDCB]/40' : 'border-[#EADDCB] bg-[#FFFFFF] opacity-50'}`}
                 >
                   <div className="text-3xl mb-1">{idx === 0 ? '🕯️' : idx === 1 ? '✂️' : '🔔'}</div>
-                  <span className="text-[10px] font-bold text-[#1C1217] block truncate">{item.name}</span>
-                  <span className="text-[11px] font-semibold text-[#E87A96]">₹{item.price}</span>
+                  <span className="text-[10px] font-bold text-[#232323] block truncate">{item.name}</span>
+                  <span className="text-[11px] font-semibold text-[#8B6F4E]">₹{item.price}</span>
                 </div>
-                {idx < bundleItems.length - 1 && <span className="text-lg font-bold text-[#E87A96]">+</span>}
+                {idx < bundleItems.length - 1 && <span className="text-lg font-bold text-[#8B6F4E]">+</span>}
               </React.Fragment>
             ))}
           </div>
@@ -73,7 +73,7 @@ export const FrequentlyBoughtTogether: React.FC = () => {
             {bundleItems.map((item) => (
               <div key={item.id}>
                 <Checkbox
-                  label={<span><strong className="text-[#1C1217]">{item.name}</strong> — ₹{item.price}</span>}
+                  label={<span><strong className="text-[#232323]">{item.name}</strong> — ₹{item.price}</span>}
                   checked={selectedItems.includes(item.id)}
                   onChange={() => toggleItem(item.id)}
                   disabled={item.required}
@@ -84,13 +84,13 @@ export const FrequentlyBoughtTogether: React.FC = () => {
         </div>
 
         {/* Bundle Total & Add Button */}
-        <div className="md:col-span-4 bg-[#FFF6F8] p-5 rounded-2xl border border-[#F5E8EE] space-y-3 text-center md:text-right">
+        <div className="md:col-span-4 bg-[#FAF7F2] p-5 rounded-2xl border border-[#EADDCB] space-y-3 text-center md:text-right">
           <div>
-            <span className="text-xs text-[#886C7B] uppercase font-bold tracking-wider block">Bundle Price</span>
+            <span className="text-xs text-[#7D6F63] uppercase font-bold tracking-wider block">Bundle Price</span>
             <div className="flex items-baseline justify-center md:justify-end gap-2">
-              <span className="text-2xl font-bold text-[#1C1217]">₹{finalTotal}</span>
+              <span className="text-2xl font-bold text-[#232323]">₹{finalTotal}</span>
               {hasDiscount && (
-                <span className="text-xs text-[#886C7B] line-through">₹{rawSum}</span>
+                <span className="text-xs text-[#7D6F63] line-through">₹{rawSum}</span>
               )}
             </div>
           </div>

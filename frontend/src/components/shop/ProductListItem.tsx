@@ -51,11 +51,11 @@ export const ProductListItem: React.FC<ProductListItemProps> = ({
   };
 
   return (
-    <div className="bg-[#FFFFFF] border border-[#F5E8EE] rounded-3xl p-5 shadow-subtle hover:shadow-card hover:border-[#F9B8CA] transition-all flex flex-col sm:flex-row items-center gap-6 font-sans group">
+    <div className="bg-[#FFFFFF] border border-[#EADDCB] rounded-3xl p-5 shadow-subtle hover:shadow-card hover:border-[#EADDCB] transition-all flex flex-col sm:flex-row items-center gap-6 font-sans group">
       {/* Vessel Image Mock */}
       <div
         onClick={handleProductClick}
-        className="w-full sm:w-48 h-48 bg-[#FFF6F8] rounded-2xl flex items-center justify-center relative overflow-hidden shrink-0 cursor-pointer"
+        className="w-full sm:w-48 h-48 bg-[#FAF7F2] rounded-2xl flex items-center justify-center relative overflow-hidden shrink-0 cursor-pointer"
       >
         <img
           src={product.image || product.imageUrl || PRODUCT_IMAGE_PLACEHOLDER}
@@ -82,7 +82,7 @@ export const ProductListItem: React.FC<ProductListItemProps> = ({
           className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-colors z-20 cursor-pointer ${
             isWishlisted
               ? 'bg-[#BE123C] text-white'
-              : 'bg-white/80 text-[#886C7B] hover:bg-[#E87A96] hover:text-white shadow-xs'
+              : 'bg-white/80 text-[#7D6F63] hover:bg-[#8B6F4E] hover:text-white shadow-xs'
           }`}
           aria-label="Wishlist"
         >
@@ -95,41 +95,41 @@ export const ProductListItem: React.FC<ProductListItemProps> = ({
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <Badge variant="pink" size="sm">{product.scentProfile}</Badge>
-            <span className="text-xs text-[#886C7B]">• {product.category}</span>
+            <span className="text-xs text-[#7D6F63]">• {product.category}</span>
           </div>
 
           <div className="flex items-center gap-1 text-xs text-[#E8C86D] font-bold">
             <StarIcon size={14} className="fill-current text-[#E8C86D]" />
             <span>{product.rating}</span>
-            <span className="text-[#886C7B] font-normal">({product.reviewsCount})</span>
+            <span className="text-[#7D6F63] font-normal">({product.reviewsCount})</span>
           </div>
         </div>
 
         <div>
           <h3
             onClick={handleProductClick}
-            className="text-lg font-serif font-bold text-[#1C1217] group-hover:text-[#E87A96] transition-colors cursor-pointer"
+            className="text-lg font-serif font-bold text-[#232323] group-hover:text-[#8B6F4E] transition-colors cursor-pointer"
           >
             {product.name}
           </h3>
-          <p className="text-xs text-[#886C7B] mt-0.5">{product.vesselDescription}</p>
+          <p className="text-xs text-[#7D6F63] mt-0.5">{product.vesselDescription}</p>
         </div>
 
         {/* Fragrance Notes */}
-        <div className="p-3 bg-[#FFF6F8] rounded-2xl text-xs text-[#624855] space-y-1 border border-[#F5E8EE]">
-          <div className="font-semibold text-[#1C1217] uppercase text-[10px] tracking-wider">Aromatic Notes:</div>
+        <div className="p-3 bg-[#FAF7F2] rounded-2xl text-xs text-[#5C5149] space-y-1 border border-[#EADDCB]">
+          <div className="font-semibold text-[#232323] uppercase text-[10px] tracking-wider">Aromatic Notes:</div>
           <div className="truncate">Top: {product.topNotes} | Heart: {product.heartNotes} | Base: {product.baseNotes}</div>
         </div>
       </div>
 
       {/* Right Column: Price & Actions */}
-      <div className="w-full sm:w-48 sm:border-l sm:border-[#F5E8EE] sm:pl-6 space-y-3 flex flex-col justify-between shrink-0 text-left sm:text-right">
+      <div className="w-full sm:w-48 sm:border-l sm:border-[#EADDCB] sm:pl-6 space-y-3 flex flex-col justify-between shrink-0 text-left sm:text-right">
         <div>
-          <div className="text-xl font-bold text-[#1C1217]">₹{inrPrice.toLocaleString('en-IN')}</div>
+          <div className="text-xl font-bold text-[#232323]">₹{inrPrice.toLocaleString('en-IN')}</div>
           {inrOriginal && (
-            <span className="text-xs text-[#886C7B] line-through">₹{inrOriginal.toLocaleString('en-IN')}</span>
+            <span className="text-xs text-[#7D6F63] line-through">₹{inrOriginal.toLocaleString('en-IN')}</span>
           )}
-          <div className="text-[11px] text-[#E87A96] font-semibold mt-1">Burn Duration: {product.burnTime}</div>
+          <div className="text-[11px] text-[#8B6F4E] font-semibold mt-1">Burn Duration: {product.burnTime}</div>
         </div>
 
         <div className="space-y-2">

@@ -14,18 +14,18 @@ export const GiftWrapToggle: React.FC<GiftWrapToggleProps> = ({
   onGiftMessageChange,
 }) => {
   return (
-    <div className="p-4 bg-[#FFF6F8] border border-[#F9B8CA]/60 rounded-2xl space-y-3 font-sans shadow-xs">
+    <div className="p-4 bg-[#FAF7F2] border border-[#EADDCB]/60 rounded-2xl space-y-3 font-sans shadow-xs">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Badge variant="pink" icon={<SparklesIcon size={12} />}>COMPLIMENTARY LUXURY</Badge>
-          <span className="text-xs font-serif font-bold text-[#1C1217]">Blush Rose Gift Box & Ribbon</span>
+          <span className="text-xs font-serif font-bold text-[#232323]">Blush Rose Gift Box & Ribbon</span>
         </div>
         <span className="text-xs font-bold text-[#15803D]">₹0.00 (FREE)</span>
       </div>
 
       <Checkbox
         label={
-          <span className="text-xs font-semibold text-[#1C1217]">
+          <span className="text-xs font-semibold text-[#232323]">
             Add complimentary blush gift packaging & wax seal
           </span>
         }
@@ -35,7 +35,7 @@ export const GiftWrapToggle: React.FC<GiftWrapToggleProps> = ({
 
       {isGiftWrapSelected && (
         <div className="pt-2 space-y-2 animate-fade-in">
-          <label className="text-[11px] uppercase font-bold text-[#886C7B] block">
+          <label className="text-[11px] uppercase font-bold text-[#7D6F63] block">
             Personalized Gift Card Note (Optional):
           </label>
           <textarea
@@ -43,7 +43,7 @@ export const GiftWrapToggle: React.FC<GiftWrapToggleProps> = ({
             onChange={(e) => onGiftMessageChange(e.target.value)}
             placeholder="Type your warm gift message here..."
             rows={2}
-            className="w-full text-xs p-3 bg-[#FFFFFF] border border-[#F5E8EE] rounded-xl font-sans outline-none focus:border-[#E87A96] focus:ring-2 focus:ring-[#F9B8CA]/40 text-[#1C1217]"
+            className="w-full text-xs p-3 bg-[#FFFFFF] border border-[#EADDCB] rounded-xl font-sans outline-none focus:border-[#8B6F4E] focus:ring-2 focus:ring-[#EADDCB]/40 text-[#232323]"
           />
         </div>
       )}

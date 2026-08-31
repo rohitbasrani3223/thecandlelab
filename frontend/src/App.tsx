@@ -185,7 +185,7 @@ export function App() {
           <CMSProvider>
             <CartProvider>
               <AuthModal />
-              <Suspense fallback={<div className="p-12 text-center text-xs font-bold text-[#E87A96]">Loading Secure Checkout...</div>}>
+              <Suspense fallback={<div className="p-12 text-center text-xs font-bold text-[#8B6F4E]">Loading Secure Checkout...</div>}>
                 <CheckoutPage onReturnHome={() => handleNavigate('home')} />
               </Suspense>
             </CartProvider>

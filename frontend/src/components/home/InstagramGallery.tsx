@@ -10,14 +10,14 @@ const instaPosts = [
 
 export const InstagramGallery: React.FC = () => {
   return (
-    <section className="py-16 sm:py-24 bg-[#FFFFFF] border-b border-[#F5E8EE] font-sans">
+    <section className="py-16 sm:py-24 bg-[#FFFFFF] border-b border-[#EADDCB] font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 space-y-12">
         <div className="text-center max-w-2xl mx-auto space-y-3">
           <Badge variant="pink" icon={<SparklesIcon size={12} />}>@_THE_CANDLELAB ON INSTAGRAM</Badge>
-          <h2 className="text-3xl sm:text-5xl font-serif font-bold text-[#1C1217]">
+          <h2 className="text-3xl sm:text-5xl font-serif font-bold text-[#232323]">
             Share Your Sanctuary Moment
           </h2>
-          <p className="text-sm text-[#624855]">
+          <p className="text-sm text-[#5C5149]">
             Tag <span className="font-bold text-[#C94C6D]">#_The_CandleLab</span> on Instagram for a chance to be featured in our monthly gallery.
           </p>
         </div>
@@ -29,21 +29,21 @@ export const InstagramGallery: React.FC = () => {
               href={post.url}
               target="_blank"
               rel="noreferrer"
-              className="relative h-64 sm:h-72 bg-[#1C1217] rounded-3xl overflow-hidden group cursor-pointer border border-[#F5E8EE] hover:border-[#F9B8CA] shadow-subtle transition-all"
+              className="relative h-64 sm:h-72 bg-[#232323] rounded-3xl overflow-hidden group cursor-pointer border border-[#EADDCB] hover:border-[#EADDCB] shadow-subtle transition-all"
             >
               <img
                 src={post.image}
                 alt={post.title}
                 className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500"
               />
-              <div className="absolute inset-0 bg-[#140B10]/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-4 text-[#FFFFFF]">
-                <div className="text-[10px] font-bold text-[#F9B8CA] uppercase tracking-wider">{post.tag}</div>
+              <div className="absolute inset-0 bg-[#141312]/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-4 text-[#FFFFFF]">
+                <div className="text-[10px] font-bold text-[#EADDCB] uppercase tracking-wider">{post.tag}</div>
                 <div>
                   <h4 className="text-sm font-serif font-bold">{post.title}</h4>
                   <div className="flex items-center gap-1 text-xs text-[#FCD5E2] mt-1">
-                    <HeartIcon size={12} className="text-[#E87A96]" />
+                    <HeartIcon size={12} className="text-[#8B6F4E]" />
                     <span>{post.likes}</span>
-                    <span className="ml-auto text-[10px] text-[#F9B8CA] font-bold">Open Instagram ↗</span>
+                    <span className="ml-auto text-[10px] text-[#EADDCB] font-bold">Open Instagram ↗</span>
                   </div>
                 </div>
               </div>

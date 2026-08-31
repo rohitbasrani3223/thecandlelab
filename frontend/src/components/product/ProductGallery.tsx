@@ -125,7 +125,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
     <div className="space-y-4 select-none">
       {/* Main Sliding Carousel Viewport */}
       <div
-        className="relative group rounded-3xl overflow-hidden bg-[#FFF6F8] border border-[#F5E8EE] aspect-square flex items-center justify-center shadow-card touch-pan-y"
+        className="relative group rounded-3xl overflow-hidden bg-[#FAF7F2] border border-[#EADDCB] aspect-square flex items-center justify-center shadow-card touch-pan-y"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -141,7 +141,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
           {allImages.map((img, idx) => (
             <div
               key={idx}
-              className="min-w-full h-full relative shrink-0 aspect-square flex items-center justify-center bg-[#FAF6F8]"
+              className="min-w-full h-full relative shrink-0 aspect-square flex items-center justify-center bg-[#F8F6F0]"
             >
               <img
                 src={img}
@@ -156,7 +156,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
 
         {/* Counter Badge (e.g. 1 / 4) */}
         {allImages.length > 1 && (
-          <div className="absolute top-4 right-4 bg-[#1C1217]/60 hover:bg-[#1C1217]/80 backdrop-blur-md text-white text-[11px] font-mono px-3 py-1 rounded-full font-bold z-20 pointer-events-none transition-all shadow-subtle border border-white/10">
+          <div className="absolute top-4 right-4 bg-[#232323]/60 hover:bg-[#232323]/80 backdrop-blur-md text-white text-[11px] font-mono px-3 py-1 rounded-full font-bold z-20 pointer-events-none transition-all shadow-subtle border border-white/10">
             {currentIndex + 1} / {allImages.length}
           </div>
         )}
@@ -170,7 +170,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
               handlePrev();
             }}
             aria-label="Previous image"
-            className="absolute left-3.5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 hover:bg-white text-[#1C1217] shadow-card backdrop-blur-md flex items-center justify-center transition-all opacity-80 group-hover:opacity-100 hover:scale-110 active:scale-95 z-20 cursor-pointer border border-[#F5E8EE]"
+            className="absolute left-3.5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 hover:bg-white text-[#232323] shadow-card backdrop-blur-md flex items-center justify-center transition-all opacity-80 group-hover:opacity-100 hover:scale-110 active:scale-95 z-20 cursor-pointer border border-[#EADDCB]"
           >
             <ChevronLeftIcon size={20} />
           </button>
@@ -185,7 +185,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
               handleNext();
             }}
             aria-label="Next image"
-            className="absolute right-3.5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 hover:bg-white text-[#1C1217] shadow-card backdrop-blur-md flex items-center justify-center transition-all opacity-80 group-hover:opacity-100 hover:scale-110 active:scale-95 z-20 cursor-pointer border border-[#F5E8EE]"
+            className="absolute right-3.5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 hover:bg-white text-[#232323] shadow-card backdrop-blur-md flex items-center justify-center transition-all opacity-80 group-hover:opacity-100 hover:scale-110 active:scale-95 z-20 cursor-pointer border border-[#EADDCB]"
           >
             <ChevronRightIcon size={20} />
           </button>
@@ -193,7 +193,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
 
         {/* Bottom Center Indicator Dots / Pills */}
         {allImages.length > 1 && (
-          <div className="absolute bottom-3.5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-20 bg-[#1C1217]/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/15 shadow-xs">
+          <div className="absolute bottom-3.5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-20 bg-[#232323]/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/15 shadow-xs">
             {allImages.map((_, idx) => (
               <button
                 key={idx}
@@ -205,7 +205,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
                 }}
                 className={`transition-all duration-300 rounded-full cursor-pointer ${
                   idx === currentIndex
-                    ? 'w-6 h-1.5 bg-[#E87A96] shadow-xs'
+                    ? 'w-6 h-1.5 bg-[#8B6F4E] shadow-xs'
                     : 'w-1.5 h-1.5 bg-white/60 hover:bg-white'
                 }`}
               />
@@ -220,7 +220,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
             e.stopPropagation();
             setIsLightboxOpen(true);
           }}
-          className="absolute bottom-3.5 right-3.5 bg-white/90 hover:bg-white backdrop-blur-md text-[#1C1217] px-3 py-1.5 rounded-full text-xs font-sans font-bold flex items-center gap-1.5 opacity-90 group-hover:opacity-100 transition-all shadow-subtle border border-[#F5E8EE] z-20 cursor-pointer hover:scale-105"
+          className="absolute bottom-3.5 right-3.5 bg-white/90 hover:bg-white backdrop-blur-md text-[#232323] px-3 py-1.5 rounded-full text-xs font-sans font-bold flex items-center gap-1.5 opacity-90 group-hover:opacity-100 transition-all shadow-subtle border border-[#EADDCB] z-20 cursor-pointer hover:scale-105"
         >
           <span>🔍</span>
           <span className="hidden sm:inline">Expand View</span>
@@ -242,8 +242,8 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
                 onClick={() => handleSelectIndex(idx)}
                 className={`relative w-20 h-20 rounded-2xl overflow-hidden border-2 shrink-0 transition-all cursor-pointer ${
                   isSelected
-                    ? 'border-[#E87A96] ring-2 ring-[#F9B8CA] shadow-md scale-100 opacity-100'
-                    : 'border-[#F5E8EE] opacity-60 hover:opacity-100 hover:scale-95'
+                    ? 'border-[#8B6F4E] ring-2 ring-[#EADDCB] shadow-md scale-100 opacity-100'
+                    : 'border-[#EADDCB] opacity-60 hover:opacity-100 hover:scale-95'
                 }`}
               >
                 <img
@@ -322,7 +322,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
                   onClick={() => handleSelectIndex(idx)}
                   className={`w-14 h-14 rounded-xl overflow-hidden border-2 shrink-0 transition-all cursor-pointer ${
                     idx === currentIndex
-                      ? 'border-[#E87A96] scale-105 ring-2 ring-[#E87A96]/50'
+                      ? 'border-[#8B6F4E] scale-105 ring-2 ring-[#8B6F4E]/50'
                       : 'border-white/20 opacity-50 hover:opacity-90'
                   }`}
                 >

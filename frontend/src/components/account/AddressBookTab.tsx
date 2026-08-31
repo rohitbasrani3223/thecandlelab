@@ -96,10 +96,10 @@ export const AddressBookTab: React.FC = () => {
 
   return (
     <div className="space-y-6 font-sans">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#F5E8EE] pb-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#EADDCB] pb-4">
         <div>
           <Badge variant="pink" icon={<SparklesIcon size={12} />}>DISPATCH DESTINATIONS</Badge>
-          <h2 className="text-2xl font-serif font-bold text-[#1C1217] mt-1">
+          <h2 className="text-2xl font-serif font-bold text-[#232323] mt-1">
             Saved Shipping Addresses
           </h2>
         </div>
@@ -110,13 +110,13 @@ export const AddressBookTab: React.FC = () => {
       </div>
 
       {addresses.length === 0 ? (
-        <Card variant="bordered" padding="lg" className="bg-[#FFFFFF] border-[#F5E8EE] rounded-3xl text-center py-12 space-y-4 shadow-xs">
-          <div className="w-16 h-16 bg-[#FFF6F8] border border-[#F9B8CA] rounded-full flex items-center justify-center mx-auto text-[#E87A96]">
+        <Card variant="bordered" padding="lg" className="bg-[#FFFFFF] border-[#EADDCB] rounded-3xl text-center py-12 space-y-4 shadow-xs">
+          <div className="w-16 h-16 bg-[#FAF7F2] border border-[#EADDCB] rounded-full flex items-center justify-center mx-auto text-[#8B6F4E]">
             📍
           </div>
           <div className="space-y-1">
-            <h3 className="font-serif font-bold text-lg text-[#1C1217]">No Saved Addresses</h3>
-            <p className="text-xs text-[#886C7B] max-w-sm mx-auto">
+            <h3 className="font-serif font-bold text-lg text-[#232323]">No Saved Addresses</h3>
+            <p className="text-xs text-[#7D6F63] max-w-sm mx-auto">
               Save your residence or office address to expedite checkout on future artisanal orders.
             </p>
           </div>
@@ -131,33 +131,33 @@ export const AddressBookTab: React.FC = () => {
               key={addr.id}
               variant="bordered"
               padding="md"
-              className={`bg-white rounded-3xl space-y-3 shadow-xs transition-all ${addr.isDefault ? 'border-[#E87A96] ring-2 ring-[#F9B8CA]/30' : 'border-[#F5E8EE]'}`}
+              className={`bg-white rounded-3xl space-y-3 shadow-xs transition-all ${addr.isDefault ? 'border-[#8B6F4E] ring-2 ring-[#EADDCB]/30' : 'border-[#EADDCB]'}`}
             >
-              <div className="flex items-center justify-between border-b border-[#F5E8EE] pb-2 text-xs">
+              <div className="flex items-center justify-between border-b border-[#EADDCB] pb-2 text-xs">
                 <div className="flex items-center gap-2">
-                  <strong className="font-serif text-[#1C1217] font-bold">{addr.label}</strong>
+                  <strong className="font-serif text-[#232323] font-bold">{addr.label}</strong>
                   {addr.isDefault && <Badge variant="pink" size="sm">DEFAULT</Badge>}
                 </div>
                 <button
                   onClick={() => handleDelete(addr.id)}
-                  className="text-[#886C7B] hover:text-[#BE123C] font-semibold text-xs cursor-pointer"
+                  className="text-[#7D6F63] hover:text-[#BE123C] font-semibold text-xs cursor-pointer"
                 >
                   Delete
                 </button>
               </div>
 
-              <div className="text-xs text-[#624855] space-y-1 leading-relaxed">
-                <strong className="text-[#1C1217] block font-semibold">{addr.name}</strong>
+              <div className="text-xs text-[#5C5149] space-y-1 leading-relaxed">
+                <strong className="text-[#232323] block font-semibold">{addr.name}</strong>
                 <p>{addr.street}</p>
                 <p>{addr.city}, {addr.state} {addr.zip}</p>
                 <p>{addr.country}</p>
               </div>
 
               {!addr.isDefault && (
-                <div className="pt-2 border-t border-[#F5E8EE]">
+                <div className="pt-2 border-t border-[#EADDCB]">
                   <button
                     onClick={() => handleSetDefault(addr.id)}
-                    className="text-xs font-bold text-[#E87A96] hover:underline cursor-pointer"
+                    className="text-xs font-bold text-[#8B6F4E] hover:underline cursor-pointer"
                   >
                     Set as Default Address
                   </button>

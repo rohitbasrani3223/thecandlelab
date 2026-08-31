@@ -28,41 +28,41 @@ export const ScentNotesCareSection: React.FC = () => {
   const [openTip, setOpenTip] = useState<string | null>('tip-1');
 
   return (
-    <section id="scent-quiz-section" className="py-16 sm:py-24 bg-[#FFFFFF] border-b border-[#F5E8EE] font-sans">
+    <section id="scent-quiz-section" className="py-16 sm:py-24 bg-[#FFFFFF] border-b border-[#EADDCB] font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 space-y-16">
         {/* Olfactory Science Section */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-6 space-y-6">
             <Badge variant="pink" icon={<SparklesIcon size={12} />}>OLFACTORY CRAFTSMANSHIP</Badge>
-            <h2 className="text-3xl sm:text-5xl font-serif font-bold text-[#1C1217] leading-tight">
+            <h2 className="text-3xl sm:text-5xl font-serif font-bold text-[#232323] leading-tight">
               The Architecture of a Luxury Scent
             </h2>
-            <p className="text-sm text-[#624855] leading-relaxed">
+            <p className="text-sm text-[#5C5149] leading-relaxed">
               Every candle formulation is composed of three distinct aromatic layers engineered to unfold gradually as the wax pool warms.
             </p>
 
             <div className="space-y-4 pt-2">
-              <div className="p-4 bg-[#FFF6F8] border-l-4 border-[#E87A96] rounded-r-2xl space-y-1 border-y border-r border-[#F5E8EE]">
-                <span className="text-xs font-bold uppercase tracking-wider text-[#1C1217] block">1. Top Notes (First 15 Mins)</span>
-                <p className="text-xs text-[#886C7B]">Light, refreshing citrus and herbal top accords that greet you immediately upon opening the vessel.</p>
+              <div className="p-4 bg-[#FAF7F2] border-l-4 border-[#8B6F4E] rounded-r-2xl space-y-1 border-y border-r border-[#EADDCB]">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#232323] block">1. Top Notes (First 15 Mins)</span>
+                <p className="text-xs text-[#7D6F63]">Light, refreshing citrus and herbal top accords that greet you immediately upon opening the vessel.</p>
               </div>
 
-              <div className="p-4 bg-[#FFF6F8] border-l-4 border-[#F9B8CA] rounded-r-2xl space-y-1 border-y border-r border-[#F5E8EE]">
-                <span className="text-xs font-bold uppercase tracking-wider text-[#1C1217] block">2. Heart Notes (Main Body)</span>
-                <p className="text-xs text-[#886C7B]">Rich florals, spices, and velvety woods that emerge after 30 minutes of melt pool diffusion.</p>
+              <div className="p-4 bg-[#FAF7F2] border-l-4 border-[#EADDCB] rounded-r-2xl space-y-1 border-y border-r border-[#EADDCB]">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#232323] block">2. Heart Notes (Main Body)</span>
+                <p className="text-xs text-[#7D6F63]">Rich florals, spices, and velvety woods that emerge after 30 minutes of melt pool diffusion.</p>
               </div>
 
-              <div className="p-4 bg-[#FFF6F8] border-l-4 border-[#1C1217] rounded-r-2xl space-y-1 border-y border-r border-[#F5E8EE]">
-                <span className="text-xs font-bold uppercase tracking-wider text-[#1C1217] block">3. Base Notes (Lingering Atmosphere)</span>
-                <p className="text-xs text-[#886C7B]">Deep amber, smoked oud, and vanilla resins that anchor the scent into your room for hours after extinguishing.</p>
+              <div className="p-4 bg-[#FAF7F2] border-l-4 border-[#232323] rounded-r-2xl space-y-1 border-y border-r border-[#EADDCB]">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#232323] block">3. Base Notes (Lingering Atmosphere)</span>
+                <p className="text-xs text-[#7D6F63]">Deep amber, smoked oud, and vanilla resins that anchor the scent into your room for hours after extinguishing.</p>
               </div>
             </div>
           </div>
 
           {/* Candle Care Guide Accordion */}
-          <div className="lg:col-span-6 bg-gradient-to-br from-[#1C1217] via-[#2C1D25] to-[#140B10] text-[#FFFFFF] p-8 sm:p-10 rounded-3xl border border-[#F9B8CA]/25 shadow-[0_16px_36px_rgba(20,11,16,0.25)] space-y-6">
+          <div className="lg:col-span-6 bg-gradient-to-br from-[#232323] via-[#2C1D25] to-[#141312] text-[#FFFFFF] p-8 sm:p-10 rounded-3xl border border-[#EADDCB]/25 shadow-[0_16px_36px_rgba(20,11,16,0.25)] space-y-6">
             <div className="space-y-2 border-b border-[#422D38] pb-4">
-              <span className="text-xs uppercase font-bold tracking-widest text-[#F9B8CA]">Artisan Guidance</span>
+              <span className="text-xs uppercase font-bold tracking-widest text-[#EADDCB]">Artisan Guidance</span>
               <h3 className="text-2xl font-serif font-bold text-[#FFFFFF]">Candle Care & Maintenance</h3>
             </div>
 
@@ -74,7 +74,7 @@ export const ScentNotesCareSection: React.FC = () => {
                     className="w-full flex items-center justify-between text-left font-bold text-sm text-[#FCD5E2] hover:text-[#FFFFFF] py-1 transition-colors cursor-pointer"
                   >
                     <span>{tip.title}</span>
-                    <ChevronDownIcon size={16} className={`transition-transform ${openTip === tip.id ? 'rotate-180 text-[#F9B8CA]' : 'text-[#AC94A1]'}`} />
+                    <ChevronDownIcon size={16} className={`transition-transform ${openTip === tip.id ? 'rotate-180 text-[#EADDCB]' : 'text-[#A39486]'}`} />
                   </button>
                   {openTip === tip.id && (
                     <p className="mt-2 text-xs text-[#EFC8D4] leading-relaxed animate-fade-in">

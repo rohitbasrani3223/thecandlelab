@@ -122,15 +122,15 @@ export const DesignSystemShowcase: React.FC = () => {
 
               {/* Gradients */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-                <div className="h-20 rounded-2xl p-4 flex items-end justify-between shadow-card text-[#1C1217] font-bold text-xs tracking-wider uppercase" style={{ background: colors.gradients.babyPink }}>
+                <div className="h-20 rounded-2xl p-4 flex items-end justify-between shadow-card text-[#232323] font-bold text-xs tracking-wider uppercase" style={{ background: colors.gradients.babyPink }}>
                   <span>Baby Pink Gradient</span>
-                  <span>#FFF6F8 → #FCD5E2</span>
+                  <span>#FAF7F2 → #FCD5E2</span>
                 </div>
                 <div className="h-20 rounded-2xl p-4 flex items-end justify-between shadow-card text-white font-bold text-xs tracking-wider uppercase" style={{ background: colors.gradients.roseGold }}>
                   <span>Rose Gold Gradient</span>
-                  <span>#F9B8CA → #E66A8A</span>
+                  <span>#EADDCB → #E66A8A</span>
                 </div>
-                <div className="h-20 rounded-2xl p-4 flex items-end justify-between border border-[#F5E8EE] shadow-card text-white font-bold text-xs tracking-wider uppercase" style={{ background: colors.gradients.velvetNoir }}>
+                <div className="h-20 rounded-2xl p-4 flex items-end justify-between border border-[#EADDCB] shadow-card text-white font-bold text-xs tracking-wider uppercase" style={{ background: colors.gradients.velvetNoir }}>
                   <span>Velvet Noir Gradient</span>
                   <span>#2A1822 → #150A10</span>
                 </div>

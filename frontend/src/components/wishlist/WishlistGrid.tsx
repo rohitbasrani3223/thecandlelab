@@ -35,14 +35,14 @@ export const WishlistGrid: React.FC<WishlistGridProps> = ({
         return (
           <div
             key={item.id}
-            className="group bg-white border border-[#F5E8EE] rounded-3xl overflow-hidden shadow-subtle hover:shadow-card hover:border-[#F9B8CA] transition-all duration-300 flex flex-col justify-between"
+            className="group bg-white border border-[#EADDCB] rounded-3xl overflow-hidden shadow-subtle hover:shadow-card hover:border-[#EADDCB] transition-all duration-300 flex flex-col justify-between"
           >
             {/* Top Vessel Media Container */}
-            <div className="relative h-60 bg-[#FFF6F8] flex items-center justify-center p-6 overflow-hidden rounded-t-3xl">
+            <div className="relative h-60 bg-[#FAF7F2] flex items-center justify-center p-6 overflow-hidden rounded-t-3xl">
               {/* Discount Badge */}
               {discount > 0 && (
                 <div className="absolute top-3 left-3 z-10">
-                  <span className="bg-[#E87A96] text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-xs">
+                  <span className="bg-[#8B6F4E] text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-xs">
                     SAVE ₹{discount}
                   </span>
                 </div>
@@ -58,7 +58,7 @@ export const WishlistGrid: React.FC<WishlistGridProps> = ({
               </button>
 
               {/* Center Icon */}
-              <div className="w-16 h-16 rounded-2xl bg-white shadow-xs flex items-center justify-center border border-[#F5E8EE] group-hover:scale-110 transition-transform duration-500 text-3xl">
+              <div className="w-16 h-16 rounded-2xl bg-white shadow-xs flex items-center justify-center border border-[#EADDCB] group-hover:scale-110 transition-transform duration-500 text-3xl">
                 🕯️
               </div>
             </div>
@@ -66,15 +66,15 @@ export const WishlistGrid: React.FC<WishlistGridProps> = ({
             {/* Lower Details Content */}
             <div className="p-5 space-y-2.5 flex-1 flex flex-col justify-between bg-white">
               <div className="space-y-1">
-                <span className="text-[10px] uppercase font-bold tracking-widest text-[#E87A96] block">
+                <span className="text-[10px] uppercase font-bold tracking-widest text-[#8B6F4E] block">
                   {item.category}
                 </span>
 
-                <h3 className="text-base font-serif font-bold text-[#1C1217] group-hover:text-[#E87A96] transition-colors leading-snug truncate">
+                <h3 className="text-base font-serif font-bold text-[#232323] group-hover:text-[#8B6F4E] transition-colors leading-snug truncate">
                   {item.name}
                 </h3>
 
-                <p className="text-xs text-[#624855] italic truncate">
+                <p className="text-xs text-[#5C5149] italic truncate">
                   Notes: {item.notes}
                 </p>
 
@@ -85,26 +85,26 @@ export const WishlistGrid: React.FC<WishlistGridProps> = ({
                       <StarIcon key={i} size={14} className="fill-current text-[#E8C86D]" />
                     ))}
                   </div>
-                  <span className="ml-1 text-[#1C1217]">{item.rating}</span>
-                  <span className="text-[#886C7B] font-normal">({item.reviews})</span>
+                  <span className="ml-1 text-[#232323]">{item.rating}</span>
+                  <span className="text-[#7D6F63] font-normal">({item.reviews})</span>
                 </div>
               </div>
 
               {/* Price & Move to Cart Button */}
-              <div className="pt-3 border-t border-[#F5E8EE] space-y-3">
+              <div className="pt-3 border-t border-[#EADDCB] space-y-3">
                 <div className="flex items-baseline justify-between">
                   <div className="flex items-baseline gap-1.5">
                     {inrOriginal && (
-                      <span className="text-xs text-[#886C7B] line-through">₹{inrOriginal}</span>
+                      <span className="text-xs text-[#7D6F63] line-through">₹{inrOriginal}</span>
                     )}
-                    <span className="text-base font-bold text-[#1C1217]">₹{inrPrice}</span>
+                    <span className="text-base font-bold text-[#232323]">₹{inrPrice}</span>
                   </div>
                   <span className="text-[10px] text-[#15803D] font-bold">✓ In Stock</span>
                 </div>
 
                 <button
                   onClick={() => onMoveToCart(item)}
-                  className="w-full bg-[#E87A96] hover:bg-[#D45D7D] text-white font-bold text-xs py-2.5 px-4 rounded-full flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer"
+                  className="w-full bg-[#8B6F4E] hover:bg-[#745A3D] text-white font-bold text-xs py-2.5 px-4 rounded-full flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer"
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 11h14l1 12H4L5 11z" />

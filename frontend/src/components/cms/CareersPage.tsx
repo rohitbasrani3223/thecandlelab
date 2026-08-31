@@ -63,16 +63,16 @@ export const CareersPage: React.FC = () => {
   };
 
   return (
-    <div className="w-full bg-[#FAF6F8] min-h-screen font-sans pb-16">
+    <div className="w-full bg-[#F8F6F0] min-h-screen font-sans pb-16">
       {/* Hero Header */}
-      <section className="bg-white text-[#1C1217] py-16 sm:py-24 px-6 sm:px-12 text-center relative overflow-hidden border-b border-[#F5E8EE]">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-[#F9B8CA]/20 rounded-full blur-3xl pointer-events-none" />
+      <section className="bg-white text-[#232323] py-16 sm:py-24 px-6 sm:px-12 text-center relative overflow-hidden border-b border-[#EADDCB]">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-[#EADDCB]/20 rounded-full blur-3xl pointer-events-none" />
         <div className="max-w-4xl mx-auto space-y-4 relative z-10">
           <Badge variant="pink" icon={<SparklesIcon size={12} />}>CAREERS AT THE CANDLE LAB</Badge>
-          <h1 className="text-4xl sm:text-6xl font-serif font-bold text-[#1C1217]">
+          <h1 className="text-4xl sm:text-6xl font-serif font-bold text-[#232323]">
             Join Our Olfactory Atelier
           </h1>
-          <p className="text-sm sm:text-base text-[#624855] font-light max-w-xl mx-auto leading-relaxed">
+          <p className="text-sm sm:text-base text-[#5C5149] font-light max-w-xl mx-auto leading-relaxed">
             We are looking for passionate artisans, perfumers, designers, and e-commerce strategists to build India's premier luxury candle house.
           </p>
         </div>
@@ -82,8 +82,8 @@ export const CareersPage: React.FC = () => {
       <div className="max-w-7xl mx-auto px-6 sm:px-12 py-12 sm:py-16 space-y-16">
         {/* Open Positions Grid */}
         <div className="space-y-6">
-          <div className="border-b border-[#F5E8EE] pb-3">
-            <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#1C1217]">
+          <div className="border-b border-[#EADDCB] pb-3">
+            <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#232323]">
               Current Open Roles ({OPEN_POSITIONS.length})
             </h2>
           </div>
@@ -94,24 +94,24 @@ export const CareersPage: React.FC = () => {
                 key={pos.id}
                 variant="bordered"
                 padding="lg"
-                className="bg-white border-[#F5E8EE] rounded-3xl shadow-card space-y-4 hover:border-[#F9B8CA] transition-all flex flex-col justify-between"
+                className="bg-white border-[#EADDCB] rounded-3xl shadow-card space-y-4 hover:border-[#EADDCB] transition-all flex flex-col justify-between"
               >
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] uppercase font-bold tracking-widest text-[#E87A96]">
+                    <span className="text-[10px] uppercase font-bold tracking-widest text-[#8B6F4E]">
                       {pos.department} • {pos.location}
                     </span>
                     <Badge variant="pink" size="sm">{pos.type}</Badge>
                   </div>
-                  <h3 className="font-serif font-bold text-xl text-[#1C1217]">
+                  <h3 className="font-serif font-bold text-xl text-[#232323]">
                     {pos.title}
                   </h3>
-                  <p className="text-xs text-[#624855] font-light leading-relaxed">
+                  <p className="text-xs text-[#5C5149] font-light leading-relaxed">
                     {pos.desc}
                   </p>
                 </div>
 
-                <div className="pt-3 border-t border-[#F5E8EE]">
+                <div className="pt-3 border-t border-[#EADDCB]">
                   <Button
                     variant="outline"
                     size="sm"
@@ -131,14 +131,14 @@ export const CareersPage: React.FC = () => {
         </div>
 
         {/* Application Form */}
-        <div id="apply-form" className="bg-white border border-[#F5E8EE] rounded-3xl p-8 sm:p-12 shadow-card max-w-2xl mx-auto space-y-6">
+        <div id="apply-form" className="bg-white border border-[#EADDCB] rounded-3xl p-8 sm:p-12 shadow-card max-w-2xl mx-auto space-y-6">
           <div className="space-y-1 text-center">
             <Badge variant="pink" icon={<SparklesIcon size={12} />}>TALENT APPLICATION</Badge>
-            <h3 className="text-2xl font-serif font-bold text-[#1C1217]">
+            <h3 className="text-2xl font-serif font-bold text-[#232323]">
               Submit Your Candidacy
             </h3>
-            <p className="text-xs text-[#886C7B]">
-              Selected Role: <strong className="text-[#E87A96]">{selectedRole}</strong>
+            <p className="text-xs text-[#7D6F63]">
+              Selected Role: <strong className="text-[#8B6F4E]">{selectedRole}</strong>
             </p>
           </div>
 
@@ -165,14 +165,14 @@ export const CareersPage: React.FC = () => {
               onChange={(e) => setLinkedinUrl(e.target.value)}
             />
             <div className="space-y-1">
-              <label className="text-xs font-bold text-[#1C1217] uppercase">Short Introduction / Motivation *</label>
+              <label className="text-xs font-bold text-[#232323] uppercase">Short Introduction / Motivation *</label>
               <textarea
                 required
                 rows={4}
                 value={coverNote}
                 onChange={(e) => setCoverNote(e.target.value)}
                 placeholder="Tell us about your background, craftsmanship, or why you'd like to join The Candle Lab..."
-                className="w-full bg-[#FFF6F8] border border-[#F5E8EE] rounded-2xl p-4 text-xs text-[#1C1217] outline-none focus:border-[#E87A96]"
+                className="w-full bg-[#FAF7F2] border border-[#EADDCB] rounded-2xl p-4 text-xs text-[#232323] outline-none focus:border-[#8B6F4E]"
               />
             </div>
 

@@ -76,7 +76,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
     >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 font-sans">
         {/* Left Vessel Visual */}
-        <div className="bg-[#FFF6F8] rounded-3xl p-4 flex flex-col items-center justify-center relative overflow-hidden h-72 md:h-full min-h-[280px] border border-[#F5E8EE]">
+        <div className="bg-[#FAF7F2] rounded-3xl p-4 flex flex-col items-center justify-center relative overflow-hidden h-72 md:h-full min-h-[280px] border border-[#EADDCB]">
           <img
             src={imageSrc}
             alt={product.name}
@@ -87,7 +87,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
               {product.scentProfile || product.category || 'Handcrafted'}
             </Badge>
           </div>
-          <div className="absolute bottom-4 left-4 right-4 text-center text-xs font-semibold bg-white/90 backdrop-blur-md py-1.5 px-3 rounded-full text-[#1C1217] border border-[#F5E8EE] shadow-xs">
+          <div className="absolute bottom-4 left-4 right-4 text-center text-xs font-semibold bg-white/90 backdrop-blur-md py-1.5 px-3 rounded-full text-[#232323] border border-[#EADDCB] shadow-xs">
             100% Organic Soy Wax • {product.burnTime || '60+ Hours'}
           </div>
         </div>
@@ -99,45 +99,45 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
               <div className="flex items-center gap-1.5 text-xs text-[#E8C86D] font-bold">
                 <StarIcon size={14} className="fill-current text-[#E8C86D]" />
                 <span>{product.rating ? Number(product.rating).toFixed(1) : '4.9'}</span>
-                <span className="text-[#886C7B] font-normal">({product.reviewsCount || 18} reviews)</span>
+                <span className="text-[#7D6F63] font-normal">({product.reviewsCount || 18} reviews)</span>
               </div>
               <span className={`text-xs font-bold ${product.inStock !== false ? 'text-[#15803D]' : 'text-[#BE123C]'}`}>
                 {product.inStock !== false ? '✓ In Stock & Ready' : 'Sold Out'}
               </span>
             </div>
 
-            <h3 className="text-xl sm:text-2xl font-serif font-bold text-[#1C1217]">
+            <h3 className="text-xl sm:text-2xl font-serif font-bold text-[#232323]">
               {product.name}
             </h3>
 
             <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-bold text-[#1C1217] font-serif">
+              <span className="text-2xl font-bold text-[#232323] font-serif">
                 {currency}{price.toLocaleString('en-IN')}
               </span>
               {origPrice && (
-                <span className="text-xs text-[#886C7B] line-through">
+                <span className="text-xs text-[#7D6F63] line-through">
                   {currency}{origPrice.toLocaleString('en-IN')}
                 </span>
               )}
             </div>
 
-            <p className="text-xs text-[#624855] leading-relaxed line-clamp-3">
+            <p className="text-xs text-[#5C5149] leading-relaxed line-clamp-3">
               {product.longDescription || product.vesselDescription || 'Hand-poured candle crafted with natural soy wax, custom essential oil notes, and organic dual crackling wood wicks.'}
             </p>
 
             {/* Fragrance & Color Selectors */}
             {(showFragrance || showColor) && (
-              <div className="space-y-2 pt-1 border-t border-[#F5E8EE]">
+              <div className="space-y-2 pt-1 border-t border-[#EADDCB]">
                 {/* Fragrance Dropdown */}
                 {showFragrance && fragrances.length > 0 && (
                   <div className="space-y-1">
-                    <label className="block text-[10px] font-mono uppercase font-bold text-[#624855]">
+                    <label className="block text-[10px] font-mono uppercase font-bold text-[#5C5149]">
                       Select Fragrance
                     </label>
                     <select
                       value={selectedFragrance}
                       onChange={(e) => setSelectedFragrance(e.target.value)}
-                      className="w-full px-3 py-2 bg-white border border-[#E8DCE2] rounded-xl text-xs text-[#1C1217] outline-none cursor-pointer"
+                      className="w-full px-3 py-2 bg-white border border-[#DFCFBC] rounded-xl text-xs text-[#232323] outline-none cursor-pointer"
                     >
                       <option value="">{product.scentProfile || product.topNotes || 'Signature Formulation'}</option>
                       {fragrances.map((f) => (
@@ -152,14 +152,14 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
                 {/* Color Dropdown + Custom Color */}
                 {showColor && (
                   <div className="space-y-1">
-                    <label className="block text-[10px] font-mono uppercase font-bold text-[#624855]">
+                    <label className="block text-[10px] font-mono uppercase font-bold text-[#5C5149]">
                       Select Wax / Vessel Color
                     </label>
                     <div className="flex items-center gap-2">
                       <select
                         value={selectedColorId}
                         onChange={(e) => setSelectedColorId(e.target.value)}
-                        className="w-full px-3 py-2 bg-white border border-[#E8DCE2] rounded-xl text-xs text-[#1C1217] outline-none cursor-pointer"
+                        className="w-full px-3 py-2 bg-white border border-[#DFCFBC] rounded-xl text-xs text-[#232323] outline-none cursor-pointer"
                       >
                         {colors.map((c) => (
                           <option key={c.id} value={c.id}>
@@ -176,7 +176,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
                         placeholder="Enter custom shade (e.g. Pastel Lavender, Sage Green)..."
                         value={customColorText}
                         onChange={(e) => setCustomColorText(e.target.value)}
-                        className="w-full px-3 py-2 bg-[#FFF6F8] border border-[#F9B8CA] rounded-xl text-xs text-[#1C1217] outline-none placeholder:text-[#886C7B]"
+                        className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EADDCB] rounded-xl text-xs text-[#232323] outline-none placeholder:text-[#7D6F63]"
                       />
                     )}
                   </div>
@@ -186,14 +186,14 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
           </div>
 
           {/* Bottom Actions */}
-          <div className="space-y-3 pt-3 border-t border-[#F5E8EE]">
+          <div className="space-y-3 pt-3 border-t border-[#EADDCB]">
             <div className="flex items-center gap-3">
               {/* Stepper */}
-              <div className="flex items-center border border-[#F5E8EE] bg-[#FFF6F8] rounded-full overflow-hidden">
+              <div className="flex items-center border border-[#EADDCB] bg-[#FAF7F2] rounded-full overflow-hidden">
                 <button
                   type="button"
                   onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  className="px-3 py-1 text-xs font-bold text-[#1C1217] hover:text-[#E87A96]"
+                  className="px-3 py-1 text-xs font-bold text-[#232323] hover:text-[#8B6F4E]"
                 >
                   -
                 </button>
@@ -201,7 +201,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setQuantity((q) => q + 1)}
-                  className="px-3 py-1 text-xs font-bold text-[#1C1217] hover:text-[#E87A96]"
+                  className="px-3 py-1 text-xs font-bold text-[#232323] hover:text-[#8B6F4E]"
                 >
                   +
                 </button>
@@ -219,7 +219,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
               <button
                 type="button"
                 onClick={() => onToggleWishlist(product.id, product.name)}
-                className={`p-2.5 rounded-full border border-[#F5E8EE] transition-colors ${isWishlisted ? 'bg-[#BE123C] text-white' : 'bg-[#FFF6F8] text-[#886C7B] hover:text-[#E87A96]'}`}
+                className={`p-2.5 rounded-full border border-[#EADDCB] transition-colors ${isWishlisted ? 'bg-[#BE123C] text-white' : 'bg-[#FAF7F2] text-[#7D6F63] hover:text-[#8B6F4E]'}`}
               >
                 <HeartIcon size={16} className={isWishlisted ? 'fill-current' : ''} />
               </button>

@@ -49,12 +49,12 @@
   --color-noir-400: #A39486;
 
   /* Gold Accent */
-  --color-gold-200: #F9F2DC;
-  --color-gold-300: #EFE0B3;
-  --color-gold-400: #DFC27E;
-  --color-gold-500: #C8A75A;
-  --color-gold-600: #AA893E;
-  --color-gold-700: #876A2A;
+  --color-gold-200: #F8F6F0;
+  --color-gold-300: #EADDCB;
+  --color-gold-400: #EADDCB;
+  --color-gold-500: #8B6F4E;
+  --color-gold-600: #745A3D;
+  --color-gold-700: #5D462E;
 
   /* Olive Green */
   --color-olive-100: #EFF1E5;
@@ -84,7 +84,7 @@
   --shadow-card: 0 4px 20px rgba(139, 111, 78, 0.07), 0 1px 3px rgba(35, 35, 35, 0.03);
   --shadow-hover: 0 16px 36px rgba(139, 111, 78, 0.12), 0 4px 14px rgba(35, 35, 35, 0.06);
   --shadow-warm-glow: 0 0 28px rgba(234, 221, 203, 0.55);
-  --shadow-gold-glow: 0 0 28px rgba(200, 167, 90, 0.35);
+  --shadow-gold-glow: 0 0 28px rgba(139, 111, 78, 0.35);
   --shadow-modal: 0 20px 50px rgba(20, 19, 18, 0.35);
   --shadow-drawer: -10px 0 40px rgba(20, 19, 18, 0.25);
 }
@@ -142,12 +142,12 @@ h1, h2, h3, h4, .font-serif-luxury {
   0%, 100% {
     transform: scale(1) rotate(-1deg);
     opacity: 0.95;
-    filter: drop-shadow(0 0 8px rgba(200, 167, 90, 0.6)) drop-shadow(0 0 14px rgba(234, 221, 203, 0.5));
+    filter: drop-shadow(0 0 8px rgba(139, 111, 78, 0.6)) drop-shadow(0 0 14px rgba(234, 221, 203, 0.5));
   }
   50% {
     transform: scale(1.08) rotate(1deg);
     opacity: 1;
-    filter: drop-shadow(0 0 12px rgba(200, 167, 90, 0.8)) drop-shadow(0 0 18px rgba(249, 242, 220, 0.7));
+    filter: drop-shadow(0 0 12px rgba(139, 111, 78, 0.8)) drop-shadow(0 0 18px rgba(249, 242, 220, 0.7));
   }
 }
 

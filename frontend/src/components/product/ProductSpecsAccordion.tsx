@@ -48,10 +48,10 @@ export const ProductSpecsAccordion: React.FC<ProductSpecsAccordionProps> = ({ pr
       title: 'Artisan Formulation & Olfactory Notes',
       icon: '🕯️',
       content: (
-        <div className="space-y-4 text-xs text-[#624855] leading-relaxed font-light">
+        <div className="space-y-4 text-xs text-[#5C5149] leading-relaxed font-light">
           <p>{product.longDescription || product.shortDescription}</p>
           {product.shortDescription && product.longDescription && (
-            <p className="text-[#886C7B] italic font-serif text-sm border-l-2 border-[#E87A96] pl-3 py-1">
+            <p className="text-[#7D6F63] italic font-serif text-sm border-l-2 border-[#8B6F4E] pl-3 py-1">
               "{product.shortDescription}"
             </p>
           )}
@@ -65,11 +65,11 @@ export const ProductSpecsAccordion: React.FC<ProductSpecsAccordionProps> = ({ pr
       content: (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
           {Object.entries(specsMap).map(([key, val]) => (
-            <div key={key} className="p-3.5 rounded-2xl bg-[#FFF6F8] border border-[#F5E8EE]">
-              <span className="text-[10px] font-mono uppercase text-[#886C7B] block mb-0.5">
+            <div key={key} className="p-3.5 rounded-2xl bg-[#FAF7F2] border border-[#EADDCB]">
+              <span className="text-[10px] font-mono uppercase text-[#7D6F63] block mb-0.5">
                 {key}
               </span>
-              <span className="text-[#1C1217] font-medium">{String(val)}</span>
+              <span className="text-[#232323] font-medium">{String(val)}</span>
             </div>
           ))}
         </div>
@@ -82,30 +82,30 @@ export const ProductSpecsAccordion: React.FC<ProductSpecsAccordionProps> = ({ pr
       content: (
         <div className="space-y-3 text-xs">
           {hasTopNotes && (
-            <div className="p-3.5 rounded-2xl bg-[#FFF6F8] border border-[#F5E8EE]">
+            <div className="p-3.5 rounded-2xl bg-[#FAF7F2] border border-[#EADDCB]">
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-xs font-mono uppercase text-[#E87A96] font-semibold">Top Notes:</span>
-                <span className="text-[10px] text-[#886C7B]">(First 15-30 Minutes)</span>
+                <span className="text-xs font-mono uppercase text-[#8B6F4E] font-semibold">Top Notes:</span>
+                <span className="text-[10px] text-[#7D6F63]">(First 15-30 Minutes)</span>
               </div>
-              <p className="text-[#624855]">{product.topNotes}</p>
+              <p className="text-[#5C5149]">{product.topNotes}</p>
             </div>
           )}
           {hasHeartNotes && (
-            <div className="p-3.5 rounded-2xl bg-[#FFF6F8] border border-[#F5E8EE]">
+            <div className="p-3.5 rounded-2xl bg-[#FAF7F2] border border-[#EADDCB]">
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-xs font-mono uppercase text-[#E87A96] font-semibold">Heart Notes:</span>
-                <span className="text-[10px] text-[#886C7B]">(Core Scent Accord)</span>
+                <span className="text-xs font-mono uppercase text-[#8B6F4E] font-semibold">Heart Notes:</span>
+                <span className="text-[10px] text-[#7D6F63]">(Core Scent Accord)</span>
               </div>
-              <p className="text-[#624855]">{product.heartNotes}</p>
+              <p className="text-[#5C5149]">{product.heartNotes}</p>
             </div>
           )}
           {hasBaseNotes && (
-            <div className="p-3.5 rounded-2xl bg-[#FFF6F8] border border-[#F5E8EE]">
+            <div className="p-3.5 rounded-2xl bg-[#FAF7F2] border border-[#EADDCB]">
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-xs font-mono uppercase text-[#E87A96] font-semibold">Base Notes:</span>
-                <span className="text-[10px] text-[#886C7B]">(Lasting Warmth & Trail)</span>
+                <span className="text-xs font-mono uppercase text-[#8B6F4E] font-semibold">Base Notes:</span>
+                <span className="text-[10px] text-[#7D6F63]">(Lasting Warmth & Trail)</span>
               </div>
-              <p className="text-[#624855]">{product.baseNotes}</p>
+              <p className="text-[#5C5149]">{product.baseNotes}</p>
             </div>
           )}
         </div>
@@ -116,10 +116,10 @@ export const ProductSpecsAccordion: React.FC<ProductSpecsAccordionProps> = ({ pr
       title: 'How to Use & Candle Care Ritual',
       icon: '🔥',
       content: (
-        <div className="space-y-3 text-xs text-[#624855] leading-relaxed font-light">
+        <div className="space-y-3 text-xs text-[#5C5149] leading-relaxed font-light">
           {product.howToUse && <p>{product.howToUse}</p>}
           {product.safetyInstructions && (
-            <div className="p-3 rounded-2xl bg-[#FFF6F8] border border-[#F9B8CA] text-[#C94C6D] text-[11px]">
+            <div className="p-3 rounded-2xl bg-[#FAF7F2] border border-[#EADDCB] text-[#C94C6D] text-[11px]">
               ⚠️ {product.safetyInstructions}
             </div>
           )}
@@ -131,12 +131,12 @@ export const ProductSpecsAccordion: React.FC<ProductSpecsAccordionProps> = ({ pr
       title: "What's Included & Shipping Policy",
       icon: '📦',
       content: (
-        <div className="space-y-2.5 text-xs text-[#624855]">
+        <div className="space-y-2.5 text-xs text-[#5C5149]">
           {product.whatsIncluded && (
-            <p><span className="text-[#886C7B] font-medium">In the Box:</span> {product.whatsIncluded}</p>
+            <p><span className="text-[#7D6F63] font-medium">In the Box:</span> {product.whatsIncluded}</p>
           )}
           {product.shippingReturns && (
-            <p><span className="text-[#886C7B] font-medium">Shipping & Returns:</span> {product.shippingReturns}</p>
+            <p><span className="text-[#7D6F63] font-medium">Shipping & Returns:</span> {product.shippingReturns}</p>
           )}
         </div>
       ),
@@ -146,26 +146,26 @@ export const ProductSpecsAccordion: React.FC<ProductSpecsAccordionProps> = ({ pr
   if (sections.length === 0) return null;
 
   return (
-    <div className="space-y-3 pt-6 border-t border-[#F5E8EE]">
+    <div className="space-y-3 pt-6 border-t border-[#EADDCB]">
       {sections.map((sec) => {
         const isOpen = openSections.includes(sec.id);
         return (
-          <div key={sec.id} className="rounded-3xl bg-[#FFFFFF] border border-[#F5E8EE] overflow-hidden transition-all shadow-xs">
+          <div key={sec.id} className="rounded-3xl bg-[#FFFFFF] border border-[#EADDCB] overflow-hidden transition-all shadow-xs">
             <button
               type="button"
               onClick={() => toggleSection(sec.id)}
-              className="w-full p-4.5 flex items-center justify-between text-left hover:bg-[#FFF6F8] transition-colors"
+              className="w-full p-4.5 flex items-center justify-between text-left hover:bg-[#FAF7F2] transition-colors"
             >
               <div className="flex items-center gap-3">
                 <span className="text-base">{sec.icon}</span>
-                <span className="font-serif text-sm font-medium text-[#1C1217]">{sec.title}</span>
+                <span className="font-serif text-sm font-medium text-[#232323]">{sec.title}</span>
               </div>
-              <span className="text-xs font-mono text-[#886C7B] transition-transform duration-200">
+              <span className="text-xs font-mono text-[#7D6F63] transition-transform duration-200">
                 {isOpen ? '−' : '+'}
               </span>
             </button>
 
-            {isOpen && <div className="p-5 pt-1 border-t border-[#F5E8EE]">{sec.content}</div>}
+            {isOpen && <div className="p-5 pt-1 border-t border-[#EADDCB]">{sec.content}</div>}
           </div>
         );
       })}

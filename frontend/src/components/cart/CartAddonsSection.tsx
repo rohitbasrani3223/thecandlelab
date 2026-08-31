@@ -15,11 +15,11 @@ export const CartAddonsSection: React.FC<CartAddonsSectionProps> = ({ onAddAddon
   const { toast } = useToast();
 
   return (
-    <div className="p-6 bg-[#FFF6F8] border border-[#F5E8EE] rounded-3xl space-y-4 font-sans">
-      <div className="flex items-center justify-between border-b border-[#F5E8EE] pb-3">
+    <div className="p-6 bg-[#FAF7F2] border border-[#EADDCB] rounded-3xl space-y-4 font-sans">
+      <div className="flex items-center justify-between border-b border-[#EADDCB] pb-3">
         <div className="flex items-center gap-2">
           <Badge variant="pink" icon={<SparklesIcon size={12} />}>ESSENTIAL ACCESSORIES</Badge>
-          <h4 className="font-serif font-bold text-base text-[#1C1217]">Enhance Your Sanctuary</h4>
+          <h4 className="font-serif font-bold text-base text-[#232323]">Enhance Your Sanctuary</h4>
         </div>
       </div>
 
@@ -27,15 +27,15 @@ export const CartAddonsSection: React.FC<CartAddonsSectionProps> = ({ onAddAddon
         {addonItems.map((item) => (
           <div
             key={item.id}
-            className="p-3.5 bg-[#FFFFFF] border border-[#F5E8EE] rounded-2xl space-y-2 flex flex-col justify-between hover:border-[#F9B8CA] shadow-xs transition-all"
+            className="p-3.5 bg-[#FFFFFF] border border-[#EADDCB] rounded-2xl space-y-2 flex flex-col justify-between hover:border-[#EADDCB] shadow-xs transition-all"
           >
             <div className="space-y-1">
               <div className="flex items-center justify-between">
                 <span className="text-2xl">{item.icon}</span>
-                <span className="text-xs font-bold text-[#E87A96]">₹{item.price}</span>
+                <span className="text-xs font-bold text-[#8B6F4E]">₹{item.price}</span>
               </div>
-              <h5 className="font-serif font-bold text-xs text-[#1C1217]">{item.name}</h5>
-              <p className="text-[10px] text-[#886C7B]">{item.desc}</p>
+              <h5 className="font-serif font-bold text-xs text-[#232323]">{item.name}</h5>
+              <p className="text-[10px] text-[#7D6F63]">{item.desc}</p>
             </div>
 
             <Button

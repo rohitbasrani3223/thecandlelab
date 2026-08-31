@@ -128,7 +128,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           <div className="flex items-center justify-between text-[10px] font-mono text-[#8B6F4E] mb-1">
             <span className="truncate uppercase font-bold tracking-wider">{product.category || 'Soy Candle'}</span>
             {hasRating && (
-              <span className="text-[#C8A75A] font-bold">★ {Number(product.rating).toFixed(1)}</span>
+              <span className="text-[#8B6F4E] font-bold">★ {Number(product.rating).toFixed(1)}</span>
             )}
           </div>
 

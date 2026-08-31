@@ -50,13 +50,13 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login', onNav
   }
 
   return (
-    <div className="min-h-screen w-full bg-[#FAF6F8] text-[#1C1217] py-8 sm:py-12 px-3 sm:px-6 lg:px-8 flex flex-col justify-center items-center relative overflow-x-hidden box-border select-none">
+    <div className="min-h-screen w-full bg-[#F8F6F0] text-[#232323] py-8 sm:py-12 px-3 sm:px-6 lg:px-8 flex flex-col justify-center items-center relative overflow-x-hidden box-border select-none">
       {/* Soft Luxury Glow Accents */}
-      <div className="absolute top-1/4 -left-32 w-72 h-72 sm:w-80 sm:h-80 bg-[#F9B8CA]/25 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/4 -left-32 w-72 h-72 sm:w-80 sm:h-80 bg-[#EADDCB]/25 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 -right-32 w-72 h-72 sm:w-80 sm:h-80 bg-[#FDE8EF]/40 rounded-full blur-3xl pointer-events-none" />
 
       {/* Main Glassmorphism Auth Card */}
-      <div className="w-full max-w-sm sm:max-w-md bg-white border border-[#F5E8EE] shadow-2xl rounded-3xl p-6 sm:p-9 relative z-10 box-border">
+      <div className="w-full max-w-sm sm:max-w-md bg-white border border-[#EADDCB] shadow-2xl rounded-3xl p-6 sm:p-9 relative z-10 box-border">
         {/* Brand Top Header */}
         <div className="flex flex-col items-center mb-5 sm:mb-6">
           <img
@@ -64,10 +64,10 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login', onNav
             alt="The Candle Lab Logo"
             className="h-10 sm:h-12 w-auto rounded-xl shadow-xs mb-2"
           />
-          <span className="font-serif font-extrabold text-base sm:text-lg tracking-widest text-[#1C1217]">
+          <span className="font-serif font-extrabold text-base sm:text-lg tracking-widest text-[#232323]">
             THE CANDLE LAB
           </span>
-          <span className="text-[8px] sm:text-[9px] uppercase tracking-[0.2em] sm:tracking-[0.25em] text-[#886C7B] font-semibold mt-0.5 text-center">
+          <span className="text-[8px] sm:text-[9px] uppercase tracking-[0.2em] sm:tracking-[0.25em] text-[#7D6F63] font-semibold mt-0.5 text-center">
             Handcrafted Luxury Soy & Botanical Scent Architecture
           </span>
         </div>
@@ -81,10 +81,10 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login', onNav
         {authViewMode === 'verify-otp' && <OtpVerificationForm />}
 
         {onNavigateHome && (
-          <div className="mt-5 sm:mt-6 pt-3.5 sm:pt-4 border-t border-[#F5E8EE] text-center">
+          <div className="mt-5 sm:mt-6 pt-3.5 sm:pt-4 border-t border-[#EADDCB] text-center">
             <button
               onClick={onNavigateHome}
-              className="text-xs font-semibold text-[#886C7B] hover:text-[#E87A96] transition-colors inline-flex items-center gap-1.5 cursor-pointer py-1"
+              className="text-xs font-semibold text-[#7D6F63] hover:text-[#8B6F4E] transition-colors inline-flex items-center gap-1.5 cursor-pointer py-1"
             >
               ← Return to Boutique Storefront
             </button>

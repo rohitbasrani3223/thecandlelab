@@ -36,12 +36,12 @@ export const Skeleton: React.FC<SkeletonProps> = ({
 };
 
 export const SkeletonCard: React.FC<{ className?: string }> = ({ className = '' }) => (
-  <div className={`p-4 rounded-2xl border border-[#F5E8EE] bg-[#FFFFFF] flex flex-col gap-3 ${className}`}>
+  <div className={`p-4 rounded-2xl border border-[#EADDCB] bg-[#FFFFFF] flex flex-col gap-3 ${className}`}>
     <Skeleton variant="rectangular" height={180} />
     <Skeleton variant="text" width="40%" />
     <Skeleton variant="text" width="90%" />
     <Skeleton variant="text" width="60%" />
-    <div className="flex items-center justify-between mt-2 pt-2 border-t border-[#FFF6F8]">
+    <div className="flex items-center justify-between mt-2 pt-2 border-t border-[#FAF7F2]">
       <Skeleton variant="text" width={70} height={24} />
       <Skeleton variant="text" width={90} height={32} />
     </div>

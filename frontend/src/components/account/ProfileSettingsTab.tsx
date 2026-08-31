@@ -42,17 +42,17 @@ export const ProfileSettingsTab: React.FC = () => {
 
   return (
     <form onSubmit={handleSave} className="space-y-6 font-sans">
-      <div className="flex items-center justify-between border-b border-[#F5E8EE] pb-4">
+      <div className="flex items-center justify-between border-b border-[#EADDCB] pb-4">
         <div>
           <Badge variant="pink" icon={<SparklesIcon size={12} />}>PROFILE MANAGEMENT</Badge>
-          <h2 className="text-2xl font-serif font-bold text-[#1C1217] mt-1">
+          <h2 className="text-2xl font-serif font-bold text-[#232323] mt-1">
             Personal Details & Scent Profile
           </h2>
         </div>
       </div>
 
       <div className="space-y-4">
-        <h3 className="text-xs uppercase font-bold tracking-wider text-[#886C7B]">Personal Information</h3>
+        <h3 className="text-xs uppercase font-bold tracking-wider text-[#7D6F63]">Personal Information</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
             label="First Name"
@@ -88,7 +88,7 @@ export const ProfileSettingsTab: React.FC = () => {
 
       {/* Preferred Scent Profile Selection */}
       <div className="space-y-3 pt-2">
-        <span className="text-xs uppercase font-bold tracking-wider text-[#886C7B] block">
+        <span className="text-xs uppercase font-bold tracking-wider text-[#7D6F63] block">
           Preferred Olfactory Families (for personalized drops):
         </span>
         <div className="flex flex-wrap items-center gap-3">
@@ -105,7 +105,7 @@ export const ProfileSettingsTab: React.FC = () => {
                 key={scent}
                 type="button"
                 onClick={() => toggleScent(scent)}
-                className={`px-4 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer ${isSelected ? 'bg-[#E87A96] text-white border-[#E87A96] shadow-xs' : 'bg-[#FFF6F8] border-[#F5E8EE] text-[#624855] hover:bg-[#FDE8EF]'}`}
+                className={`px-4 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer ${isSelected ? 'bg-[#8B6F4E] text-white border-[#8B6F4E] shadow-xs' : 'bg-[#FAF7F2] border-[#EADDCB] text-[#5C5149] hover:bg-[#FDE8EF]'}`}
               >
                 {isSelected ? `✓ ${scent}` : `+ ${scent}`}
               </button>

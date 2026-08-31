@@ -50,27 +50,27 @@ export const Modal: React.FC<ModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-[#140B10]/60 backdrop-blur-xs transition-opacity animate-fade-in"
+        className="fixed inset-0 bg-[#141312]/60 backdrop-blur-xs transition-opacity animate-fade-in"
         onClick={onClose}
         aria-hidden="true"
       />
 
       {/* Dialog */}
       <div
-        className={`relative w-full max-w-[92vw] ${sizeStyles[size]} bg-[#FFFFFF] border border-[#F5E8EE] rounded-2xl shadow-modal z-10 overflow-hidden animate-modal-zoom my-8 font-sans`}
+        className={`relative w-full max-w-[92vw] ${sizeStyles[size]} bg-[#FFFFFF] border border-[#EADDCB] rounded-2xl shadow-modal z-10 overflow-hidden animate-modal-zoom my-8 font-sans`}
         role="dialog"
         aria-modal="true"
       >
         {/* Header */}
         {(title || subtitle) && (
-          <div className="flex items-start justify-between p-5 sm:p-6 border-b border-[#F5E8EE] bg-[#FFF6F8]">
+          <div className="flex items-start justify-between p-5 sm:p-6 border-b border-[#EADDCB] bg-[#FAF7F2]">
             <div>
-              {title && <h3 className="text-lg font-serif font-bold text-[#1C1217]">{title}</h3>}
-              {subtitle && <p className="text-xs text-[#886C7B] mt-0.5">{subtitle}</p>}
+              {title && <h3 className="text-lg font-serif font-bold text-[#232323]">{title}</h3>}
+              {subtitle && <p className="text-xs text-[#7D6F63] mt-0.5">{subtitle}</p>}
             </div>
             <button
               onClick={onClose}
-              className="text-[#886C7B] hover:text-[#1C1217] p-1.5 rounded-full hover:bg-[#FDE8EF] transition-colors"
+              className="text-[#7D6F63] hover:text-[#232323] p-1.5 rounded-full hover:bg-[#FDE8EF] transition-colors"
               aria-label="Close dialog"
             >
               <CloseIcon size={18} />
@@ -81,7 +81,7 @@ export const Modal: React.FC<ModalProps> = ({
         {!title && !subtitle && (
           <button
             onClick={onClose}
-            className="absolute right-4 top-4 z-10 text-[#886C7B] hover:text-[#1C1217] p-1.5 rounded-full hover:bg-[#FDE8EF] transition-colors"
+            className="absolute right-4 top-4 z-10 text-[#7D6F63] hover:text-[#232323] p-1.5 rounded-full hover:bg-[#FDE8EF] transition-colors"
             aria-label="Close dialog"
           >
             <CloseIcon size={18} />
@@ -93,7 +93,7 @@ export const Modal: React.FC<ModalProps> = ({
 
         {/* Footer */}
         {footer && (
-          <div className="p-4 sm:p-5 bg-[#FFF6F8] border-t border-[#F5E8EE] flex items-center justify-end gap-3">
+          <div className="p-4 sm:p-5 bg-[#FAF7F2] border-t border-[#EADDCB] flex items-center justify-end gap-3">
             {footer}
           </div>
         )}

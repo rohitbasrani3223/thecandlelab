@@ -32,11 +32,11 @@ export const RelatedProducts: React.FC = () => {
   const { toast } = useToast();
 
   return (
-    <section className="space-y-8 font-sans border-t border-[#F5E8EE] pt-12">
-      <div className="flex items-center justify-between border-b border-[#F5E8EE] pb-4">
+    <section className="space-y-8 font-sans border-t border-[#EADDCB] pt-12">
+      <div className="flex items-center justify-between border-b border-[#EADDCB] pb-4">
         <div>
-          <span className="text-xs uppercase font-bold tracking-widest text-[#E87A96] block">Complimentary Aromatics</span>
-          <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#1C1217]">
+          <span className="text-xs uppercase font-bold tracking-widest text-[#8B6F4E] block">Complimentary Aromatics</span>
+          <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#232323]">
             You May Also Savor
           </h2>
         </div>
@@ -48,9 +48,9 @@ export const RelatedProducts: React.FC = () => {
             key={prod.id}
             variant="bordered"
             padding="none"
-            className="bg-[#FFFFFF] border-[#F5E8EE] rounded-3xl group flex flex-col justify-between overflow-hidden hover:shadow-card hover:border-[#F9B8CA] transition-all duration-300"
+            className="bg-[#FFFFFF] border-[#EADDCB] rounded-3xl group flex flex-col justify-between overflow-hidden hover:shadow-card hover:border-[#EADDCB] transition-all duration-300"
           >
-            <div className="h-48 bg-[#FFF6F8] flex items-center justify-center relative overflow-hidden">
+            <div className="h-48 bg-[#FAF7F2] flex items-center justify-center relative overflow-hidden">
               <div className="text-5xl group-hover:scale-110 transition-transform">🕯️</div>
               <div className="absolute top-3 left-3">
                 <Badge variant="pink" size="sm" icon={<SparklesIcon size={10} />}>{prod.tag}</Badge>
@@ -59,19 +59,19 @@ export const RelatedProducts: React.FC = () => {
 
             <div className="p-4 space-y-2">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-[#886C7B] font-medium">{prod.subtitle}</span>
+                <span className="text-[#7D6F63] font-medium">{prod.subtitle}</span>
                 <div className="flex items-center gap-1 text-[#E8C86D] font-bold">
                   <StarIcon size={12} className="fill-current text-[#E8C86D]" />
                   <span>{prod.rating}</span>
                 </div>
               </div>
 
-              <h3 className="text-sm font-serif font-bold text-[#1C1217] group-hover:text-[#E87A96] transition-colors truncate">
+              <h3 className="text-sm font-serif font-bold text-[#232323] group-hover:text-[#8B6F4E] transition-colors truncate">
                 {prod.name}
               </h3>
 
-              <div className="pt-2 border-t border-[#F5E8EE] flex items-center justify-between">
-                <span className="text-sm font-bold text-[#1C1217]">{prod.price}</span>
+              <div className="pt-2 border-t border-[#EADDCB] flex items-center justify-between">
+                <span className="text-sm font-bold text-[#232323]">{prod.price}</span>
                 <Button
                   variant="pink"
                   size="sm"

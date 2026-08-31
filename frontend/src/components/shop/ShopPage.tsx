@@ -84,7 +84,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({ onSelectProduct }) => {
   }, [filteredProducts, currentPage, pageSize]);
 
   return (
-    <div className="w-full bg-[#FAF6F8] min-h-screen">
+    <div className="w-full bg-[#F8F6F0] min-h-screen">
       {/* 1. Shop Hero Header */}
       <ShopHeader totalProducts={activeProducts.length} />
 
