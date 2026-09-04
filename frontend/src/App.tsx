@@ -6,7 +6,6 @@ import { AuthProvider } from './context/AuthContext';
 import { CMSProvider } from './context/CMSContext';
 import { CartProvider } from './context/CartContext';
 import { AuthModal, AuthPage } from './components/auth';
-import { BackToTopButton } from './components/common/BackToTopButton';
 import { ProductGridSkeleton } from './components/common/ProductSkeleton';
 import type { BlogPost } from './components/blog';
 import { AdminLayout } from './components/admin';
@@ -296,7 +295,6 @@ export function App() {
                 )}
               </Suspense>
             </Layout>
-            <BackToTopButton />
           </CartProvider>
         </CMSProvider>
       </AuthProvider>

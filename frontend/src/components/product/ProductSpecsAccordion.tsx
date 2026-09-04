@@ -23,8 +23,11 @@ export const ProductSpecsAccordion: React.FC<ProductSpecsAccordionProps> = ({ pr
     Object.assign(specsMap, product.productDetails);
   } else {
     if (product.waxType) specsMap['Wax Type'] = product.waxType;
-    if (product.burnTime) specsMap['Burn Time'] = product.burnTime;
-    if (product.burnTimeHours) specsMap['Burn Duration'] = `${product.burnTimeHours} Hours`;
+    if (product.burnTime) {
+      specsMap['Burn Time'] = product.burnTime;
+    } else if (product.burnTimeHours) {
+      specsMap['Burn Time'] = `${product.burnTimeHours} Hours`;
+    }
     if (product.wickType) specsMap['Wick'] = product.wickType;
     if (product.vesselDescription) specsMap['Vessel'] = product.vesselDescription;
     if (product.weightGrams) specsMap['Net Weight'] = `${product.weightGrams}g`;

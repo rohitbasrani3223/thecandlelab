@@ -2,7 +2,6 @@ import React, { useState, useMemo } from 'react';
 import { PRODUCT_IMAGE_PLACEHOLDER } from '../../config/placeholders';
 import { ProductGallery } from './ProductGallery';
 import { ProductSummary } from './ProductSummary';
-import { ProductSpecsAccordion } from './ProductSpecsAccordion';
 import { ProductReviewsSection } from './ProductReviewsSection';
 import { RelatedProducts } from './RelatedProducts';
 import { useCMS, type CMSProduct, type CMSProductVariant } from '../../context/CMSContext';
@@ -129,11 +128,6 @@ export const ProductDetailsPage: React.FC<ProductDetailsPageProps> = ({
               onBuyNow={handleBuyNow}
             />
           </div>
-        </div>
-
-        {/* Specs Accordion */}
-        <div className="mt-12">
-          <ProductSpecsAccordion product={activeProduct} />
         </div>
       </div>
 
