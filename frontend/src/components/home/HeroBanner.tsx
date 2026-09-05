@@ -1,130 +1,140 @@
-import React, { useState, useEffect } from 'react';
-import { Button, Badge, SparklesIcon, CandleIcon } from '../../design-system';
+import React from 'react';
+import { SparklesIcon, ShoppingBagIcon } from '../../design-system';
 import { useCMS } from '../../context/CMSContext';
 
-export const HeroBanner: React.FC = () => {
+export interface HeroBannerProps {
+  onNavigateToShop?: () => void;
+  onNavigateToCollections?: () => void;
+}
+
+export const HeroBanner: React.FC<HeroBannerProps> = ({
+  onNavigateToShop,
+  onNavigateToCollections,
+}) => {
   const { hero } = useCMS();
-  const [scrollY, setScrollY] = useState(0);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const heroTagline = hero.tagline || 'HANDCRAFTED BOTANICAL SOY CANDLES';
-  const heroTitle = hero.title || 'Illuminate Your Sanctuary With Pure Elegance';
-  const heroSubtitle = hero.subtitle || 'Artisanal soy wax candles infused with fine botanical essential oils, hand-poured in small luxury batches.';
-  const heroPrimaryBtn = hero.primaryBtnText || 'Explore Collections';
-  const heroSecondaryBtn = hero.secondaryBtnText || 'Our Atelier Story';
   const heroBgImage = (hero.imageUrl && !hero.imageUrl.includes('unsplash.com/photo-1603006905003'))
     ? hero.imageUrl
     : '/hero_candle.png';
 
+  const handleExploreCollections = () => {
+    if (onNavigateToCollections) {
+      onNavigateToCollections();
+    } else {
+      window.location.hash = '#collections';
+    }
+  };
+
+  const handleShopAll = () => {
+    if (onNavigateToShop) {
+      onNavigateToShop();
+    } else {
+      window.location.hash = '#shop';
+    }
+  };
+
   return (
-    <section className="relative w-full max-w-full bg-[#1F1D1B] border-b border-[#2C2623] overflow-hidden py-16 sm:py-28 lg:py-32 font-sans text-white">
-      {/* 1. Full-Bleed High Quality Background Photography Layer with Parallax */}
-      <div
-        className="absolute inset-0 w-full h-full pointer-events-none transition-transform duration-100 ease-out z-0 scale-105"
-        style={{
-          transform: `translateY(${scrollY * 0.15}px)`,
-        }}
-      >
+    <section className="relative w-full max-w-full overflow-hidden font-sans">
+      {/* 1. Hero Banner Image Container - Clear, crisp, full visibility */}
+      <div className="relative w-full h-[52vh] min-h-[380px] sm:h-[65vh] sm:min-h-[480px] md:h-[72vh] md:min-h-[540px] lg:h-[78vh] lg:min-h-[600px] max-h-[760px] bg-[#141211] overflow-hidden group">
         <img
           src={heroBgImage}
-          alt="The Candle Lab Atelier"
-          className="w-full h-full object-cover opacity-75 filter brightness-95 contrast-105"
+          alt="The Candle Lab Artisanal Candles"
+          className="w-full h-full object-cover object-center filter brightness-100 contrast-[1.02] transition-transform duration-700 ease-out group-hover:scale-105"
         />
-        {/* Luxury Vignette & Warm Earth Contrast Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#1F1D1B]/75 via-[#1F1D1B]/35 to-[#1F1D1B]/90" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#1F1D1B]/60 via-transparent to-[#1F1D1B]/60" />
-      </div>
 
-      {/* 2. Floating Warm Beige & Gold Candle Flame Ambient Glow */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[400px] sm:max-w-[600px] h-[350px] sm:h-[500px] bg-gradient-to-tr from-[#EADDCB]/25 via-[#8B6F4E]/20 to-transparent rounded-full blur-3xl pointer-events-none animate-pulse" />
+        {/* Soft bottom edge blend to transition smoothly into the ticker */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#141211]/70 via-transparent to-black/20 pointer-events-none" />
 
-      {/* 3. Hero Content Container */}
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 relative z-10">
-        <div className="max-w-4xl mx-auto text-center space-y-6 sm:space-y-9">
-          {/* Tagline Badge */}
-          <div className="inline-flex max-w-full flex-wrap justify-center items-center gap-1.5 sm:gap-2 bg-[#232323]/85 backdrop-blur-md px-4 sm:px-6 py-1.5 sm:py-2 rounded-full border border-[#EADDCB]/40 shadow-[0_0_24px_rgba(234,221,203,0.25)]">
-            <Badge variant="gold" size="sm" icon={<SparklesIcon size={12} />}>{heroTagline}</Badge>
-            <span className="hidden sm:inline-block text-xs uppercase tracking-widest text-[#EADDCB] font-semibold">
-              • 100% PURE BOTANICAL SOY
-            </span>
-          </div>
-
-          {/* Main Centered Heading */}
-          <h1 className="text-2xl sm:text-5xl lg:text-7xl font-serif font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#FFFFFF] via-[#FAF7F2] to-[#EADDCB] leading-[1.12] sm:leading-[1.08] tracking-tight drop-shadow-[0_4px_24px_rgba(0,0,0,0.9)] break-words">
-            {heroTitle}
-          </h1>
-
-          {/* Subtitle */}
-          <p className="text-xs sm:text-lg text-[#EADDCB]/90 max-w-2xl mx-auto leading-relaxed font-light drop-shadow-md px-2">
-            {heroSubtitle}
-          </p>
-
-          {/* CTAs */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-2 sm:pt-4 w-full max-w-md mx-auto sm:max-w-none">
-            <Button
-              variant="primary"
-              size="lg"
-              className="w-full sm:w-auto bg-[#8B6F4E] hover:bg-[#745A3D] border-[#8B6F4E] text-white font-extrabold rounded-full px-8 sm:px-10 py-3.5 sm:py-4 shadow-[0_4px_24px_rgba(139,111,78,0.4)] transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer text-sm sm:text-base"
-              leftIcon={<SparklesIcon size={18} />}
-              onClick={() => {
-                const el = document.getElementById('best-sellers') || document.getElementById('shop');
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
-                else window.location.hash = '#shop';
-              }}
+        {/* Floating Frosted Glass Capsule with slight blur for the two buttons ONLY */}
+        <div className="absolute bottom-6 sm:bottom-10 md:bottom-14 left-1/2 -translate-x-1/2 z-20 w-auto max-w-[92%] px-2">
+          <div className="flex flex-row items-center justify-center gap-2.5 sm:gap-4 p-2 sm:p-2.5 rounded-full bg-black/40 backdrop-blur-md border border-white/20 shadow-[0_12px_40px_rgba(0,0,0,0.55)]">
+            <button
+              type="button"
+              id="hero-explore-collections-btn"
+              onClick={handleExploreCollections}
+              className="group/btn bg-[#8B6F4E] hover:bg-[#A88E72] text-white font-bold text-xs sm:text-sm tracking-wider uppercase px-5 sm:px-8 py-2.5 sm:py-3.5 rounded-full transition-all duration-300 hover:scale-105 active:scale-95 flex items-center justify-center gap-2 shadow-lg cursor-pointer whitespace-nowrap"
             >
-              {heroPrimaryBtn || 'SHOP NOW'}
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="w-full sm:w-auto bg-[#232323]/60 backdrop-blur-md border border-[#EADDCB]/60 text-[#FFFFFF] hover:bg-[#FFFFFF] hover:text-[#232323] hover:border-[#FFFFFF] rounded-full px-8 sm:px-10 py-3.5 sm:py-4 transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer shadow-lg text-sm sm:text-base"
-              leftIcon={<CandleIcon size={18} className="text-[#8B6F4E]" />}
-              onClick={() => {
-                const el = document.getElementById('scent-quiz-section');
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
-                else window.location.hash = '#collections';
-              }}
-            >
-              {heroSecondaryBtn || 'EXPLORE COLLECTION'}
-            </Button>
-          </div>
+              <SparklesIcon size={16} className="text-[#F5EFE6] transition-transform duration-300 group-hover/btn:rotate-12" />
+              <span>Explore Collections</span>
+            </button>
 
-          {/* Bottom Highlights Bar */}
-          <div className="pt-6 sm:pt-10 border-t border-white/15 grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 text-center max-w-4xl mx-auto w-full">
-            <div className="bg-[#232323]/75 backdrop-blur-md p-3 sm:p-4 rounded-2xl border border-[#EADDCB]/25 shadow-xl">
-              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[#EADDCB] block">100% Soy Wax</span>
-              <span className="text-[9px] sm:text-[11px] text-[#DFCFBC]/80">Clean & Non-Toxic</span>
-            </div>
-            <div className="bg-[#232323]/75 backdrop-blur-md p-3 sm:p-4 rounded-2xl border border-[#EADDCB]/25 shadow-xl">
-              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[#8B6F4E] block">Essential Oils</span>
-              <span className="text-[9px] sm:text-[11px] text-[#DFCFBC]/80">IFRA Certified</span>
-            </div>
-            <div className="bg-[#232323]/75 backdrop-blur-md p-3 sm:p-4 rounded-2xl border border-[#EADDCB]/25 shadow-xl">
-              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[#EADDCB] block">Wood Wicks</span>
-              <span className="text-[9px] sm:text-[11px] text-[#DFCFBC]/80">Dual Crackling</span>
-            </div>
-            <div className="bg-[#232323]/75 backdrop-blur-md p-3 sm:p-4 rounded-2xl border border-[#EADDCB]/25 shadow-xl">
-              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[#6B6E4A] block">Eco Friendly</span>
-              <span className="text-[9px] sm:text-[11px] text-[#DFCFBC]/80">Sustainable Glass</span>
-            </div>
+            <button
+              type="button"
+              id="hero-shop-all-btn"
+              onClick={handleShopAll}
+              className="group/btn bg-white/20 hover:bg-white text-white hover:text-[#181615] border border-white/40 font-bold text-xs sm:text-sm tracking-wider uppercase px-5 sm:px-8 py-2.5 sm:py-3.5 rounded-full transition-all duration-300 hover:scale-105 active:scale-95 flex items-center justify-center gap-2 shadow-lg cursor-pointer whitespace-nowrap backdrop-blur-sm"
+            >
+              <ShoppingBagIcon size={16} className="transition-transform duration-300 group-hover/btn:scale-110" />
+              <span>Shop All</span>
+            </button>
           </div>
         </div>
       </div>
 
-      {/* 4. Bottom Promo Ticker Ribbon */}
-      <div className="bg-[#1F1D1B] border-t border-[#2C2623] py-2.5 px-3 text-center text-[10px] sm:text-xs text-[#EADDCB] font-semibold tracking-wider flex flex-wrap items-center justify-center gap-2 sm:gap-6 overflow-hidden w-full">
-        <span>✨ Pan-India Free Delivery Above ₹999</span>
-        <span className="hidden sm:inline text-[#8B6F4E]">✦</span>
-        <span className="hidden sm:inline">🏷️ 10% OFF Code: <strong className="text-[#8B6F4E]">SAVE10</strong></span>
-        <span className="hidden md:inline text-[#8B6F4E]">✦</span>
-        <span className="hidden md:inline">🎁 Complimentary Premium Gift Packaging</span>
+      {/* 2. Patti 1: Running/Scrolling Infinite Marquee Strip */}
+      <div className="relative w-full bg-[#181615] border-y border-[#2E2722] py-3.5 overflow-hidden select-none z-10">
+        <div className="animate-marquee flex items-center whitespace-nowrap">
+          {[0, 1].map((copyIdx) => (
+            <div key={copyIdx} className="flex items-center gap-8 sm:gap-12 shrink-0 pr-8 sm:pr-12">
+              <div className="inline-flex items-center gap-2 text-xs sm:text-sm">
+                <span className="text-base sm:text-lg">🌿</span>
+                <span className="font-bold text-[#FAF7F2] uppercase tracking-wider">100% Pure Soy Wax</span>
+                <span className="text-[#C8B199] hidden sm:inline">• Clean & Non-Toxic Burn</span>
+              </div>
+              <span className="text-[#8B6F4E] text-xs">✦</span>
+
+              <div className="inline-flex items-center gap-2 text-xs sm:text-sm">
+                <span className="text-base sm:text-lg">🌸</span>
+                <span className="font-bold text-[#FAF7F2] uppercase tracking-wider">Botanical Essential Oils</span>
+                <span className="text-[#C8B199] hidden sm:inline">• IFRA Certified Aromatherapy</span>
+              </div>
+              <span className="text-[#8B6F4E] text-xs">✦</span>
+
+              <div className="inline-flex items-center gap-2 text-xs sm:text-sm">
+                <span className="text-base sm:text-lg">🪵</span>
+                <span className="font-bold text-[#FAF7F2] uppercase tracking-wider">Natural Wood Wicks</span>
+                <span className="text-[#C8B199] hidden sm:inline">• Dual Crackling Flame</span>
+              </div>
+              <span className="text-[#8B6F4E] text-xs">✦</span>
+
+              <div className="inline-flex items-center gap-2 text-xs sm:text-sm">
+                <span className="text-base sm:text-lg">♻️</span>
+                <span className="font-bold text-[#FAF7F2] uppercase tracking-wider">Eco-Friendly & Sustainable</span>
+                <span className="text-[#C8B199] hidden sm:inline">• Recyclable Artisanal Glass</span>
+              </div>
+              <span className="text-[#8B6F4E] text-xs">✦</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 3. Patti 2: Static Info Ribbon right below Patti 1 */}
+      <div className="w-full bg-[#221E1B] border-b border-[#362E29] py-2.5 px-4 text-center z-10">
+        <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-center gap-x-6 sm:gap-x-10 gap-y-2 text-[11px] sm:text-xs text-[#EADDCB] font-medium tracking-wide">
+          <div className="inline-flex items-center gap-1.5">
+            <span className="text-sm">🚚</span>
+            <span className="font-semibold text-white">Pan-India Free Delivery</span>
+            <span className="text-[#C8B199]">Above ₹999</span>
+          </div>
+          <span className="hidden sm:inline text-[#8B6F4E]">✦</span>
+
+          <div className="inline-flex items-center gap-1.5">
+            <span className="text-sm">🏷️</span>
+            <span className="font-semibold text-white">Flat 10% OFF</span>
+            <span className="text-[#C8B199]">Use Code:</span>
+            <span className="px-2 py-0.5 rounded bg-[#8B6F4E]/30 border border-[#8B6F4E]/60 text-[#FAF7F2] font-mono font-bold text-[10px] sm:text-xs tracking-wider">
+              SAVE10
+            </span>
+          </div>
+          <span className="hidden sm:inline text-[#8B6F4E]">✦</span>
+
+          <div className="inline-flex items-center gap-1.5">
+            <span className="text-sm">🎁</span>
+            <span className="font-semibold text-white">Complimentary</span>
+            <span className="text-[#C8B199]">Premium Gift Packaging</span>
+          </div>
+        </div>
       </div>
     </section>
   );

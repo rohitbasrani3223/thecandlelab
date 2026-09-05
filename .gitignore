@@ -26,6 +26,26 @@ venv/
 .env.production
 backend/.env.production
 
+# Laravel Storage & Logs
+backend/storage/framework/sessions/*
+!backend/storage/framework/sessions/.gitignore
+backend/storage/framework/views/*
+!backend/storage/framework/views/.gitignore
+backend/storage/framework/cache/*
+!backend/storage/framework/cache/.gitignore
+backend/storage/logs/*
+!backend/storage/logs/.gitignore
+backend/logs/*
+
+# Java / Maven & Crash Logs
+target/
+**/target/
+hs_err_pid*.log
+replay_pid*.log
+
+# Temporary archives
+*.zip
+
 # OS / Editor
 .DS_Store
 Thumbs.db

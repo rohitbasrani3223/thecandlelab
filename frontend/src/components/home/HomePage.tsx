@@ -27,7 +27,16 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigateToShop, onSelectPr
   return (
     <div className="w-full">
       {/* 1. Hero Banner */}
-      <HeroBanner />
+      <HeroBanner
+        onNavigateToShop={() => {
+          if (onNavigateToShop) onNavigateToShop();
+          else window.location.hash = '#shop';
+        }}
+        onNavigateToCollections={() => {
+          if (onNavigateToShop) onNavigateToShop('collections');
+          else window.location.hash = '#collections';
+        }}
+      />
 
       {/* 2. Unified Categories & Collections with Live Product Showcase */}
       <CategoryGrid onNavigateToShop={handleCategoryClick} onSelectProduct={onSelectProduct} />

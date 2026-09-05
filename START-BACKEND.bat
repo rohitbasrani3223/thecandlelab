@@ -1,22 +1,16 @@
-# The Candle Lab — Laravel Backend Launcher
-Set-Location -Path "$PSScriptRoot\backend"
+@echo off
+setlocal enabledelayedexpansion
+title The Candle Lab — Backend Server Launcher
 
-Write-Host "====================================================" -ForegroundColor Yellow
-Write-Host " THE CANDLE LAB — Laravel Backend Server (Port 8085)" -ForegroundColor Yellow
-Write-Host " Connected to Supabase PostgreSQL Database" -ForegroundColor Green
-Write-Host "====================================================" -ForegroundColor Yellow
+echo ====================================================
+echo  Launching The Candle Lab Backend Server...
+echo ====================================================
 
-if (Get-Command php -ErrorAction SilentlyContinue) {
-    if (-not (Test-Path "vendor")) {
-        Write-Host "Installing Laravel vendor packages via Composer..." -ForegroundColor Cyan
-        if (Test-Path "composer.phar") {
-            php composer.phar install
-        } else {
-            composer install
-        }
-    }
-    php artisan serve --host=0.0.0.0 --port=8085
-} else {
-    Write-Host "ERROR: PHP runtime is not found in system PATH." -ForegroundColor Red
-    Write-Host "Please install PHP 8.2+ or add php.exe to system PATH." -ForegroundColor Cyan
-}
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0START-BACKEND.ps1"
+
+if %ERRORLEVEL% neq 0 (
+    echo.
+    echo [ERROR] Backend launcher encountered an error.
+    pause
+)
+

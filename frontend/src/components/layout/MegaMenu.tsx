@@ -12,15 +12,6 @@ export interface MegaMenuProps {
 export const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, activeMenu, onNavigate }) => {
   const { collections, products, settings } = useCMS();
 
-  if (!isOpen || !activeMenu) return null;
-
-  const displayCollections = collections.map((col) => ({
-    icon: col.icon || '✨',
-    title: col.title.toUpperCase(),
-    desc: col.desc || `Curated ${col.title} Collection`,
-    hash: '#collections',
-  }));
-
   // Dynamically compute real categories from live products
   const dynamicCategories = useMemo(() => {
     const counts = new Map<string, number>();
@@ -44,6 +35,15 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, activeMenu,
     });
     return Array.from(set).slice(0, 5);
   }, [products]);
+
+  if (!isOpen || !activeMenu) return null;
+
+  const displayCollections = collections.map((col) => ({
+    icon: col.icon || '✨',
+    title: col.title.toUpperCase(),
+    desc: col.desc || `Curated ${col.title} Collection`,
+    hash: '#collections',
+  }));
 
   const featuredProduct = products.find((p) => p.isFeatured) || products[0];
 
