@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { SparklesIcon, ChevronRightIcon } from '../../design-system';
 import { useCMS } from '../../context/CMSContext';
 
@@ -7,10 +7,9 @@ export interface CategoryGridProps {
   onSelectProduct?: (product: any) => void;
 }
 
-interface LiveCurationCard {
+interface LiveCategoryCard {
   id: string;
   rawId?: string;
-  type: 'category' | 'collection';
   name: string;
   subtitle: string;
   count: number;
@@ -20,30 +19,19 @@ interface LiveCurationCard {
 }
 
 export const CategoryGrid: React.FC<CategoryGridProps> = ({
-  onNavigateToShop: _onNavigateToShop,
+  onNavigateToShop,
   onSelectProduct: _onSelectProduct,
 }) => {
-  const { products, mainCategories, collections, settings } = useCMS();
-  const [activeTab, setActiveTab] = useState<'all' | 'categories' | 'collections'>('all');
+  const { products, mainCategories, settings } = useCMS();
 
-  // Helper for finding matching products for a category or collection
+  // Helper to match live products for a given category
   const getMatchingProducts = (name: string, id: string) => {
     if (!products || products.length === 0) return [];
     const nameLower = name.toLowerCase().trim();
-    const curId = String(id);
+    const curId = String(id).trim();
 
     return products.filter((p) => {
       const pCat = (p.category || '').toLowerCase().trim();
-      const pCollection = (p.collection || '').toLowerCase().trim();
-
-      if (
-        p.collectionIds?.some((cId) => String(cId) === curId || String(cId).toLowerCase() === nameLower) ||
-        p.collections?.some((col) => String(col) === curId || String(col).toLowerCase() === nameLower)
-      ) {
-        return true;
-      }
-
-      if (pCollection === nameLower || pCollection === curId.toLowerCase()) return true;
       if (p.mainCategoryId && String(p.mainCategoryId) === curId) return true;
       if (pCat === nameLower) return true;
 
@@ -51,116 +39,82 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
       const nameClean = nameLower.replace(/[^a-z0-9]/g, '');
       if (pCatClean && nameClean && pCatClean === nameClean) return true;
 
-      const pColClean = pCollection.replace(/[^a-z0-9]/g, '');
-      if (pColClean && nameClean && pColClean === nameClean) return true;
-
       return false;
     });
   };
 
-  // 1. LIVE Categories strictly from CMS mainCategories or Products
-  const liveCategories = useMemo<LiveCurationCard[]>(() => {
+  // ONLY real LIVE Categories with products
+  const liveCategories = useMemo<LiveCategoryCard[]>(() => {
     if (mainCategories && mainCategories.length > 0) {
       return mainCategories
         .filter((c) => c.isActive !== false)
         .map((cat) => {
-          const matching = getMatchingProducts(cat.name, cat.id);
+          const cleanName = cat.name.trim();
+          const matching = getMatchingProducts(cleanName, cat.id);
           const count = matching.length;
           // Pick live product image if category image is not explicitly set
           const fallbackProductImg = matching.find((p) => p.image || p.imageUrl);
-          const image = cat.imageUrl || cat.bannerDesktop || fallbackProductImg?.image || fallbackProductImg?.imageUrl || '/hero_candle.png';
+          const image =
+            cat.imageUrl ||
+            cat.bannerDesktop ||
+            fallbackProductImg?.image ||
+            fallbackProductImg?.imageUrl ||
+            '/hero_candle.png';
 
           return {
-            id: `cat:${cat.name}`,
+            id: `cat:${cleanName}`,
             rawId: cat.id,
-            type: 'category',
-            name: cat.name,
+            name: cleanName,
             subtitle: cat.description || `${count} hand-poured formulation${count === 1 ? '' : 's'}`,
             count,
             price: `From ${settings.currencySymbol || '₹'}999`,
             image,
-            tag: cat.name.toLowerCase().includes('bestseller') ? 'Bestseller' : 'Category',
+            tag: cleanName.toLowerCase().includes('bestseller') ? 'Bestseller' : 'Category',
           };
-        });
+        })
+        .filter((c) => c.count > 0);
     }
 
-    // If mainCategories table is empty, derive categories dynamically from live products
+    // Fallback if mainCategories table isn't populated: derive strictly from live products
     if (products && products.length > 0) {
-      const uniqueCats = Array.from(new Set(products.map((p) => p.category).filter(Boolean)));
-      return uniqueCats.map((catName) => {
-        const matching = getMatchingProducts(catName, catName);
-        const count = matching.length;
-        const fallbackProductImg = matching.find((p) => p.image || p.imageUrl);
-        const image = fallbackProductImg?.image || fallbackProductImg?.imageUrl || '/hero_candle.png';
+      const uniqueCats = Array.from(
+        new Set(products.map((p) => (p.category || '').trim()).filter(Boolean))
+      );
+      return uniqueCats
+        .map((catName) => {
+          const matching = getMatchingProducts(catName, catName);
+          const count = matching.length;
+          const fallbackProductImg = matching.find((p) => p.image || p.imageUrl);
+          const image = fallbackProductImg?.image || fallbackProductImg?.imageUrl || '/hero_candle.png';
 
-        return {
-          id: `cat:${catName}`,
-          type: 'category',
-          name: catName,
-          subtitle: `${count} hand-poured formulation${count === 1 ? '' : 's'}`,
-          count,
-          price: `From ${settings.currencySymbol || '₹'}999`,
-          image,
-          tag: 'Category',
-        };
-      });
+          return {
+            id: `cat:${catName}`,
+            name: catName,
+            subtitle: `${count} hand-poured formulation${count === 1 ? '' : 's'}`,
+            count,
+            price: `From ${settings.currencySymbol || '₹'}999`,
+            image,
+            tag: 'Category',
+          };
+        })
+        .filter((c) => c.count > 0);
     }
 
     return [];
   }, [mainCategories, products, settings.currencySymbol]);
 
-  // 2. LIVE Collections strictly from CMS collections
-  const liveCollections = useMemo<LiveCurationCard[]>(() => {
-    if (!collections || collections.length === 0) return [];
-
-    return collections
-      .filter((c) => c.isActive !== false)
-      .map((col) => {
-        const matching = getMatchingProducts(col.name, col.id);
-        const count = matching.length;
-        const fallbackProductImg = matching.find((p) => p.image || p.imageUrl);
-        const image = col.imageUrl || col.bannerImage || fallbackProductImg?.image || fallbackProductImg?.imageUrl || '/hero_candle.png';
-
-        return {
-          id: col.id,
-          rawId: col.id,
-          type: 'collection',
-          name: col.name,
-          subtitle: col.description || 'Exclusive Atelier Curation',
-          count,
-          image,
-          tag: col.isFeatured ? 'Signature' : 'Collection',
-        };
-      });
-  }, [collections, products]);
-
-  // Unified list of ONLY live items
-  const allLiveCurations = useMemo<LiveCurationCard[]>(() => {
-    return [...liveCategories, ...liveCollections];
-  }, [liveCategories, liveCollections]);
-
-  // Tab Filtering
-  const visibleCards = useMemo(() => {
-    if (activeTab === 'categories') return liveCategories;
-    if (activeTab === 'collections') return liveCollections;
-    return allLiveCurations;
-  }, [allLiveCurations, liveCategories, liveCollections, activeTab]);
-
-  // If there are literally no live categories or collections, do not render an empty shell
-  if (allLiveCurations.length === 0) {
+  // Do not render empty section if no categories exist
+  if (liveCategories.length === 0) {
     return null;
   }
 
-  const handleOpenItem = (item: LiveCurationCard) => {
-    if (item.type === 'collection' || item.id.startsWith('cat:') || item.rawId) {
-      const targetId = item.rawId || item.id;
-      window.location.hash = `#collections?id=${encodeURIComponent(targetId)}`;
+  const handleOpenCategory = (item: LiveCategoryCard) => {
+    if (onNavigateToShop) {
+      onNavigateToShop(item.name);
     } else {
-      window.location.hash = `#categories?id=${encodeURIComponent(item.name)}`;
+      window.location.hash = `#shop?category=${encodeURIComponent(item.name)}`;
     }
   };
-
-  const hasBothTypes = liveCategories.length > 0 && liveCollections.length > 0;
 
   return (
     <section id="categories" className="py-16 sm:py-24 bg-[#FAF7F2] border-b border-[#EADDCB] font-sans">
@@ -170,7 +124,7 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#FFFFFF] border border-[#EADDCB] shadow-xs">
             <SparklesIcon size={13} className="text-[#B88B38]" />
             <span className="text-[11px] uppercase tracking-widest text-[#7D6F63] font-bold">
-              Live Atelier Catalog
+              Live Atelier Catalog • {liveCategories.length} Categories
             </span>
           </div>
 
@@ -181,50 +135,14 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
           <p className="text-xs sm:text-sm text-[#5C5149] max-w-2xl mx-auto leading-relaxed">
             Explore our artisanal hand-poured soy formulations, therapeutic botanical notes, and bespoke luxury gift ateliers.
           </p>
-
-          {/* Segmented Filter Pills (Only shown when both categories and collections exist in DB) */}
-          {hasBothTypes && (
-            <div className="pt-2 flex items-center justify-center gap-2 overflow-x-auto scrollbar-none pb-1">
-              <button
-                onClick={() => setActiveTab('all')}
-                className={`px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer shadow-xs ${
-                  activeTab === 'all'
-                    ? 'bg-[#232323] text-white shadow-md'
-                    : 'bg-[#FFFFFF] text-[#5C5149] border border-[#EADDCB] hover:border-[#B88B38] hover:text-[#232323]'
-                }`}
-              >
-                ✦ All ({allLiveCurations.length})
-              </button>
-              <button
-                onClick={() => setActiveTab('categories')}
-                className={`px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer shadow-xs ${
-                  activeTab === 'categories'
-                    ? 'bg-[#232323] text-white shadow-md'
-                    : 'bg-[#FFFFFF] text-[#5C5149] border border-[#EADDCB] hover:border-[#B88B38] hover:text-[#232323]'
-                }`}
-              >
-                🕯️ Categories ({liveCategories.length})
-              </button>
-              <button
-                onClick={() => setActiveTab('collections')}
-                className={`px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer shadow-xs ${
-                  activeTab === 'collections'
-                    ? 'bg-[#232323] text-white shadow-md'
-                    : 'bg-[#FFFFFF] text-[#5C5149] border border-[#EADDCB] hover:border-[#B88B38] hover:text-[#232323]'
-                }`}
-              >
-                ✨ Collections ({liveCollections.length})
-              </button>
-            </div>
-          )}
         </div>
 
-        {/* Circular Luxury Showcase Grid — 100% Live Database Items */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-4 sm:gap-x-6 lg:gap-x-8 gap-y-8 sm:gap-y-12 pt-2">
-          {visibleCards.map((item) => (
+        {/* Circular Luxury Showcase Grid — ONLY Real Live Categories */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-x-4 sm:gap-x-6 lg:gap-x-8 gap-y-8 sm:gap-y-12 pt-2 justify-center">
+          {liveCategories.map((item) => (
             <div
               key={item.id}
-              onClick={() => handleOpenItem(item)}
+              onClick={() => handleOpenCategory(item)}
               className="group flex flex-col items-center cursor-pointer text-center select-none"
             >
               {/* Concentric Circular Image Frame with Luxury Gold Bezel */}
@@ -238,7 +156,6 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
                       alt={item.name}
                       loading="lazy"
                       onError={(e) => {
-                        // Safe fallback to hero image if live URL fails to load
                         (e.target as HTMLImageElement).src = '/hero_candle.png';
                       }}
                       className="w-full h-full object-cover object-center group-hover:scale-115 transition-transform duration-700 ease-out"
@@ -292,11 +209,16 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
           ))}
         </div>
 
-        {/* View All Collections Bottom CTA */}
+        {/* View All Categories Bottom CTA */}
         <div className="text-center pt-4 sm:pt-6 border-t border-[#EADDCB]">
           <button
+            type="button"
             onClick={() => {
-              window.location.hash = '#collections';
+              if (onNavigateToShop) {
+                onNavigateToShop();
+              } else {
+                window.location.hash = '#shop';
+              }
             }}
             className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest bg-[#FFFFFF] text-[#232323] border border-[#EADDCB] hover:border-[#8B6F4E] hover:text-[#8B6F4E] hover:shadow-card transition-all cursor-pointer group"
           >

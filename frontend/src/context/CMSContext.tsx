@@ -48,6 +48,7 @@ export interface CMSHeroBanner {
   primaryBtnText: string;
   secondaryBtnText: string;
   imageUrl: string;
+  mobileImageUrl?: string;
   featuredTitle?: string;
   featuredSubtitle?: string;
   featuredImage?: string;

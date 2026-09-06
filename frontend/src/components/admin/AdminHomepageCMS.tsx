@@ -255,14 +255,25 @@ export const AdminHomepageCMS: React.FC = () => {
                 </div>
 
                 {/* Hero Section Background Image Upload & URL Manager */}
-                <div className="space-y-2">
-                  <AdminImageUploader
-                    value={heroForm.imageUrl || ''}
-                    onChange={(url) => setHeroForm((prev) => ({ ...prev, imageUrl: url }))}
-                    label="Hero Section Background Image Photo"
-                    aspectRatio="banner"
-                    helperText="Recommended: 1920 × 600px wide landscape photo"
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <AdminImageUploader
+                      value={heroForm.imageUrl || ''}
+                      onChange={(url) => setHeroForm((prev) => ({ ...prev, imageUrl: url }))}
+                      label="Desktop Hero Section Banner (Landscape)"
+                      aspectRatio="banner"
+                      helperText="Recommended: 1920 × 600px wide landscape photo"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <AdminImageUploader
+                      value={heroForm.mobileImageUrl || ''}
+                      onChange={(url) => setHeroForm((prev) => ({ ...prev, mobileImageUrl: url }))}
+                      label="Mobile Hero Section Banner (Optional)"
+                      aspectRatio="square"
+                      helperText="Recommended: 1080 × 1080px or 800 × 600px photo for phones"
+                    />
+                  </div>
                 </div>
 
                 {/* Glass Card Overlay Featured Candle Settings */}
