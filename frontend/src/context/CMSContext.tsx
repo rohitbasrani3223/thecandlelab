@@ -48,7 +48,6 @@ export interface CMSHeroBanner {
   primaryBtnText: string;
   secondaryBtnText: string;
   imageUrl: string;
-  mobileImageUrl?: string;
   featuredTitle?: string;
   featuredSubtitle?: string;
   featuredImage?: string;
@@ -841,7 +840,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               localOrdersMap.set(String(lo.orderNumber).toLowerCase(), lo);
             }
           });
-        } catch {}
+        } catch { }
 
         if (ordersRes.status === 'fulfilled' && Array.isArray(ordersRes.value) && ordersRes.value.length > 0) {
           const dbOrderItems = (orderItemsRes && orderItemsRes.status === 'fulfilled' && Array.isArray(orderItemsRes.value))
@@ -1157,7 +1156,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             try {
               localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(mapped));
               window.dispatchEvent(new Event('tcl-cms-updated'));
-            } catch {}
+            } catch { }
             return mapped;
           });
         }
@@ -1173,7 +1172,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const updateSettings = (newSettings: Partial<CMSStoreSettings>) => {
     setSettings((prev) => {
       const updated = { ...prev, ...newSettings };
-      saveCmsBundle({ version: 1, settings: updated, announcement, hero, pagesContent, seoSettings, collections, mediaItems }).catch(() => {});
+      saveCmsBundle({ version: 1, settings: updated, announcement, hero, pagesContent, seoSettings, collections, mediaItems }).catch(() => { });
       return updated;
     });
   };
@@ -1181,7 +1180,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const updateAnnouncement = (newAnn: Partial<CMSAnnouncement>) => {
     setAnnouncement((prev) => {
       const updated = { ...prev, ...newAnn };
-      saveCmsBundle({ version: 1, settings, announcement: updated, hero, pagesContent, seoSettings, collections, mediaItems }).catch(() => {});
+      saveCmsBundle({ version: 1, settings, announcement: updated, hero, pagesContent, seoSettings, collections, mediaItems }).catch(() => { });
       return updated;
     });
   };
@@ -1189,7 +1188,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const updateHero = (newHero: Partial<CMSHeroBanner>) => {
     setHero((prev) => {
       const updated = { ...prev, ...newHero };
-      saveCmsBundle({ version: 1, settings, announcement, hero: updated, pagesContent, seoSettings, collections, mediaItems }).catch(() => {});
+      saveCmsBundle({ version: 1, settings, announcement, hero: updated, pagesContent, seoSettings, collections, mediaItems }).catch(() => { });
       return updated;
     });
   };
@@ -1614,13 +1613,13 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       prev.map((c) =>
         c.id === id
           ? {
-              ...c,
-              ...updated,
-              name: updated.name || updated.title || c.name,
-              title: updated.title || updated.name || c.title,
-              description: updated.description || updated.desc || c.description,
-              desc: updated.desc || updated.description || c.desc,
-            }
+            ...c,
+            ...updated,
+            name: updated.name || updated.title || c.name,
+            title: updated.title || updated.name || c.title,
+            description: updated.description || updated.desc || c.description,
+            desc: updated.desc || updated.description || c.desc,
+          }
           : c
       )
     );
@@ -1777,7 +1776,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       try {
         localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(next));
         window.dispatchEvent(new Event('tcl-cms-updated'));
-      } catch {}
+      } catch { }
       return next;
     });
     await syncProductImages(realId, newProduct.image, newProduct.images);
@@ -1834,7 +1833,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       try {
         localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(nextProducts));
         window.dispatchEvent(new Event('tcl-cms-updated'));
-      } catch {}
+      } catch { }
       return nextProducts;
     });
 
@@ -1892,7 +1891,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       try {
         localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(next));
         window.dispatchEvent(new Event('tcl-cms-updated'));
-      } catch {}
+      } catch { }
       return next;
     });
 
@@ -2027,7 +2026,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const existing = JSON.parse(localStorage.getItem('tcl_cms_orders') || '[]');
       localStorage.setItem('tcl_cms_orders', JSON.stringify([order, ...existing]));
       window.dispatchEvent(new Event('tcl-orders-updated'));
-    } catch {}
+    } catch { }
 
     try {
       const dbOrderId = generateUUID();
@@ -2071,7 +2070,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       try {
         localStorage.setItem('tcl_cms_orders', JSON.stringify(updated));
         window.dispatchEvent(new Event('tcl-orders-updated'));
-      } catch {}
+      } catch { }
       return updated;
     });
 
@@ -2090,13 +2089,13 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ ...targetOrder, status: 'Shipped' }),
-          }).catch(() => {});
+          }).catch(() => { });
         } else if (status.toLowerCase().includes('deliver')) {
           fetch(getApiUrl('send-email/order-delivered'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ ...targetOrder, status: 'Delivered' }),
-          }).catch(() => {});
+          }).catch(() => { });
         }
       }
     } catch (err) {
@@ -2115,7 +2114,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       try {
         localStorage.setItem('tcl_cms_orders', JSON.stringify(updated));
         window.dispatchEvent(new Event('tcl-orders-updated'));
-      } catch {}
+      } catch { }
       return updated;
     });
     try {
