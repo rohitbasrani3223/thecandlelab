@@ -244,13 +244,16 @@ export const AdminHomepageCMS: React.FC = () => {
                 </div>
 
                 {/* Recommended Image Dimensions Notice Box */}
-                <div className="bg-[#EFF6FF] border border-[#BFDBFE] p-3.5 rounded-xl text-xs text-[#1E40AF] space-y-1">
-                  <div className="flex items-center gap-2 font-bold">
+                <div className="bg-[#EFF6FF] border border-[#BFDBFE] p-4 rounded-xl text-xs text-[#1E40AF] space-y-1.5 shadow-xs">
+                  <div className="flex flex-wrap items-center gap-2 font-bold text-sm text-[#1D4ED8]">
                     <span>📐 Recommended Dimensions:</span>
-                    <span className="text-[#1D4ED8]">1920 × 600 pixels (16:5 ratio) for best display</span>
+                    <span>2100 × 900 pixels (21:9 ratio) for best display</span>
                   </div>
-                  <p className="text-[11px] text-[#3B82F6]">
-                    Minimum: 1200 × 400px | Maximum File Size: 10MB
+                  <p className="text-xs text-[#2563EB] font-medium">
+                    Minimum: 1260 × 540px | Maximum: 10MB
+                  </p>
+                  <p className="text-[11px] text-[#3B82F6] leading-relaxed">
+                    💡 Desktop hero banner me sirf <strong>21:9 ratio (2100×900px)</strong> banner upload karein. Storefront desktop aur mobile dono views me banner bina kisi cropping ya cut hone ke bilkul crystal clear aur responsive dikhega.
                   </p>
                 </div>
 
@@ -260,9 +263,9 @@ export const AdminHomepageCMS: React.FC = () => {
                     <AdminImageUploader
                       value={heroForm.imageUrl || ''}
                       onChange={(url) => setHeroForm((prev) => ({ ...prev, imageUrl: url }))}
-                      label="Desktop Hero Section Banner (Landscape)"
+                      label="Desktop Hero Section Banner (21:9 Ratio)"
                       aspectRatio="banner"
-                      helperText="Recommended: 1920 × 600px wide landscape photo"
+                      helperText="Recommended: 2100 × 900px (21:9 ultrawide) | Min: 1260 × 540px | Max: 10MB"
                     />
                   </div>
                   <div className="space-y-2">
@@ -270,8 +273,8 @@ export const AdminHomepageCMS: React.FC = () => {
                       value={heroForm.mobileImageUrl || ''}
                       onChange={(url) => setHeroForm((prev) => ({ ...prev, mobileImageUrl: url }))}
                       label="Mobile Hero Section Banner (Optional)"
-                      aspectRatio="square"
-                      helperText="Recommended: 1080 × 1080px or 800 × 600px photo for phones"
+                      aspectRatio="banner"
+                      helperText="Optional: Agar mobile screen ke liye alag se banner dalna ho toh yahan upload karein, warna desktop banner hi perfectly fit hoga."
                     />
                   </div>
                 </div>

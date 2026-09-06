@@ -52,12 +52,16 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
           <img
             src={heroBgImage}
             alt={hero.title || 'The Candle Lab Artisanal Candles'}
-            className="w-full h-auto max-h-[580px] sm:max-h-[640px] md:max-h-[700px] lg:max-h-[760px] object-cover sm:object-cover object-center filter brightness-100 contrast-[1.02] transition-transform duration-700 ease-out group-hover:scale-[1.012] block"
+            className={`w-full h-auto ${
+              heroMobileBgImage
+                ? 'max-sm:aspect-auto sm:aspect-[21/9]'
+                : 'aspect-[21/9]'
+            } object-cover object-center filter brightness-100 contrast-[1.02] transition-transform duration-700 ease-out group-hover:scale-[1.012] block`}
           />
         </picture>
 
         {/* Soft bottom edge blend to transition smoothly into the ticker */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#141211]/60 via-transparent to-black/15 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#141211]/50 via-transparent to-black/10 pointer-events-none" />
 
         {/* Floating Frosted Glass Capsule with the two action buttons */}
         <div

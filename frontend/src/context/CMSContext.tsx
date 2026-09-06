@@ -48,6 +48,7 @@ export interface CMSHeroBanner {
   primaryBtnText: string;
   secondaryBtnText: string;
   imageUrl: string;
+  mobileImageUrl?: string;
   featuredTitle?: string;
   featuredSubtitle?: string;
   featuredImage?: string;
@@ -458,6 +459,7 @@ const DEFAULT_HERO: CMSHeroBanner = {
   primaryBtnText: 'Explore Collections',
   secondaryBtnText: 'Our Atelier Story',
   imageUrl: '/hero_candle.png',
+  mobileImageUrl: '',
   featuredTitle: 'French Vanilla & Cinnamon',
   featuredSubtitle: '200g Heavy Italian Glass • 65 Hours',
   featuredImage: '/hero_candle.png',
