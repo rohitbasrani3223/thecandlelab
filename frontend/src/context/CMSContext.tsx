@@ -707,6 +707,11 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     async function loadLiveBackend() {
       try {
         // Fetch all remote endpoints concurrently with safe error isolation
+        const isAdmin = typeof window !== 'undefined' && (
+          window.location.hash.startsWith('#admin') ||
+          window.location.hostname.toLowerCase().startsWith('admin.')
+        );
+
         const [
           cmsBundleRes,
           fragrancesRes,
@@ -733,11 +738,11 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           supabaseFetch<any[]>('main_categories'),
           supabaseFetch<any[]>('sub_categories'),
           supabaseFetch<any[]>('collections'),
-          supabaseFetch<any[]>('orders', { query: 'order=created_at.desc' }),
-          supabaseFetch<any[]>('order_items'),
-          supabaseFetch<any[]>('customers', { query: 'order=created_at.desc' }),
+          isAdmin ? supabaseFetch<any[]>('orders', { query: 'order=created_at.desc' }) : Promise.resolve(null),
+          isAdmin ? supabaseFetch<any[]>('order_items') : Promise.resolve(null),
+          isAdmin ? supabaseFetch<any[]>('customers', { query: 'order=created_at.desc' }) : Promise.resolve(null),
           supabaseFetch<any[]>('coupons', { query: 'order=created_at.desc' }),
-          supabaseFetch<any[]>('admins', { query: 'order=created_at.desc' }),
+          isAdmin ? supabaseFetch<any[]>('admins', { query: 'order=created_at.desc' }) : Promise.resolve(null),
           supabaseFetch<any[]>('products', { query: 'order=created_at.desc' }),
           supabaseFetch<any[]>('product_images'),
           supabaseFetch<any[]>('product_variants'),

@@ -93,9 +93,57 @@ export async function supabaseFetch<T>(table: string, options: { method?: string
   }
 }
 
+async function compressImageToWebP(file: File, maxDim = 1000, quality = 0.88): Promise<{ blob: Blob; fileName: string }> {
+  const baseName = file.name.replace(/[^a-zA-Z0-9_.-]/g, '_').replace(/\.[^/.]+$/, '');
+  const webpFileName = `${Date.now()}_${baseName}.webp`;
+
+  if (typeof window === 'undefined' || typeof document === 'undefined') {
+    return { blob: file, fileName: `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9_.-]/g, '_')}` };
+  }
+
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (Math.max(width, height) > maxDim) {
+          const ratio = maxDim / Math.max(width, height);
+          width = Math.round(width * ratio);
+          height = Math.round(height * ratio);
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          canvas.toBlob(
+            (blob) => {
+              if (blob) {
+                resolve({ blob, fileName: webpFileName });
+              } else {
+                resolve({ blob: file, fileName: `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9_.-]/g, '_')}` });
+              }
+            },
+            'image/webp',
+            quality
+          );
+        } else {
+          resolve({ blob: file, fileName: `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9_.-]/g, '_')}` });
+        }
+      };
+      img.onerror = () => resolve({ blob: file, fileName: `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9_.-]/g, '_')}` });
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = () => resolve({ blob: file, fileName: `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9_.-]/g, '_')}` });
+    reader.readAsDataURL(file);
+  });
+}
+
 export async function uploadImageToSupabaseStorage(file: File, bucket = 'product-images'): Promise<string> {
   try {
-    const cleanFileName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9_.-]/g, '_')}`;
+    const { blob, fileName: cleanFileName } = await compressImageToWebP(file);
     const uploadUrl = `${SUPABASE_URL}/storage/v1/object/${bucket}/${cleanFileName}`;
 
     const res = await fetch(uploadUrl, {
@@ -103,16 +151,16 @@ export async function uploadImageToSupabaseStorage(file: File, bucket = 'product
       headers: {
         'apikey': SUPABASE_ANON_KEY,
         'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-        'Content-Type': file.type,
+        'Content-Type': 'image/webp',
       },
-      body: file,
+      body: blob,
     });
 
     if (!res.ok) {
       return new Promise((resolve) => {
         const reader = new FileReader();
         reader.onloadend = () => resolve(reader.result as string);
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(blob);
       });
     }
 
