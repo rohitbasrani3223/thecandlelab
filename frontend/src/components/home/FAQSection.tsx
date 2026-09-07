@@ -16,7 +16,7 @@ const faqs = [
   },
   {
     question: 'What is your shipping & return policy?',
-    answer: 'We offer Free Express Shipping nationwide on all orders over ₹1,499. Every order is backed by our 30-Day Serenity Guarantee: if you are not delighted with your scent, return it unused for a full refund or exchange.',
+    answer: 'We offer Free Express Shipping nationwide on all orders over ₹999. Every order is backed by our 30-Day Serenity Guarantee: if you are not delighted with your scent, return it unused for a full refund or exchange.',
   },
   {
     question: 'Do you offer custom corporate or wedding gift boxes?',

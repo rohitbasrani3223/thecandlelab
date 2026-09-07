@@ -85,7 +85,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ type }) => {
               <section className="space-y-3">
                 <h3 className="font-serif font-bold text-xl text-[#232323]">1. Free Shipping Threshold</h3>
                 <p className="text-[#5C5149]">
-                  We provide 100% Free Express Shipping on all orders totaling ₹1,499 or higher across all serviceable pin codes in India. Orders below ₹1,499 incur a flat ₹99 standard shipping charge.
+                  We provide 100% Free Express Shipping on all orders totaling ₹999 or higher across all serviceable pin codes in India. Orders below ₹999 incur a flat ₹99 standard shipping charge.
                 </p>
               </section>
 

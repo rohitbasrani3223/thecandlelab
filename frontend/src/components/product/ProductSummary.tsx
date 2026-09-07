@@ -260,7 +260,7 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
       giftPackaging: showGiftPackaging ? giftPackaging : false,
       customMessage: showCustomMessage && (showGiftMessageInput || !showGiftPackaging) ? customMessage : undefined,
       quantity,
-    } as any);
+    } as any, { openDrawer: true });
   };
 
   const handleTriggerBuyNow = () => {
@@ -289,30 +289,14 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
       quantity,
     };
 
-    // 1. Synchronously persist to localStorage so CheckoutPage immediately has the item
-    try {
-      const saved = localStorage.getItem('tcl_cart_items');
-      const currentList: any[] = saved ? JSON.parse(saved) : [];
-      const index = currentList.findIndex(
-        (i) => (i.variantId && i.variantId === newItem.variantId) || (i.id === newItem.id && i.fragrance === newItem.fragrance && i.size === newItem.size)
-      );
-      if (index > -1) {
-        currentList[index].quantity += quantity;
-      } else {
-        currentList.push(newItem);
-      }
-      localStorage.setItem('tcl_cart_items', JSON.stringify(currentList));
-      window.dispatchEvent(new Event('tcl-cart-updated'));
-    } catch {}
+    // 1. Add to cart synchronously without opening drawer
+    addToCart(newItem as any, { openDrawer: false, silent: true });
 
-    // 2. Update React Cart Context
-    addToCart(newItem as any);
-
-    // 3. Immediately trigger navigation to checkout
+    // 2. Immediately trigger 1-click checkout navigation
     if (onBuyNow) {
       onBuyNow();
     } else {
-      window.location.hash = '#checkout';
+      window.dispatchEvent(new CustomEvent('tcl-navigate', { detail: { page: 'checkout' } }));
     }
   };
 

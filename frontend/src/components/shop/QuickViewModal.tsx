@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Modal, Button, Badge, StarIcon, SparklesIcon, HeartIcon, useToast } from '../../design-system';
-import { useCart } from '../../context/CartContext';
+import { Modal, Button, Badge } from '../../design-system';
+import { StarIcon, HeartIcon, SparklesIcon } from 'lucide-react';
 import { useCMS } from '../../context/CMSContext';
+import { useCart } from '../../context/CartContext';
 
 export interface QuickViewModalProps {
   product: any | null;
@@ -19,7 +20,6 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
   onToggleWishlist,
 }) => {
   const [quantity, setQuantity] = useState(1);
-  const { toast } = useToast();
   const { addToCart } = useCart();
   const { settings, colors, fragrances } = useCMS();
 
@@ -56,13 +56,8 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
       color: finalColor,
       wickType: 'Organic Wood Wick',
       quantity,
-    } as any);
+    } as any, { openDrawer: true });
 
-    toast({
-      type: 'luxury',
-      title: 'Added to Shopping Bag',
-      description: `${quantity}x ${product.name}`,
-    });
     onClose();
   };
 

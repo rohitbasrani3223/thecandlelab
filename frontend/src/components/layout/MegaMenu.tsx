@@ -6,26 +6,44 @@ export interface MegaMenuProps {
   isOpen: boolean;
   onClose: () => void;
   activeMenu: 'shop' | 'collections' | null;
-  onNavigate?: (page: any) => void;
+  onNavigate?: (page: any, param?: string) => void;
 }
 
 export const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, activeMenu, onNavigate }) => {
-  const { collections, products, settings } = useCMS();
+  const { collections, products, settings, mainCategories } = useCMS();
 
-  // Dynamically compute real categories from live products
+  // Dynamically compute real categories from live mainCategories and products
   const dynamicCategories = useMemo(() => {
-    const counts = new Map<string, number>();
-    products.forEach((p) => {
-      const cat = (p.category || '').trim();
-      if (cat) {
-        counts.set(cat, (counts.get(cat) || 0) + 1);
+    const list: { id: string; name: string; count: number }[] = [];
+    const seen = new Set<string>();
+    const normalize = (s: string) => (s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+
+    (mainCategories || []).forEach((c) => {
+      const clean = c.name.trim();
+      const norm = normalize(clean);
+      if (clean && !seen.has(norm)) {
+        seen.add(norm);
+        const count = products.filter((p) => {
+          const pNorm = normalize(p.category || '');
+          const pId = String(p.mainCategoryId || '').toLowerCase().trim();
+          return (pId && pId === c.id.toLowerCase()) || (pNorm && pNorm === norm);
+        }).length;
+        list.push({ id: c.id, name: clean, count });
       }
     });
-    return Array.from(counts.entries()).map(([name, count]) => ({
-      name,
-      count,
-    }));
-  }, [products]);
+
+    products.forEach((p) => {
+      const clean = (p.category || '').trim();
+      const norm = normalize(clean);
+      if (clean && !seen.has(norm)) {
+        seen.add(norm);
+        const count = products.filter((prod) => normalize(prod.category || '') === norm).length;
+        list.push({ id: clean, name: clean, count });
+      }
+    });
+
+    return list;
+  }, [mainCategories, products]);
 
   // Dynamically compute real scent families
   const dynamicScents = useMemo(() => {
@@ -47,13 +65,15 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, activeMenu,
 
   const featuredProduct = products.find((p) => p.isFeatured) || products[0];
 
-  const handleLinkClick = (e: React.MouseEvent, pageTarget: string = 'collections') => {
+  const handleLinkClick = (e: React.MouseEvent, pageTarget: string = 'collections', param?: string) => {
     e.preventDefault();
     onClose();
     if (onNavigate) {
-      onNavigate(pageTarget);
+      onNavigate(pageTarget, param);
     } else {
-      window.location.hash = `#${pageTarget}`;
+      window.location.hash = param
+        ? `#${pageTarget}?category=${encodeURIComponent(param)}`
+        : `#${pageTarget}`;
     }
   };
 
@@ -61,43 +81,74 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, activeMenu,
     return (
       <div
         onMouseLeave={onClose}
-        className="absolute top-full left-1/4 -translate-x-1/4 w-80 bg-white border border-[#EADDCB] rounded-2xl shadow-hover z-50 animate-fade-in font-sans p-4 mt-2"
+        className="absolute top-full left-0 w-full bg-[#FFFFFF] border-b border-[#EADDCB] shadow-hover z-40 animate-fade-in font-sans"
       >
-        <div className="border-b border-[#FAF7F2] pb-2 mb-3 px-2 flex items-center justify-between">
-          <span className="text-[10px] uppercase font-bold tracking-widest text-[#8B6F4E]">
-            CURATED COLLECTIONS ({displayCollections.length})
-          </span>
-          <span className="w-1.5 h-1.5 rounded-full bg-[#8B6F4E] animate-pulse"></span>
-        </div>
+        <div className="max-w-7xl mx-auto px-6 sm:px-12 py-8 grid grid-cols-1 md:grid-cols-4 gap-8">
+          {/* Column 1: Featured Collections */}
+          <div className="space-y-3">
+            <h4 className="text-xs uppercase font-bold tracking-widest text-[#8B6F4E] border-b border-[#EADDCB] pb-2">
+              Signature Curations
+            </h4>
+            <ul className="space-y-2 text-xs text-[#232323]">
+              {displayCollections.map((col, idx) => (
+                <li key={idx}>
+                  <a
+                    href="#collections"
+                    onClick={(e) => handleLinkClick(e, 'collections', col.title)}
+                    className="hover:text-[#8B6F4E] transition-colors flex items-center gap-2 group cursor-pointer"
+                  >
+                    <span className="text-sm">{col.icon}</span>
+                    <span className="font-semibold">{col.title}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-        {displayCollections.length === 0 ? (
-          <div className="p-4 text-center text-xs text-[#7D6F63]">
-            No collections created yet.
-          </div>
-        ) : (
-          <div className="max-h-96 overflow-y-auto no-scrollbar space-y-1.5">
-            {displayCollections.map((item, idx) => (
-              <a
-                key={idx}
-                href={item.hash}
-                onClick={(e) => handleLinkClick(e, 'collections')}
-                className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-[#FAF7F2] transition-colors group cursor-pointer"
+          {/* Column 2: Spotlight Collection */}
+          <div className="md:col-span-2 bg-[#FAF7F2] p-6 rounded-2xl border border-[#EADDCB] flex flex-col justify-between">
+            <div className="space-y-2">
+              <Badge variant="gold">Editor's Curation</Badge>
+              <h3 className="font-serif text-lg font-bold text-[#232323]">
+                {collections[0]?.title || 'The Heritage Royal Atelier'}
+              </h3>
+              <p className="text-xs text-[#5C5149] line-clamp-2">
+                {collections[0]?.desc || 'Hand-poured bespoke soy creations formulated with rare organic aromatics.'}
+              </p>
+            </div>
+            <div className="pt-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={(e: React.MouseEvent) => handleLinkClick(e, 'collections', collections[0]?.title)}
+                className="text-xs"
               >
-                <div className="w-8 h-8 rounded-full bg-[#FDE8EF] text-sm flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                  {item.icon}
-                </div>
-                <div className="min-w-0">
-                  <h5 className="text-xs font-bold text-[#232323] group-hover:text-[#8B6F4E] transition-colors tracking-wide">
-                    {item.title}
-                  </h5>
-                  <p className="text-[10px] text-[#7D6F63] truncate font-light">
-                    {item.desc}
-                  </p>
-                </div>
-              </a>
-            ))}
+                Explore Collection
+              </Button>
+            </div>
           </div>
-        )}
+
+          {/* Column 3: Quick Action */}
+          <div className="bg-[#8B6F4E] text-white p-6 rounded-2xl flex flex-col justify-between shadow-card">
+            <div className="space-y-2">
+              <SparklesIcon size={24} className="text-[#FAF7F2]" />
+              <h4 className="font-serif font-bold text-base">Custom Bespoke Atelier</h4>
+              <p className="text-xs text-[#FAF7F2]/80">
+                Craft your bespoke signature fragrance vessel tailored for your sanctuary.
+              </p>
+            </div>
+            <div className="pt-4">
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={(e: React.MouseEvent) => handleLinkClick(e, 'shop')}
+                className="w-full text-xs"
+              >
+                Bespoke Studio
+              </Button>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -120,8 +171,8 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, activeMenu,
               {dynamicCategories.map((cat, idx) => (
                 <li key={idx}>
                   <a
-                    href="#shop"
-                    onClick={(e) => handleLinkClick(e, 'shop')}
+                    href={`#shop?category=${encodeURIComponent(cat.name)}`}
+                    onClick={(e) => handleLinkClick(e, 'shop', cat.name)}
                     className="hover:text-[#8B6F4E] transition-colors flex items-center justify-between group cursor-pointer"
                   >
                     <span className="font-semibold">{cat.name}</span>

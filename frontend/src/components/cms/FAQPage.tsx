@@ -19,7 +19,7 @@ const FAQ_DATA: FAQItem[] = [
     id: 'faq-2',
     category: 'shipping',
     question: 'Is shipping free on luxury orders?',
-    answer: 'Yes! We offer 100% Free Shipping on all orders over ₹1,499 across India. For orders below ₹1,499, a flat standard delivery fee of ₹99 applies.',
+    answer: 'Yes! We offer 100% Free Shipping on all orders over ₹999 across India. For orders below ₹999, a flat standard delivery fee of ₹99 applies.',
   },
   {
     id: 'faq-3',

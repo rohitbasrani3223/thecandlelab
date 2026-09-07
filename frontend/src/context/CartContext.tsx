@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useToast } from '../design-system';
-import { safeLocalStorageSet } from '../utils/storage';
 
 export interface CartItem {
   id: string;
@@ -23,7 +22,10 @@ export interface CartItem {
 export interface CartContextType {
   cartItems: CartItem[];
   savedForLater: CartItem[];
-  addToCart: (item: Partial<CartItem> & { id: string; name: string; price: number }) => void;
+  addToCart: (
+    item: Partial<CartItem> & { id: string; name: string; price: number },
+    options?: { openDrawer?: boolean; silent?: boolean }
+  ) => void;
   updateQuantity: (id: string, delta: number, variantId?: string) => void;
   removeFromCart: (id: string, variantId?: string) => void;
   saveForLater: (item: CartItem) => void;
@@ -59,30 +61,28 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   });
 
+  // Cross-tab sync only (avoids intra-tab re-entrancy loops)
   useEffect(() => {
-    safeLocalStorageSet(CART_STORAGE_KEY, cartItems);
-    window.dispatchEvent(new Event('tcl-cart-updated'));
-  }, [cartItems]);
-
-  useEffect(() => {
-    safeLocalStorageSet(SAVED_STORAGE_KEY, savedForLater);
-  }, [savedForLater]);
-
-  // Listen to external cart updates
-  useEffect(() => {
-    const handleCartSync = () => {
-      try {
-        const saved = localStorage.getItem(CART_STORAGE_KEY);
-        if (saved) {
-          setCartItems(JSON.parse(saved));
-        }
-      } catch {}
+    const handleCrossTabSync = (e: StorageEvent) => {
+      if (e.key === CART_STORAGE_KEY && e.newValue) {
+        try {
+          setCartItems(JSON.parse(e.newValue));
+        } catch {}
+      }
+      if (e.key === SAVED_STORAGE_KEY && e.newValue) {
+        try {
+          setSavedForLater(JSON.parse(e.newValue));
+        } catch {}
+      }
     };
-    window.addEventListener('tcl-cart-updated', handleCartSync);
-    return () => window.removeEventListener('tcl-cart-updated', handleCartSync);
+    window.addEventListener('storage', handleCrossTabSync);
+    return () => window.removeEventListener('storage', handleCrossTabSync);
   }, []);
 
-  const addToCart = (item: Partial<CartItem> & { id: string; name: string; price: number }) => {
+  const addToCart = (
+    item: Partial<CartItem> & { id: string; name: string; price: number },
+    options?: { openDrawer?: boolean; silent?: boolean }
+  ) => {
     const qty = item.quantity || 1;
 
     setCartItems((prev) => {
@@ -90,10 +90,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         (i) => (i.variantId && i.variantId === item.variantId) || (i.id === item.id && i.fragrance === item.fragrance && i.size === item.size)
       );
 
+      let updated: CartItem[];
       if (index > -1) {
-        const updated = [...prev];
+        updated = [...prev];
         updated[index] = { ...updated[index], quantity: updated[index].quantity + qty };
-        return updated;
       } else {
         const newItem: CartItem = {
           id: item.id,
@@ -112,21 +112,38 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           customMessage: item.customMessage,
           inStock: item.inStock ?? true,
         };
-        return [...prev, newItem];
+        updated = [...prev, newItem];
       }
+
+      // Synchronous write to localStorage to guarantee zero race condition
+      try {
+        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(updated));
+      } catch {}
+
+      return updated;
     });
 
-    const variantLabel = [item.fragrance, item.size].filter(Boolean).join(' • ');
-    toast({
-      type: 'luxury',
-      title: 'Added to Shopping Bag',
-      description: variantLabel ? `${qty}x ${item.name} — ${variantLabel}` : `${qty}x ${item.name}`,
-    });
+    // Notify all other components immediately
+    window.dispatchEvent(new Event('tcl-cart-updated'));
+
+    if (!options?.silent) {
+      const variantLabel = [item.fragrance, item.size].filter(Boolean).join(' • ');
+      toast({
+        type: 'luxury',
+        title: 'Added to Shopping Bag',
+        description: variantLabel ? `${qty}x ${item.name} — ${variantLabel}` : `${qty}x ${item.name}`,
+      });
+    }
+
+    // Auto-open Cart Drawer on Add to Cart (unless openDrawer: false)
+    if (options?.openDrawer !== false) {
+      window.dispatchEvent(new Event('tcl-open-cart'));
+    }
   };
 
   const updateQuantity = (id: string, delta: number, variantId?: string) => {
     setCartItems((prev) => {
-      return prev
+      const updated = prev
         .map((item) => {
           if ((variantId && item.variantId === variantId) || item.id === id) {
             const newQty = item.quantity + delta;
@@ -135,23 +152,40 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           return item;
         })
         .filter((item): item is CartItem => item !== null);
+
+      try {
+        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(updated));
+      } catch {}
+      return updated;
     });
+    window.dispatchEvent(new Event('tcl-cart-updated'));
   };
 
   const removeFromCart = (id: string, variantId?: string) => {
-    setCartItems((prev) =>
-      prev.filter((item) => {
+    setCartItems((prev) => {
+      const updated = prev.filter((item) => {
         if (variantId && item.variantId) {
           return item.variantId !== variantId;
         }
         return item.id !== id;
-      })
-    );
+      });
+      try {
+        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+    window.dispatchEvent(new Event('tcl-cart-updated'));
   };
 
   const saveForLater = (item: CartItem) => {
     removeFromCart(item.id, item.variantId);
-    setSavedForLater((prev) => [...prev, item]);
+    setSavedForLater((prev) => {
+      const updated = [...prev, item];
+      try {
+        localStorage.setItem(SAVED_STORAGE_KEY, JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
     toast({
       type: 'info',
       title: 'Saved for Later',
@@ -160,13 +194,22 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const moveToCart = (item: CartItem) => {
-    setSavedForLater((prev) => prev.filter((i) => i.id !== item.id));
+    setSavedForLater((prev) => {
+      const updated = prev.filter((i) => i.id !== item.id);
+      try {
+        localStorage.setItem(SAVED_STORAGE_KEY, JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
     addToCart(item);
   };
 
   const clearCart = () => {
     setCartItems([]);
-    localStorage.removeItem(CART_STORAGE_KEY);
+    try {
+      localStorage.removeItem(CART_STORAGE_KEY);
+    } catch {}
+    window.dispatchEvent(new Event('tcl-cart-updated'));
   };
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);

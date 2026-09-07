@@ -73,7 +73,7 @@ export const ProductDetailsPage: React.FC<ProductDetailsPageProps> = ({
     if (onNavigateToCheckout) {
       onNavigateToCheckout();
     } else {
-      window.location.hash = '#checkout';
+      window.dispatchEvent(new CustomEvent('tcl-navigate', { detail: { page: 'checkout' } }));
     }
   };
 

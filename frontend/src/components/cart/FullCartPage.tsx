@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ShippingProgressBar } from './ShippingProgressBar';
 import { CartItemRow } from './CartItemRow';
 import type { CartItem } from './CartItemRow';
@@ -9,6 +9,7 @@ import { OrderSummaryCard } from './OrderSummaryCard';
 import { CartAddonsSection } from './CartAddonsSection';
 import { RecentlyViewedSection } from './RecentlyViewedSection';
 import { EmptyState, useToast } from '../../design-system';
+import { useCart } from '../../context/CartContext';
 
 export interface FullCartPageProps {
   onNavigateToShop?: () => void;
@@ -16,99 +17,70 @@ export interface FullCartPageProps {
 }
 
 export const FullCartPage: React.FC<FullCartPageProps> = ({ onNavigateToShop, onNavigateToCheckout }) => {
-  const [items, setItems] = useState<CartItem[]>(() => {
+  const { cartItems: items, updateQuantity, removeFromCart, addToCart, subtotal } = useCart();
+  const [savedItems, setSavedItems] = useState<CartItem[]>(() => {
     try {
-      const saved = localStorage.getItem('tcl_cart_items');
+      const saved = localStorage.getItem('tcl_saved_items');
       return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
     }
   });
-  const [savedItems, setSavedItems] = useState<CartItem[]>([]);
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
   const [discountPercent, setDiscountPercent] = useState<number>(0);
   const [isGiftWrap, setIsGiftWrap] = useState<boolean>(false);
   const [giftMsg, setGiftMsg] = useState<string>('');
   const { toast } = useToast();
 
-  useEffect(() => {
-    const handleSync = () => {
-      try {
-        const saved = localStorage.getItem('tcl_cart_items');
-        setItems(saved ? JSON.parse(saved) : []);
-      } catch {}
-    };
-    window.addEventListener('tcl-cart-updated', handleSync);
-    window.addEventListener('storage', handleSync);
-    return () => {
-      window.removeEventListener('tcl-cart-updated', handleSync);
-      window.removeEventListener('storage', handleSync);
-    };
-  }, []);
-
-  const syncCartStorage = (newItems: CartItem[]) => {
-    setItems(newItems);
-    try {
-      localStorage.setItem('tcl_cart_items', JSON.stringify(newItems));
-      window.dispatchEvent(new Event('tcl-cart-updated'));
-    } catch {}
-  };
-
   const handleUpdateQty = (id: string, delta: number) => {
-    const updated = items
-      .map((item) => {
-        if (item.id === id) {
-          const newQ = item.quantity + delta;
-          return newQ > 0 ? { ...item, quantity: newQ } : null;
-        }
-        return item;
-      })
-      .filter(Boolean) as CartItem[];
-
-    syncCartStorage(updated);
+    updateQuantity(id, delta);
   };
 
   const handleRemoveItem = (id: string) => {
-    const updated = items.filter((i) => i.id !== id);
-    syncCartStorage(updated);
+    removeFromCart(id);
     toast({ type: 'info', title: 'Item Removed from Bag' });
   };
 
   const handleSaveForLater = (item: CartItem) => {
-    const updated = items.filter((i) => i.id !== item.id);
-    syncCartStorage(updated);
-    setSavedItems((prev) => [...prev, item]);
+    removeFromCart(item.id);
+    const updated = [...savedItems, item];
+    setSavedItems(updated);
+    try {
+      localStorage.setItem('tcl_saved_items', JSON.stringify(updated));
+    } catch {}
     toast({ type: 'luxury', title: 'Moved to Saved for Later', description: item.name });
   };
 
   const handleMoveBackToBag = (item: CartItem) => {
-    setSavedItems((prev) => prev.filter((i) => i.id !== item.id));
-    const updated = [...items, item];
-    syncCartStorage(updated);
+    const updated = savedItems.filter((i) => i.id !== item.id);
+    setSavedItems(updated);
+    try {
+      localStorage.setItem('tcl_saved_items', JSON.stringify(updated));
+    } catch {}
+    addToCart(item, { openDrawer: false });
     toast({ type: 'luxury', title: 'Restored to Shopping Bag', description: item.name });
   };
 
   const handleRemoveSaved = (id: string) => {
-    setSavedItems((prev) => prev.filter((i) => i.id !== id));
+    const updated = savedItems.filter((i) => i.id !== id);
+    setSavedItems(updated);
+    try {
+      localStorage.setItem('tcl_saved_items', JSON.stringify(updated));
+    } catch {}
   };
 
   const handleAddAddon = (name: string, price: number) => {
-    const newItem: CartItem = {
+    addToCart({
       id: `addon-${Date.now()}`,
       name,
-      size: 'Standard Accessory',
-      wick: 'N/A',
       price,
       quantity: 1,
-      inStock: true,
-    };
-    const updated = [...items, newItem];
-    syncCartStorage(updated);
+    }, { openDrawer: false, silent: true });
+    toast({ type: 'luxury', title: 'Added to Bag', description: name });
   };
 
-  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const discountAmount = appliedCoupon ? subtotal * (discountPercent / 100) : 0;
-  const isFreeShipping = subtotal >= 1499.0;
+  const isFreeShipping = subtotal >= 999.0;
 
   return (
     <div className="w-full bg-[#F8F6F0] min-h-screen font-sans">
@@ -215,8 +187,7 @@ export const FullCartPage: React.FC<FullCartPageProps> = ({ onNavigateToShop, on
                   if (onNavigateToCheckout) {
                     onNavigateToCheckout();
                   } else {
-                    window.location.hash = '#checkout';
-                    window.dispatchEvent(new HashChangeEvent('hashchange'));
+                    window.dispatchEvent(new CustomEvent('tcl-navigate', { detail: { page: 'checkout' } }));
                   }
                 }}
               />

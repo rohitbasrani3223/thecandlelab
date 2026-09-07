@@ -6,10 +6,11 @@ import { CartDrawerUpgrade } from '../cart';
 import { MobileNav } from './MobileNav';
 import { Footer } from './Footer';
 import { TrackOrderModal } from '../common/TrackOrderModal';
+import { useCart } from '../../context/CartContext';
 
 export interface LayoutProps {
   children?: React.ReactNode;
-  onNavigate?: (page: any) => void;
+  onNavigate?: (page: any, param?: string) => void;
   currentPage?: string;
   onSelectProduct?: (product: any) => void;
 }
@@ -20,14 +21,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, onNavigate, currentPag
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isTrackOrderOpen, setIsTrackOrderOpen] = useState(false);
 
-  const [cartCount, setCartCount] = useState<number>(() => {
-    try {
-      const saved = localStorage.getItem('tcl_cart_items');
-      return saved ? JSON.parse(saved).length : 0;
-    } catch {
-      return 0;
-    }
-  });
+  const { totalQuantity } = useCart();
 
   const [wishlistCount, setWishlistCount] = useState<number>(() => {
     try {
@@ -39,33 +33,32 @@ export const Layout: React.FC<LayoutProps> = ({ children, onNavigate, currentPag
   });
 
   useEffect(() => {
-    const syncCounts = () => {
+    const syncWishlist = () => {
       try {
-        const cartSaved = localStorage.getItem('tcl_cart_items');
-        setCartCount(cartSaved ? JSON.parse(cartSaved).length : 0);
-
         const wishlistSaved = localStorage.getItem('tcl_wishlist_items');
         setWishlistCount(wishlistSaved ? JSON.parse(wishlistSaved).length : 0);
-      } catch {
-        // fallback
-      }
+      } catch {}
     };
 
     const handleOpenTracker = () => {
       setIsTrackOrderOpen(true);
     };
 
-    syncCounts();
-    window.addEventListener('storage', syncCounts);
-    window.addEventListener('tcl-cart-updated', syncCounts);
-    window.addEventListener('tcl-wishlist-updated', syncCounts);
+    const handleOpenCart = () => {
+      setIsCartOpen(true);
+    };
+
+    syncWishlist();
+    window.addEventListener('storage', syncWishlist);
+    window.addEventListener('tcl-wishlist-updated', syncWishlist);
     window.addEventListener('tcl-open-track-order', handleOpenTracker);
+    window.addEventListener('tcl-open-cart', handleOpenCart);
 
     return () => {
-      window.removeEventListener('storage', syncCounts);
-      window.removeEventListener('tcl-cart-updated', syncCounts);
-      window.removeEventListener('tcl-wishlist-updated', syncCounts);
+      window.removeEventListener('storage', syncWishlist);
+      window.removeEventListener('tcl-wishlist-updated', syncWishlist);
       window.removeEventListener('tcl-open-track-order', handleOpenTracker);
+      window.removeEventListener('tcl-open-cart', handleOpenCart);
     };
   }, []);
 
@@ -82,7 +75,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, onNavigate, currentPag
         onOpenTrackOrder={() => setIsTrackOrderOpen(true)}
         onNavigate={onNavigate}
         currentPage={currentPage}
-        cartCount={cartCount}
+        cartCount={totalQuantity}
         wishlistCount={wishlistCount}
       />
 
@@ -99,7 +92,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, onNavigate, currentPag
         onOpenSearch={() => setIsSearchOpen(true)}
         onOpenTrackOrder={() => setIsTrackOrderOpen(true)}
         onNavigate={onNavigate}
-        cartCount={cartCount}
+        cartCount={totalQuantity}
         wishlistCount={wishlistCount}
       />
 
@@ -107,8 +100,16 @@ export const Layout: React.FC<LayoutProps> = ({ children, onNavigate, currentPag
       <CartDrawerUpgrade
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
-        onViewFullCart={() => onNavigate?.('cart' as any)}
-        onCheckout={() => onNavigate?.('checkout' as any)}
+        onViewFullCart={() => {
+          setIsCartOpen(false);
+          if (onNavigate) onNavigate('cart' as any);
+          else window.dispatchEvent(new CustomEvent('tcl-navigate', { detail: { page: 'cart' } }));
+        }}
+        onCheckout={() => {
+          setIsCartOpen(false);
+          if (onNavigate) onNavigate('checkout' as any);
+          else window.dispatchEvent(new CustomEvent('tcl-navigate', { detail: { page: 'checkout' } }));
+        }}
       />
 
       {/* 6. Dedicated Live Order Tracker Modal */}

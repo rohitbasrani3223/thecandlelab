@@ -17,7 +17,7 @@ export interface HeaderProps {
   onOpenSearch: () => void;
   onOpenCart: () => void;
   onOpenTrackOrder?: () => void;
-  onNavigate?: (page: any) => void;
+  onNavigate?: (page: any, param?: string) => void;
   currentPage?: string;
   cartCount?: number;
   wishlistCount?: number;

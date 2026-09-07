@@ -3,11 +3,13 @@ import React from 'react';
 export interface ShopHeaderProps {
   totalProducts?: number;
   categoryName?: string;
+  freeShippingThreshold?: number;
 }
 
 export const ShopHeader: React.FC<ShopHeaderProps> = ({
   totalProducts = 36,
   categoryName = 'Shop All Luxury Artisanal Fragrances',
+  freeShippingThreshold = 999,
 }) => {
   return (
     <section className="py-6 px-6 sm:px-12 font-sans max-w-7xl mx-auto">
@@ -20,7 +22,7 @@ export const ShopHeader: React.FC<ShopHeaderProps> = ({
           {categoryName}
         </h1>
         <p className="text-xs sm:text-sm text-[#5C5149] font-light tracking-wide relative z-10">
-          100% Organic Soy Wax • Hand-Poured in Small Batches • Free Shipping On Orders Over ₹1,499 ({totalProducts} Formulations)
+          100% Organic Soy Wax • Hand-Poured in Small Batches • Free Shipping On Orders Over ₹{freeShippingThreshold} ({totalProducts} Formulations)
         </p>
       </div>
     </section>

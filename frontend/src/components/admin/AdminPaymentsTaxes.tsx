@@ -11,7 +11,7 @@ export const AdminPaymentsTaxes: React.FC = () => {
 
   const [formState, setFormState] = useState({
     currencySymbol: settings.currencySymbol || '₹',
-    freeShippingThreshold: settings.freeShippingThreshold || 1499,
+    freeShippingThreshold: settings.freeShippingThreshold || 999,
     standardShippingFee: settings.standardShippingFee || 99,
     razorpayKey: 'rzp_live_9488371891',
     razorpaySecret: '••••••••••••••••••••',

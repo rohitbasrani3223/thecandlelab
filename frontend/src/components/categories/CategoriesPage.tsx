@@ -1,11 +1,11 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useCMS, type CMSProduct } from '../../context/CMSContext';
 import { ProductCard } from '../product/ProductCard';
 
 interface CategoriesPageProps {
   onProductClick?: (product: CMSProduct) => void;
   onSelectProduct?: (product: CMSProduct) => void;
-  onNavigateToShop?: () => void;
+  onNavigateToShop?: (category?: string) => void;
   initialCategorySlug?: string;
 }
 
@@ -22,14 +22,74 @@ export const CategoriesPage: React.FC<CategoriesPageProps> = ({
     else if (onProductClick) onProductClick(p);
   };
 
-  // Active Main Category
-  const [selectedCatId, setSelectedCatId] = useState<string>(() => {
-    if (initialCategorySlug) {
-      const match = mainCategories.find((c) => c.slug === initialCategorySlug || c.name === initialCategorySlug);
-      if (match) return match.id;
+  // Build unified list of all available categories
+  const allCategories = useMemo(() => {
+    const list = [...mainCategories];
+    const seen = new Set(mainCategories.map((c) => c.name.toLowerCase().trim()));
+
+    products.forEach((p) => {
+      const clean = (p.category || '').trim();
+      if (clean && !seen.has(clean.toLowerCase())) {
+        seen.add(clean.toLowerCase());
+        list.push({
+          id: clean,
+          name: clean,
+          slug: clean.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+          description: `Handcrafted artisanal soy creations formulated under the ${clean} atelier.`,
+          imageUrl: p.imageUrl || p.image,
+          isActive: true,
+          sortOrder: 0,
+        });
+      }
+    });
+
+    return list;
+  }, [mainCategories, products]);
+
+  // Read initial category from prop or URL hash
+  const getInitialCatId = (): string => {
+    const hash = window.location.hash || '';
+    if (hash.includes('?')) {
+      const query = hash.split('?')[1] || '';
+      const params = new URLSearchParams(query);
+      const catParam = params.get('category') || params.get('cat') || params.get('id');
+      if (catParam) return decodeURIComponent(catParam).trim();
     }
-    return mainCategories[0]?.id || '';
-  });
+    if (initialCategorySlug) return initialCategorySlug.trim();
+    return allCategories[0]?.id || '';
+  };
+
+  // Active Main Category
+  const [selectedCatId, setSelectedCatId] = useState<string>(getInitialCatId);
+
+  // Sync when prop or URL changes
+  useEffect(() => {
+    if (initialCategorySlug) {
+      setSelectedCatId(initialCategorySlug.trim());
+      setSelectedSubId('');
+    }
+  }, [initialCategorySlug]);
+
+  useEffect(() => {
+    const handleHashSync = () => {
+      const hash = window.location.hash || '';
+      if (hash.startsWith('#categories') && hash.includes('?')) {
+        const query = hash.split('?')[1] || '';
+        const params = new URLSearchParams(query);
+        const catParam = params.get('category') || params.get('cat') || params.get('id');
+        if (catParam) {
+          setSelectedCatId(decodeURIComponent(catParam).trim());
+          setSelectedSubId('');
+        }
+      }
+    };
+    window.addEventListener('hashchange', handleHashSync);
+    window.addEventListener('popstate', handleHashSync);
+    return () => {
+      window.removeEventListener('hashchange', handleHashSync);
+      window.removeEventListener('popstate', handleHashSync);
+    };
+  }, []);
 
   // Active Subcategory
   const [selectedSubId, setSelectedSubId] = useState<string>('');
@@ -41,23 +101,38 @@ export const CategoriesPage: React.FC<CategoriesPageProps> = ({
   const [inStockOnly, setInStockOnly] = useState<boolean>(false);
   const [sortBy, setSortBy] = useState<string>('featured');
 
-  const currentCategory = useMemo(
-    () => mainCategories.find((c) => c.id === selectedCatId) || mainCategories[0],
-    [mainCategories, selectedCatId]
-  );
+  const currentCategory = useMemo(() => {
+    if (selectedCatId) {
+      const match = allCategories.find(
+        (c) =>
+          c.id === selectedCatId ||
+          c.name.toLowerCase().trim() === selectedCatId.toLowerCase().trim() ||
+          c.slug === selectedCatId
+      );
+      if (match) return match;
+    }
+    return allCategories[0];
+  }, [allCategories, selectedCatId]);
 
   const availableSubs = useMemo(
     () => subCategories.filter((s) => s.mainCategoryId === currentCategory?.id),
     [subCategories, currentCategory]
   );
 
-  // Filter Products
+  // Filter Products strictly by currentCategory
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
-      // Main Category Match
-      const matchesCat = currentCategory
-        ? p.mainCategoryId === currentCategory.id || p.category === currentCategory.name
-        : true;
+      // Main Category Match (strict normalized alphanumeric or ID match)
+      const matchesCat = (() => {
+        if (!currentCategory) return true;
+        const curId = String(currentCategory.id || '').toLowerCase().trim();
+        const curNorm = (currentCategory.name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+        const pMainCatId = String(p.mainCategoryId || '').toLowerCase().trim();
+        const pCatNorm = (p.category || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+        if (pMainCatId && (pMainCatId === curId || pMainCatId === curNorm)) return true;
+        if (pCatNorm && curNorm && pCatNorm === curNorm) return true;
+        return false;
+      })();
 
       // Subcategory Match
       const matchesSub = selectedSubId
@@ -133,8 +208,8 @@ export const CategoriesPage: React.FC<CategoriesPageProps> = ({
 
         {/* Main Categories Tab Bar (Horizontal Scrollable) */}
         <div className="w-full max-w-full min-w-0 flex items-center gap-2 sm:gap-3 overflow-x-auto pb-3 pt-1 border-b border-[#EADDCB] no-scrollbar touch-pan-x -mx-4 px-4 sm:mx-0 sm:px-0">
-          {mainCategories.map((c) => {
-            const isSelected = c.id === currentCategory?.id;
+          {allCategories.map((c) => {
+            const isSelected = c.id === currentCategory?.id || c.name.toLowerCase().trim() === currentCategory?.name.toLowerCase().trim();
             return (
               <button
                 key={c.id}
@@ -142,6 +217,7 @@ export const CategoriesPage: React.FC<CategoriesPageProps> = ({
                 onClick={() => {
                   setSelectedCatId(c.id);
                   setSelectedSubId('');
+                  window.history.replaceState({ page: 'categories' }, '', `#categories?category=${encodeURIComponent(c.name)}`);
                 }}
                 className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs font-medium whitespace-nowrap shrink-0 transition-all cursor-pointer ${
                   isSelected

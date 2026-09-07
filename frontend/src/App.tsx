@@ -9,6 +9,8 @@ import { AuthModal, AuthPage } from './components/auth';
 import { ProductGridSkeleton } from './components/common/ProductSkeleton';
 import type { BlogPost } from './components/blog';
 import { AdminLayout } from './components/admin';
+import { CheckoutPage } from './components/checkout';
+import { FullCartPage } from './components/cart';
 
 // Dynamic Code Splitting Page Imports
 const ShopPage = lazy(() => import('./components/shop').then((m) => ({ default: m.ShopPage })));
@@ -23,8 +25,6 @@ const FAQPage = lazy(() => import('./components/cms').then((m) => ({ default: m.
 const LegalPage = lazy(() => import('./components/cms').then((m) => ({ default: m.LegalPage })));
 const CareersPage = lazy(() => import('./components/cms').then((m) => ({ default: m.CareersPage })));
 const WishlistPage = lazy(() => import('./components/wishlist').then((m) => ({ default: m.WishlistPage })));
-const FullCartPage = lazy(() => import('./components/cart').then((m) => ({ default: m.FullCartPage })));
-const CheckoutPage = lazy(() => import('./components/checkout').then((m) => ({ default: m.CheckoutPage })));
 const AccountPage = lazy(() => import('./components/account').then((m) => ({ default: m.AccountPage })));
 
 type Page = 'home' | 'shop' | 'collections' | 'categories' | 'blog' | 'blog-details' | 'pdp' | 'wishlist' | 'cart' | 'checkout' | 'account' | 'auth' | 'about' | 'contact' | 'faq' | 'privacy-policy' | 'terms-conditions' | 'shipping-policy' | 'refund-policy' | 'careers' | 'admin';
@@ -57,8 +57,20 @@ const getPageFromHash = (): Page => {
   return 'home';
 };
 
+const getCategoryFromHash = (): string => {
+  const hash = window.location.hash || '';
+  if (hash.includes('?')) {
+    const query = hash.split('?')[1] || '';
+    const params = new URLSearchParams(query);
+    const cat = params.get('category') || params.get('cat');
+    if (cat) return decodeURIComponent(cat).trim();
+  }
+  return '';
+};
+
 export function App() {
   const [currentPage, setCurrentPage] = useState<Page>(getPageFromHash);
+  const [selectedCategory, setSelectedCategory] = useState<string>(getCategoryFromHash);
   const [selectedProduct, setSelectedProduct] = useState<any>(() => {
     try {
       const saved = localStorage.getItem('tcl_selected_product');
@@ -81,6 +93,8 @@ export function App() {
   const syncPageWithUrl = useCallback(() => {
     const pageFromUrl = getPageFromHash();
     setCurrentPage(pageFromUrl);
+    const catFromUrl = getCategoryFromHash();
+    setSelectedCategory(catFromUrl);
   }, []);
 
   useEffect(() => {
@@ -92,16 +106,24 @@ export function App() {
       window.history.replaceState({ page: 'admin' }, '', '#admin');
     }
 
+    const handleGlobalNav = (e: any) => {
+      const page = e.detail?.page;
+      const param = e.detail?.param;
+      if (page) handleNavigate(page, param);
+    };
+
     window.addEventListener('popstate', syncPageWithUrl);
     window.addEventListener('hashchange', syncPageWithUrl);
+    window.addEventListener('tcl-navigate', handleGlobalNav);
 
     return () => {
       window.removeEventListener('popstate', syncPageWithUrl);
       window.removeEventListener('hashchange', syncPageWithUrl);
+      window.removeEventListener('tcl-navigate', handleGlobalNav);
     };
   }, [syncPageWithUrl]);
 
-  const handleNavigate = (page: Page) => {
+  const handleNavigate = useCallback((page: Page, param?: string) => {
     if (page === 'admin' && !isAdminSubdomain()) {
       // Redirect to admin subdomain if trying to open admin from main domain
       const targetAdminUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
@@ -111,11 +133,18 @@ export function App() {
       return;
     }
     setCurrentPage(page);
-    if (window.location.hash !== `#${page}`) {
-      window.history.pushState({ page }, '', `#${page}`);
+    let targetHash = `#${page}`;
+    if (param) {
+      setSelectedCategory(param);
+      targetHash = `#${page}?category=${encodeURIComponent(param)}`;
+    } else {
+      setSelectedCategory('');
+    }
+    if (window.location.hash !== targetHash) {
+      window.history.pushState({ page, param }, '', targetHash);
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  }, []);
 
   const handleSelectProduct = (product: any) => {
     if (!product) return;
@@ -144,79 +173,37 @@ export function App() {
     handleNavigate('blog-details');
   };
 
-  if (showDesignSystem) {
-    return (
-      <ToastProvider>
-        <AuthProvider>
-          <CMSProvider>
-            <div className="bg-[#2A1E17] text-[#FAF6F0] p-3 text-center text-xs font-semibold flex items-center justify-center gap-4">
-              <span>Design Tokens Showcase</span>
-              <button
-                onClick={() => setShowDesignSystem(false)}
-                className="px-[#D4AF37] text-[#1C130E] font-bold rounded-xs px-3 py-1 cursor-pointer"
-              >
-                Return to App →
-              </button>
-            </div>
-            <DesignSystemShowcase />
-          </CMSProvider>
-        </AuthProvider>
-      </ToastProvider>
-    );
-  }
-
-  if (currentPage === 'admin') {
-    return (
-      <ToastProvider>
-        <AuthProvider>
-          <CMSProvider>
-            <AdminLayout onReturnToStore={() => handleNavigate('home')} />
-          </CMSProvider>
-        </AuthProvider>
-      </ToastProvider>
-    );
-  }
-
-  if (currentPage === 'checkout') {
-    return (
-      <ToastProvider>
-        <AuthProvider>
-          <CMSProvider>
-            <CartProvider>
-              <AuthModal />
-              <Suspense fallback={<div className="p-12 text-center text-xs font-bold text-[#8B6F4E]">Loading Secure Checkout...</div>}>
-                <CheckoutPage onReturnHome={() => handleNavigate('home')} />
-              </Suspense>
-            </CartProvider>
-          </CMSProvider>
-        </AuthProvider>
-      </ToastProvider>
-    );
-  }
-
-  if (currentPage === 'auth') {
-    return (
-      <ToastProvider>
-        <AuthProvider>
-          <CMSProvider>
-            <AuthPage onNavigateHome={() => handleNavigate('home')} />
-          </CMSProvider>
-        </AuthProvider>
-      </ToastProvider>
-    );
-  }
-
   return (
     <ToastProvider>
       <AuthProvider>
         <CMSProvider>
           <CartProvider>
             <AuthModal />
-            <Layout
-              currentPage={currentPage}
-              onNavigate={handleNavigate}
-              onSelectProduct={handleSelectProduct}
-            >
+            {showDesignSystem ? (
+              <div>
+                <div className="bg-[#2A1E17] text-[#FAF6F0] p-3 text-center text-xs font-semibold flex items-center justify-center gap-4">
+                  <span>Design Tokens Showcase</span>
+                  <button
+                    onClick={() => setShowDesignSystem(false)}
+                    className="px-[#D4AF37] text-[#1C130E] font-bold rounded-xs px-3 py-1 cursor-pointer"
+                  >
+                    Return to App →
+                  </button>
+                </div>
+                <DesignSystemShowcase />
+              </div>
+            ) : currentPage === 'admin' ? (
+              <AdminLayout onReturnToStore={() => handleNavigate('home')} />
+            ) : currentPage === 'checkout' ? (
+              <CheckoutPage onReturnHome={() => handleNavigate('home')} />
+            ) : currentPage === 'auth' ? (
+              <AuthPage onNavigateHome={() => handleNavigate('home')} />
+            ) : (
+              <Layout
+                currentPage={currentPage}
+                onNavigate={handleNavigate}
+                onSelectProduct={handleSelectProduct}
+              >
               <Suspense
                 fallback={
                   <div className="max-w-7xl mx-auto px-6 py-16 font-sans space-y-6">
@@ -243,8 +230,9 @@ export function App() {
                   />
                 ) : currentPage === 'categories' ? (
                   <CategoriesPage
-                    onNavigateToShop={() => handleNavigate('shop')}
+                    onNavigateToShop={(cat) => handleNavigate('shop', cat)}
                     onSelectProduct={handleSelectProduct}
+                    initialCategorySlug={selectedCategory || undefined}
                   />
                 ) : currentPage === 'blog' ? (
                   <BlogListingPage onSelectArticle={handleSelectArticle} />
@@ -280,12 +268,20 @@ export function App() {
                     onNavigateToCheckout={() => handleNavigate('checkout')}
                   />
                 ) : currentPage === 'shop' ? (
-                  <ShopPage onSelectProduct={handleSelectProduct} />
+                  <ShopPage
+                    onSelectProduct={handleSelectProduct}
+                    initialCategory={selectedCategory || undefined}
+                    onClearCategory={() => {
+                      setSelectedCategory('');
+                      window.history.replaceState({ page: 'shop' }, '', '#shop');
+                    }}
+                  />
                 ) : (
                   <HomePage
-                    onNavigateToShop={(colId) => {
-                      if (colId) {
-                        handleNavigate('collections');
+                    onNavigateToShop={(catOrCol) => {
+                      if (catOrCol) {
+                        const clean = catOrCol.replace(/^cat:/, '').trim();
+                        handleNavigate('shop', clean);
                       } else {
                         handleNavigate('shop');
                       }
@@ -295,6 +291,7 @@ export function App() {
                 )}
               </Suspense>
             </Layout>
+            )}
           </CartProvider>
         </CMSProvider>
       </AuthProvider>

@@ -109,10 +109,11 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
   }
 
   const handleOpenCategory = (item: LiveCategoryCard) => {
+    const cleanCategoryName = item.name.trim();
     if (onNavigateToShop) {
-      onNavigateToShop(item.name);
+      onNavigateToShop(cleanCategoryName);
     } else {
-      window.location.hash = `#shop?category=${encodeURIComponent(item.name)}`;
+      window.location.hash = `#shop?category=${encodeURIComponent(cleanCategoryName)}`;
     }
   };
 

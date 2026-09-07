@@ -44,7 +44,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       variantId: firstVariant?.id,
       inStock: !firstVariant ? product.inStock : (firstVariant?.stock ?? 0) > 0,
       quantity: 1,
-    });
+    }, { openDrawer: true });
   };
 
   const hasRating = product.rating && Number(product.rating) > 0;

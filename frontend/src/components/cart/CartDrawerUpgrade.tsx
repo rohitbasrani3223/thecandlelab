@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Drawer, Button, useToast } from '../../design-system';
 import { ShippingProgressBar } from './ShippingProgressBar';
 import { GiftWrapToggle } from './GiftWrapToggle';
-import type { CartItem } from './CartItemRow';
+import { useCart } from '../../context/CartContext';
 
 export interface CartDrawerUpgradeProps {
   isOpen: boolean;
@@ -17,60 +17,24 @@ export const CartDrawerUpgrade: React.FC<CartDrawerUpgradeProps> = ({
   onViewFullCart,
   onCheckout,
 }) => {
-  const [items, setItems] = useState<CartItem[]>(() => {
-    try {
-      const saved = localStorage.getItem('tcl_cart_items');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
+  const {
+    cartItems: items,
+    updateQuantity,
+    removeFromCart,
+    subtotal,
+    totalQuantity,
+  } = useCart();
+
   const [isGiftWrap, setIsGiftWrap] = useState(false);
   const [giftMsg, setGiftMsg] = useState('');
   const { toast } = useToast();
 
-  useEffect(() => {
-    const handleSync = () => {
-      try {
-        const saved = localStorage.getItem('tcl_cart_items');
-        setItems(saved ? JSON.parse(saved) : []);
-      } catch {}
-    };
-    window.addEventListener('tcl-cart-updated', handleSync);
-    window.addEventListener('storage', handleSync);
-    return () => {
-      window.removeEventListener('tcl-cart-updated', handleSync);
-      window.removeEventListener('storage', handleSync);
-    };
-  }, []);
-
-  const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
-
-  const handleUpdateQty = (id: string, delta: number) => {
-    const updated = items
-      .map((item) => {
-        if (item.id === id) {
-          const q = item.quantity + delta;
-          return q > 0 ? { ...item, quantity: q } : null;
-        }
-        return item;
-      })
-      .filter(Boolean) as CartItem[];
-
-    setItems(updated);
-    try {
-      localStorage.setItem('tcl_cart_items', JSON.stringify(updated));
-      window.dispatchEvent(new Event('tcl-cart-updated'));
-    } catch {}
+  const handleUpdateQty = (id: string, delta: number, variantId?: string) => {
+    updateQuantity(id, delta, variantId);
   };
 
-  const handleRemove = (id: string) => {
-    const updated = items.filter((i) => i.id !== id);
-    setItems(updated);
-    try {
-      localStorage.setItem('tcl_cart_items', JSON.stringify(updated));
-      window.dispatchEvent(new Event('tcl-cart-updated'));
-    } catch {}
+  const handleRemove = (id: string, variantId?: string) => {
+    removeFromCart(id, variantId);
     toast({ type: 'info', title: 'Item Removed' });
   };
 
@@ -80,7 +44,7 @@ export const CartDrawerUpgrade: React.FC<CartDrawerUpgradeProps> = ({
       onClose={onClose}
       position="right"
       size="md"
-      title={`Your Shopping Bag (${items.reduce((s, i) => s + i.quantity, 0)})`}
+      title={`Your Shopping Bag (${totalQuantity})`}
       footer={
         <div className="space-y-3 font-sans">
           <div className="flex items-center justify-between text-sm font-bold text-[#232323]">
@@ -96,7 +60,11 @@ export const CartDrawerUpgrade: React.FC<CartDrawerUpgradeProps> = ({
               size="md"
               onClick={() => {
                 onClose();
-                if (onViewFullCart) onViewFullCart();
+                if (onViewFullCart) {
+                  onViewFullCart();
+                } else {
+                  window.dispatchEvent(new CustomEvent('tcl-navigate', { detail: { page: 'cart' } }));
+                }
               }}
             >
               View Full Bag
@@ -111,8 +79,7 @@ export const CartDrawerUpgrade: React.FC<CartDrawerUpgradeProps> = ({
                 if (onCheckout) {
                   onCheckout();
                 } else {
-                  window.location.hash = '#checkout';
-                  window.dispatchEvent(new HashChangeEvent('hashchange'));
+                  window.dispatchEvent(new CustomEvent('tcl-navigate', { detail: { page: 'checkout' } }));
                 }
               }}
             >
@@ -144,7 +111,7 @@ export const CartDrawerUpgrade: React.FC<CartDrawerUpgradeProps> = ({
                 size="sm"
                 onClick={() => {
                   onClose();
-                  window.location.hash = '#shop';
+                  window.dispatchEvent(new CustomEvent('tcl-navigate', { detail: { page: 'shop' } }));
                 }}
               >
                 Explore Sanctuary Collections →
@@ -153,7 +120,7 @@ export const CartDrawerUpgrade: React.FC<CartDrawerUpgradeProps> = ({
           ) : (
             items.map((item) => (
               <div
-                key={item.id}
+                key={item.variantId || item.id}
                 className="p-3 bg-[#FFFFFF] border border-[#EADDCB] rounded-2xl flex items-center justify-between gap-3 shadow-xs"
               >
                 <div className="w-14 h-14 bg-[#FAF7F2] text-xl rounded-xl flex items-center justify-center border border-[#EADDCB] shrink-0 overflow-hidden">
@@ -179,15 +146,15 @@ export const CartDrawerUpgrade: React.FC<CartDrawerUpgradeProps> = ({
                   <div className="flex items-center gap-2 pt-1">
                     <div className="flex items-center border border-[#EADDCB] rounded-full bg-[#FAF7F2]">
                       <button
-                        onClick={() => handleUpdateQty(item.id, -1)}
-                        className="px-2.5 py-0.5 text-xs font-bold text-[#232323] hover:text-[#8B6F4E]"
+                        onClick={() => handleUpdateQty(item.id, -1, item.variantId)}
+                        className="px-2.5 py-0.5 text-xs font-bold text-[#232323] hover:text-[#8B6F4E] cursor-pointer"
                       >
                         -
                       </button>
                       <span className="px-2 py-0.5 text-xs font-bold">{item.quantity}</span>
                       <button
-                        onClick={() => handleUpdateQty(item.id, 1)}
-                        className="px-2.5 py-0.5 text-xs font-bold text-[#232323] hover:text-[#8B6F4E]"
+                        onClick={() => handleUpdateQty(item.id, 1, item.variantId)}
+                        className="px-2.5 py-0.5 text-xs font-bold text-[#232323] hover:text-[#8B6F4E] cursor-pointer"
                       >
                         +
                       </button>
@@ -200,7 +167,7 @@ export const CartDrawerUpgrade: React.FC<CartDrawerUpgradeProps> = ({
                     ₹{Math.round(item.price * item.quantity)}
                   </span>
                   <button
-                    onClick={() => handleRemove(item.id)}
+                    onClick={() => handleRemove(item.id, item.variantId)}
                     className="text-[10px] text-[#BE123C] font-bold hover:underline cursor-pointer"
                   >
                     Remove

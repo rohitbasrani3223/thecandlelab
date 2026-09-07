@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { ShopFiltersState } from './FilterSidebar';
+import { useCMS } from '../../context/CMSContext';
 
 export interface ShopToolbarProps {
   filters: ShopFiltersState;
@@ -13,14 +14,6 @@ export interface ShopToolbarProps {
   totalResults: number;
 }
 
-const CATEGORY_PILLS = [
-  { id: 'all', label: 'All Products' },
-  { id: 'Scented Candles', label: 'Scented Candles' },
-  { id: 'Luxury Jars', label: 'Luxury Jars' },
-  { id: 'Wax Melts', label: 'Wax Melts' },
-  { id: 'Gift Hampers', label: 'Gift Hampers' },
-];
-
 export const ShopToolbar: React.FC<ShopToolbarProps> = ({
   filters,
   onFilterChange,
@@ -28,16 +21,45 @@ export const ShopToolbar: React.FC<ShopToolbarProps> = ({
   sortBy,
   onSortByChange,
 }) => {
+  const { products, mainCategories } = useCMS();
+
+  const categoryPills = useMemo(() => {
+    const list = [{ id: 'all', label: 'All Products' }];
+    const seen = new Set<string>();
+
+    mainCategories.forEach((c) => {
+      const clean = c.name.trim();
+      if (clean && !seen.has(clean.toLowerCase())) {
+        seen.add(clean.toLowerCase());
+        list.push({ id: clean, label: clean });
+      }
+    });
+
+    products.forEach((p) => {
+      const clean = (p.category || '').trim();
+      if (clean && !seen.has(clean.toLowerCase())) {
+        seen.add(clean.toLowerCase());
+        list.push({ id: clean, label: clean });
+      }
+    });
+
+    return list;
+  }, [mainCategories, products]);
+
   const selectedCategory = filters.categories[0] || 'all';
 
   const handleCategorySelect = (catId: string) => {
     if (catId === 'all') {
       onResetFilters();
+      if (window.location.hash.includes('category=')) {
+        window.history.replaceState({ page: 'shop' }, '', '#shop');
+      }
     } else {
       onFilterChange({
         ...filters,
         categories: [catId],
       });
+      window.history.replaceState({ page: 'shop' }, '', `#shop?category=${encodeURIComponent(catId)}`);
     }
   };
 
@@ -52,8 +74,8 @@ export const ShopToolbar: React.FC<ShopToolbarProps> = ({
           Category:
         </span>
 
-        {CATEGORY_PILLS.map((pill) => {
-          const isSelected = (selectedCategory === 'all' && pill.id === 'all') || selectedCategory === pill.id;
+        {categoryPills.map((pill) => {
+          const isSelected = (selectedCategory === 'all' && pill.id === 'all') || selectedCategory.toLowerCase() === pill.id.toLowerCase();
           return (
             <button
               key={pill.id}

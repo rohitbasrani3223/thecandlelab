@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Drawer, Button, ChevronDownIcon, SearchIcon, HeartIcon, ShoppingBagIcon } from '../../design-system';
+import { useCMS } from '../../context/CMSContext';
 
 export interface MobileNavProps {
   isOpen: boolean;
   onClose: () => void;
   onOpenSearch: () => void;
   onOpenTrackOrder?: () => void;
-  onNavigate?: (page: any) => void;
+  onNavigate?: (page: any, param?: string) => void;
   cartCount?: number;
   wishlistCount?: number;
 }
@@ -20,16 +21,43 @@ export const MobileNav: React.FC<MobileNavProps> = ({
   cartCount = 0,
   wishlistCount = 0,
 }) => {
+  const { products, mainCategories, collections } = useCMS();
   const [expandedSection, setExpandedSection] = useState<'shop' | 'collections' | null>('shop');
+
+  const dynamicCategories = useMemo(() => {
+    const list: string[] = [];
+    const seen = new Set<string>();
+    mainCategories.forEach((c) => {
+      const clean = c.name.trim();
+      if (clean && !seen.has(clean.toLowerCase())) {
+        seen.add(clean.toLowerCase());
+        list.push(clean);
+      }
+    });
+    products.forEach((p) => {
+      const clean = (p.category || '').trim();
+      if (clean && !seen.has(clean.toLowerCase())) {
+        seen.add(clean.toLowerCase());
+        list.push(clean);
+      }
+    });
+    return list;
+  }, [mainCategories, products]);
 
   const toggleSection = (section: 'shop' | 'collections') => {
     setExpandedSection(expandedSection === section ? null : section);
   };
 
-  const handleLink = (e: React.MouseEvent, page: any) => {
+  const handleLink = (e: React.MouseEvent, page: any, param?: string) => {
     e.preventDefault();
     onClose();
-    if (onNavigate) onNavigate(page);
+    if (onNavigate) {
+      onNavigate(page, param);
+    } else {
+      window.location.hash = param
+        ? `#${page}?category=${encodeURIComponent(param)}`
+        : `#${page}`;
+    }
   };
 
   return (
@@ -104,11 +132,23 @@ export const MobileNav: React.FC<MobileNavProps> = ({
             </button>
             {expandedSection === 'shop' && (
               <div className="pl-4 pb-3 space-y-2 text-xs text-[#5C5149] animate-fade-in">
-                <a href="#shop" onClick={(e) => handleLink(e, 'shop')} className="block py-1 hover:text-[#8B6F4E]">Luxury Glass Jars</a>
-                <a href="#shop" onClick={(e) => handleLink(e, 'shop')} className="block py-1 hover:text-[#8B6F4E]">Botanical Travel Tins</a>
-                <a href="#shop" onClick={(e) => handleLink(e, 'shop')} className="block py-1 hover:text-[#8B6F4E]">Aromatherapy Pillars</a>
-                <a href="#shop" onClick={(e) => handleLink(e, 'shop')} className="block py-1 hover:text-[#8B6F4E]">Reed Diffusers & Oils</a>
-                <a href="#shop" onClick={(e) => handleLink(e, 'shop')} className="block py-1 hover:text-[#8B6F4E]">Gift Sets & Combos</a>
+                <a
+                  href="#shop"
+                  onClick={(e) => handleLink(e, 'shop')}
+                  className="block py-1.5 font-bold hover:text-[#8B6F4E] border-b border-[#FAF7F2]"
+                >
+                  ✨ View All Products
+                </a>
+                {dynamicCategories.map((cat) => (
+                  <a
+                    key={cat}
+                    href={`#shop?category=${encodeURIComponent(cat)}`}
+                    onClick={(e) => handleLink(e, 'shop', cat)}
+                    className="block py-1.5 hover:text-[#8B6F4E] transition-colors"
+                  >
+                    {cat}
+                  </a>
+                ))}
               </div>
             )}
           </div>
@@ -124,10 +164,30 @@ export const MobileNav: React.FC<MobileNavProps> = ({
             </button>
             {expandedSection === 'collections' && (
               <div className="pl-4 pb-3 space-y-2 text-xs text-[#5C5149] animate-fade-in">
-                <a href="#collections" onClick={(e) => handleLink(e, 'collections')} className="block py-1 hover:text-[#8B6F4E]">Luxury Collection</a>
-                <a href="#collections" onClick={(e) => handleLink(e, 'collections')} className="block py-1 hover:text-[#8B6F4E]">Signature Collection</a>
-                <a href="#collections" onClick={(e) => handleLink(e, 'collections')} className="block py-1 hover:text-[#8B6F4E]">Seasonal Collection</a>
-                <a href="#collections" onClick={(e) => handleLink(e, 'collections')} className="block py-1 hover:text-[#8B6F4E]">Gift Collection</a>
+                <a
+                  href="#collections"
+                  onClick={(e) => handleLink(e, 'collections')}
+                  className="block py-1.5 font-bold hover:text-[#8B6F4E] border-b border-[#FAF7F2]"
+                >
+                  ✨ View All Collections
+                </a>
+                {collections && collections.length > 0 ? (
+                  collections.map((col) => (
+                    <a
+                      key={col.id}
+                      href={`#collections?id=${encodeURIComponent(col.id)}`}
+                      onClick={(e) => handleLink(e, 'collections', col.id)}
+                      className="block py-1.5 hover:text-[#8B6F4E] transition-colors"
+                    >
+                      {col.icon ? `${col.icon} ` : ''}{col.title}
+                    </a>
+                  ))
+                ) : (
+                  <>
+                    <a href="#collections" onClick={(e) => handleLink(e, 'collections')} className="block py-1 hover:text-[#8B6F4E]">Luxury Collection</a>
+                    <a href="#collections" onClick={(e) => handleLink(e, 'collections')} className="block py-1 hover:text-[#8B6F4E]">Signature Collection</a>
+                  </>
+                )}
               </div>
             )}
           </div>

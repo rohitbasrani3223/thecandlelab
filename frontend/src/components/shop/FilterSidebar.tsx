@@ -30,11 +30,37 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
   isMobile = false,
   onCloseMobile,
 }) => {
-  const { collections: cmsCollections, mainCategories, fragrances, sizes } = useCMS();
+  const { collections: cmsCollections, mainCategories, fragrances, sizes, products } = useCMS();
+
+  const displayCategories = React.useMemo(() => {
+    const list: { id: string; name: string }[] = [];
+    const seen = new Set<string>();
+
+    mainCategories.forEach((c) => {
+      const clean = c.name.trim();
+      if (clean && !seen.has(clean.toLowerCase())) {
+        seen.add(clean.toLowerCase());
+        list.push({ id: c.id, name: clean });
+      }
+    });
+
+    products.forEach((p) => {
+      const clean = (p.category || '').trim();
+      if (clean && !seen.has(clean.toLowerCase())) {
+        seen.add(clean.toLowerCase());
+        list.push({ id: clean, name: clean });
+      }
+    });
+
+    return list;
+  }, [mainCategories, products]);
 
   const toggleCategory = (cat: string) => {
-    const updated = filters.categories.includes(cat)
-      ? filters.categories.filter((c) => c !== cat)
+    const isCurrentlyActive = filters.categories.some(
+      (c) => c.toLowerCase().trim() === cat.toLowerCase().trim()
+    );
+    const updated = isCurrentlyActive
+      ? filters.categories.filter((c) => c.toLowerCase().trim() !== cat.toLowerCase().trim())
       : [...filters.categories, cat];
     onFilterChange({ ...filters, categories: updated });
   };
@@ -98,24 +124,31 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
       </div>
 
       {/* 2. Main Categories */}
-      {mainCategories.length > 0 && (
+      {displayCategories.length > 0 && (
         <div className="space-y-3 border-b border-[#EADDCB] pb-4">
           <div className="flex items-center justify-between font-bold text-xs uppercase font-mono tracking-wider text-[#232323]">
             <span>Categories</span>
             <ChevronDownIcon size={14} className="text-[#7D6F63]" />
           </div>
           <div className="space-y-2 pt-1">
-            {mainCategories.map((item) => (
-              <label key={item.id} className="flex items-center gap-2 cursor-pointer text-xs text-[#5C5149] hover:text-[#232323]">
-                <input
-                  type="checkbox"
-                  checked={filters.categories.includes(item.id) || filters.categories.includes(item.name)}
-                  onChange={() => toggleCategory(item.id)}
-                  className="rounded text-[#8B6F4E]"
-                />
-                <span>{item.name}</span>
-              </label>
-            ))}
+            {displayCategories.map((item) => {
+              const isChecked = filters.categories.some(
+                (c) =>
+                  c.toLowerCase().trim() === item.name.toLowerCase().trim() ||
+                  c.toLowerCase().trim() === item.id.toLowerCase().trim()
+              );
+              return (
+                <label key={item.id} className="flex items-center gap-2 cursor-pointer text-xs text-[#5C5149] hover:text-[#232323]">
+                  <input
+                    type="checkbox"
+                    checked={isChecked}
+                    onChange={() => toggleCategory(item.name)}
+                    className="rounded text-[#8B6F4E]"
+                  />
+                  <span>{item.name}</span>
+                </label>
+              );
+            })}
           </div>
         </div>
       )}

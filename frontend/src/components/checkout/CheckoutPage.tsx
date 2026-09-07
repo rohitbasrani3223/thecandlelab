@@ -16,6 +16,7 @@ import { processRazorpayPayment } from '../../services/razorpay';
 import { useToast, Button } from '../../design-system';
 import { supabaseFetch } from '../../config/supabaseClient';
 import { getApiUrl } from '../../config/api';
+import { useCart } from '../../context/CartContext';
 
 export interface CheckoutPageProps {
   onReturnHome?: () => void;
@@ -28,7 +29,9 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
   const [step, setStep] = useState<CheckoutStep | 4>(1);
   const [_isProcessing, setIsProcessing] = useState(false);
 
-  const [cartItems, setCartItems] = useState<any[]>(() => {
+  const { cartItems: contextCartItems, clearCart } = useCart();
+
+  const [localCartItems, setLocalCartItems] = useState<any[]>(() => {
     try {
       const saved = localStorage.getItem('tcl_cart_items');
       return saved ? JSON.parse(saved) : [];
@@ -41,12 +44,18 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
     const handleSync = () => {
       try {
         const saved = localStorage.getItem('tcl_cart_items');
-        setCartItems(saved ? JSON.parse(saved) : []);
+        setLocalCartItems(saved ? JSON.parse(saved) : []);
       } catch {}
     };
     window.addEventListener('tcl-cart-updated', handleSync);
-    return () => window.removeEventListener('tcl-cart-updated', handleSync);
+    window.addEventListener('storage', handleSync);
+    return () => {
+      window.removeEventListener('tcl-cart-updated', handleSync);
+      window.removeEventListener('storage', handleSync);
+    };
   }, []);
+
+  const cartItems = contextCartItems && contextCartItems.length > 0 ? contextCartItems : localCartItems;
 
   const initialAddress: AddressData = {
     email: user?.email || '',
@@ -258,8 +267,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
     } catch (e) {}
 
     try {
-      localStorage.removeItem('tcl_cart_items');
-      window.dispatchEvent(new Event('tcl-cart-updated'));
+      clearCart();
     } catch {}
 
     setIsProcessing(false);
@@ -368,7 +376,11 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
             variant="pink"
             size="lg"
             onClick={() => {
-              window.location.hash = '#shop';
+              if (onReturnHome) {
+                onReturnHome();
+              } else {
+                window.dispatchEvent(new CustomEvent('tcl-navigate', { detail: { page: 'shop' } }));
+              }
             }}
           >
             Explore Collections & Shop →

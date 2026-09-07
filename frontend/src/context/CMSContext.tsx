@@ -448,7 +448,7 @@ const DEFAULT_SETTINGS: CMSStoreSettings = {
   storeName: 'The Candle Lab',
   tagline: 'Botanical & Soy Artisans',
   currencySymbol: '₹',
-  freeShippingThreshold: 1499,
+  freeShippingThreshold: 999,
   standardShippingFee: 99,
   supportEmail: 'support.thecandlelab@gmail.com',
   supportPhone: '+916264885453',
