@@ -106,11 +106,10 @@ export const AdminHomepageCMS: React.FC = () => {
             <button
               key={tab.id}
               onClick={() => setActiveSubTab(tab.id)}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
-                isActive
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${isActive
                   ? 'bg-[#B88B38] text-white shadow-card'
                   : 'bg-white text-[#7A6B5D] border border-[#EFE8DB] hover:bg-[#F8F3EA] hover:text-[#2C1E16]'
-              }`}
+                }`}
             >
               <span>{tab.icon}</span>
               <span>{tab.label}</span>
@@ -125,7 +124,7 @@ export const AdminHomepageCMS: React.FC = () => {
           <div className="space-y-6">
             <h3 className="font-serif font-bold text-xl text-[#2C1E16]">Homepage Drag & Drop Layout Builder</h3>
             <p className="text-xs text-[#7A6B5D]">Reorder or enable/disable sections displayed on the storefront home page.</p>
-            
+
             <div className="space-y-3 max-w-xl">
               {sections.map((sec, idx) => (
                 <div key={sec.id} className="flex items-center justify-between p-3.5 bg-[#FAF6F0] border border-[#EFE8DB] rounded-xl text-xs">
@@ -243,6 +242,29 @@ export const AdminHomepageCMS: React.FC = () => {
                   </div>
                 </div>
 
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-xl bg-[#FAF6F0] border border-[#EFE8DB]">
+                  <div>
+                    <label className="font-bold text-[#2C1E16] block uppercase mb-1">🚚 Info Ribbon Heading (Patti 2)</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Express Delivery Across India"
+                      value={heroForm.ribbonShippingText || ''}
+                      onChange={(e) => setHeroForm({ ...heroForm, ribbonShippingText: e.target.value })}
+                      className="w-full bg-white border border-[#EFE8DB] p-2.5 rounded-lg text-[#2C1E16]"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold text-[#2C1E16] block uppercase mb-1">🏷️ Info Ribbon Subtext (Patti 2)</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Dispatched in 24 Hours or Above ₹999"
+                      value={heroForm.ribbonShippingSubtext || ''}
+                      onChange={(e) => setHeroForm({ ...heroForm, ribbonShippingSubtext: e.target.value })}
+                      className="w-full bg-white border border-[#EFE8DB] p-2.5 rounded-lg text-[#2C1E16]"
+                    />
+                  </div>
+                </div>
+
                 {/* Recommended Image Dimensions Notice Box */}
                 <div className="bg-[#EFF6FF] border border-[#BFDBFE] p-4 rounded-xl text-xs text-[#1E40AF] space-y-1.5 shadow-xs">
                   <div className="flex flex-wrap items-center gap-2 font-bold text-sm text-[#1D4ED8]">
@@ -308,7 +330,7 @@ export const AdminHomepageCMS: React.FC = () => {
                   {/* Featured Candle Image Upload & URL Manager */}
                   <div className="space-y-2">
                     <label className="font-bold text-[#2C1E16] block uppercase text-xs">📷 Featured Candle Image Photo</label>
-                    
+
                     <div className="bg-[#F8FAFC] border border-[#E2E8F0] p-4 rounded-2xl space-y-3">
                       {heroForm.featuredImage ? (
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-3 bg-white border border-[#CBD5E1] rounded-xl shadow-xs">

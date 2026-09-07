@@ -12,6 +12,7 @@ import { AdminOrdersManager } from './AdminOrdersManager';
 import { AdminCustomersCRM } from './AdminCustomersCRM';
 import { AdminMarketingCMS } from './AdminMarketingCMS';
 import { AdminHomepageCMS } from './AdminHomepageCMS';
+import { AdminHeroBannersManager } from './AdminHeroBannersManager';
 import { AdminMediaLibrary } from './AdminMediaLibrary';
 import { AdminStaffManager } from './AdminStaffManager';
 import { AdminStoreSettings } from './AdminStoreSettings';
@@ -73,6 +74,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
     inventory: { title: 'Stock & Inventory', icon: '📦' },
     orders: { title: 'Orders & Fulfillment', icon: '🛍️' },
     customers: { title: 'Customer Directory', icon: '👥' },
+    'hero-banners': { title: 'Hero Banner Desktop', icon: '🖼️' },
     hero: { title: 'Hero & Announcements', icon: '🎨' },
     coupons: { title: 'Coupons & Promos', icon: '🎟️' },
     media: { title: 'Media Library', icon: '🖼️' },
@@ -136,6 +138,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
           {activeTab === 'inventory' && <AdminProductsManager />}
           {activeTab === 'orders' && <AdminOrdersManager />}
           {activeTab === 'customers' && <AdminCustomersCRM />}
+          {activeTab === 'hero-banners' && <AdminHeroBannersManager />}
           {activeTab === 'hero' && <AdminHomepageCMS />}
           {activeTab === 'coupons' && <AdminMarketingCMS />}
           {activeTab === 'media' && <AdminMediaLibrary />}

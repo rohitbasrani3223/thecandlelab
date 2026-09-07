@@ -12,3 +12,4 @@ export * from './AdminMediaLibrary';
 export * from './AdminSEOManager';
 export * from './AdminStaffManager';
 export * from './AdminLoginPage';
+export * from './AdminHeroBannersManager';

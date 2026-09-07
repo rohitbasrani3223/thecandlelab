@@ -3,6 +3,7 @@ import type {
   CMSAnnouncement,
   CMSCollection,
   CMSHeroBanner,
+  CMSHeroBannerSlide,
   CMSMediaItem,
   CMSPagesContent,
   CMSSEOSetting,
@@ -17,6 +18,7 @@ export interface CmsRemoteBundle {
   settings?: CMSStoreSettings;
   announcement?: CMSAnnouncement;
   hero?: CMSHeroBanner;
+  heroSlides?: CMSHeroBannerSlide[];
   pagesContent?: CMSPagesContent;
   seoSettings?: CMSSEOSetting[];
   collections?: CMSCollection[];

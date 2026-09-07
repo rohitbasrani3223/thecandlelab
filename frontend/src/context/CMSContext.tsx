@@ -53,6 +53,19 @@ export interface CMSHeroBanner {
   featuredSubtitle?: string;
   featuredImage?: string;
   layoutStyle?: 'scentandchill' | 'glass-circle' | 'split-featured';
+  ribbonShippingText?: string;
+  ribbonShippingSubtext?: string;
+}
+
+export interface CMSHeroBannerSlide {
+  id: string;
+  name: string;
+  imageUrl: string;
+  mobileImageUrl?: string;
+  priority: number;
+  deeplink?: string;
+  isActive: boolean;
+  createdAt?: string;
 }
 
 export interface CMSFragrance {
@@ -348,6 +361,11 @@ export interface CMSContextType {
   updateAnnouncement: (newAnn: Partial<CMSAnnouncement>) => void;
   hero: CMSHeroBanner;
   updateHero: (newHero: Partial<CMSHeroBanner>) => void;
+  heroSlides: CMSHeroBannerSlide[];
+  addHeroSlide: (slide: Omit<CMSHeroBannerSlide, 'id'>) => void;
+  updateHeroSlide: (id: string, updated: Partial<CMSHeroBannerSlide>) => void;
+  deleteHeroSlide: (id: string) => void;
+  toggleHeroSlideStatus: (id: string) => void;
 
   // Fragrance Management
   fragrances: CMSFragrance[];
@@ -465,6 +483,33 @@ const DEFAULT_HERO: CMSHeroBanner = {
   featuredImage: '/hero_candle.png',
 };
 
+export const DEFAULT_HERO_SLIDES: CMSHeroBannerSlide[] = [
+  {
+    id: 'slide-1',
+    name: 'HERO',
+    imageUrl: '/hero_candle.png',
+    priority: 1,
+    deeplink: '#collections',
+    isActive: true,
+  },
+  {
+    id: 'slide-2',
+    name: 'Artisanal Botanical Soy Candles',
+    imageUrl: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=2100&q=80',
+    priority: 2,
+    deeplink: '#shop',
+    isActive: true,
+  },
+  {
+    id: 'slide-3',
+    name: 'Festive Luxury Gifting Atelier',
+    imageUrl: 'https://images.unsplash.com/photo-1570823635306-250abb06d4b3?auto=format&fit=crop&w=2100&q=80',
+    priority: 3,
+    deeplink: '#shop',
+    isActive: true,
+  },
+];
+
 export const DEFAULT_FRAGRANCES: CMSFragrance[] = [];
 export const DEFAULT_SIZES: CMSSize[] = [];
 export const DEFAULT_COLORS: CMSColor[] = [];
@@ -499,6 +544,19 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return saved ? JSON.parse(saved) : DEFAULT_HERO;
     } catch {
       return DEFAULT_HERO;
+    }
+  });
+
+  const [heroSlides, setHeroSlides] = useState<CMSHeroBannerSlide[]>(() => {
+    try {
+      const saved = localStorage.getItem('tcl_hero_slides');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+      return DEFAULT_HERO_SLIDES;
+    } catch {
+      return DEFAULT_HERO_SLIDES;
     }
   });
 
@@ -691,6 +749,12 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           if (bundle.settings) setSettings((prev) => ({ ...prev, ...bundle.settings }));
           if (bundle.announcement) setAnnouncement((prev) => ({ ...prev, ...bundle.announcement }));
           if (bundle.hero) setHero((prev) => ({ ...prev, ...bundle.hero }));
+          if (bundle.heroSlides && Array.isArray(bundle.heroSlides) && bundle.heroSlides.length > 0) {
+            setHeroSlides(bundle.heroSlides);
+            try {
+              localStorage.setItem('tcl_hero_slides', JSON.stringify(bundle.heroSlides));
+            } catch { }
+          }
           if (bundle.pagesContent) setPagesContent((prev) => ({ ...prev, ...bundle.pagesContent }));
           if (bundle.seoSettings && Array.isArray(bundle.seoSettings)) setSeoSettings(bundle.seoSettings);
           if (bundle.collections && Array.isArray(bundle.collections)) setCollections(bundle.collections);
@@ -1174,7 +1238,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const updateSettings = (newSettings: Partial<CMSStoreSettings>) => {
     setSettings((prev) => {
       const updated = { ...prev, ...newSettings };
-      saveCmsBundle({ version: 1, settings: updated, announcement, hero, pagesContent, seoSettings, collections, mediaItems }).catch(() => { });
+      saveCmsBundle({ version: 1, settings: updated, announcement, hero, heroSlides, pagesContent, seoSettings, collections, mediaItems }).catch(() => { });
       return updated;
     });
   };
@@ -1182,7 +1246,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const updateAnnouncement = (newAnn: Partial<CMSAnnouncement>) => {
     setAnnouncement((prev) => {
       const updated = { ...prev, ...newAnn };
-      saveCmsBundle({ version: 1, settings, announcement: updated, hero, pagesContent, seoSettings, collections, mediaItems }).catch(() => { });
+      saveCmsBundle({ version: 1, settings, announcement: updated, hero, heroSlides, pagesContent, seoSettings, collections, mediaItems }).catch(() => { });
       return updated;
     });
   };
@@ -1190,8 +1254,61 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const updateHero = (newHero: Partial<CMSHeroBanner>) => {
     setHero((prev) => {
       const updated = { ...prev, ...newHero };
-      saveCmsBundle({ version: 1, settings, announcement, hero: updated, pagesContent, seoSettings, collections, mediaItems }).catch(() => { });
+      saveCmsBundle({ version: 1, settings, announcement, hero: updated, heroSlides, pagesContent, seoSettings, collections, mediaItems }).catch(() => { });
       return updated;
+    });
+  };
+
+  const addHeroSlide = (slide: Omit<CMSHeroBannerSlide, 'id'>) => {
+    const newSlide: CMSHeroBannerSlide = {
+      ...slide,
+      id: `slide-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+      createdAt: new Date().toISOString(),
+    };
+    setHeroSlides((prev) => {
+      const next = [...prev, newSlide];
+      try {
+        localStorage.setItem('tcl_hero_slides', JSON.stringify(next));
+        window.dispatchEvent(new Event('tcl-cms-updated'));
+      } catch { }
+      saveCmsBundle({ version: 1, settings, announcement, hero, heroSlides: next, pagesContent, seoSettings, collections, mediaItems }).catch(() => { });
+      return next;
+    });
+  };
+
+  const updateHeroSlide = (id: string, updated: Partial<CMSHeroBannerSlide>) => {
+    setHeroSlides((prev) => {
+      const next = prev.map((s) => (s.id === id ? { ...s, ...updated } : s));
+      try {
+        localStorage.setItem('tcl_hero_slides', JSON.stringify(next));
+        window.dispatchEvent(new Event('tcl-cms-updated'));
+      } catch { }
+      saveCmsBundle({ version: 1, settings, announcement, hero, heroSlides: next, pagesContent, seoSettings, collections, mediaItems }).catch(() => { });
+      return next;
+    });
+  };
+
+  const deleteHeroSlide = (id: string) => {
+    setHeroSlides((prev) => {
+      const next = prev.filter((s) => s.id !== id);
+      try {
+        localStorage.setItem('tcl_hero_slides', JSON.stringify(next));
+        window.dispatchEvent(new Event('tcl-cms-updated'));
+      } catch { }
+      saveCmsBundle({ version: 1, settings, announcement, hero, heroSlides: next, pagesContent, seoSettings, collections, mediaItems }).catch(() => { });
+      return next;
+    });
+  };
+
+  const toggleHeroSlideStatus = (id: string) => {
+    setHeroSlides((prev) => {
+      const next = prev.map((s) => (s.id === id ? { ...s, isActive: !s.isActive } : s));
+      try {
+        localStorage.setItem('tcl_hero_slides', JSON.stringify(next));
+        window.dispatchEvent(new Event('tcl-cms-updated'));
+      } catch { }
+      saveCmsBundle({ version: 1, settings, announcement, hero, heroSlides: next, pagesContent, seoSettings, collections, mediaItems }).catch(() => { });
+      return next;
     });
   };
 
@@ -2220,6 +2337,11 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         updateAnnouncement,
         hero,
         updateHero,
+        heroSlides,
+        addHeroSlide,
+        updateHeroSlide,
+        deleteHeroSlide,
+        toggleHeroSlideStatus,
 
         fragrances,
         addFragrance,
