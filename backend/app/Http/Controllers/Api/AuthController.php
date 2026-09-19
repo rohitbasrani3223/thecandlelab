@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\EmailNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -32,14 +33,12 @@ class AuthController extends Controller
 
         $otp = (string) random_int(100000, 999999);
 
-        // Dispatch real email via Laravel Mailer
+        // Dispatch luxury OTP code & Welcome emails via Resend HTTPS
         try {
-            Mail::raw("Welcome to The Candle Lab!\n\nYour 6-Digit OTP verification code is: {$otp}", function ($message) use ($validated) {
-                $message->to($validated['email'])
-                        ->subject('The Candle Lab — Account Verification OTP');
-            });
+            EmailNotificationService::sendOtpEmail($validated['email'], $otp, 'verification');
+            EmailNotificationService::sendWelcomeEmail($validated['email'], $validated['name']);
         } catch (Exception $e) {
-            logger()->error('Failed to send OTP email: ' . $e->getMessage());
+            logger()->error('Failed to dispatch registration emails: ' . $e->getMessage());
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;
@@ -96,13 +95,11 @@ class AuthController extends Controller
         }
 
         $otp = (string) random_int(100000, 999999);
+        $purpose = $request->input('purpose', 'verification');
 
         if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
             try {
-                Mail::raw("Your OTP verification code for The Candle Lab is: {$otp}", function ($message) use ($email) {
-                    $message->to($email)
-                            ->subject('The Candle Lab — Your 6-Digit OTP Code');
-                });
+                EmailNotificationService::sendOtpEmail($email, $otp, $purpose);
             } catch (Exception $e) {
                 logger()->error('Failed to send OTP email: ' . $e->getMessage());
             }
@@ -147,7 +144,53 @@ class AuthController extends Controller
 
     public function forgotPassword(Request $request)
     {
-        return $this->sendOtp($request);
+        $email = strtolower(trim($request->input('email') ?? $request->input('emailOrPhone') ?? ''));
+
+        if (!$email) {
+            return response()->json(['success' => false, 'message' => 'Email address is required.'], 422);
+        }
+
+        $otp = (string) random_int(100000, 999999);
+
+        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            try {
+                EmailNotificationService::sendOtpEmail($email, $otp, 'password_reset');
+            } catch (Exception $e) {
+                logger()->error('Failed to send password reset OTP: ' . $e->getMessage());
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "Password reset OTP sent to {$email}.",
+            'otp' => $otp,
+        ]);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string|min:6',
+        ]);
+
+        $email = strtolower(trim($request->input('email')));
+        $user = User::where('email', $email)->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User with this email address was not found.'
+            ], 404);
+        }
+
+        $user->password = Hash::make($request->input('password'));
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Password reset successfully. You can now sign in with your new password.'
+        ]);
     }
 
     public function verifyEmail(Request $request)

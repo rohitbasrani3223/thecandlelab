@@ -414,4 +414,47 @@ HTML;
         $html = self::getBaseTemplate("Order Delivered #{$orderNumber}", 'Order Delivered', $content);
         return self::dispatchEmail($email, "🕯️ Delivered: Enjoy Your Handcrafted Candles! (Order #{$orderNumber})", $html, $customerName);
     }
+
+    /**
+     * 5. OTP & Password Reset Verification Email
+     */
+    public static function sendOtpEmail(string $email, string $otp, string $purpose = 'verification'): bool
+    {
+        $isReset = $purpose === 'password_reset' || $purpose === 'forgot_password';
+        $badgeText = $isReset ? '🔒 SECURITY CONCIERGE' : '✨ ARTISAN ACCESS VERIFICATION';
+        $heading = $isReset ? 'Reset Your Sanctuary Password' : 'Your One-Time Access Passcode';
+        $description = $isReset
+            ? 'We received a request to reset your password for your The Candle Lab account. Use the unique 6-digit authentication code below to proceed.'
+            : 'Welcome to The Candle Lab. Use the unique 6-digit authentication code below to verify your account and begin your fragrance journey.';
+        $subject = $isReset
+            ? "🔒 [{$otp}] Reset Your The Candle Lab Password"
+            : "✨ [{$otp}] Your The Candle Lab Verification Code";
+
+        $content = <<<HTML
+          <div style="text-align: center;">
+            <div class="badge">{$badgeText}</div>
+            <h2 class="heading">{$heading}</h2>
+            <p class="paragraph">
+              {$description}
+            </p>
+          </div>
+
+          <div class="card" style="text-align: center; background: #FAF7F2; border: 2px dashed #D4AF37; padding: 28px 20px;">
+            <p style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: #8B6F4E; letter-spacing: 2px; margin: 0 0 10px 0;">YOUR ONE-TIME PASSCODE (OTP)</p>
+            <div style="font-size: 38px; font-family: 'Playfair Display', Georgia, monospace; font-weight: 900; color: #232323; letter-spacing: 8px; margin: 0 0 10px 0;">
+              {$otp}
+            </div>
+            <p style="font-size: 11px; color: #7D6F63; margin: 0;">⏳ Valid for 10 minutes. Please do not share this passcode with anyone.</p>
+          </div>
+
+          <div style="text-align: center; margin-top: 24px;">
+            <p style="font-size: 11px; color: #A39486; line-height: 1.5; margin: 0;">
+              If you did not request this security passcode, you can safely ignore this communication. Your account remains protected.
+            </p>
+          </div>
+HTML;
+
+        $html = self::getBaseTemplate($isReset ? 'Password Reset Code' : 'Verification Code', 'Security Authentication', $content);
+        return self::dispatchEmail($email, $subject, $html);
+    }
 }
