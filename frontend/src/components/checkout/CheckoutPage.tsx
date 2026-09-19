@@ -101,8 +101,14 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
   const discountAmount = appliedCoupon ? Math.round((subtotal * discountPercent) / 100) : 0;
   const totalAmount = Math.max(0, Math.round(subtotal - discountAmount + shippingFee));
 
-  const completeOrderSave = async (paymentId?: string, razorpayOrderId?: string) => {
-    const isCOD = payment.method === 'cod';
+  const completeOrderSave = async (
+    paymentId?: string,
+    razorpayOrderId?: string,
+    chosenPayment?: PaymentData
+  ) => {
+    const activePay = chosenPayment || payment;
+    const isCOD = activePay.method === 'cod';
+    const isUPI = activePay.method === 'upi';
     const orderNumber = razorpayOrderId ? `#${razorpayOrderId}` : `#TCL-2026-${Math.floor(1000 + Math.random() * 9000)}`;
 
     const itemsSummaryStr = cartItems.length > 0
@@ -128,12 +134,25 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
     const userPhone = address.phone || user?.phone || '';
     const fullShippingAddress = `${address.street}${address.apartment ? ', ' + address.apartment : ''}, ${address.city}, ${address.state} ${address.zip}`;
 
+    const resolvedPaymentMethod = isCOD
+      ? 'Cash on Delivery (COD)'
+      : isUPI
+      ? 'UPI Instant Payment'
+      : 'Razorpay Online (UPI/Cards)';
+
+    const resolvedPaymentId = isCOD
+      ? 'COD_ORDER_VERIFIED'
+      : paymentId || (isUPI ? (activePay.upiId ? `UPI_${activePay.upiId}` : 'UPI_VERIFIED') : `PAY_RZP_${orderNumber.replace(/[^A-Za-z0-9]/g, '')}`);
+
+    const resolvedStatus = isCOD ? 'Pending COD' : 'Paid';
+    const resolvedBadge = isCOD ? 'warning' : 'pink';
+
     const newOrder = {
       id: orderNumber,
       orderNumber,
       date: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
-      status: isCOD ? 'Pending COD' : 'Paid',
-      badgeVariant: isCOD ? 'warning' : 'pink',
+      status: resolvedStatus,
+      badgeVariant: resolvedBadge,
       itemsSummary: itemsSummaryStr,
       items: orderItemsArr,
       itemsList: orderItemsArr,
@@ -143,8 +162,8 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
       shipping: shippingFee,
       tax: 0,
       totalAmount: totalAmount,
-      paymentMethod: isCOD ? 'Cash on Delivery (COD)' : 'Razorpay Online (UPI/Cards)',
-      paymentId: paymentId || (isCOD ? 'COD_ORDER_VERIFIED' : `PAY_RZP_${orderNumber.replace(/[^A-Za-z0-9]/g, '')}`),
+      paymentMethod: resolvedPaymentMethod,
+      paymentId: resolvedPaymentId,
       trackingNumber: `AWB${Date.now().toString().slice(-8)}`,
       courier: 'Express Air Dispatch',
       customerName: userFullName,
@@ -157,7 +176,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
       city: address.city,
       state: address.state,
       pincode: address.zip,
-      isCOD,
+      isCOD: isCOD,
     };
 
     setConfirmedOrderNumber(orderNumber);
@@ -185,7 +204,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
         paymentId: newOrder.paymentId,
         trackingNumber: newOrder.trackingNumber,
         courier: newOrder.courier,
-        status: isCOD ? 'Pending COD' : 'Paid',
+        status: newOrder.status,
         date: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
       });
     } catch (e) {
@@ -209,7 +228,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
           customer_name: newOrder.customerName,
           customer_email: newOrder.customerEmail,
           total_amount: totalAmount,
-          payment_method: isCOD ? 'COD' : 'RAZORPAY',
+          payment_method: isCOD ? 'COD' : (isUPI ? 'UPI' : 'RAZORPAY'),
           order_status: isCOD ? 'Pending COD' : 'Paid',
           shipping_address: newOrder.shippingAddress,
         },
@@ -276,6 +295,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
 
   const handlePlaceOrder = async (payData?: PaymentData) => {
     const activePayment = payData || payment;
+    setPayment(activePayment);
     setIsProcessing(true);
 
     if (activePayment.method === 'cod') {
@@ -284,7 +304,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
         title: 'Order Placed with COD!',
         description: 'Thank you! Your candle order has been received.',
       });
-      await completeOrderSave();
+      await completeOrderSave(undefined, undefined, activePayment);
       return;
     }
 
@@ -305,7 +325,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
             title: 'Payment Successful!',
             description: `Payment ID: ${paymentId}. Order confirmed!`,
           });
-          await completeOrderSave(paymentId, razorpayOrderId);
+          await completeOrderSave(paymentId, razorpayOrderId, activePayment);
         },
         onFailure: (errorMessage: string) => {
           setIsProcessing(false);
@@ -336,6 +356,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
   };
 
   if (step === 4) {
+    const isOrderCOD = completedOrder?.isCOD ?? (payment.method === 'cod');
     return (
       <OrderSuccessPage
         orderDetails={completedOrder || {
@@ -348,7 +369,8 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
           discount: discountAmount,
           shippingFee: shippingFee,
           totalAmount: totalAmount,
-          isCOD: payment.method === 'cod',
+          isCOD: isOrderCOD,
+          paymentMethod: isOrderCOD ? 'Cash on Delivery (COD)' : 'Razorpay Online (UPI/Cards)',
           shippingAddress: `${address.street}${address.apartment ? ', ' + address.apartment : ''}, ${address.city}, ${address.state} ${address.zip}`,
         }}
         onReturnHome={onReturnHome}
