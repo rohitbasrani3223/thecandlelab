@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Card, Button, Badge, HeartIcon, StarIcon, SparklesIcon, useToast } from '../../design-system';
+import React, { useState, useRef, useCallback } from 'react';
+import { Card, Button, Badge, HeartIcon, StarIcon, SparklesIcon, ChevronLeftIcon, ChevronRightIcon, useToast } from '../../design-system';
 import { useCMS } from '../../context/CMSContext';
 
 export interface FeaturedCollectionProps {
@@ -10,6 +10,11 @@ export const FeaturedCollection: React.FC<FeaturedCollectionProps> = ({ onSelect
   const { toast } = useToast();
   const { products } = useCMS();
   const [wishlist, setWishlist] = useState<string[]>([]);
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+  const [activeSlideIndex, setActiveSlideIndex] = useState(0);
 
   const toggleWishlist = (id: string, name: string) => {
     if (wishlist.includes(id)) {
@@ -74,26 +79,71 @@ export const FeaturedCollection: React.FC<FeaturedCollectionProps> = ({ onSelect
       : products
   ).slice(0, 8);
 
+  const updateScrollState = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    setCanScrollLeft(scrollLeft > 15);
+    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 15);
+
+    const cardWidth = el.firstElementChild ? (el.firstElementChild as HTMLElement).offsetWidth + 14 : clientWidth * 0.78;
+    const idx = Math.round(scrollLeft / cardWidth);
+    setActiveSlideIndex(Math.max(0, Math.min(featuredList.length - 1, idx)));
+  }, [featuredList.length]);
+
+  const handleScroll = (dir: 'left' | 'right') => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const cardWidth = el.firstElementChild ? (el.firstElementChild as HTMLElement).offsetWidth + 14 : el.clientWidth * 0.78;
+    el.scrollBy({ left: dir === 'left' ? -cardWidth : cardWidth, behavior: 'smooth' });
+  };
+
   if (featuredList.length === 0) {
     return null;
   }
 
   return (
     <section className="py-16 sm:py-24 bg-[#FFFFFF] border-b border-[#EADDCB] font-sans">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 space-y-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 space-y-8 sm:space-y-12">
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto space-y-3">
-          <Badge variant="pink" icon={<SparklesIcon size={12} />}>2026 ROYAL RESERVE</Badge>
-          <h2 className="text-3xl sm:text-5xl font-serif font-bold text-[#232323]">
-            Featured Royal Collection
-          </h2>
-          <p className="text-sm text-[#5C5149] leading-relaxed">
-            Hand-poured in numbered small batches with custom-blended essential oils and pure blush rose gold labeling.
-          </p>
+        <div className="flex flex-col sm:flex-row items-center sm:items-end justify-between gap-4 border-b border-[#EADDCB] pb-6">
+          <div className="text-center sm:text-left max-w-2xl space-y-2 sm:space-y-3">
+            <Badge variant="pink" icon={<SparklesIcon size={12} />}>2026 ROYAL RESERVE</Badge>
+            <h2 className="text-2xl sm:text-5xl font-serif font-bold text-[#232323]">
+              Featured Royal Collection
+            </h2>
+            <p className="text-xs sm:text-sm text-[#5C5149] leading-relaxed">
+              Hand-poured in numbered small batches with custom-blended essential oils and pure blush rose gold labeling.
+            </p>
+          </div>
+
+          {/* Mobile Navigation Arrows */}
+          <div className="flex sm:hidden items-center gap-1.5 shrink-0">
+            <button
+              onClick={() => handleScroll('left')}
+              disabled={!canScrollLeft}
+              className="w-8 h-8 rounded-full bg-[#FFFFFF] border border-[#EADDCB] flex items-center justify-center text-[#232323] disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#FAF7F2] transition-all cursor-pointer shadow-xs"
+              aria-label="Previous candle"
+            >
+              <ChevronLeftIcon size={14} />
+            </button>
+            <button
+              onClick={() => handleScroll('right')}
+              disabled={!canScrollRight}
+              className="w-8 h-8 rounded-full bg-[#FFFFFF] border border-[#EADDCB] flex items-center justify-center text-[#232323] disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#FAF7F2] transition-all cursor-pointer shadow-xs"
+              aria-label="Next candle"
+            >
+              <ChevronRightIcon size={14} />
+            </button>
+          </div>
         </div>
 
-        {/* Products Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 w-full max-w-full min-w-0">
+        {/* Products Container: Mobile Swipe Carousel / Desktop Clean Grid */}
+        <div
+          ref={scrollRef}
+          onScroll={updateScrollState}
+          className="flex overflow-x-auto snap-x snap-mandatory gap-3.5 sm:gap-6 -mx-4 px-4 pb-4 no-scrollbar touch-pan-x sm:grid sm:grid-cols-2 lg:grid-cols-4 sm:mx-0 sm:px-0 sm:pb-0 sm:overflow-visible w-full max-w-full min-w-0"
+        >
           {featuredList.map((prod) => {
             const isWishlisted = wishlist.includes(prod.id);
             const inrPrice = Math.round(prod.price || 0);
@@ -106,10 +156,10 @@ export const FeaturedCollection: React.FC<FeaturedCollectionProps> = ({ onSelect
                 variant="bordered"
                 padding="none"
                 onClick={() => handleProductClick(prod)}
-                className="bg-[#FFFFFF] group flex flex-col justify-between overflow-hidden hover:shadow-[0_16px_36px_rgba(230,106,138,0.12)] border border-[#EADDCB] hover:border-[#EADDCB] transition-all duration-300 relative cursor-pointer rounded-3xl"
+                className="w-[78vw] max-w-[290px] shrink-0 snap-start sm:w-auto sm:max-w-none bg-[#FFFFFF] group flex flex-col justify-between overflow-hidden hover:shadow-[0_16px_36px_rgba(230,106,138,0.12)] border border-[#EADDCB] hover:border-[#EADDCB] transition-all duration-300 relative cursor-pointer rounded-3xl"
               >
                 {/* Product Image Container */}
-                <div className="relative h-64 bg-[#FAF7F2] flex items-center justify-center overflow-hidden">
+                <div className="relative h-60 sm:h-64 bg-[#FAF7F2] flex items-center justify-center overflow-hidden">
                   <img
                     src={prod.image || prod.imageUrl || prod.images?.[0] || 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80'}
                     alt={prod.name}
@@ -142,7 +192,7 @@ export const FeaturedCollection: React.FC<FeaturedCollectionProps> = ({ onSelect
                 </div>
 
                 {/* Product Details Content */}
-                <div className="p-5 space-y-3 flex-1 flex flex-col justify-between">
+                <div className="p-4 sm:p-5 space-y-3 flex-1 flex flex-col justify-between">
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-[#7D6F63] font-medium">{prod.scentProfile || prod.category}</span>
@@ -153,7 +203,7 @@ export const FeaturedCollection: React.FC<FeaturedCollectionProps> = ({ onSelect
                       </div>
                     </div>
 
-                    <h3 className="text-base font-serif font-bold text-[#232323] group-hover:text-[#8B6F4E] transition-colors leading-snug">
+                    <h3 className="text-sm sm:text-base font-serif font-bold text-[#232323] group-hover:text-[#8B6F4E] transition-colors leading-snug line-clamp-1 sm:line-clamp-none">
                       {prod.name}
                     </h3>
                   </div>
@@ -177,6 +227,36 @@ export const FeaturedCollection: React.FC<FeaturedCollectionProps> = ({ onSelect
             );
           })}
         </div>
+
+        {/* Mobile Pagination Indicator & Swipe Hint (Only on Mobile) */}
+        {featuredList.length > 1 && (
+          <div className="flex sm:hidden items-center justify-between pt-1 px-1">
+            <span className="text-[10px] font-bold text-[#8B6F4E] tracking-wider uppercase flex items-center gap-1">
+              <span>👈 Swipe Featured Reserve 👉</span>
+            </span>
+            <div className="flex items-center gap-1.5">
+              {featuredList.slice(0, 8).map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => {
+                    const el = scrollRef.current;
+                    if (!el) return;
+                    const card = el.children[i] as HTMLElement;
+                    if (card) {
+                      el.scrollTo({ left: card.offsetLeft - 16, behavior: 'smooth' });
+                    }
+                  }}
+                  className={`transition-all duration-300 rounded-full ${
+                    activeSlideIndex === i
+                      ? 'w-5 h-1.5 bg-[#8B6F4E]'
+                      : 'w-1.5 h-1.5 bg-[#EADDCB]'
+                  }`}
+                  aria-label={`Go to product ${i + 1}`}
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

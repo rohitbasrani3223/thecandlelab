@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Card, Button, Badge, StarIcon, SparklesIcon, HeartIcon, useToast } from '../../design-system';
+import React, { useState, useRef, useCallback } from 'react';
+import { Card, Button, Badge, StarIcon, SparklesIcon, HeartIcon, ChevronLeftIcon, ChevronRightIcon, useToast } from '../../design-system';
 import { useCMS } from '../../context/CMSContext';
 
 type CategoryTab = 'all' | 'woody' | 'floral' | 'vanilla' | 'aromatherapy';
@@ -14,6 +14,11 @@ export const BestSellers: React.FC<BestSellersProps> = ({ onSelectProduct }) => 
   const [wishlist, setWishlist] = useState<string[]>([]);
   const { toast } = useToast();
   const { products, settings } = useCMS();
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+  const [activeSlideIndex, setActiveSlideIndex] = useState(0);
 
   const handleProductClick = (prod: any) => {
     try {
@@ -57,9 +62,28 @@ export const BestSellers: React.FC<BestSellersProps> = ({ onSelectProduct }) => 
       return true;
     });
 
+  const updateScrollState = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    setCanScrollLeft(scrollLeft > 15);
+    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 15);
+
+    const cardWidth = el.firstElementChild ? (el.firstElementChild as HTMLElement).offsetWidth + 14 : clientWidth * 0.78;
+    const idx = Math.round(scrollLeft / cardWidth);
+    setActiveSlideIndex(Math.max(0, Math.min(filteredProducts.length - 1, idx)));
+  }, [filteredProducts.length]);
+
+  const handleScroll = (dir: 'left' | 'right') => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const cardWidth = el.firstElementChild ? (el.firstElementChild as HTMLElement).offsetWidth + 14 : el.clientWidth * 0.78;
+    el.scrollBy({ left: dir === 'left' ? -cardWidth : cardWidth, behavior: 'smooth' });
+  };
+
   return (
     <section className="py-16 sm:py-24 bg-[#F8F6F0] border-b border-[#EADDCB] font-sans">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 space-y-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 space-y-8 sm:space-y-10">
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 sm:gap-6 border-b border-[#EADDCB] pb-6 w-full max-w-full min-w-0">
           <div className="space-y-1 sm:space-y-2">
@@ -69,32 +93,61 @@ export const BestSellers: React.FC<BestSellersProps> = ({ onSelectProduct }) => 
             </h2>
           </div>
 
-          {/* Filter Tabs */}
-          <div className="w-full sm:w-auto max-w-full min-w-0 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 flex items-center gap-2 pb-2 sm:pb-0 touch-pan-x">
-            {[
-              { id: 'all', label: 'All Best Sellers' },
-              { id: 'woody', label: 'Woody & Spiced' },
-              { id: 'vanilla', label: 'Warm Vanilla' },
-              { id: 'floral', label: 'Floral & Rose' },
-              { id: 'aromatherapy', label: 'Aromatherapy' },
-            ].map((tab) => (
+          <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+            {/* Filter Tabs */}
+            <div className="w-full sm:w-auto max-w-full min-w-0 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 flex items-center gap-2 pb-2 sm:pb-0 touch-pan-x">
+              {[
+                { id: 'all', label: 'All Best Sellers' },
+                { id: 'woody', label: 'Woody & Spiced' },
+                { id: 'vanilla', label: 'Warm Vanilla' },
+                { id: 'floral', label: 'Floral & Rose' },
+                { id: 'aromatherapy', label: 'Aromatherapy' },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => {
+                    setActiveTab(tab.id as CategoryTab);
+                    if (scrollRef.current) scrollRef.current.scrollTo({ left: 0, behavior: 'smooth' });
+                  }}
+                  className={`px-4 py-2 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap shrink-0 cursor-pointer min-h-[38px] sm:min-h-[32px] flex items-center justify-center ${
+                    activeTab === tab.id
+                      ? 'bg-[#232323] text-[#FFFFFF] shadow-sm'
+                      : 'bg-[#FFFFFF] text-[#5C5149] hover:text-[#232323] hover:bg-[#EADDCB] border border-[#EADDCB]'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Mobile Navigation Arrows */}
+            <div className="flex sm:hidden items-center gap-1.5 shrink-0 pl-1">
               <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as CategoryTab)}
-                className={`px-4 py-2 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap shrink-0 cursor-pointer min-h-[38px] sm:min-h-[32px] flex items-center justify-center ${
-                  activeTab === tab.id
-                    ? 'bg-[#232323] text-[#FFFFFF] shadow-sm'
-                    : 'bg-[#FFFFFF] text-[#5C5149] hover:text-[#232323] hover:bg-[#EADDCB] border border-[#EADDCB]'
-                }`}
+                onClick={() => handleScroll('left')}
+                disabled={!canScrollLeft}
+                className="w-8 h-8 rounded-full bg-[#FFFFFF] border border-[#EADDCB] flex items-center justify-center text-[#232323] disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#FAF7F2] transition-all cursor-pointer shadow-xs"
+                aria-label="Previous candle"
               >
-                {tab.label}
+                <ChevronLeftIcon size={14} />
               </button>
-            ))}
+              <button
+                onClick={() => handleScroll('right')}
+                disabled={!canScrollRight}
+                className="w-8 h-8 rounded-full bg-[#FFFFFF] border border-[#EADDCB] flex items-center justify-center text-[#232323] disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#FAF7F2] transition-all cursor-pointer shadow-xs"
+                aria-label="Next candle"
+              >
+                <ChevronRightIcon size={14} />
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Best Seller Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 w-full max-w-full min-w-0">
+        {/* Best Seller Container: Mobile Horizontal Swipe Carousel / Desktop Clean Grid */}
+        <div
+          ref={scrollRef}
+          onScroll={updateScrollState}
+          className="flex overflow-x-auto snap-x snap-mandatory gap-3.5 sm:gap-6 -mx-4 px-4 pb-4 no-scrollbar touch-pan-x sm:grid sm:grid-cols-2 lg:grid-cols-4 sm:mx-0 sm:px-0 sm:pb-0 sm:overflow-visible w-full max-w-full min-w-0"
+        >
           {filteredProducts.map((prod, idx) => {
             const isWishlisted = wishlist.includes(prod.id);
             const rankLabel = `#${idx + 1} Best Seller`;
@@ -106,10 +159,10 @@ export const BestSellers: React.FC<BestSellersProps> = ({ onSelectProduct }) => 
                 variant="bordered"
                 padding="none"
                 onClick={() => handleProductClick(prod)}
-                className="bg-[#FFFFFF] group flex flex-col justify-between overflow-hidden hover:shadow-[0_16px_36px_rgba(139,111,78,0.14)] hover:border-[#8B6F4E] border border-[#EADDCB] transition-all duration-300 relative cursor-pointer rounded-3xl"
+                className="w-[78vw] max-w-[290px] shrink-0 snap-start sm:w-auto sm:max-w-none bg-[#FFFFFF] group flex flex-col justify-between overflow-hidden hover:shadow-[0_16px_36px_rgba(139,111,78,0.14)] hover:border-[#8B6F4E] border border-[#EADDCB] transition-all duration-300 relative cursor-pointer rounded-3xl"
               >
                 {/* Vessel Image Container */}
-                <div className="relative h-64 bg-[#FAF7F2] flex items-center justify-center overflow-hidden">
+                <div className="relative h-60 sm:h-64 bg-[#FAF7F2] flex items-center justify-center overflow-hidden">
                   <img
                     src={prod.image || prod.imageUrl || prod.images?.[0] || 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80'}
                     alt={prod.name}
@@ -145,7 +198,7 @@ export const BestSellers: React.FC<BestSellersProps> = ({ onSelectProduct }) => 
                 </div>
 
                 {/* Details */}
-                <div className="p-5 space-y-3 flex-1 flex flex-col justify-between">
+                <div className="p-4 sm:p-5 space-y-3 flex-1 flex flex-col justify-between">
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-[#7D6F63] font-medium">{prod.scentProfile || prod.category}</span>
@@ -156,14 +209,14 @@ export const BestSellers: React.FC<BestSellersProps> = ({ onSelectProduct }) => 
                       </div>
                     </div>
 
-                    <h3 className="text-base font-serif font-bold text-[#232323] group-hover:text-[#8B6F4E] transition-colors leading-snug">
+                    <h3 className="text-sm sm:text-base font-serif font-bold text-[#232323] group-hover:text-[#8B6F4E] transition-colors leading-snug line-clamp-1 sm:line-clamp-none">
                       {prod.name}
                     </h3>
                   </div>
 
                   <div className="pt-3 border-t border-[#EADDCB] space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-lg font-bold text-[#232323] font-serif">{formattedPrice}</span>
+                      <span className="text-base sm:text-lg font-bold text-[#232323] font-serif">{formattedPrice}</span>
                       <span className="text-[10px] text-[#7D6F63] font-mono">{prod.burnTime || '60 Hours'}</span>
                     </div>
 
@@ -173,7 +226,7 @@ export const BestSellers: React.FC<BestSellersProps> = ({ onSelectProduct }) => 
                       fullWidth
                       onClick={() => handleProductClick(prod)}
                     >
-                      View Product Details →
+                      View Formulation →
                     </Button>
                   </div>
                 </div>
@@ -181,6 +234,36 @@ export const BestSellers: React.FC<BestSellersProps> = ({ onSelectProduct }) => 
             );
           })}
         </div>
+
+        {/* Mobile Pagination Indicator & Swipe Hint (Only on Mobile) */}
+        {filteredProducts.length > 1 && (
+          <div className="flex sm:hidden items-center justify-between pt-1 px-1">
+            <span className="text-[10px] font-bold text-[#8B6F4E] tracking-wider uppercase flex items-center gap-1">
+              <span>👈 Swipe Best Sellers 👉</span>
+            </span>
+            <div className="flex items-center gap-1.5">
+              {filteredProducts.slice(0, 8).map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => {
+                    const el = scrollRef.current;
+                    if (!el) return;
+                    const card = el.children[i] as HTMLElement;
+                    if (card) {
+                      el.scrollTo({ left: card.offsetLeft - 16, behavior: 'smooth' });
+                    }
+                  }}
+                  className={`transition-all duration-300 rounded-full ${
+                    activeSlideIndex === i
+                      ? 'w-5 h-1.5 bg-[#8B6F4E]'
+                      : 'w-1.5 h-1.5 bg-[#EADDCB]'
+                  }`}
+                  aria-label={`Go to product ${i + 1}`}
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );
