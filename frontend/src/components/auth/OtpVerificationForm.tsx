@@ -3,7 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../design-system';
 
 export const OtpVerificationForm: React.FC = () => {
-  const { verifyOtp, pendingEmail, pendingPhone, setAuthViewMode } = useAuth();
+  const { verifyOtp, pendingEmail, pendingPhone, setAuthViewMode, closeAuthModal } = useAuth();
   const { toast } = useToast();
 
   const [otpValues, setOtpValues] = useState<string[]>(['', '', '', '', '', '']);
@@ -88,6 +88,10 @@ export const OtpVerificationForm: React.FC = () => {
           title: 'Verification Complete',
           description: 'Your account and email address have been verified successfully!',
         });
+        closeAuthModal();
+        setTimeout(() => {
+          window.location.hash = '#account';
+        }, 200);
       } else {
         toast({ type: 'error', title: 'Invalid Code', description: res.message || 'The OTP code is incorrect' });
       }

@@ -17,7 +17,7 @@ declare global {
 }
 
 export const SocialLoginButtons: React.FC<SocialLoginButtonsProps> = ({ labelPrefix = 'or continue with' }) => {
-  const { socialLogin, isLoading } = useAuth();
+  const { socialLogin, closeAuthModal, isLoading } = useAuth();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -27,43 +27,60 @@ export const SocialLoginButtons: React.FC<SocialLoginButtonsProps> = ({ labelPre
     script.src = 'https://accounts.google.com/gsi/client';
     script.async = true;
     script.defer = true;
-    document.head.appendChild(script);
+    document.body.appendChild(script);
+
+    return () => {
+      // Keep script for caching
+    };
   }, []);
 
   const handleGoogleSignIn = () => {
-    if (window.google?.accounts?.oauth2) {
-      try {
-        const tokenClient = window.google.accounts.oauth2.initTokenClient({
-          client_id: GOOGLE_CLIENT_ID,
-          scope: 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
-          callback: async (tokenResponse: any) => {
-            if (tokenResponse && tokenResponse.access_token) {
-              try {
-                const userInfoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-                  headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+    if (!window.google?.accounts) {
+      toast({
+        type: 'error',
+        title: 'Google Sign-In Unavailable',
+        description: 'Google Identity Services are still loading. Please try again in a moment.',
+      });
+      return;
+    }
+
+    try {
+      const tokenClient = window.google.accounts.oauth2.initTokenClient({
+        client_id: GOOGLE_CLIENT_ID,
+        scope: 'email profile openid',
+        callback: async (tokenResponse: any) => {
+          if (tokenResponse && tokenResponse.access_token) {
+            try {
+              const userInfoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                headers: {
+                  Authorization: `Bearer ${tokenResponse.access_token}`,
+                },
+              });
+
+              if (userInfoRes.ok) {
+                const googleUser = await userInfoRes.json();
+                const res = await socialLogin('google', {
+                  name: googleUser.name || googleUser.given_name,
+                  email: googleUser.email,
+                  avatar: googleUser.picture,
+                  idToken: tokenResponse.access_token,
                 });
 
-                if (userInfoRes.ok) {
-                  const googleUser = await userInfoRes.json();
-                  const res = await socialLogin('google', {
-                    name: googleUser.name || googleUser.given_name,
-                    email: googleUser.email,
-                    avatar: googleUser.picture,
-                    idToken: tokenResponse.access_token,
+                if (res.success) {
+                  toast({
+                    type: 'success',
+                    title: 'Google Sign-In Successful',
+                    description: `Welcome back, ${googleUser.name || googleUser.email}!`,
                   });
-
-                  if (res.success) {
-                    toast({
-                      type: 'success',
-                      title: 'Google Sign-In Successful',
-                      description: `Welcome back, ${googleUser.name || googleUser.email}!`,
-                    });
-                  }
-                  return;
+                  closeAuthModal();
+                  setTimeout(() => {
+                    window.location.hash = '#account';
+                  }, 200);
                 }
-              } catch (fetchErr) {
-                console.error('Failed to fetch Google user profile:', fetchErr);
+                return;
               }
+            } catch (fetchErr) {
+              console.error('Failed to fetch Google user profile:', fetchErr);
             }
 
             toast({
@@ -71,29 +88,28 @@ export const SocialLoginButtons: React.FC<SocialLoginButtonsProps> = ({ labelPre
               title: 'Google Sign-In Cancelled',
               description: 'Google authentication was not completed. Please try again.',
             });
-          },
-          error_callback: (err: any) => {
-            console.error('Google OAuth error:', err);
-            toast({
-              type: 'error',
-              title: 'Google OAuth Error',
-              description: 'Failed to connect to Google Identity Services.',
-            });
-          },
-        });
+          }
+        },
+        error_callback: (err: any) => {
+          console.error('Google OAuth error:', err);
+          toast({
+            type: 'error',
+            title: 'Google OAuth Error',
+            description: 'Failed to connect to Google Identity Services.',
+          });
+        },
+      });
 
-        tokenClient.requestAccessToken({ prompt: 'consent' });
-        return;
-      } catch (err) {
-        console.error('Google Token Client init error:', err);
-      }
+      tokenClient.requestAccessToken({ prompt: 'consent' });
+      return;
+    } catch (err) {
+      console.error('Google Token Client init error:', err);
+      toast({
+        type: 'warning',
+        title: 'Google SDK Loading',
+        description: 'Google Identity Services is initializing. Please try again in 2 seconds.',
+      });
     }
-
-    toast({
-      type: 'warning',
-      title: 'Google SDK Loading',
-      description: 'Google Identity Services is initializing. Please try again in 2 seconds.',
-    });
   };
 
   const handleSocialClick = (provider: 'google' | 'apple' | 'meta') => {

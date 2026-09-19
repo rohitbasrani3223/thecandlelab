@@ -4,7 +4,7 @@ import { useToast } from '../../design-system';
 import { SocialLoginButtons } from './SocialLoginButtons';
 
 export const RegisterForm: React.FC = () => {
-  const { register, setAuthViewMode } = useAuth();
+  const { register, setAuthViewMode, closeAuthModal } = useAuth();
   const { toast } = useToast();
 
   const [name, setName] = useState('');
@@ -23,7 +23,6 @@ export const RegisterForm: React.FC = () => {
     if (!phone.trim() || !/^[0-9+\s-]{10,15}$/.test(phone)) errs.phone = 'Valid phone number required';
     if (!password || password.length < 6) errs.password = 'Password must be at least 6 characters';
     if (!agreeTerms) errs.agreeTerms = 'You must agree to terms to proceed';
-
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -41,9 +40,10 @@ export const RegisterForm: React.FC = () => {
           title: 'Account Created Successfully!',
           description: `Welcome to The Candle Lab, ${name}! You are now signed in.`,
         });
-        if (window.location.hash === '#auth') {
+        closeAuthModal();
+        setTimeout(() => {
           window.location.hash = '#account';
-        }
+        }, 200);
       } else {
         toast({
           type: 'error',

@@ -34,16 +34,16 @@ export interface AuthContextType {
   openAuthModal: (mode?: AuthViewMode, emailOrPhone?: string) => void;
   closeAuthModal: () => void;
   setAuthViewMode: (mode: AuthViewMode) => void;
-  login: (credentials: { emailOrPhone?: string; email?: string; phone?: string; password?: string; otp?: string; rememberMe?: boolean }) => Promise<{ success: boolean; message?: string }>;
-  adminLogin: (credentials: { email: string; password?: string }) => Promise<{ success: boolean; message?: string }>;
-  register: (data: { name: string; email: string; phone?: string; password?: string }) => Promise<{ success: boolean; message?: string }>;
+  login: (credentials: { emailOrPhone?: string; email?: string; phone?: string; password?: string; otp?: string; rememberMe?: boolean }) => Promise<{ success: boolean; message?: string; user?: UserProfile }>;
+  adminLogin: (credentials: { email: string; password?: string }) => Promise<{ success: boolean; message?: string; user?: UserProfile }>;
+  register: (data: { name: string; email: string; phone?: string; password?: string }) => Promise<{ success: boolean; message?: string; user?: UserProfile }>;
   logout: () => void;
   updateProfile: (data: Partial<UserProfile>) => Promise<{ success: boolean; message?: string }>;
   requestPasswordReset: (email: string) => Promise<{ success: boolean; message?: string }>;
   resetPassword: (password: string, token: string) => Promise<{ success: boolean; message?: string }>;
   verifyEmail: (token?: string) => Promise<{ success: boolean; message?: string }>;
-  verifyOtp: (otpOrPhone: string, otpCode?: string) => Promise<{ success: boolean; message?: string }>;
-  socialLogin: (provider: 'google' | 'facebook' | 'apple' | 'meta', profileData?: { name?: string; email?: string; avatar?: string; idToken?: string } | any) => Promise<{ success: boolean; message?: string }>;
+  verifyOtp: (otpOrPhone: string, otpCode?: string) => Promise<{ success: boolean; message?: string; user?: UserProfile }>;
+  socialLogin: (provider: 'google' | 'facebook' | 'apple' | 'meta', profileData?: { name?: string; email?: string; avatar?: string; idToken?: string } | any) => Promise<{ success: boolean; message?: string; user?: UserProfile }>;
 }
 
 const STORAGE_KEY = 'thecandlelab_auth_user';
@@ -249,7 +249,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         saveSession(customerUser);
         closeAuthModal();
         setIsLoading(false);
-        return { success: true, message: `Welcome back, ${customerUser.name}!` };
+        return { success: true, message: `Welcome back, ${customerUser.name}!`, user: customerUser };
       }
 
       // 2. Also check if an admin is logging into storefront
@@ -270,7 +270,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         saveSession(adminUser);
         closeAuthModal();
         setIsLoading(false);
-        return { success: true, message: `Welcome back, ${adminUser.name}!` };
+        return { success: true, message: `Welcome back, ${adminUser.name}!`, user: adminUser };
       }
 
       // 3. Reject unknown accounts not found in database

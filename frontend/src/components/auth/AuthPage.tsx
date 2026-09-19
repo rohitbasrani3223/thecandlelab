@@ -14,8 +14,19 @@ interface AuthPageProps {
 }
 
 export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login', onNavigateHome }) => {
-  const { authViewMode, setAuthViewMode } = useAuth();
+  const { authViewMode, setAuthViewMode, user } = useAuth();
   const [isAdminView, setIsAdminView] = React.useState(initialMode === 'admin-login');
+
+  // Auto-redirect if user is already authenticated
+  React.useEffect(() => {
+    if (user) {
+      if (user.role === 'admin') {
+        window.location.hash = '#admin';
+      } else {
+        window.location.hash = '#account';
+      }
+    }
+  }, [user]);
 
   React.useEffect(() => {
     const handleHash = () => {

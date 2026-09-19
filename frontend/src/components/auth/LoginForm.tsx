@@ -4,7 +4,7 @@ import { useToast } from '../../design-system';
 import { SocialLoginButtons } from './SocialLoginButtons';
 
 export const LoginForm: React.FC = () => {
-  const { login, openAuthModal, setAuthViewMode } = useAuth();
+  const { login, openAuthModal, closeAuthModal, setAuthViewMode } = useAuth();
   const { toast } = useToast();
 
   const [loginType, setLoginType] = useState<'email' | 'phone'>('email');
@@ -52,6 +52,15 @@ export const LoginForm: React.FC = () => {
       const res = await login({ emailOrPhone, password, rememberMe });
       if (res.success) {
         toast({ type: 'success', title: 'Welcome Back', description: res.message });
+        closeAuthModal();
+        setTimeout(() => {
+          const curHash = window.location.hash.replace('#', '').toLowerCase();
+          if (curHash === 'auth' || curHash === 'login' || curHash === 'admin-login' || !curHash) {
+            window.location.hash = res.user?.role === 'admin' ? '#admin' : '#account';
+          } else {
+            window.location.hash = '#account';
+          }
+        }, 200);
       } else {
         toast({ type: 'error', title: 'Sign In Failed', description: res.message || 'Invalid credentials provided' });
       }
