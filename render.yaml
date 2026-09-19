@@ -49,3 +49,8 @@ services:
         value: "support@thecandlelab.in"
       - key: MAIL_FROM_NAME
         value: "The Candle Lab"
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RESEND_FROM_EMAIL
+        value: "The Candle Lab <orders@thecandlelab.in>"
+

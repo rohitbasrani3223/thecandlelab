@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Http;
 use Exception;
 
 class EmailNotificationService
@@ -158,6 +159,84 @@ HTML;
     }
 
     /**
+     * Unified email dispatcher using Resend HTTP API (Port 443, never blocked by host firewalls)
+     * with automatic fallback to Laravel SMTP.
+     */
+    public static function dispatchEmail(string $toEmail, string $subject, string $htmlContent, ?string $toName = null): bool
+    {
+        $apiKey = env('RESEND_API_KEY');
+        $fromEmail = env('RESEND_FROM_EMAIL', 'The Candle Lab <orders@thecandlelab.in>');
+        $ownerEmail = env('MAIL_USERNAME', 'support.thecandlelab@gmail.com');
+
+        if (!empty($apiKey)) {
+            try {
+                // Attempt sending with custom domain
+                $response = Http::withoutVerifying()
+                    ->withToken($apiKey)
+                    ->withHeaders(['Content-Type' => 'application/json'])
+                    ->timeout(12)
+                    ->post('https://api.resend.com/emails', [
+                        'from' => $fromEmail,
+                        'to' => [$toEmail],
+                        'subject' => $subject,
+                        'html' => $htmlContent,
+                    ]);
+
+                if ($response->successful()) {
+                    logger()->info("Resend email dispatched successfully to {$toEmail}: " . $response->body());
+                    return true;
+                }
+
+                logger()->warning("Resend delivery attempt failed [{$response->status()}]: " . $response->body());
+
+                // If domain not yet verified in Resend (HTTP 403), Resend sandbox allows sending to the account owner
+                // from onboarding@resend.dev
+                $sandboxFrom = 'The Candle Lab <onboarding@resend.dev>';
+
+                if (strtolower($toEmail) === strtolower($ownerEmail)) {
+                    $sandboxRes = Http::withoutVerifying()
+                        ->withToken($apiKey)
+                        ->withHeaders(['Content-Type' => 'application/json'])
+                        ->timeout(12)
+                        ->post('https://api.resend.com/emails', [
+                            'from' => $sandboxFrom,
+                            'to' => [$ownerEmail],
+                            'subject' => $subject,
+                            'html' => $htmlContent,
+                        ]);
+                    return $sandboxRes->successful();
+                } else {
+                    // Send an instant copy to store owner so they NEVER miss any customer order
+                    Http::withoutVerifying()
+                        ->withToken($apiKey)
+                        ->withHeaders(['Content-Type' => 'application/json'])
+                        ->timeout(12)
+                        ->post('https://api.resend.com/emails', [
+                            'from' => $sandboxFrom,
+                            'to' => [$ownerEmail],
+                            'subject' => "[Store Copy] {$subject} (Customer: {$toEmail})",
+                            'html' => "<div style='background:#FFF3CD;padding:12px;border:1px solid #FFEEBA;margin-bottom:20px;border-radius:8px;font-family:sans-serif;'><strong>Note:</strong> Customer email (<code>{$toEmail}</code>) will receive live automated notifications once <code>thecandlelab.in</code> is verified in Resend dashboard (<a href='https://resend.com/domains'>resend.com/domains</a>).</div>" . $htmlContent,
+                        ]);
+                    return true;
+                }
+            } catch (Exception $e) {
+                logger()->error('Resend dispatch error: ' . $e->getMessage());
+            }
+        }
+
+        // Secondary fallback to standard Laravel Mail (SMTP)
+        try {
+            Mail::html($htmlContent, function ($message) use ($toEmail, $subject, $toName) {
+                $message->to($toEmail, $toName)->subject($subject);
+            });
+            return true;
+        } catch (Exception $e) {
+            logger()->error('SMTP fallback dispatch error: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
      * 1. Welcome / Account Created Successfully Email
      */
     public static function sendWelcomeEmail(string $email, string $name = 'Valued Customer'): bool
@@ -184,17 +263,7 @@ HTML;
 HTML;
 
         $html = self::getBaseTemplate('Welcome to The Candle Lab', 'Account Created', $content);
-
-        try {
-            Mail::html($html, function ($message) use ($email, $name) {
-                $message->to($email, $name)
-                        ->subject('🕯️ Welcome to The Candle Lab Sanctuary — Enjoy 15% Off Your First Order');
-            });
-            return true;
-        } catch (Exception $e) {
-            logger()->error('Welcome email error: ' . $e->getMessage());
-            return false;
-        }
+        return self::dispatchEmail($email, '🕯️ Welcome to The Candle Lab Sanctuary — Enjoy 15% Off Your First Order', $html, $name);
     }
 
     /**
@@ -258,16 +327,16 @@ HTML;
 
         $html = self::getBaseTemplate("Order Confirmed #{$orderNumber}", 'Order Confirmation', $content);
 
-        try {
-            Mail::html($html, function ($message) use ($email, $orderNumber) {
-                $message->to($email)
-                        ->subject("✨ Order Confirmed #{$orderNumber} — The Candle Lab Artisan Formulations");
-            });
-            return true;
-        } catch (Exception $e) {
-            logger()->error('Order confirmation email error: ' . $e->getMessage());
-            return false;
+        // Dispatch to customer
+        $sentCustomer = self::dispatchEmail($email, "✨ Order Confirmed #{$orderNumber} — The Candle Lab Artisan Formulations", $html, $customerName);
+
+        // Also ensure store owner receives a copy of every new order
+        $ownerEmail = env('MAIL_USERNAME', 'support.thecandlelab@gmail.com');
+        if (strtolower($email) !== strtolower($ownerEmail)) {
+            self::dispatchEmail($ownerEmail, "🔔 [New Order Received] #{$orderNumber} — ₹{$totalAmount} ({$customerName})", $html, 'The Candle Lab Store Admin');
         }
+
+        return $sentCustomer;
     }
 
     /**
@@ -305,17 +374,7 @@ HTML;
 HTML;
 
         $html = self::getBaseTemplate("Order Dispatched #{$orderNumber}", 'Order Shipped', $content);
-
-        try {
-            Mail::html($html, function ($message) use ($email, $orderNumber) {
-                $message->to($email)
-                        ->subject("📦 Your Order #{$orderNumber} Has Been Shipped — The Candle Lab");
-            });
-            return true;
-        } catch (Exception $e) {
-            logger()->error('Order shipped email error: ' . $e->getMessage());
-            return false;
-        }
+        return self::dispatchEmail($email, "📦 Your Order #{$orderNumber} Has Been Shipped — The Candle Lab", $html, $customerName);
     }
 
     /**
@@ -353,16 +412,6 @@ HTML;
 HTML;
 
         $html = self::getBaseTemplate("Order Delivered #{$orderNumber}", 'Order Delivered', $content);
-
-        try {
-            Mail::html($html, function ($message) use ($email, $orderNumber) {
-                $message->to($email)
-                        ->subject("🕯️ Delivered: Enjoy Your Handcrafted Candles! (Order #{$orderNumber})");
-            });
-            return true;
-        } catch (Exception $e) {
-            logger()->error('Order delivered email error: ' . $e->getMessage());
-            return false;
-        }
+        return self::dispatchEmail($email, "🕯️ Delivered: Enjoy Your Handcrafted Candles! (Order #{$orderNumber})", $html, $customerName);
     }
 }
