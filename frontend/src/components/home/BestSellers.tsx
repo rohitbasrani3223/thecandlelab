@@ -235,12 +235,9 @@ export const BestSellers: React.FC<BestSellersProps> = ({ onSelectProduct }) => 
           })}
         </div>
 
-        {/* Mobile Pagination Indicator & Swipe Hint (Only on Mobile) */}
+        {/* Mobile Pagination Indicator (Only on Mobile) */}
         {filteredProducts.length > 1 && (
-          <div className="flex sm:hidden items-center justify-between pt-1 px-1">
-            <span className="text-[10px] font-bold text-[#8B6F4E] tracking-wider uppercase flex items-center gap-1">
-              <span>👈 Swipe Best Sellers 👉</span>
-            </span>
+          <div className="flex sm:hidden items-center justify-center pt-2 px-1">
             <div className="flex items-center gap-1.5">
               {filteredProducts.slice(0, 8).map((_, i) => (
                 <button
