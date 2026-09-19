@@ -2,6 +2,7 @@ import { supabaseFetch, supabaseUpsertByKey } from '../config/supabaseClient';
 import type {
   CMSAnnouncement,
   CMSCollection,
+  CMSCoupon,
   CMSHeroBanner,
   CMSHeroBannerSlide,
   CMSMediaItem,
@@ -23,6 +24,8 @@ export interface CmsRemoteBundle {
   seoSettings?: CMSSEOSetting[];
   collections?: CMSCollection[];
   mediaItems?: CMSMediaItem[];
+  coupons?: CMSCoupon[];
+  marketingSettings?: any;
 }
 
 export async function fetchCmsBundle(): Promise<CmsRemoteBundle | null> {

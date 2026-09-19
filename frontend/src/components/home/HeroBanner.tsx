@@ -128,8 +128,9 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
   // Ribbon info derived from CMS hero & store settings (100% editable)
   const ribbonShippingTitle = hero.ribbonShippingText?.trim() || 'Express Delivery Across India';
   const ribbonShippingSubtitle = hero.ribbonShippingSubtext?.trim() || (settings.freeShippingThreshold ? `Above ₹${settings.freeShippingThreshold}` : 'Dispatched in 24h');
-  const couponDiscount = announcement.discountText?.trim() || '10% OFF';
-  const couponCode = announcement.couponCode?.trim() || 'SAVE10';
+  const couponDiscount = announcement.discountText?.trim() || '';
+  const couponCode = announcement.couponCode?.trim() || '';
+  const hasActiveCoupon = Boolean(announcement.visible && couponCode);
 
   return (
     <section className="relative w-full max-w-full overflow-hidden font-sans">
@@ -285,16 +286,20 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
             )}
           </div>
 
-          <span className="text-[#8B6F4E] text-[10px] opacity-70">✦</span>
+          {hasActiveCoupon && (
+            <>
+              <span className="text-[#8B6F4E] text-[10px] opacity-70">✦</span>
 
-          <div className="inline-flex items-center gap-1.5 sm:gap-2">
-            <span className="text-xs sm:text-sm">🏷️</span>
-            <span className="font-semibold text-white">{couponDiscount}</span>
-            <span className="text-[#C8B199] hidden xs:inline">Code:</span>
-            <span className="px-1.5 py-0.5 rounded bg-[#8B6F4E]/30 border border-[#8B6F4E]/60 text-[#FAF7F2] font-mono font-bold text-[9px] xs:text-[10px] sm:text-xs tracking-wider">
-              {couponCode}
-            </span>
-          </div>
+              <div className="inline-flex items-center gap-1.5 sm:gap-2">
+                <span className="text-xs sm:text-sm">🏷️</span>
+                {couponDiscount && <span className="font-semibold text-white">{couponDiscount}</span>}
+                <span className="text-[#C8B199] hidden xs:inline">Code:</span>
+                <span className="px-1.5 py-0.5 rounded bg-[#8B6F4E]/30 border border-[#8B6F4E]/60 text-[#FAF7F2] font-mono font-bold text-[9px] xs:text-[10px] sm:text-xs tracking-wider">
+                  {couponCode}
+                </span>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </section>

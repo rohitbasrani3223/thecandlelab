@@ -12,7 +12,7 @@ type StorefrontSubTab =
 
 export const AdminHomepageCMS: React.FC = () => {
   const [activeSubTab, setActiveSubTab] = useState<StorefrontSubTab>('homepage');
-  const { hero, updateHero, announcement, updateAnnouncement } = useCMS();
+  const { hero, updateHero, announcement, updateAnnouncement, settings, updateSettings } = useCMS();
   const [heroForm, setHeroForm] = useState(hero);
   const [annForm, setAnnForm] = useState(announcement);
   const [savedMessage, setSavedMessage] = useState('');
@@ -23,40 +23,71 @@ export const AdminHomepageCMS: React.FC = () => {
     }
   }, [hero]);
 
+  React.useEffect(() => {
+    if (announcement) {
+      setAnnForm(announcement);
+    }
+  }, [announcement]);
+
   // Local state for layout components
-  const [sections, setSections] = useState([
-    { id: 'hero', name: 'Hero Banner Carousel', enabled: true },
-    { id: 'categories', name: 'Category Grid', enabled: true },
-    { id: 'featured', name: 'Featured Products Slider', enabled: true },
-    { id: 'story', name: 'Brand Heritage & Craft Story', enabled: true },
-    { id: 'testimonials', name: 'Customer Reviews Carousel', enabled: true },
-  ]);
+  const [sections, setSections] = useState(
+    settings.homepageSections && settings.homepageSections.length > 0
+      ? settings.homepageSections
+      : [
+          { id: 'hero', name: 'Hero Banner Carousel', enabled: true },
+          { id: 'categories', name: 'Category Grid', enabled: true },
+          { id: 'featured', name: 'Featured Products Slider', enabled: true },
+          { id: 'story', name: 'Brand Heritage & Craft Story', enabled: true },
+          { id: 'testimonials', name: 'Customer Reviews Carousel', enabled: true },
+        ]
+  );
 
-  const [headerSettings, setHeaderSettings] = useState({
-    stickyHeader: true,
-    showSearch: true,
-    showWishlist: true,
-    noticeText: 'Complimentary Pan-India Shipping on Orders ₹999+',
-  });
+  const [headerSettings, setHeaderSettings] = useState(
+    settings.headerSettings || {
+      stickyHeader: true,
+      showSearch: true,
+      showWishlist: true,
+      noticeText: 'Complimentary Pan-India Shipping on Orders ₹999+',
+    }
+  );
 
-  const [footerSettings, setFooterSettings] = useState({
-    copyrightText: '© 2026 The Candle Lab India. Handcrafted Luxury Candles.',
-    showPaymentIcons: true,
-    showNewsletterBox: true,
-  });
+  const [footerSettings, setFooterSettings] = useState(
+    settings.footerSettings || {
+      copyrightText: '© 2026 The Candle Lab India. Handcrafted Luxury Candles.',
+      showPaymentIcons: true,
+      showNewsletterBox: true,
+    }
+  );
 
-  const [megaMenu, _setMegaMenu] = useState([
+  const [megaMenu, setMegaMenu] = useState([
     { id: '1', title: 'Scented Jars', items: ['French Vanilla', 'Royal Amber & Oud', 'Lavender Luxe'] },
     { id: '2', title: 'Wax Melts', items: ['Rose Petal Melts', 'Cinnamon Spice', 'Eucalyptus Mint'] },
     { id: '3', title: 'Gift Sets', items: ['Festive Trio Box', 'Romance Votive Pair', 'Luxury Artisan Set'] },
   ]);
 
-  const [themeColors, setThemeColors] = useState({
-    primary: '#B88B38',
-    dark: '#1C130E',
-    light: '#FAF6F0',
-    accent: '#B93829',
-  });
+  const [themeColors, setThemeColors] = useState(
+    settings.themeColors || {
+      primary: '#B88B38',
+      dark: '#1C130E',
+      light: '#FAF6F0',
+      accent: '#B93829',
+    }
+  );
+
+  // Sync settings when loaded from Supabase remote bundle
+  React.useEffect(() => {
+    if (settings.headerSettings) {
+      setHeaderSettings(settings.headerSettings);
+      if (settings.headerSettings.megaMenu && Array.isArray(settings.headerSettings.megaMenu)) {
+        setMegaMenu(settings.headerSettings.megaMenu);
+      }
+    }
+    if (settings.footerSettings) setFooterSettings(settings.footerSettings);
+    if (settings.themeColors) setThemeColors(settings.themeColors);
+    if (settings.homepageSections && settings.homepageSections.length > 0) {
+      setSections(settings.homepageSections);
+    }
+  }, [settings]);
 
   const SUB_TABS: { id: StorefrontSubTab; label: string; icon: string }[] = [
     { id: 'homepage', label: 'Homepage Builder (Drag & Drop)', icon: '🧩' },
@@ -78,6 +109,41 @@ export const AdminHomepageCMS: React.FC = () => {
     e.preventDefault();
     updateAnnouncement(annForm);
     setSavedMessage('Announcement Bar updated live!');
+    setTimeout(() => setSavedMessage(''), 3000);
+  };
+
+  const handleSaveSections = () => {
+    updateSettings({ homepageSections: sections });
+    setSavedMessage('Homepage sections layout saved live!');
+    setTimeout(() => setSavedMessage(''), 3000);
+  };
+
+  const handleSaveHeader = () => {
+    updateSettings({ headerSettings });
+    setSavedMessage('Header settings saved live!');
+    setTimeout(() => setSavedMessage(''), 3000);
+  };
+
+  const handleSaveMegaMenu = () => {
+    updateSettings({
+      headerSettings: {
+        ...headerSettings,
+        megaMenu,
+      },
+    });
+    setSavedMessage('Mega menu structure saved live!');
+    setTimeout(() => setSavedMessage(''), 3000);
+  };
+
+  const handleSaveFooter = () => {
+    updateSettings({ footerSettings });
+    setSavedMessage('Footer settings saved live!');
+    setTimeout(() => setSavedMessage(''), 3000);
+  };
+
+  const handleSaveTheme = () => {
+    updateSettings({ themeColors });
+    setSavedMessage('Theme colors saved live!');
     setTimeout(() => setSavedMessage(''), 3000);
   };
 
@@ -144,6 +210,13 @@ export const AdminHomepageCMS: React.FC = () => {
                   />
                 </div>
               ))}
+              <button
+                type="button"
+                onClick={handleSaveSections}
+                className="bg-[#B88B38] hover:bg-[#A3792E] text-white font-bold text-xs py-2 px-5 rounded-xl cursor-pointer shadow-xs transition-colors"
+              >
+                Save Sections Layout →
+              </button>
             </div>
 
             {/* Hero Form */}
@@ -453,11 +526,8 @@ export const AdminHomepageCMS: React.FC = () => {
                 />
               </div>
               <button
-                onClick={() => {
-                  setSavedMessage('Header settings updated!');
-                  setTimeout(() => setSavedMessage(''), 3000);
-                }}
-                className="bg-[#B88B38] text-white font-bold text-xs py-2 px-5 rounded-xl cursor-pointer"
+                onClick={handleSaveHeader}
+                className="bg-[#B88B38] hover:bg-[#A3792E] text-white font-bold text-xs py-2 px-5 rounded-xl cursor-pointer shadow-xs transition-colors"
               >
                 Save Header Settings →
               </button>
@@ -479,11 +549,8 @@ export const AdminHomepageCMS: React.FC = () => {
                 />
               </div>
               <button
-                onClick={() => {
-                  setSavedMessage('Footer settings saved!');
-                  setTimeout(() => setSavedMessage(''), 3000);
-                }}
-                className="bg-[#B88B38] text-white font-bold text-xs py-2 px-5 rounded-xl cursor-pointer"
+                onClick={handleSaveFooter}
+                className="bg-[#B88B38] hover:bg-[#A3792E] text-white font-bold text-xs py-2 px-5 rounded-xl cursor-pointer shadow-xs transition-colors"
               >
                 Save Footer →
               </button>
@@ -492,22 +559,121 @@ export const AdminHomepageCMS: React.FC = () => {
         )}
 
         {activeSubTab === 'megamenu' && (
-          <div className="space-y-6 max-w-3xl">
-            <h3 className="font-serif font-bold text-xl text-[#2C1E16]">Mega Menu Category Builder</h3>
-            <div className="space-y-3">
-              {megaMenu.map((group) => (
-                <div key={group.id} className="p-4 bg-[#FAF6F0] rounded-xl border border-[#EFE8DB] text-xs">
-                  <strong className="text-sm font-serif font-bold text-[#2C1E16] block mb-2">{group.title}</strong>
-                  <div className="flex flex-wrap gap-2">
-                    {group.items.map((item, i) => (
-                      <span key={i} className="bg-white px-2.5 py-1 rounded-lg border border-[#EFE8DB] text-[11px]">
-                        {item}
-                      </span>
-                    ))}
+          <div className="space-y-6 max-w-3xl text-xs">
+            <div className="flex items-center justify-between border-b border-[#F2ECE1] pb-3">
+              <div>
+                <h3 className="font-serif font-bold text-xl text-[#2C1E16]">Mega Menu Category Columns</h3>
+                <p className="text-[#7A6B5D]">Configure navigation dropdown columns and featured category links.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  const newId = String(Date.now());
+                  setMegaMenu([...megaMenu, { id: newId, title: 'New Category Column', items: ['Sample Item 1'] }]);
+                }}
+                className="px-3.5 py-1.5 bg-[#B88B38] text-white font-bold text-xs rounded-xl shadow-xs hover:bg-[#A3792E] cursor-pointer"
+              >
+                + Add Column
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {megaMenu.map((group, groupIdx) => (
+                <div key={group.id} className="p-4 bg-[#FAF6F0] rounded-xl border border-[#EFE8DB] space-y-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <input
+                      type="text"
+                      value={group.title}
+                      onChange={(e) => {
+                        const updated = [...megaMenu];
+                        updated[groupIdx].title = e.target.value;
+                        setMegaMenu(updated);
+                      }}
+                      className="font-serif font-bold text-sm text-[#2C1E16] bg-white border border-[#EFE8DB] px-3 py-1.5 rounded-lg flex-1"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMegaMenu(megaMenu.filter((_, idx) => idx !== groupIdx));
+                      }}
+                      className="text-[#B93829] hover:underline font-bold text-xs cursor-pointer"
+                    >
+                      Remove Column
+                    </button>
+                  </div>
+
+                  <div className="space-y-2">
+                    <span className="font-bold text-[10px] uppercase text-[#7A6B5D] block">Column Items:</span>
+                    <div className="flex flex-wrap gap-2">
+                      {group.items.map((item, itemIdx) => (
+                        <span
+                          key={itemIdx}
+                          className="bg-white px-2.5 py-1 rounded-lg border border-[#EFE8DB] text-[11px] flex items-center gap-1.5 shadow-xs"
+                        >
+                          <span>{item}</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const updated = [...megaMenu];
+                              updated[groupIdx].items = updated[groupIdx].items.filter((_, i) => i !== itemIdx);
+                              setMegaMenu(updated);
+                            }}
+                            className="text-[#B93829] hover:font-bold cursor-pointer"
+                          >
+                            ✕
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* Add Item Input */}
+                    <div className="flex items-center gap-2 pt-1">
+                      <input
+                        type="text"
+                        placeholder="Add sub-link item..."
+                        id={`new-item-${group.id}`}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            const val = (e.currentTarget.value || '').trim();
+                            if (val) {
+                              const updated = [...megaMenu];
+                              updated[groupIdx].items.push(val);
+                              setMegaMenu(updated);
+                              e.currentTarget.value = '';
+                            }
+                          }
+                        }}
+                        className="bg-white border border-[#EFE8DB] px-2.5 py-1 rounded-lg text-xs flex-1"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const input = document.getElementById(`new-item-${group.id}`) as HTMLInputElement;
+                          if (input && input.value.trim()) {
+                            const updated = [...megaMenu];
+                            updated[groupIdx].items.push(input.value.trim());
+                            setMegaMenu(updated);
+                            input.value = '';
+                          }
+                        }}
+                        className="bg-[#2C1E16] text-white px-3 py-1 rounded-lg text-xs font-bold cursor-pointer"
+                      >
+                        + Add
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
+
+            <button
+              type="button"
+              onClick={handleSaveMegaMenu}
+              className="bg-[#B88B38] hover:bg-[#A3792E] text-white font-bold text-xs py-2.5 px-6 rounded-xl cursor-pointer shadow-xs transition-colors"
+            >
+              Save Mega Menu Structure →
+            </button>
           </div>
         )}
 
@@ -575,6 +741,12 @@ export const AdminHomepageCMS: React.FC = () => {
                 />
               </div>
             </div>
+            <button
+              onClick={handleSaveTheme}
+              className="bg-[#B88B38] hover:bg-[#A3792E] text-white font-bold text-xs py-2 px-5 rounded-xl cursor-pointer shadow-xs transition-colors"
+            >
+              Save Theme Colors →
+            </button>
           </div>
         )}
       </div>

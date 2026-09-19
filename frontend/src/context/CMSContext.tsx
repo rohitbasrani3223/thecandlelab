@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { supabaseFetch } from '../config/supabaseClient';
 import { fetchCmsBundle, saveCmsBundle } from '../services/cmsRemote';
 import { PRODUCT_IMAGE_PLACEHOLDER } from '../config/placeholders';
@@ -14,6 +14,7 @@ const WICK_TYPES_STORAGE_KEY = 'tcl_cms_wick_types';
 const MAIN_CATEGORIES_STORAGE_KEY = 'tcl_cms_main_categories';
 const SUB_CATEGORIES_STORAGE_KEY = 'tcl_cms_sub_categories';
 const COLLECTIONS_STORAGE_KEY = 'tcl_cms_collections';
+const COUPONS_STORAGE_KEY = 'tcl_cms_coupons';
 
 export interface CMSStoreSettings {
   storeName: string;
@@ -25,12 +26,68 @@ export interface CMSStoreSettings {
   supportPhone: string;
   studioAddress: string;
   logoUrl: string;
+  darkLogoUrl?: string;
+  faviconUrl?: string;
   footerText?: string;
   socialLinks?: {
     instagram?: string;
     facebook?: string;
     pinterest?: string;
     whatsapp?: string;
+  };
+  headerSettings?: {
+    stickyHeader: boolean;
+    showSearch: boolean;
+    showWishlist: boolean;
+    noticeText?: string;
+    megaMenu?: { id: string; title: string; items: string[] }[];
+  };
+  footerSettings?: {
+    copyrightText: string;
+    showPaymentIcons: boolean;
+    showNewsletterBox: boolean;
+  };
+  themeColors?: {
+    primary: string;
+    dark: string;
+    light: string;
+    accent: string;
+  };
+  homepageSections?: {
+    id: string;
+    name: string;
+    enabled: boolean;
+  }[];
+  paymentSettings?: {
+    razorpayKey?: string;
+    razorpaySecret?: string;
+    razorpayEnabled?: boolean;
+    codEnabled?: boolean;
+    stripeEnabled?: boolean;
+    stripePublishableKey?: string;
+    gstRatePercent?: number;
+    includeTaxInPrice?: boolean;
+  };
+  marketingSettings?: {
+    flashSaleEnabled?: boolean;
+    flashSaleTitle?: string;
+    flashSaleDiscountText?: string;
+    flashSaleEndTime?: string;
+    flashSaleBannerUrl?: string;
+    popupEnabled?: boolean;
+    popupTitle?: string;
+    popupSubtitle?: string;
+    popupCouponCode?: string;
+    popupDelaySeconds?: number;
+    cartDiscountEnabled?: boolean;
+    cartDiscountThreshold?: number;
+    cartDiscountPercent?: number;
+    pushEnabled?: boolean;
+  };
+  integrations?: {
+    gaMeasurementId?: string;
+    metaPixelId?: string;
+    whatsappApiToken?: string;
   };
 }
 
@@ -283,6 +340,9 @@ export interface CMSCoupon {
   discountPercent: number;
   description: string;
   active: boolean;
+  minOrderAmount?: number;
+  maxDiscountAmount?: number;
+  endDate?: string;
 }
 
 export interface CMSPagesContent {
@@ -342,7 +402,9 @@ export interface CMSSEOSetting {
   pageKey: string;
   title: string;
   description: string;
-  keywords: string;
+  keywords?: string;
+  slug?: string;
+  ogImage?: string;
 }
 
 export interface CMSStaffUser {
@@ -640,22 +702,110 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   });
 
-  const [coupons, setCoupons] = useState<CMSCoupon[]>([]);
-  const [pagesContent, setPagesContent] = useState<CMSPagesContent>({
-    aboutUs: '',
-    shippingPolicy: '',
-    refundPolicy: '',
-    termsConditions: '',
-    privacyPolicy: '',
-    faqList: [],
+  const [coupons, setCoupons] = useState<CMSCoupon[]>(() => {
+    try {
+      const saved = localStorage.getItem(COUPONS_STORAGE_KEY);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [pagesContent, setPagesContent] = useState<CMSPagesContent>(() => {
+    try {
+      const saved = localStorage.getItem('tcl_pages_content');
+      return saved ? JSON.parse(saved) : {
+        aboutUs: '',
+        shippingPolicy: '',
+        refundPolicy: '',
+        termsConditions: '',
+        privacyPolicy: '',
+        faqList: [],
+      };
+    } catch {
+      return {
+        aboutUs: '',
+        shippingPolicy: '',
+        refundPolicy: '',
+        termsConditions: '',
+        privacyPolicy: '',
+        faqList: [],
+      };
+    }
   });
   const [customers, setCustomers] = useState<CMSCustomer[]>([]);
   const [mediaItems, setMediaItems] = useState<CMSMediaItem[]>([]);
   const [orders, setOrders] = useState<CMSOrder[]>([]);
-  const [seoSettings, setSeoSettings] = useState<CMSSEOSetting[]>([]);
+  const [seoSettings, setSeoSettings] = useState<CMSSEOSetting[]>(() => {
+    try {
+      const saved = localStorage.getItem('tcl_seo_settings');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
   const [staffUsers, setStaffUsers] = useState<CMSStaffUser[]>([]);
   const [totalRevenue, setTotalRevenue] = useState<number>(0);
   const [ordersCount, setOrdersCount] = useState<number>(0);
+
+  // Central ref to hold latest CMS bundle state to completely avoid stale closures
+  const cmsBundleRef = useRef<{
+    settings: CMSStoreSettings;
+    announcement: CMSAnnouncement;
+    hero: CMSHeroBanner;
+    heroSlides: CMSHeroBannerSlide[];
+    pagesContent: CMSPagesContent;
+    seoSettings: CMSSEOSetting[];
+    collections: CMSCollection[];
+    mediaItems: CMSMediaItem[];
+    coupons: CMSCoupon[];
+  }>({
+    settings,
+    announcement,
+    hero,
+    heroSlides,
+    pagesContent,
+    seoSettings,
+    collections,
+    mediaItems,
+    coupons,
+  });
+
+  // Keep cmsBundleRef continuously in sync with latest React state
+  useEffect(() => { cmsBundleRef.current.settings = settings; }, [settings]);
+  useEffect(() => { cmsBundleRef.current.announcement = announcement; }, [announcement]);
+  useEffect(() => { cmsBundleRef.current.hero = hero; }, [hero]);
+  useEffect(() => { cmsBundleRef.current.heroSlides = heroSlides; }, [heroSlides]);
+  useEffect(() => { cmsBundleRef.current.pagesContent = pagesContent; }, [pagesContent]);
+  useEffect(() => { cmsBundleRef.current.seoSettings = seoSettings; }, [seoSettings]);
+  useEffect(() => { cmsBundleRef.current.collections = collections; }, [collections]);
+  useEffect(() => { cmsBundleRef.current.mediaItems = mediaItems; }, [mediaItems]);
+  useEffect(() => { cmsBundleRef.current.coupons = coupons; }, [coupons]);
+
+  const persistCmsBundle = async (partialBundle?: Partial<typeof cmsBundleRef.current>) => {
+    if (partialBundle) {
+      cmsBundleRef.current = {
+        ...cmsBundleRef.current,
+        ...partialBundle,
+      };
+    }
+    const bundleToSave = {
+      version: 1 as const,
+      settings: cmsBundleRef.current.settings,
+      announcement: cmsBundleRef.current.announcement,
+      hero: cmsBundleRef.current.hero,
+      heroSlides: cmsBundleRef.current.heroSlides,
+      pagesContent: cmsBundleRef.current.pagesContent,
+      seoSettings: cmsBundleRef.current.seoSettings,
+      collections: cmsBundleRef.current.collections,
+      mediaItems: cmsBundleRef.current.mediaItems,
+      coupons: cmsBundleRef.current.coupons,
+    };
+    try {
+      await saveCmsBundle(bundleToSave);
+    } catch (err) {
+      console.warn('CMS Bundle save notice:', err);
+    }
+  };
 
   // Sync to LocalStorage safely
   useEffect(() => {
@@ -669,6 +819,14 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     safeLocalStorageSet('tcl_hero', hero);
   }, [hero]);
+
+  useEffect(() => {
+    safeLocalStorageSet('tcl_pages_content', pagesContent);
+  }, [pagesContent]);
+
+  useEffect(() => {
+    safeLocalStorageSet('tcl_seo_settings', seoSettings);
+  }, [seoSettings]);
 
   useEffect(() => {
     safeLocalStorageSet(FRAGRANCES_STORAGE_KEY, fragrances);
@@ -701,6 +859,10 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     safeLocalStorageSet(PRODUCTS_STORAGE_KEY, products);
   }, [products]);
+
+  useEffect(() => {
+    safeLocalStorageSet(COUPONS_STORAGE_KEY, coupons);
+  }, [coupons]);
 
   // Load from Backend/Database
   useEffect(() => {
@@ -751,19 +913,57 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         // 1. CMS Bundle
         if (cmsBundleRes.status === 'fulfilled' && cmsBundleRes.value) {
           const bundle = cmsBundleRes.value;
-          if (bundle.settings) setSettings((prev) => ({ ...prev, ...bundle.settings }));
-          if (bundle.announcement) setAnnouncement((prev) => ({ ...prev, ...bundle.announcement }));
-          if (bundle.hero) setHero((prev) => ({ ...prev, ...bundle.hero }));
+          if (bundle.settings) {
+            setSettings((prev) => {
+              const merged = { ...prev, ...bundle.settings };
+              cmsBundleRef.current.settings = merged;
+              return merged;
+            });
+          }
+          if (bundle.announcement) {
+            setAnnouncement((prev) => {
+              const merged = { ...prev, ...bundle.announcement };
+              cmsBundleRef.current.announcement = merged;
+              return merged;
+            });
+          }
+          if (bundle.hero) {
+            setHero((prev) => {
+              const merged = { ...prev, ...bundle.hero };
+              cmsBundleRef.current.hero = merged;
+              return merged;
+            });
+          }
           if (bundle.heroSlides && Array.isArray(bundle.heroSlides) && bundle.heroSlides.length > 0) {
             setHeroSlides(bundle.heroSlides);
+            cmsBundleRef.current.heroSlides = bundle.heroSlides;
             try {
               localStorage.setItem('tcl_hero_slides', JSON.stringify(bundle.heroSlides));
             } catch { }
           }
-          if (bundle.pagesContent) setPagesContent((prev) => ({ ...prev, ...bundle.pagesContent }));
-          if (bundle.seoSettings && Array.isArray(bundle.seoSettings)) setSeoSettings(bundle.seoSettings);
-          if (bundle.collections && Array.isArray(bundle.collections)) setCollections(bundle.collections);
-          if (bundle.mediaItems && Array.isArray(bundle.mediaItems)) setMediaItems(bundle.mediaItems);
+          if (bundle.pagesContent) {
+            setPagesContent((prev) => {
+              const merged = { ...prev, ...bundle.pagesContent };
+              cmsBundleRef.current.pagesContent = merged;
+              return merged;
+            });
+          }
+          if (bundle.seoSettings && Array.isArray(bundle.seoSettings) && bundle.seoSettings.length > 0) {
+            setSeoSettings(bundle.seoSettings);
+            cmsBundleRef.current.seoSettings = bundle.seoSettings;
+          }
+          if (bundle.collections && Array.isArray(bundle.collections) && bundle.collections.length > 0) {
+            setCollections(bundle.collections);
+            cmsBundleRef.current.collections = bundle.collections;
+          }
+          if (bundle.mediaItems && Array.isArray(bundle.mediaItems) && bundle.mediaItems.length > 0) {
+            setMediaItems(bundle.mediaItems);
+            cmsBundleRef.current.mediaItems = bundle.mediaItems;
+          }
+          if (bundle.coupons && Array.isArray(bundle.coupons)) {
+            setCoupons(bundle.coupons);
+            cmsBundleRef.current.coupons = bundle.coupons;
+          }
         }
 
         // 2. Fragrances
@@ -1074,14 +1274,17 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
 
         // 11. Coupons
-        if (couponsRes.status === 'fulfilled' && Array.isArray(couponsRes.value) && couponsRes.value.length > 0) {
+        if (couponsRes.status === 'fulfilled' && Array.isArray(couponsRes.value)) {
           const mappedCoupons: CMSCoupon[] = couponsRes.value.map((cp) => ({
             code: cp.code,
             discountPercent: Number(cp.discount_percentage || 15),
-            description: `Save ${cp.discount_percentage}% on orders above ₹${cp.min_order_amount || 0}`,
+            description: cp.description || `Save ${cp.discount_percentage}% on orders above ₹${cp.min_order_amount || 0}`,
             active: cp.is_active !== false,
+            minOrderAmount: Number(cp.min_order_amount || 0),
+            maxDiscountAmount: Number(cp.max_discount_amount || 500),
           }));
           setCoupons(mappedCoupons);
+          cmsBundleRef.current.coupons = mappedCoupons;
         }
 
         // 12. Staff Users
@@ -1243,7 +1446,8 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const updateSettings = (newSettings: Partial<CMSStoreSettings>) => {
     setSettings((prev) => {
       const updated = { ...prev, ...newSettings };
-      saveCmsBundle({ version: 1, settings: updated, announcement, hero, heroSlides, pagesContent, seoSettings, collections, mediaItems }).catch(() => { });
+      cmsBundleRef.current.settings = updated;
+      persistCmsBundle({ settings: updated });
       return updated;
     });
   };
@@ -1251,7 +1455,8 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const updateAnnouncement = (newAnn: Partial<CMSAnnouncement>) => {
     setAnnouncement((prev) => {
       const updated = { ...prev, ...newAnn };
-      saveCmsBundle({ version: 1, settings, announcement: updated, hero, heroSlides, pagesContent, seoSettings, collections, mediaItems }).catch(() => { });
+      cmsBundleRef.current.announcement = updated;
+      persistCmsBundle({ announcement: updated });
       return updated;
     });
   };
@@ -1259,7 +1464,8 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const updateHero = (newHero: Partial<CMSHeroBanner>) => {
     setHero((prev) => {
       const updated = { ...prev, ...newHero };
-      saveCmsBundle({ version: 1, settings, announcement, hero: updated, heroSlides, pagesContent, seoSettings, collections, mediaItems }).catch(() => { });
+      cmsBundleRef.current.hero = updated;
+      persistCmsBundle({ hero: updated });
       return updated;
     });
   };
@@ -1272,11 +1478,12 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
     setHeroSlides((prev) => {
       const next = [...prev, newSlide];
+      cmsBundleRef.current.heroSlides = next;
       try {
         localStorage.setItem('tcl_hero_slides', JSON.stringify(next));
         window.dispatchEvent(new Event('tcl-cms-updated'));
       } catch { }
-      saveCmsBundle({ version: 1, settings, announcement, hero, heroSlides: next, pagesContent, seoSettings, collections, mediaItems }).catch(() => { });
+      persistCmsBundle({ heroSlides: next });
       return next;
     });
   };
@@ -1284,11 +1491,12 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const updateHeroSlide = (id: string, updated: Partial<CMSHeroBannerSlide>) => {
     setHeroSlides((prev) => {
       const next = prev.map((s) => (s.id === id ? { ...s, ...updated } : s));
+      cmsBundleRef.current.heroSlides = next;
       try {
         localStorage.setItem('tcl_hero_slides', JSON.stringify(next));
         window.dispatchEvent(new Event('tcl-cms-updated'));
       } catch { }
-      saveCmsBundle({ version: 1, settings, announcement, hero, heroSlides: next, pagesContent, seoSettings, collections, mediaItems }).catch(() => { });
+      persistCmsBundle({ heroSlides: next });
       return next;
     });
   };
@@ -1296,11 +1504,12 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const deleteHeroSlide = (id: string) => {
     setHeroSlides((prev) => {
       const next = prev.filter((s) => s.id !== id);
+      cmsBundleRef.current.heroSlides = next;
       try {
         localStorage.setItem('tcl_hero_slides', JSON.stringify(next));
         window.dispatchEvent(new Event('tcl-cms-updated'));
       } catch { }
-      saveCmsBundle({ version: 1, settings, announcement, hero, heroSlides: next, pagesContent, seoSettings, collections, mediaItems }).catch(() => { });
+      persistCmsBundle({ heroSlides: next });
       return next;
     });
   };
@@ -1308,11 +1517,12 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const toggleHeroSlideStatus = (id: string) => {
     setHeroSlides((prev) => {
       const next = prev.map((s) => (s.id === id ? { ...s, isActive: !s.isActive } : s));
+      cmsBundleRef.current.heroSlides = next;
       try {
         localStorage.setItem('tcl_hero_slides', JSON.stringify(next));
         window.dispatchEvent(new Event('tcl-cms-updated'));
       } catch { }
-      saveCmsBundle({ version: 1, settings, announcement, hero, heroSlides: next, pagesContent, seoSettings, collections, mediaItems }).catch(() => { });
+      persistCmsBundle({ heroSlides: next });
       return next;
     });
   };
@@ -1354,6 +1564,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       await supabaseFetch('fragrances', {
         method: 'POST',
         body: {
+          id: newFragId,
           name: newFrag.name,
           slug: newFrag.slug,
           image_url: newFrag.imageUrl,
@@ -1568,6 +1779,10 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           slug: newCat.slug,
           description: newCat.description,
           image_url: newCat.imageUrl,
+          banner_desktop: newCat.bannerDesktop,
+          banner_mobile: newCat.bannerMobile,
+          meta_title: newCat.metaTitle,
+          meta_description: newCat.metaDescription,
           is_active: newCat.isActive,
           sort_order: newCat.sortOrder,
         },
@@ -1588,6 +1803,10 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           slug: updated.slug,
           description: updated.description,
           image_url: updated.imageUrl,
+          banner_desktop: updated.bannerDesktop,
+          banner_mobile: updated.bannerMobile,
+          meta_title: updated.metaTitle,
+          meta_description: updated.metaDescription,
           is_active: updated.isActive,
           sort_order: updated.sortOrder,
         },
@@ -1643,6 +1862,11 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           name: newSub.name,
           slug: newSub.slug,
           description: newSub.description,
+          image_url: newSub.imageUrl,
+          banner_desktop: newSub.bannerDesktop,
+          banner_mobile: newSub.bannerMobile,
+          meta_title: newSub.metaTitle,
+          meta_description: newSub.metaDescription,
           is_active: newSub.isActive,
           sort_order: newSub.sortOrder,
         },
@@ -1663,6 +1887,11 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           name: updated.name,
           slug: updated.slug,
           description: updated.description,
+          image_url: updated.imageUrl,
+          banner_desktop: updated.bannerDesktop,
+          banner_mobile: updated.bannerMobile,
+          meta_title: updated.metaTitle,
+          meta_description: updated.metaDescription,
           is_active: updated.isActive,
           sort_order: updated.sortOrder,
         },
@@ -1723,8 +1952,11 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           slug: newCol.slug,
           description: newCol.description,
           banner_image: newCol.bannerImage || newCol.image,
+          image_url: newCol.imageUrl || newCol.image || newCol.bannerImage,
           icon_symbol: newCol.icon,
           is_featured: newCol.isFeatured,
+          is_active: newCol.isActive,
+          sort_order: newCol.sortOrder,
         },
       });
     } catch (err) {
@@ -1756,8 +1988,11 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           slug: updated.slug,
           description: updated.description,
           banner_image: updated.bannerImage || updated.image,
+          image_url: updated.imageUrl || updated.image || updated.bannerImage,
           icon_symbol: updated.icon,
           is_featured: updated.isFeatured,
+          is_active: updated.isActive,
+          sort_order: updated.sortOrder,
         },
       });
     } catch (err) {
@@ -1814,27 +2049,33 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       await supabaseFetch('product_variants', { method: 'DELETE', query: `product_id=eq.${productId}` });
       if (variants && variants.length > 0) {
-        const rows = variants.map((v, idx) => ({
-          id: v.id && v.id.length >= 32 ? v.id : generateUUID(),
-          product_id: productId,
-          sku: v.sku || `SKU-${productId.slice(0, 4)}-${idx + 1}`,
-          title: v.title || v.fragranceName || v.sizeName || `Variant ${idx + 1}`,
-          fragrance_id: v.fragranceId && v.fragranceId.length >= 32 ? v.fragranceId : null,
-          fragrance_name: v.fragranceName,
-          size_id: v.sizeId && v.sizeId.length >= 32 ? v.sizeId : null,
-          size_name: v.sizeName,
-          color_id: v.colorId && v.colorId.length >= 32 ? v.colorId : null,
-          color_name: v.colorName,
-          color_code: v.colorCode,
-          wick_type_id: v.wickTypeId && v.wickTypeId.length >= 32 ? v.wickTypeId : null,
-          wick_type_name: v.wickTypeName,
-          price: v.price || 999,
-          original_price: v.originalPrice || v.price || 1299,
-          stock: v.stock ?? 50,
-          image_url: v.imageUrl,
-          is_default: v.isDefault ?? (idx === 0),
-          status: v.status || 'ACTIVE',
-        }));
+        const rows = variants.map((v, idx) => {
+          const grams = typeof (v as any).size_grams === 'number'
+            ? (v as any).size_grams
+            : parseInt((v.sizeName || '').replace(/[^0-9]/g, ''), 10) || 250;
+
+          return {
+            id: v.id && v.id.length >= 32 ? v.id : generateUUID(),
+            product_id: productId,
+            name: v.title || v.fragranceName || v.sizeName || `Variant ${idx + 1}`,
+            size_grams: grams,
+            price: Number(v.price || 999),
+            original_price: v.originalPrice ? Number(v.originalPrice) : null,
+            stock: Number(v.stock ?? 50),
+            sku: v.sku || `SKU-${productId.slice(0, 4)}-${idx + 1}`,
+            fragrance_id: v.fragranceId && v.fragranceId.length >= 32 ? v.fragranceId : null,
+            fragrance_name: v.fragranceName || null,
+            size_id: v.sizeId && v.sizeId.length >= 32 ? v.sizeId : null,
+            size_name: v.sizeName || null,
+            color_id: v.colorId && v.colorId.length >= 32 ? v.colorId : null,
+            color_name: v.colorName || null,
+            color_code: v.colorCode || null,
+            wick_type_id: v.wickTypeId && v.wickTypeId.length >= 32 ? v.wickTypeId : null,
+            wick_type_name: v.wickTypeName || null,
+            image_url: v.imageUrl || null,
+            is_default: Boolean(v.isDefault ?? (idx === 0)),
+          };
+        });
         await supabaseFetch('product_variants', { method: 'POST', body: rows });
       }
     } catch (err) {
@@ -1961,9 +2202,12 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return nextProducts;
     });
 
-    const merged = { ...products.find((p) => p.id === id), ...updated } as CMSProduct;
-    syncProductImages(id, merged.image || merged.imageUrl, merged.images);
-    syncProductVariants(id, merged.variants);
+    const targetProduct = nextProducts.find((p) => p.id === id) || products.find((p) => p.id === id);
+    const merged = { ...targetProduct, ...updated } as CMSProduct;
+    if (id && id.length >= 32) {
+      await syncProductImages(id, merged.image || merged.imageUrl, merged.images);
+      await syncProductVariants(id, merged.variants);
+    }
 
     try {
       await supabaseFetch('products', {
@@ -2033,14 +2277,33 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Coupons
   const addCoupon = async (coupon: CMSCoupon) => {
-    setCoupons((prev) => [...prev, coupon]);
+    const formatted: CMSCoupon = {
+      ...coupon,
+      code: coupon.code.toUpperCase().trim(),
+      discountPercent: Number(coupon.discountPercent) || 10,
+      description: coupon.description || `${coupon.discountPercent || 10}% Off Order`,
+      active: coupon.active !== false,
+      minOrderAmount: Number(coupon.minOrderAmount) || 0,
+      maxDiscountAmount: Number(coupon.maxDiscountAmount) || 500,
+    };
+
+    setCoupons((prev) => {
+      const next = [...prev.filter((c) => c.code !== formatted.code), formatted];
+      cmsBundleRef.current.coupons = next;
+      safeLocalStorageSet(COUPONS_STORAGE_KEY, next);
+      persistCmsBundle({ coupons: next });
+      return next;
+    });
+
     try {
       await supabaseFetch('coupons', {
         method: 'POST',
         body: {
-          code: coupon.code.toUpperCase().trim(),
-          discount_percentage: coupon.discountPercent,
-          is_active: coupon.active !== false,
+          code: formatted.code,
+          discount_percentage: formatted.discountPercent,
+          is_active: formatted.active,
+          min_order_amount: formatted.minOrderAmount,
+          max_discount_amount: formatted.maxDiscountAmount,
         },
       });
     } catch (err) {
@@ -2049,15 +2312,25 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updateCoupon = async (code: string, updated: Partial<CMSCoupon>) => {
-    setCoupons((prev) => prev.map((c) => (c.code === code ? { ...c, ...updated } : c)));
+    setCoupons((prev) => {
+      const next = prev.map((c) => (c.code === code ? { ...c, ...updated } : c));
+      cmsBundleRef.current.coupons = next;
+      safeLocalStorageSet(COUPONS_STORAGE_KEY, next);
+      persistCmsBundle({ coupons: next });
+      return next;
+    });
+
     try {
+      const body: any = {};
+      if (updated.discountPercent !== undefined) body.discount_percentage = Number(updated.discountPercent);
+      if (updated.active !== undefined) body.is_active = Boolean(updated.active);
+      if (updated.minOrderAmount !== undefined) body.min_order_amount = Number(updated.minOrderAmount);
+      if (updated.maxDiscountAmount !== undefined) body.max_discount_amount = Number(updated.maxDiscountAmount);
+
       await supabaseFetch('coupons', {
         method: 'PATCH',
         query: `code=eq.${encodeURIComponent(code)}`,
-        body: {
-          discount_percentage: updated.discountPercent,
-          is_active: updated.active,
-        },
+        body,
       });
     } catch (err) {
       console.warn('Coupon Supabase update note:', err);
@@ -2065,7 +2338,14 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const deleteCoupon = async (code: string) => {
-    setCoupons((prev) => prev.filter((c) => c.code !== code));
+    setCoupons((prev) => {
+      const next = prev.filter((c) => c.code !== code);
+      cmsBundleRef.current.coupons = next;
+      safeLocalStorageSet(COUPONS_STORAGE_KEY, next);
+      persistCmsBundle({ coupons: next });
+      return next;
+    });
+
     try {
       await supabaseFetch('coupons', {
         method: 'DELETE',
@@ -2078,7 +2358,16 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Pages, Customers, Media, Orders, SEO, Staff
   const updatePagesContent = (updated: Partial<CMSPagesContent>) => {
-    setPagesContent((prev) => ({ ...prev, ...updated }));
+    setPagesContent((prev) => {
+      const next = { ...prev, ...updated };
+      cmsBundleRef.current.pagesContent = next;
+      try {
+        safeLocalStorageSet('tcl_pages_content', next);
+        window.dispatchEvent(new Event('tcl-cms-updated'));
+      } catch { }
+      persistCmsBundle({ pagesContent: next });
+      return next;
+    });
   };
 
   const addCustomer = async (c: CMSCustomer) => {
@@ -2251,8 +2540,21 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
-  const updateSEO = (pageKey: string, updated: Partial<CMSSEOSetting>) =>
-    setSeoSettings((prev) => prev.map((s) => (s.pageKey === pageKey ? { ...s, ...updated } : s)));
+  const updateSEO = (pageKey: string, updated: Partial<CMSSEOSetting>) => {
+    setSeoSettings((prev) => {
+      const exists = prev.some((s) => s.pageKey === pageKey);
+      const next: CMSSEOSetting[] = exists
+        ? prev.map((s) => (s.pageKey === pageKey ? { ...s, ...updated } : s))
+        : [...prev, { pageKey, title: '', description: '', ...updated }];
+      cmsBundleRef.current.seoSettings = next;
+      try {
+        safeLocalStorageSet('tcl_seo_settings', next);
+        window.dispatchEvent(new Event('tcl-cms-updated'));
+      } catch { }
+      persistCmsBundle({ seoSettings: next });
+      return next;
+    });
+  };
 
   const addStaffUser = async (u: CMSStaffUser) => {
     const newId = u.id && u.id.length >= 32 ? u.id : generateUUID();

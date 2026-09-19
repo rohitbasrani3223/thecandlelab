@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>House of Flames</title>
+  <meta name="csrf-token" content="9056caa5806b1169e44ccac0a2b42dac364c60b3bdf277ce">
+  
+  
+  
+  
+  
+  
+  
+  
+  <link rel="preload" as="image" href="https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=1920&q=60">
+  
+  <!-- Preconnect to external origins for speed -->
+  <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="dns-prefetch" href="//cdn.skypack.dev">
+  <link rel="preconnect" href="https://cdn.skypack.dev" crossorigin>
+  
+  <link rel="stylesheet" href="/css/style.css?v=jngs8kxs">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+  
+  <script type="module" src="https://unpkg.com/@hotwired/turbo@7.3.0/dist/turbo.es2017-esm.js"></script>
+  <script src="/js/main.js?v=jngs8kxs" defer data-turbo-track="reload"></script>
+</head>
+<body data-free-shipping-threshold="0" data-delivery-charge="0">
+  
+  <script>
+    window.isLoggedIn = "false" === "true";
+  </script>
+
+
+
+  
+
+
+
+
+  <!-- Search Overlay -->
+  <div class="search-overlay" id="search-overlay">
+    <div class="search-overlay-content">
+      <button class="close-search-btn"><i class="fa fa-times"></i></button>
+      <form action="/products" method="GET" class="search-overlay-form">
+        <input type="text" name="search" placeholder="Search for candles, gifts..." autocomplete="off">
+        <button type="submit"><i class="fa fa-search"></i></button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Top Announcement Bar -->
+  
+    <div class="announcement-bar" id="announcement-bar" style="background-color: var(--gold); color: var(--bg-color); text-align: center; padding: 0.5rem; font-size: 0.75rem; font-weight: 500; letter-spacing: 0.1em; display: flex; justify-content: center; align-items: center; gap: 1rem; text-transform: uppercase;">
+      
+        <button id="announcement-prev" style="background:none; border:none; color:inherit; cursor:pointer;"><i class="fa fa-chevron-left"></i></button>
+      
+
+      <div class="announcement-wrapper" style="position: relative; width: 100%; max-width: 600px; height: 18px; display: flex; align-items: center; justify-content: center;">
+        
+          <span class="announcement-text active" data-index="0">
+            Use Coupon Code - HF25
+          </span>
+        
+          <span class="announcement-text " data-index="1">
+            25% Off On Orders Above 1799/-
+          </span>
+        
+          <span class="announcement-text " data-index="2">
+            Every Flame Tells A Story
+          </span>
+        
+          <span class="announcement-text " data-index="3">
+            A Gentle Glow Every Evening
+          </span>
+        
+      </div>
+
+      
+        <button id="announcement-next" style="background:none; border:none; color:inherit; cursor:pointer;"><i class="fa fa-chevron-right"></i></button>
+      
+    </div>
+  
+
+  <header id="main-header" class="storefront-header">
+    <div class="container header-container">
+      <div class="left-header-actions">
+        <div class="hamburger-btn">
+          <i class="fa fa-bars"></i>
+        </div>
+        <button class="header-icon search-trigger-btn mobile-search-btn" title="Search" style="background:none; border:none; color:inherit; cursor:pointer; padding:0;">
+          <i class="fa fa-search"></i>
+        </button>
+      </div>
+      <!-- Mobile Menu Overlay -->
+      <div class="mobile-menu-overlay"></div>
+      
+      <nav class="main-nav">
+        <button class="mobile-menu-close"><i class="fa fa-times"></i></button>
+        <ul>
+          <li><a href="/products" class="">Shop</a></li>
+          <li><a href="/products?category=DIY">Workshop</a></li>
+          <li><a href="/contact">Bulk Gifting</a></li>
+          <li><a href="/products?category=Accessories">Accessories</a></li>
+          <li><a href="/products?category=Gifts">Gifts</a></li>
+          <li><a href="/our-story" class="">Our Story</a></li>
+        </ul>
+      </nav>
+
+      <div class="logo">
+        <a href="/">House of Flames</a>
+      </div>
+            
+      <div class="header-actions">
+        <button class="header-icon search-trigger-btn desktop-search-btn" title="Search" style="background:none; border:none; color:inherit; cursor:pointer; padding:0;">
+          <i class="fa fa-search"></i>
+        </button>
+        <a href="/cart" class="header-icon" title="Shopping Cart" style="position: relative;">
+          <i class="fa fa-shopping-bag"></i>
+          <span class="cart-count">0</span>
+        </a>
+        
+        
+          <a href="/login" class="header-icon" title="Login / Register">
+            <i class="fa fa-user"></i>
+          </a>
+        
+      </div>
+    </div>
+  </header>
+  
+  <main style="min-height: calc(100vh - 400px);">
+
+
+  <!-- Swiper CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <style>
+    .hero-carousel .swiper-pagination-bullet {
+      background: var(--hero-text-color);
+      opacity: 0.5;
+    }
+
+    .hero-carousel .swiper-pagination-bullet-active {
+      opacity: 1;
+    }
+
+    .hero-carousel {
+      height: clamp(55vh, 70vh, 80vh);
+    }
+
+    @media (min-width: 1024px) {
+      .hero-carousel {
+        height: 80vh;
+        min-height: 500px;
+        max-height: 800px;
+      }
+    }
+
+    .hero-carousel .swiper-wrapper,
+    .hero-carousel .swiper-slide,
+    .hero-carousel picture {
+      width: 100%;
+      height: 100%;
+    }
+
+    .hero-carousel picture img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      object-position: center center;
+    }
+
+    .hero-content-wrapper {
+      color: var(--hero-text-color);
+    }
+
+    .hero-content-wrapper h1,
+    .hero-content-wrapper p,
+    .hero-content-wrapper .title-serif {
+      color: var(--hero-text-color) !important;
+    }
+  </style>
+
+  <!-- 1. Hero Section (Automatic Poster Carousel) -->
+  <section class="hero-carousel swiper"
+    style="position: relative; overflow: hidden; border-bottom: 1px solid var(--border-color);">
+    <div class="swiper-wrapper">
+      
+        
+          <div class="swiper-slide"
+            style="position: relative; display: flex; align-items: center; justify-content: center; background-color: var(--card-bg);">
+
+            <picture style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;">
+              <!-- Mobile Image -->
+              <source media="(max-width: 768px)" srcset="https://uizdnyagccwoypbkjuac.supabase.co/storage/v1/object/public/product-images/banners/337b5d4d-1750-4274-9886-44cd15d696f2-1000268735.webp">
+              <!-- Desktop Image -->
+              <img src="https://uizdnyagccwoypbkjuac.supabase.co/storage/v1/object/public/product-images/banners/3cd33a8b-8575-4d1a-a35a-69ba46e57527-1000270479.webp"
+                alt="."
+                style="width: 100%; height: 100%; object-fit: cover; object-position: center;" fetchpriority=&#34;high&#34;
+              onerror="this.style.display='none'"
+              >
+            </picture>
+
+            <div
+              style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--hero-overlay-bg); z-index: 1;">
+            </div>
+
+            <div class="hero-content-wrapper"
+              style="position: relative; z-index: 2; text-align: center; padding: 2rem;">
+              
+                <h1 class="title-serif" style="font-size: clamp(2.5rem, 5vw, 4rem); margin-bottom: 1rem;">.</h1>
+                
+                  
+                      
+            </div>
+          </div>
+          
+          <div class="swiper-slide"
+            style="position: relative; display: flex; align-items: center; justify-content: center; background-color: var(--card-bg);">
+
+            <picture style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;">
+              <!-- Mobile Image -->
+              <source media="(max-width: 768px)" srcset="https://uizdnyagccwoypbkjuac.supabase.co/storage/v1/object/public/product-images/banners/00cda06b-9008-4273-906b-b67708a744a0-1000269529.webp">
+              <!-- Desktop Image -->
+              <img src="https://uizdnyagccwoypbkjuac.supabase.co/storage/v1/object/public/product-images/banners/c370c973-4f11-41d2-ac8e-85b982359d60-1000269530.webp"
+                alt="Ambience!"
+                style="width: 100%; height: 100%; object-fit: cover; object-position: center;" loading=&#34;lazy&#34;
+              onerror="this.style.display='none'"
+              >
+            </picture>
+
+            <div
+              style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--hero-overlay-bg); z-index: 1;">
+            </div>
+
+            <div class="hero-content-wrapper"
+              style="position: relative; z-index: 2; text-align: center; padding: 2rem;">
+              
+                <h1 class="title-serif" style="font-size: clamp(2.5rem, 5vw, 4rem); margin-bottom: 1rem;">Ambience!</h1>
+                
+                  
+                    <p
+                      style="margin-bottom: 2rem; font-size: 1.1rem; letter-spacing: 0.1em; text-transform: uppercase;">
+                      Crafted To Calm Your Soul
+                    </p>
+                    
+                      
+            </div>
+          </div>
+          
+          <div class="swiper-slide"
+            style="position: relative; display: flex; align-items: center; justify-content: center; background-color: var(--card-bg);">
+
+            <picture style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;">
+              <!-- Mobile Image -->
+              <source media="(max-width: 768px)" srcset="https://uizdnyagccwoypbkjuac.supabase.co/storage/v1/object/public/product-images/banners/6788db33-2313-42f1-ad51-23f26f82f387-ChatGPT_Image_Jul_5__2026__08_28_17_PM.webp">
+              <!-- Desktop Image -->
+              <img src="https://uizdnyagccwoypbkjuac.supabase.co/storage/v1/object/public/product-images/banners/bca60857-be28-425e-81e7-b20d6a946d5b-Jul_5__2026__09_09_14_PM.webp"
+                alt="Luxury Awaits!"
+                style="width: 100%; height: 100%; object-fit: cover; object-position: center;" loading=&#34;lazy&#34;
+              onerror="this.style.display='none'"
+              >
+            </picture>
+
+            <div
+              style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--hero-overlay-bg); z-index: 1;">
+            </div>
+
+            <div class="hero-content-wrapper"
+              style="position: relative; z-index: 2; text-align: center; padding: 2rem;">
+              
+                <h1 class="title-serif" style="font-size: clamp(2.5rem, 5vw, 4rem); margin-bottom: 1rem;">Luxury Awaits!</h1>
+                
+                  
+                    <p
+                      style="margin-bottom: 2rem; font-size: 1.1rem; letter-spacing: 0.1em; text-transform: uppercase;">
+                      PEACE . WARMTH . LUXURY
+                    </p>
+                    
+                      
+            </div>
+          </div>
+          
+            
+    </div>
+
+    
+      <div class="swiper-pagination"></div>
+      
+  </section>
+
+  <!-- Swiper JS -->
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const isLoop = 'true' === 'true';
+      new Swiper('.hero-carousel', {
+        loop: isLoop,
+        autoplay: isLoop ? { delay: 5000, disableOnInteraction: false } : false,
+        watchSlidesProgress: true,
+        pagination: {
+          el: '.swiper-pagination',
+          clickable: true,
+        },
+        effect: 'fade',
+        fadeEffect: { crossFade: true }
+      });
+    });
+  </script>
+
+  <!-- 1.5 SEO Introduction Text -->
+  <section
+    style="padding: clamp(2rem, 5vw, 4rem) 1.5rem 1rem 1.5rem; text-align: center; max-width: 800px; margin: 0 auto;">
+    <h2 class="title-serif" style="font-size: clamp(1.8rem, 4vw, 2.5rem); margin-bottom: 1.5rem;">
+      Transform Your Home into a Cozy Haven</h2>
+    <p
+      style="color: var(--text-muted); line-height: 1.6; font-size: clamp(0.95rem, 3vw, 1.05rem); letter-spacing: 0.02em; margin: 0 auto; max-width: 600px;">
+      Step into <strong>House of Flames</strong> and discover hand-poured candles and elegant décor designed to elevate
+      your space and create your dream home.
+    </p>
+  </section>
+
+  <!-- 2. Shop By Category (Circular Category Slider) -->
+  <section style="padding: clamp(2rem, 5vw, 4rem) 0; text-align: center; border-bottom: 1px solid var(--border-color);">
+    <h2 class="title-serif"
+      style="font-size: clamp(1.5rem, 4vw, 2rem); margin-bottom: clamp(1.5rem, 4vw, 3rem); padding: 0 1rem;">Shop by
+      Category</h2>
+    <style>
+      .category-slider {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem 1rem;
+        padding: 0 1rem 2rem 1rem;
+        justify-items: center;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .category-item {
+        width: 100%;
+        max-width: 140px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        text-decoration: none;
+      }
+
+      @media (min-width: 600px) {
+        .category-slider {
+          grid-template-columns: repeat(3, 1fr);
+          gap: 2.5rem;
+        }
+
+        .category-item {
+          max-width: 150px;
+        }
+      }
+
+      @media (min-width: 1024px) {
+        .category-slider {
+          grid-template-columns: repeat(6, 1fr);
+          gap: 3rem;
+        }
+
+        .category-item {
+          max-width: 160px;
+        }
+      }
+    </style>
+    <div class="category-slider">
+      
+        <a href="/products?category=gift-sets" class="category-item">
+          <div
+            style="width: 100%; aspect-ratio: 1/1; border-radius: 50%; background-color: var(--card-bg); border: 1px solid var(--border-color); overflow: hidden; display: flex; align-items: center; justify-content: center; transition: transform 0.3s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.05);"
+            onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+            <img src="https://uizdnyagccwoypbkjuac.supabase.co/storage/v1/object/public/product-images/categories/6daaa085-6f92-4ef5-850e-e8c53bb80605-The_Bath_Ritual_You_Didn___t_Know_You_Needed.webp" alt="GIFT SETS"
+              style="width: 100%; height: 100%; object-fit: cover;" loading="lazy"
+              onerror="this.src='/images/default-candle.webp'">
+          </div>
+          <span
+            style="font-weight: 500; font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-main); text-align: center;">
+            GIFT SETS
+          </span>
+        </a>
+        
+        <a href="/products?category=festival-collection" class="category-item">
+          <div
+            style="width: 100%; aspect-ratio: 1/1; border-radius: 50%; background-color: var(--card-bg); border: 1px solid var(--border-color); overflow: hidden; display: flex; align-items: center; justify-content: center; transition: transform 0.3s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.05);"
+            onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+            <img src="https://uizdnyagccwoypbkjuac.supabase.co/storage/v1/object/public/product-images/categories/c0bda14a-7da7-4ed8-bc05-3872035da8d4-Creative_Christmas_Bedroom_Decor_Ideas__Easy_Christmas_Crafts___Decorations.webp" alt="FESTIVAL COLLECTION"
+              style="width: 100%; height: 100%; object-fit: cover;" loading="lazy"
+              onerror="this.src='/images/default-candle.webp'">
+          </div>
+          <span
+            style="font-weight: 500; font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-main); text-align: center;">
+            FESTIVAL COLLECTION
+          </span>
+        </a>
+        
+        <a href="/products?category=floral-candles" class="category-item">
+          <div
+            style="width: 100%; aspect-ratio: 1/1; border-radius: 50%; background-color: var(--card-bg); border: 1px solid var(--border-color); overflow: hidden; display: flex; align-items: center; justify-content: center; transition: transform 0.3s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.05);"
+            onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+            <img src="https://uizdnyagccwoypbkjuac.supabase.co/storage/v1/object/public/product-images/categories/94a17ec0-f424-4231-b68c-e6ebec858157-Floral_Scented_Candle__Flower_Shaped_Soy_Wax_Candle_Decor__Flower_Candles_for_Home__Decorative_Candles_for_Gift__Fruity_Scented_Aromatherapy.webp" alt="FLORAL CANDLES"
+              style="width: 100%; height: 100%; object-fit: cover;" loading="lazy"
+              onerror="this.src='/images/default-candle.webp'">
+          </div>
+          <span
+            style="font-weight: 500; font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-main); text-align: center;">
+            FLORAL CANDLES
+          </span>
+        </a>
+        
+        <a href="/products?category=urlis-bowls" class="category-item">
+          <div
+            style="width: 100%; aspect-ratio: 1/1; border-radius: 50%; background-color: var(--card-bg); border: 1px solid var(--border-color); overflow: hidden; display: flex; align-items: center; justify-content: center; transition: transform 0.3s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.05);"
+            onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+            <img src="https://uizdnyagccwoypbkjuac.supabase.co/storage/v1/object/public/product-images/categories/2c4cd918-05f6-4d92-a196-7e3e9db0efdc-Luxus_Urli_Soja_Kerze___Indische___sthetische_Kerze___Handgemachte_dekorative_Kerzenschale___Duftkerze_Geschenk___Diwali_Wohnkultur.webp" alt="URLIS &amp; BOWLS"
+              style="width: 100%; height: 100%; object-fit: cover;" loading="lazy"
+              onerror="this.src='/images/default-candle.webp'">
+          </div>
+          <span
+            style="font-weight: 500; font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-main); text-align: center;">
+            URLIS &amp; BOWLS
+          </span>
+        </a>
+        
+        <a href="/products?category=dessert-candles" class="category-item">
+          <div
+            style="width: 100%; aspect-ratio: 1/1; border-radius: 50%; background-color: var(--card-bg); border: 1px solid var(--border-color); overflow: hidden; display: flex; align-items: center; justify-content: center; transition: transform 0.3s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.05);"
+            onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+            <img src="https://uizdnyagccwoypbkjuac.supabase.co/storage/v1/object/public/product-images/categories/ad9cd940-cd0e-4242-b469-3284929f907b-Novelty_Candles_-_Desert_Candles_For_Home_Decor.webp" alt="DESSERT CANDLES"
+              style="width: 100%; height: 100%; object-fit: cover;" loading="lazy"
+              onerror="this.src='/images/default-candle.webp'">
+          </div>
+          <span
+            style="font-weight: 500; font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-main); text-align: center;">
+            DESSERT CANDLES
+          </span>
+        </a>
+        
+        <a href="/products?category=luxury-jars" class="category-item">
+          <div
+            style="width: 100%; aspect-ratio: 1/1; border-radius: 50%; background-color: var(--card-bg); border: 1px solid var(--border-color); overflow: hidden; display: flex; align-items: center; justify-content: center; transition: transform 0.3s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.05);"
+            onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+            <img src="https://uizdnyagccwoypbkjuac.supabase.co/storage/v1/object/public/product-images/categories/e4c40fda-2b3c-4177-abf9-fc3d59ae4375-Home_Fragrance__Diffusers__Candles___Holders.webp" alt="LUXURY JARS"
+              style="width: 100%; height: 100%; object-fit: cover;" loading="lazy"
+              onerror="this.src='/images/default-candle.webp'">
+          </div>
+          <span
+            style="font-weight: 500; font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-main); text-align: center;">
+            LUXURY JARS
+          </span>
+        </a>
+        
+    </div>
+  </section>
+
+  <!-- 3. Best Sellers (Temporarily Disabled) -->
+  
+
+      <!-- 4. Premium Candles (Banner + Grid) -->
+      <section
+        style="padding: clamp(2.5rem, 5vw, 5rem) clamp(1rem, 3vw, 2rem); background-color: var(--card-bg); border-top: 1px solid var(--border-color);">
+        <style>
+          .grid-2-col-mobile {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+          }
+
+          .banner-box {
+            min-height: 200px;
+            padding: 2rem 1.5rem;
+          }
+
+          @media (min-width: 768px) {
+            .grid-2-col-mobile {
+              grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+              gap: 2rem;
+            }
+
+            .banner-box {
+              min-height: 400px;
+              padding: 3rem;
+            }
+          }
+        </style>
+        <div class="container premium-layout">
+          <div class="banner-box"
+            style="background-color: var(--bg-color); border-radius: var(--radius-md); display: flex; flex-direction: column; justify-content: center; border: 1px solid var(--border-color); text-align: center;">
+            <h2 class="title-serif">Premium<br>Candles</h2>
+            <p style="color: var(--text-muted); margin-bottom: 2rem; font-size: 0.9rem; line-height: 1.6;">Elevate your
+              space with our curated collection of luxury, slow-burning premium candles.</p>
+            <a href="/products" class="btn btn-secondary" style="align-self: center;">Shop Collection</a>
+          </div>
+          <div class="premium-grid grid-2-col-mobile">
+            
+              <div style="text-align: center; transition: transform 0.3s ease;"
+                onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div
+                  style="aspect-ratio: 1/1; background-color: var(--bg-color); border-radius: var(--radius-sm); border: 1px solid var(--border-color); overflow: hidden;">
+                  <a href="/products/lemon-grass-candle"><img src="https://uizdnyagccwoypbkjuac.supabase.co/storage/v1/object/public/product-images/products/df813bc2-ee9b-4f26-b1a5-dc7cafd71b51-Extend_Image_Background__12_.webp"
+                      style="width:100%; height:100%; object-fit:cover;"
+                      onerror="this.src='/images/default-candle.webp'"></a>
+                </div>
+                <h3 style="margin-top: 1rem; font-size: 1rem; font-weight: 500;">
+                  Lemon Grass Candle
+                </h3>
+                <p style="color: var(--gold); font-weight: 600; margin-top: 0.25rem;">
+                  ₹549.00
+                </p>
+              </div>
+              
+              <div style="text-align: center; transition: transform 0.3s ease;"
+                onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div
+                  style="aspect-ratio: 1/1; background-color: var(--bg-color); border-radius: var(--radius-sm); border: 1px solid var(--border-color); overflow: hidden;">
+                  <a href="/products/white-musk-candle"><img src="https://uizdnyagccwoypbkjuac.supabase.co/storage/v1/object/public/product-images/products/7b33e51a-1bf3-4acb-9832-3577ed3aee4f-Extend_Image_Background__11_.webp"
+                      style="width:100%; height:100%; object-fit:cover;"
+                      onerror="this.src='/images/default-candle.webp'"></a>
+                </div>
+                <h3 style="margin-top: 1rem; font-size: 1rem; font-weight: 500;">
+                  White Musk Candle
+                </h3>
+                <p style="color: var(--gold); font-weight: 600; margin-top: 0.25rem;">
+                  ₹549.00
+                </p>
+              </div>
+              
+              <div style="text-align: center; transition: transform 0.3s ease;"
+                onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div
+                  style="aspect-ratio: 1/1; background-color: var(--bg-color); border-radius: var(--radius-sm); border: 1px solid var(--border-color); overflow: hidden;">
+                  <a href="/products/arabian-oud-candle-"><img src="https://uizdnyagccwoypbkjuac.supabase.co/storage/v1/object/public/product-images/products/aed61ab1-1da4-4084-aa9b-899dbc07688a-Extend_Image_Background__10_.webp"
+                      style="width:100%; height:100%; object-fit:cover;"
+                      onerror="this.src='/images/default-candle.webp'"></a>
+                </div>
+                <h3 style="margin-top: 1rem; font-size: 1rem; font-weight: 500;">
+                  Arabian Oud Candle 
+                </h3>
+                <p style="color: var(--gold); font-weight: 600; margin-top: 0.25rem;">
+                  ₹549.00
+                </p>
+              </div>
+              
+              <div style="text-align: center; transition: transform 0.3s ease;"
+                onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div
+                  style="aspect-ratio: 1/1; background-color: var(--bg-color); border-radius: var(--radius-sm); border: 1px solid var(--border-color); overflow: hidden;">
+                  <a href="/products/belgian-chocolate-jar-candle"><img src="https://uizdnyagccwoypbkjuac.supabase.co/storage/v1/object/public/product-images/products/bd54b766-4d7b-46ac-9f83-9db368f27f89-Extend_Image_Background__9_.webp"
+                      style="width:100%; height:100%; object-fit:cover;"
+                      onerror="this.src='/images/default-candle.webp'"></a>
+                </div>
+                <h3 style="margin-top: 1rem; font-size: 1rem; font-weight: 500;">
+                  Belgian Chocolate Jar Candle
+                </h3>
+                <p style="color: var(--gold); font-weight: 600; margin-top: 0.25rem;">
+                  ₹549.00
+                </p>
+              </div>
+              
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. Signature Fragrances -->
+      <section
+        style="padding: clamp(2.5rem, 5vw, 5rem) clamp(1rem, 3vw, 2rem); background-color: var(--bg-color); border-top: 1px solid var(--border-color);">
+        <div class="container signature-layout">
+          <div class="banner-box"
+            style="background-color: var(--card-bg); border-radius: var(--radius-md); display: flex; flex-direction: column; justify-content: center; border: 1px solid var(--border-color); text-align: center;">
+            <h2 class="title-serif">Signature<br>Fragrances</h2>
+            <p style="color: var(--text-muted); margin-bottom: 2rem; font-size: 0.9rem; line-height: 1.6;">Discover the
+              unique blends that define our house.</p>
+            <a href="/products" class="btn btn-secondary" style="align-self: center;">Shop Collection</a>
+          </div>
+          <div class="signature-grid grid-2-col-mobile">
+            
+              <div style="text-align: center; transition: transform 0.3s ease;"
+                onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div
+                  style="aspect-ratio: 1/1; background-color: var(--card-bg); border-radius: var(--radius-sm); border: 1px solid var(--border-color); overflow: hidden;">
+                  <a href="/products?fragrance=16"><img
+                      src="https://uizdnyagccwoypbkjuac.supabase.co/storage/v1/object/public/product-images/fragrances/b14edd90-cbed-489a-83cc-41954a3d088c-WOrkshop__5_.webp"
+                      style="width:100%; height:100%; object-fit:cover;"
+                      onerror="this.src='/images/default-candle.webp'"></a>
+                </div>
+                <h3 style="margin-top: 1rem; font-size: 1rem; font-weight: 500;">
+                  <a href="/products?fragrance=16" style="color: inherit; text-decoration: none;">
+                    Belgian Chocolate
+                  </a>
+                </h3>
+                
+                    <p
+                      style="color: var(--gold); font-weight: 600; margin-top: 0.25rem; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                      6
+                        Products
+                    </p>
+              </div>
+              
+              <div style="text-align: center; transition: transform 0.3s ease;"
+                onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div
+                  style="aspect-ratio: 1/1; background-color: var(--card-bg); border-radius: var(--radius-sm); border: 1px solid var(--border-color); overflow: hidden;">
+                  <a href="/products?fragrance=11"><img
+                      src="https://uizdnyagccwoypbkjuac.supabase.co/storage/v1/object/public/product-images/fragrances/73e2ad0f-9b0f-43eb-9efa-0060016d8b70-Untitled_design__9_.webp"
+                      style="width:100%; height:100%; object-fit:cover;"
+                      onerror="this.src='/images/default-candle.webp'"></a>
+                </div>
+                <h3 style="margin-top: 1rem; font-size: 1rem; font-weight: 500;">
+                  <a href="/products?fragrance=11" style="color: inherit; text-decoration: none;">
+                    Madagascar Vanilla
+                  </a>
+                </h3>
+                
+                    <p
+                      style="color: var(--gold); font-weight: 600; margin-top: 0.25rem; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                      54
+                        Products
+                    </p>
+              </div>
+              
+              <div style="text-align: center; transition: transform 0.3s ease;"
+                onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div
+                  style="aspect-ratio: 1/1; background-color: var(--card-bg); border-radius: var(--radius-sm); border: 1px solid var(--border-color); overflow: hidden;">
+                  <a href="/products?fragrance=12"><img
+                      src="https://uizdnyagccwoypbkjuac.supabase.co/storage/v1/object/public/product-images/fragrances/c50032da-20b2-4c72-8af2-be1b87216ac0-Untitled_design__10_.webp"
+                      style="width:100%; height:100%; object-fit:cover;"
+                      onerror="this.src='/images/default-candle.webp'"></a>
+                </div>
+                <h3 style="margin-top: 1rem; font-size: 1rem; font-weight: 500;">
+                  <a href="/products?fragrance=12" style="color: inherit; text-decoration: none;">
+                    Dark Rose
+                  </a>
+                </h3>
+                
+                    <p
+                      style="color: var(--gold); font-weight: 600; margin-top: 0.25rem; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                      51
+                        Products
+                    </p>
+              </div>
+              
+              <div style="text-align: center; transition: transform 0.3s ease;"
+                onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div
+                  style="aspect-ratio: 1/1; background-color: var(--card-bg); border-radius: var(--radius-sm); border: 1px solid var(--border-color); overflow: hidden;">
+                  <a href="/products?fragrance=10"><img
+                      src="https://uizdnyagccwoypbkjuac.supabase.co/storage/v1/object/public/product-images/fragrances/34cb0348-9ddc-40b1-8e26-34223ed30924-WOrkshop__4_.webp"
+                      style="width:100%; height:100%; object-fit:cover;"
+                      onerror="this.src='/images/default-candle.webp'"></a>
+                </div>
+                <h3 style="margin-top: 1rem; font-size: 1rem; font-weight: 500;">
+                  <a href="/products?fragrance=10" style="color: inherit; text-decoration: none;">
+                    French Lavender
+                  </a>
+                </h3>
+                
+                    <p
+                      style="color: var(--gold); font-weight: 600; margin-top: 0.25rem; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                      50
+                        Products
+                    </p>
+              </div>
+              
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. Why Choose Us -->
+      <section class="why-us-section"
+        style="text-align: center; background-color: var(--card-bg); border-top: 1px solid var(--border-color);">
+        <div class="container">
+          <h2 class="title-serif why-us-heading">Why Choose Us</h2>
+          <style>
+            .why-us-section {
+              padding: 4rem 1rem;
+            }
+
+            .why-us-heading {
+              margin-bottom: 3rem;
+            }
+
+            .why-us-grid {
+              display: grid;
+              grid-template-columns: repeat(2, 1fr);
+              gap: 1rem;
+              max-width: 600px;
+              margin: 0 auto;
+            }
+
+            .why-us-card {
+              padding: 1.5rem 0.5rem;
+              background: var(--bg-color);
+              border-radius: 20px;
+              border: 1px solid var(--border-color);
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              aspect-ratio: 1 / 1;
+              text-align: center;
+              overflow: hidden;
+            }
+
+            .why-us-icon {
+              font-size: 1.75rem;
+              color: var(--gold);
+              margin-bottom: 0.75rem;
+            }
+
+            .why-us-title {
+              font-size: 0.95rem;
+              margin-bottom: 0.5rem;
+              font-weight: 600;
+            }
+
+            .why-us-text {
+              font-size: 0.8rem;
+              color: var(--text-muted);
+              margin: 0;
+              line-height: 1.4;
+              padding: 0 0.5rem;
+            }
+
+            @media (min-width: 1024px) {
+              .why-us-section {
+                padding: 6rem 2rem;
+              }
+
+              .why-us-heading {
+                margin-bottom: 4rem;
+              }
+
+              .why-us-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 3rem;
+                max-width: 1200px;
+              }
+
+              .why-us-card {
+                padding: 2rem;
+                border-radius: 10%;
+              }
+
+              .why-us-icon {
+                font-size: 2.2rem;
+                margin-bottom: 1rem;
+              }
+
+              .why-us-title {
+                font-size: 1.1rem;
+                margin-bottom: 0.5rem;
+              }
+
+              .why-us-text {
+                font-size: 0.9rem;
+                padding: 0;
+              }
+            }
+          </style>
+          <div class="why-us-grid">
+            <div class="why-us-card">
+              <i class="fa fa-wind why-us-icon"></i>
+              <h3 class="why-us-title">Clean Burn</h3>
+              <p class="why-us-text">Toxin-free, lead-free wicks.</p>
+            </div>
+            <div class="why-us-card">
+              <i class="fa fa-box-open why-us-icon"></i>
+              <h3 class="why-us-title">Small Batches</h3>
+              <p class="why-us-text">Hand poured with love.</p>
+            </div>
+            <div class="why-us-card">
+              <i class="fa fa-truck-fast why-us-icon"></i>
+              <h3 class="why-us-title">Fast Shipping</h3>
+              <p class="why-us-text">Delivered safely to you.</p>
+            </div>
+            <div class="why-us-card">
+              <i class="fa fa-gem why-us-icon"></i>
+              <h3 class="why-us-title">Premium Quality</h3>
+              <p class="why-us-text">Highest grade fragrances.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. Testimonials (Auto-running Carousel) -->
+      <section
+        style="padding: clamp(2.5rem, 5vw, 5rem) 0; background-color: var(--bg-color); border-top: 1px solid var(--border-color); overflow: hidden;">
+        <h2 class="title-serif"
+          style="text-align: center; margin-bottom: clamp(1.5rem, 4vw, 3rem); font-size: clamp(1.5rem, 4vw, 2rem); padding: 0 1rem;">
+          Words of Appreciation</h2>
+        <div class="marquee-container"
+          style="overflow: hidden; position: relative; width: 100%; display: flex; align-items: center;">
+          <div class="marquee-track"
+            style="display: flex; gap: 2rem; width: max-content; animation: marquee 30s linear infinite;">
+            
+              <div
+                style="width: min(320px, 80vw); padding: clamp(1.25rem, 3vw, 2rem); background: var(--card-bg); border-radius: var(--radius-sm); border: 1px solid var(--border-color); flex-shrink: 0;">
+                <div style="color: var(--gold); margin-bottom: 1rem; font-size: 1.2rem;">
+                  ★★★★★
+                </div>
+                <p
+                  style="font-family: var(--font-title); font-size: 1.1rem; font-style: italic; color: var(--text-main); margin-bottom: 1.5rem; line-height: 1.6;">
+                  "Worth every penny for the premium quality, elegant design, and amazing fragrance throw."</p>
+                <p style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; color: var(--text-muted);">
+                  ARJUN R.
+                </p>
+              </div>
+              
+              <div
+                style="width: min(320px, 80vw); padding: clamp(1.25rem, 3vw, 2rem); background: var(--card-bg); border-radius: var(--radius-sm); border: 1px solid var(--border-color); flex-shrink: 0;">
+                <div style="color: var(--gold); margin-bottom: 1rem; font-size: 1.2rem;">
+                  ★★★★★
+                </div>
+                <p
+                  style="font-family: var(--font-title); font-size: 1.1rem; font-style: italic; color: var(--text-main); margin-bottom: 1.5rem; line-height: 1.6;">
+                  "The candle burns evenly, smells incredible, and creates such a cozy atmosphere every evening."</p>
+                <p style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; color: var(--text-muted);">
+                  MEERA K.
+                </p>
+              </div>
+              
+              <div
+                style="width: min(320px, 80vw); padding: clamp(1.25rem, 3vw, 2rem); background: var(--card-bg); border-radius: var(--radius-sm); border: 1px solid var(--border-color); flex-shrink: 0;">
+                <div style="color: var(--gold); margin-bottom: 1rem; font-size: 1.2rem;">
+                  ★★★★★
+                </div>
+                <p
+                  style="font-family: var(--font-title); font-size: 1.1rem; font-style: italic; color: var(--text-main); margin-bottom: 1.5rem; line-height: 1.6;">
+                  "Ordered one initially, loved it so much that I immediately purchased two more candles."</p>
+                <p style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; color: var(--text-muted);">
+                  ANANYA I.
+                </p>
+              </div>
+              
+              <div
+                style="width: min(320px, 80vw); padding: clamp(1.25rem, 3vw, 2rem); background: var(--card-bg); border-radius: var(--radius-sm); border: 1px solid var(--border-color); flex-shrink: 0;">
+                <div style="color: var(--gold); margin-bottom: 1rem; font-size: 1.2rem;">
+                  ★★★★★
+                </div>
+                <p
+                  style="font-family: var(--font-title); font-size: 1.1rem; font-style: italic; color: var(--text-main); margin-bottom: 1.5rem; line-height: 1.6;">
+                  "Rich, luxurious scent that makes my living room feel warm, inviting, and incredibly relaxing."</p>
+                <p style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; color: var(--text-muted);">
+                  KABIR M.
+                </p>
+              </div>
+              
+              <div
+                style="width: min(320px, 80vw); padding: clamp(1.25rem, 3vw, 2rem); background: var(--card-bg); border-radius: var(--radius-sm); border: 1px solid var(--border-color); flex-shrink: 0;">
+                <div style="color: var(--gold); margin-bottom: 1rem; font-size: 1.2rem;">
+                  ★★★★★
+                </div>
+                <p
+                  style="font-family: var(--font-title); font-size: 1.1rem; font-style: italic; color: var(--text-main); margin-bottom: 1.5rem; line-height: 1.6;">
+                  "Excellent craftsmanship, clean burn, and the fragrance lasts much longer than expected every time."</p>
+                <p style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; color: var(--text-muted);">
+                  PRIYA S.
+                </p>
+              </div>
+              
+              <div
+                style="width: min(320px, 80vw); padding: clamp(1.25rem, 3vw, 2rem); background: var(--card-bg); border-radius: var(--radius-sm); border: 1px solid var(--border-color); flex-shrink: 0;">
+                <div style="color: var(--gold); margin-bottom: 1rem; font-size: 1.2rem;">
+                  ★★★★★
+                </div>
+                <p
+                  style="font-family: var(--font-title); font-size: 1.1rem; font-style: italic; color: var(--text-main); margin-bottom: 1.5rem; line-height: 1.6;">
+                  "Impressed by the quality, beautiful aroma, and how quickly it transforms the entire room."</p>
+                <p style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; color: var(--text-muted);">
+                  ROHAN T.
+                </p>
+              </div>
+              
+              <div
+                style="width: min(320px, 80vw); padding: clamp(1.25rem, 3vw, 2rem); background: var(--card-bg); border-radius: var(--radius-sm); border: 1px solid var(--border-color); flex-shrink: 0;">
+                <div style="color: var(--gold); margin-bottom: 1rem; font-size: 1.2rem;">
+                  ★★★★★
+                </div>
+                <p
+                  style="font-family: var(--font-title); font-size: 1.1rem; font-style: italic; color: var(--text-main); margin-bottom: 1.5rem; line-height: 1.6;">
+                  "Worth every penny for the premium quality, elegant design, and amazing fragrance throw."</p>
+                <p style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; color: var(--text-muted);">
+                  ARJUN R.
+                </p>
+              </div>
+              
+              <div
+                style="width: min(320px, 80vw); padding: clamp(1.25rem, 3vw, 2rem); background: var(--card-bg); border-radius: var(--radius-sm); border: 1px solid var(--border-color); flex-shrink: 0;">
+                <div style="color: var(--gold); margin-bottom: 1rem; font-size: 1.2rem;">
+                  ★★★★★
+                </div>
+                <p
+                  style="font-family: var(--font-title); font-size: 1.1rem; font-style: italic; color: var(--text-main); margin-bottom: 1.5rem; line-height: 1.6;">
+                  "The candle burns evenly, smells incredible, and creates such a cozy atmosphere every evening."</p>
+                <p style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; color: var(--text-muted);">
+                  MEERA K.
+                </p>
+              </div>
+              
+              <div
+                style="width: min(320px, 80vw); padding: clamp(1.25rem, 3vw, 2rem); background: var(--card-bg); border-radius: var(--radius-sm); border: 1px solid var(--border-color); flex-shrink: 0;">
+                <div style="color: var(--gold); margin-bottom: 1rem; font-size: 1.2rem;">
+                  ★★★★★
+                </div>
+                <p
+                  style="font-family: var(--font-title); font-size: 1.1rem; font-style: italic; color: var(--text-main); margin-bottom: 1.5rem; line-height: 1.6;">
+                  "Ordered one initially, loved it so much that I immediately purchased two more candles."</p>
+                <p style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; color: var(--text-muted);">
+                  ANANYA I.
+                </p>
+              </div>
+              
+              <div
+                style="width: min(320px, 80vw); padding: clamp(1.25rem, 3vw, 2rem); background: var(--card-bg); border-radius: var(--radius-sm); border: 1px solid var(--border-color); flex-shrink: 0;">
+                <div style="color: var(--gold); margin-bottom: 1rem; font-size: 1.2rem;">
+                  ★★★★★
+                </div>
+                <p
+                  style="font-family: var(--font-title); font-size: 1.1rem; font-style: italic; color: var(--text-main); margin-bottom: 1.5rem; line-height: 1.6;">
+                  "Rich, luxurious scent that makes my living room feel warm, inviting, and incredibly relaxing."</p>
+                <p style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; color: var(--text-muted);">
+                  KABIR M.
+                </p>
+              </div>
+              
+              <div
+                style="width: min(320px, 80vw); padding: clamp(1.25rem, 3vw, 2rem); background: var(--card-bg); border-radius: var(--radius-sm); border: 1px solid var(--border-color); flex-shrink: 0;">
+                <div style="color: var(--gold); margin-bottom: 1rem; font-size: 1.2rem;">
+                  ★★★★★
+                </div>
+                <p
+                  style="font-family: var(--font-title); font-size: 1.1rem; font-style: italic; color: var(--text-main); margin-bottom: 1.5rem; line-height: 1.6;">
+                  "Excellent craftsmanship, clean burn, and the fragrance lasts much longer than expected every time."</p>
+                <p style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; color: var(--text-muted);">
+                  PRIYA S.
+                </p>
+              </div>
+              
+              <div
+                style="width: min(320px, 80vw); padding: clamp(1.25rem, 3vw, 2rem); background: var(--card-bg); border-radius: var(--radius-sm); border: 1px solid var(--border-color); flex-shrink: 0;">
+                <div style="color: var(--gold); margin-bottom: 1rem; font-size: 1.2rem;">
+                  ★★★★★
+                </div>
+                <p
+                  style="font-family: var(--font-title); font-size: 1.1rem; font-style: italic; color: var(--text-main); margin-bottom: 1.5rem; line-height: 1.6;">
+                  "Impressed by the quality, beautiful aroma, and how quickly it transforms the entire room."</p>
+                <p style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; color: var(--text-muted);">
+                  ROHAN T.
+                </p>
+              </div>
+              
+              <div
+                style="width: min(320px, 80vw); padding: clamp(1.25rem, 3vw, 2rem); background: var(--card-bg); border-radius: var(--radius-sm); border: 1px solid var(--border-color); flex-shrink: 0;">
+                <div style="color: var(--gold); margin-bottom: 1rem; font-size: 1.2rem;">
+                  ★★★★★
+                </div>
+                <p
+                  style="font-family: var(--font-title); font-size: 1.1rem; font-style: italic; color: var(--text-main); margin-bottom: 1.5rem; line-height: 1.6;">
+                  "Worth every penny for the premium quality, elegant design, and amazing fragrance throw."</p>
+                <p style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; color: var(--text-muted);">
+                  ARJUN R.
+                </p>
+              </div>
+              
+              <div
+                style="width: min(320px, 80vw); padding: clamp(1.25rem, 3vw, 2rem); background: var(--card-bg); border-radius: var(--radius-sm); border: 1px solid var(--border-color); flex-shrink: 0;">
+                <div style="color: var(--gold); margin-bottom: 1rem; font-size: 1.2rem;">
+                  ★★★★★
+                </div>
+                <p
+                  style="font-family: var(--font-title); font-size: 1.1rem; font-style: italic; color: var(--text-main); margin-bottom: 1.5rem; line-height: 1.6;">
+                  "The candle burns evenly, smells incredible, and creates such a cozy atmosphere every evening."</p>
+                <p style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; color: var(--text-muted);">
+                  MEERA K.
+                </p>
+              </div>
+              
+              <div
+                style="width: min(320px, 80vw); padding: clamp(1.25rem, 3vw, 2rem); background: var(--card-bg); border-radius: var(--radius-sm); border: 1px solid var(--border-color); flex-shrink: 0;">
+                <div style="color: var(--gold); margin-bottom: 1rem; font-size: 1.2rem;">
+                  ★★★★★
+                </div>
+                <p
+                  style="font-family: var(--font-title); font-size: 1.1rem; font-style: italic; color: var(--text-main); margin-bottom: 1.5rem; line-height: 1.6;">
+                  "Ordered one initially, loved it so much that I immediately purchased two more candles."</p>
+                <p style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; color: var(--text-muted);">
+                  ANANYA I.
+                </p>
+              </div>
+              
+              <div
+                style="width: min(320px, 80vw); padding: clamp(1.25rem, 3vw, 2rem); background: var(--card-bg); border-radius: var(--radius-sm); border: 1px solid var(--border-color); flex-shrink: 0;">
+                <div style="color: var(--gold); margin-bottom: 1rem; font-size: 1.2rem;">
+                  ★★★★★
+                </div>
+                <p
+                  style="font-family: var(--font-title); font-size: 1.1rem; font-style: italic; color: var(--text-main); margin-bottom: 1.5rem; line-height: 1.6;">
+                  "Rich, luxurious scent that makes my living room feel warm, inviting, and incredibly relaxing."</p>
+                <p style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; color: var(--text-muted);">
+                  KABIR M.
+                </p>
+              </div>
+              
+              <div
+                style="width: min(320px, 80vw); padding: clamp(1.25rem, 3vw, 2rem); background: var(--card-bg); border-radius: var(--radius-sm); border: 1px solid var(--border-color); flex-shrink: 0;">
+                <div style="color: var(--gold); margin-bottom: 1rem; font-size: 1.2rem;">
+                  ★★★★★
+                </div>
+                <p
+                  style="font-family: var(--font-title); font-size: 1.1rem; font-style: italic; color: var(--text-main); margin-bottom: 1.5rem; line-height: 1.6;">
+                  "Excellent craftsmanship, clean burn, and the fragrance lasts much longer than expected every time."</p>
+                <p style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; color: var(--text-muted);">
+                  PRIYA S.
+                </p>
+              </div>
+              
+              <div
+                style="width: min(320px, 80vw); padding: clamp(1.25rem, 3vw, 2rem); background: var(--card-bg); border-radius: var(--radius-sm); border: 1px solid var(--border-color); flex-shrink: 0;">
+                <div style="color: var(--gold); margin-bottom: 1rem; font-size: 1.2rem;">
+                  ★★★★★
+                </div>
+                <p
+                  style="font-family: var(--font-title); font-size: 1.1rem; font-style: italic; color: var(--text-main); margin-bottom: 1.5rem; line-height: 1.6;">
+                  "Impressed by the quality, beautiful aroma, and how quickly it transforms the entire room."</p>
+                <p style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; color: var(--text-muted);">
+                  ROHAN T.
+                </p>
+              </div>
+              
+          </div>
+        </div>
+        <style>
+          @keyframes marquee {
+            0% {
+              transform: translateX(0);
+            }
+
+            100% {
+              transform: translateX(calc(-33.333% - 0.66rem));
+            }
+          }
+
+          .marquee-track:hover {
+            animation-play-state: paused;
+          }
+        </style>
+      </section>
+
+      <!-- 8. Bulk Buy Form -->
+      <section
+        style="padding: clamp(3rem, 6vw, 6rem) clamp(1rem, 3vw, 2rem); background-color: var(--card-bg); border-top: 1px solid var(--border-color); text-align: center;">
+        <div class="container" style="max-width: 600px;">
+          <h2 class="title-serif" style="font-size: clamp(1.5rem, 4vw, 2rem);">Bulk Orders</h2>
+          <p
+            style="color: var(--text-muted); margin-bottom: clamp(1.5rem, 4vw, 3rem); font-size: clamp(0.85rem, 2vw, 0.95rem); letter-spacing: 0.02em;">
+            Planning an event or corporate gifting? Get in touch for special pricing.</p>
+          <form action="/contact" method="POST" class="ajax-form"
+            style="display: flex; flex-direction: column; gap: 1.5rem; text-align: left;">
+            <input type="hidden" name="_csrf" value="9056caa5806b1169e44ccac0a2b42dac364c60b3bdf277ce">
+            <input type="hidden" name="subject" value="Bulk Order Inquiry">
+            <style>
+              .contact-grid {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+              }
+
+              @media (min-width: 600px) {
+                .contact-grid {
+                  grid-template-columns: 1fr 1fr;
+                }
+              }
+            </style>
+            <div class="contact-grid">
+              <div>
+                <label
+                  style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; color: var(--text-muted); display: block; margin-bottom: 0.5rem;">NAME</label>
+                <input type="text" name="name" required
+                  style="width: 100%; padding: 0.8rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-color); outline: none; color: var(--text-main);">
+              </div>
+              <div>
+                <label
+                  style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; color: var(--text-muted); display: block; margin-bottom: 0.5rem;">EMAIL</label>
+                <input type="email" name="email" required
+                  style="width: 100%; padding: 0.8rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-color); outline: none; color: var(--text-main);">
+              </div>
+            </div>
+            <div>
+              <label
+                style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; color: var(--text-muted); display: block; margin-bottom: 0.5rem;">MESSAGE</label>
+              <textarea name="message" rows="4" required
+                style="width: 100%; padding: 0.8rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-color); outline: none; color: var(--text-main);"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary" data-loading-text="Sending Message..."
+              style="align-self: center; padding: 1rem 3rem;">SEND MESSAGE</button>
+          </form>
+        </div>
+      </section>
+
+        </main>
+  
+  <footer class="storefront-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="footer-logo-lockup">
+            <div class="footer-logo-main">House Of Flames</div>
+            <div class="footer-logo-sub-row">
+              <span class="footer-logo-line-long"></span>
+              <span class="footer-logo-sub-text">By Shaily</span>
+              <span class="footer-logo-line-short"></span>
+            </div>
+          </div>
+          <p>Hand-poured premium soy wax candles designed to bring warmth, peace, and luxury aromatics into your home.</p>
+          <div class="footer-socials">
+            
+              <a href="https://www.instagram.com/houseofflames_candles_?igsh=MWQ3d3lqNjVtOGEwYg%3D%3D&amp;utm_source=qr" target="_blank"><i class="fab fa-instagram"></i></a>
+            
+            
+              <a href="https://facebook.com/" target="_blank"><i class="fab fa-facebook-f"></i></a>
+            
+            
+            
+              <a href="https://youtube.com/@houseofflames-byshaily?si=LlQGcnj89GTBdmTY" target="_blank"><i class="fab fa-youtube"></i></a>
+            
+          </div>
+        </div>
+        
+        <div class="footer-col">
+          <h3>Discover</h3>
+          <ul>
+            <li><a href="/our-story" class="">Our Story</a></li>
+            <li><a href="/about" class="">About Us</a></li>
+            <li><a href="/contact" class="">Contact Support</a></li>
+            <li><a href="/privacy-policy" class="">Privacy Policy</a></li>
+            <li><a href="/terms-and-conditions" class="">Terms & Conditions</a></li>
+            <li><a href="/refund-policy" class="">Refund Policy</a></li>
+            <li><a href="/shipping-policy" class="">Shipping Policy</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-col">
+          <h3>Quick Links</h3>
+          <ul>
+            <li><a href="/products?occasion=weddings">Weddings</a></li>
+            <li><a href="/products?occasion=birthdays">Birthdays</a></li>
+            <li><a href="/products?occasion=corporate">Corporate Gifts</a></li>
+            <li><a href="/products">All Candles</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-col">
+          <h3>Services</h3>
+          <ul>
+            <li><a href="/services/white-labeling">White Labeling</a></li>
+            <li><a href="/contact">Bulk Orders</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>&copy; 2026 House of Flames. All rights reserved. Design & Coded By <a href="https://www.webcortexmedia.com" target="_blank" style="text-decoration: underline; color: inherit;">Webcortexmedia.com</a></p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Floating WhatsApp Button -->
+  <a
+    id="whatsapp-float-btn"
+    href="https://wa.me/919425408223?text=Hi%20House%20Of%20Flames,%20I%20have%20a%20question."
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Chat on WhatsApp"
+    title="Chat on WhatsApp"
+    class="whatsapp-float"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      width="32"
+      height="32"
+      fill="#ffffff"
+      aria-hidden="true"
+    >
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+    </svg>
+  </a>
+
+</body>
+</html>

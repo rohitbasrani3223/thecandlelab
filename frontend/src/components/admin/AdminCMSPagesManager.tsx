@@ -58,6 +58,27 @@ export const AdminCMSPagesManager: React.FC = () => {
     ]
   );
 
+  React.useEffect(() => {
+    if (pagesContent) {
+      setPagesForm(pagesContent);
+      if (pagesContent.termsConditions) setTermsText(pagesContent.termsConditions);
+      if ((pagesContent as any).contactEmail || (pagesContent as any).contactPhone || (pagesContent as any).contactAddress) {
+        setContactData({
+          email: (pagesContent as any).contactEmail || 'care@thecandlelab.in',
+          phone: (pagesContent as any).contactPhone || '+91 98765 43210',
+          address: (pagesContent as any).contactAddress || '108 Artisan Avenue, Fragrance District, New Delhi, India 110001',
+          hours: (pagesContent as any).contactHours || 'Mon - Sat: 10:00 AM - 7:00 PM IST',
+        });
+      }
+      if ((pagesContent as any).blogPosts && Array.isArray((pagesContent as any).blogPosts)) {
+        setBlogPosts((pagesContent as any).blogPosts);
+      }
+      if ((pagesContent as any).careers && Array.isArray((pagesContent as any).careers)) {
+        setCareers((pagesContent as any).careers);
+      }
+    }
+  }, [pagesContent]);
+
   const saveAllCMSPages = (extraUpdates: Record<string, any> = {}) => {
     const updatedPayload = {
       ...pagesForm,

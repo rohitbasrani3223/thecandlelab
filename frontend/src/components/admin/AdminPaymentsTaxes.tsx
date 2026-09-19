@@ -25,6 +25,16 @@ export const AdminPaymentsTaxes: React.FC = () => {
 
   const [savedMsg, setSavedMsg] = useState('');
 
+  React.useEffect(() => {
+    setFormState((prev) => ({
+      ...prev,
+      currencySymbol: settings.currencySymbol || prev.currencySymbol,
+      freeShippingThreshold: settings.freeShippingThreshold ?? prev.freeShippingThreshold,
+      standardShippingFee: settings.standardShippingFee ?? prev.standardShippingFee,
+      ...(settings.paymentSettings || {}),
+    }));
+  }, [settings]);
+
   const SUB_TABS: { id: PaymentsSubTab; label: string; icon: string }[] = [
     { id: 'methods', label: 'Payment Methods', icon: '💳' },
     { id: 'taxes', label: 'Taxes', icon: '🧾' },
@@ -43,6 +53,16 @@ export const AdminPaymentsTaxes: React.FC = () => {
       currencySymbol: formState.currencySymbol,
       freeShippingThreshold: Number(formState.freeShippingThreshold),
       standardShippingFee: Number(formState.standardShippingFee),
+      paymentSettings: {
+        razorpayKey: formState.razorpayKey,
+        razorpaySecret: formState.razorpaySecret,
+        razorpayEnabled: Boolean(formState.razorpayEnabled),
+        codEnabled: Boolean(formState.codEnabled),
+        stripeEnabled: Boolean(formState.stripeEnabled),
+        stripePublishableKey: formState.stripePublishableKey,
+        gstRatePercent: Number(formState.gstRatePercent),
+        includeTaxInPrice: Boolean(formState.includeTaxInPrice),
+      },
     });
     setSavedMsg('Payment gateways & tax configuration saved!');
     toast({ type: 'luxury', title: 'Payment & Tax Settings Saved', description: 'Changes reflect live on checkout.' });
