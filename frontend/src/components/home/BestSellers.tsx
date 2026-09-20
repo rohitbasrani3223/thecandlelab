@@ -89,7 +89,7 @@ export const BestSellers: React.FC<BestSellersProps> = ({ onSelectProduct }) => 
           <div className="space-y-1 sm:space-y-2">
             <Badge variant="gold" icon={<SparklesIcon size={12} />}>MOST LOVED FORMULATIONS</Badge>
             <h2 className="text-2xl sm:text-4xl font-serif font-bold text-[#232323]">
-              Boutique Best Sellers
+              Best Sellers
             </h2>
           </div>
 
