@@ -500,6 +500,10 @@ export const AdminStoreSettings: React.FC = () => {
                   placeholder="https://instagram.com/thecandlelab.in"
                   className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg text-[#2C1E16]"
                 />
+                <div className="bg-[#FAF6F0] border border-[#EFE8DB] p-2.5 rounded-lg text-[11px] text-[#7A6B5D] flex items-center justify-between mt-1.5">
+                  <span>📸 Manage real homepage photos & direct post links in:</span>
+                  <span className="font-bold text-[#B88B38]">Storefront CMS Builder → Instagram Gallery</span>
+                </div>
               </div>
               <div>
                 <label className="font-bold text-[#2C1E16] block mb-1">👤 Facebook Page URL</label>

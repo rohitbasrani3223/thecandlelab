@@ -89,6 +89,25 @@ export interface CMSStoreSettings {
     metaPixelId?: string;
     whatsappApiToken?: string;
   };
+  instagramGallery?: CMSInstagramGallerySettings;
+}
+
+export interface CMSInstagramPost {
+  id: string;
+  title: string;
+  likes: string;
+  tag: string;
+  url: string;
+  image: string;
+  isActive: boolean;
+}
+
+export interface CMSInstagramGallerySettings {
+  badgeText?: string;
+  heading?: string;
+  subheading?: string;
+  hashtag?: string;
+  posts: CMSInstagramPost[];
 }
 
 export interface CMSAnnouncement {
@@ -522,6 +541,18 @@ const DEFAULT_SETTINGS: CMSStoreSettings = {
     facebook: 'https://facebook.com/thecandlelab',
     pinterest: 'https://pinterest.com/thecandlelab',
     whatsapp: 'https://wa.me/916264885453',
+  },
+  instagramGallery: {
+    badgeText: '@_THE_CANDLELAB ON INSTAGRAM',
+    heading: 'Share Your Sanctuary Moment',
+    subheading: 'Tag #_The_CandleLab on Instagram for a chance to be featured in our monthly gallery.',
+    hashtag: '#_The_CandleLab',
+    posts: [
+      { id: '1', title: 'Evening Sanctuary Vibes', likes: '1.4k', tag: '#thecandlelab', url: 'https://instagram.com/_the_candlelab', image: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80', isActive: true },
+      { id: '2', title: 'Unboxing 24K Gold Series', likes: '2.1k', tag: '#luxurycandles', url: 'https://instagram.com/_the_candlelab', image: 'https://images.unsplash.com/photo-1596435452227-886313d0130f?auto=format&fit=crop&w=800&q=80', isActive: true },
+      { id: '3', title: 'Botanical Oil Infusion', likes: '980', tag: '#soycandles', url: 'https://instagram.com/_the_candlelab', image: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=800&q=80', isActive: true },
+      { id: '4', title: 'Wood Wick Flame Dance', likes: '3.2k', tag: '#candlecare', url: 'https://instagram.com/_the_candlelab', image: 'https://images.unsplash.com/photo-1572726729207-a78d6fea73a7?auto=format&fit=crop&w=800&q=80', isActive: true },
+    ],
   },
 };
 

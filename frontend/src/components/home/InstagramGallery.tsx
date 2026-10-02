@@ -1,49 +1,80 @@
 import React from 'react';
 import { Badge, SparklesIcon, HeartIcon } from '../../design-system';
-
-const instaPosts = [
-  { id: 1, title: 'Evening Sanctuary Vibes', likes: '1.4k', tag: '#thecandlelab', url: 'https://instagram.com/_the_candlelab', image: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80' },
-  { id: 2, title: 'Unboxing 24K Gold Series', likes: '2.1k', tag: '#luxurycandles', url: 'https://instagram.com/_the_candlelab', image: 'https://images.unsplash.com/photo-1596435452227-886313d0130f?auto=format&fit=crop&w=800&q=80' },
-  { id: 3, title: 'Botanical Oil Infusion', likes: '980', tag: '#soycandles', url: 'https://instagram.com/_the_candlelab', image: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=800&q=80' },
-  { id: 4, title: 'Wood Wick Flame Dance', likes: '3.2k', tag: '#candlecare', url: 'https://instagram.com/_the_candlelab', image: 'https://images.unsplash.com/photo-1572726729207-a78d6fea73a7?auto=format&fit=crop&w=800&q=80' },
-];
+import { useCMS } from '../../context/CMSContext';
 
 export const InstagramGallery: React.FC = () => {
+  const { settings } = useCMS();
+
+  const gallery = settings?.instagramGallery;
+  const badgeText = gallery?.badgeText || '@_THE_CANDLELAB ON INSTAGRAM';
+  const heading = gallery?.heading || 'Share Your Sanctuary Moment';
+  const subheading = gallery?.subheading || 'Tag #_The_CandleLab on Instagram for a chance to be featured in our monthly gallery.';
+  const hashtag = gallery?.hashtag || '#_The_CandleLab';
+  const profileUrl = settings?.socialLinks?.instagram || 'https://instagram.com/_the_candlelab';
+
+  const defaultPosts = [
+    { id: '1', title: 'Evening Sanctuary Vibes', likes: '1.4k', tag: '#thecandlelab', url: profileUrl, image: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80', isActive: true },
+    { id: '2', title: 'Unboxing 24K Gold Series', likes: '2.1k', tag: '#luxurycandles', url: profileUrl, image: 'https://images.unsplash.com/photo-1596435452227-886313d0130f?auto=format&fit=crop&w=800&q=80', isActive: true },
+    { id: '3', title: 'Botanical Oil Infusion', likes: '980', tag: '#soycandles', url: profileUrl, image: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=800&q=80', isActive: true },
+    { id: '4', title: 'Wood Wick Flame Dance', likes: '3.2k', tag: '#candlecare', url: profileUrl, image: 'https://images.unsplash.com/photo-1572726729207-a78d6fea73a7?auto=format&fit=crop&w=800&q=80', isActive: true },
+  ];
+
+  const posts = gallery?.posts && gallery.posts.length > 0 ? gallery.posts : defaultPosts;
+  const activePosts = posts.filter((p) => p.isActive !== false);
+
+  if (activePosts.length === 0) return null;
+
   return (
     <section className="py-16 sm:py-24 bg-[#FFFFFF] border-b border-[#EADDCB] font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 space-y-12">
         <div className="text-center max-w-2xl mx-auto space-y-3">
-          <Badge variant="pink" icon={<SparklesIcon size={12} />}>@_THE_CANDLELAB ON INSTAGRAM</Badge>
+          <a
+            href={profileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block transition-transform hover:scale-105"
+          >
+            <Badge variant="pink" icon={<SparklesIcon size={12} />}>{badgeText}</Badge>
+          </a>
           <h2 className="text-3xl sm:text-5xl font-serif font-bold text-[#232323]">
-            Share Your Sanctuary Moment
+            {heading}
           </h2>
           <p className="text-sm text-[#5C5149]">
-            Tag <span className="font-bold text-[#C94C6D]">#_The_CandleLab</span> on Instagram for a chance to be featured in our monthly gallery.
+            {subheading.includes(hashtag) ? (
+              <>
+                {subheading.split(hashtag)[0]}
+                <span className="font-bold text-[#C94C6D]">{hashtag}</span>
+                {subheading.split(hashtag)[1]}
+              </>
+            ) : (
+              subheading
+            )}
           </p>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {instaPosts.map((post) => (
+          {activePosts.map((post) => (
             <a
               key={post.id}
-              href={post.url}
+              href={post.url || profileUrl}
               target="_blank"
-              rel="noreferrer"
-              className="relative h-64 sm:h-72 bg-[#232323] rounded-3xl overflow-hidden group cursor-pointer border border-[#EADDCB] hover:border-[#EADDCB] shadow-subtle transition-all"
+              rel="noopener noreferrer"
+              className="relative h-64 sm:h-72 bg-[#232323] rounded-3xl overflow-hidden group cursor-pointer border border-[#EADDCB] hover:border-[#C94C6D]/50 shadow-subtle transition-all duration-300"
             >
               <img
                 src={post.image}
                 alt={post.title}
+                loading="lazy"
                 className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500"
               />
               <div className="absolute inset-0 bg-[#141312]/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-4 text-[#FFFFFF]">
-                <div className="text-[10px] font-bold text-[#EADDCB] uppercase tracking-wider">{post.tag}</div>
+                <div className="text-[10px] font-bold text-[#EADDCB] uppercase tracking-wider">{post.tag || '#thecandlelab'}</div>
                 <div>
                   <h4 className="text-sm font-serif font-bold">{post.title}</h4>
                   <div className="flex items-center gap-1 text-xs text-[#FCD5E2] mt-1">
                     <HeartIcon size={12} className="text-[#8B6F4E]" />
-                    <span>{post.likes}</span>
-                    <span className="ml-auto text-[10px] text-[#EADDCB] font-bold">Open Instagram ↗</span>
+                    <span>{post.likes || '♥'}</span>
+                    <span className="ml-auto text-[10px] text-[#EADDCB] font-bold group-hover:underline">Open Instagram ↗</span>
                   </div>
                 </div>
               </div>

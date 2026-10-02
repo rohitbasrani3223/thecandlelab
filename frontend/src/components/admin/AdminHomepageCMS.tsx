@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useCMS } from '../../context/CMSContext';
+import { useCMS, type CMSInstagramPost, type CMSInstagramGallerySettings } from '../../context/CMSContext';
 import { AdminImageUploader } from './AdminImageUploader';
 
 type StorefrontSubTab =
@@ -8,7 +8,8 @@ type StorefrontSubTab =
   | 'footer'
   | 'megamenu'
   | 'announcement'
-  | 'theme';
+  | 'theme'
+  | 'instagram';
 
 export const AdminHomepageCMS: React.FC = () => {
   const [activeSubTab, setActiveSubTab] = useState<StorefrontSubTab>('homepage');
@@ -74,6 +75,33 @@ export const AdminHomepageCMS: React.FC = () => {
     }
   );
 
+  const [instagramSettings, setInstagramSettings] = useState<CMSInstagramGallerySettings>(
+    settings.instagramGallery || {
+      badgeText: '@_THE_CANDLELAB ON INSTAGRAM',
+      heading: 'Share Your Sanctuary Moment',
+      subheading: 'Tag #_The_CandleLab on Instagram for a chance to be featured in our monthly gallery.',
+      hashtag: '#_The_CandleLab',
+      posts: [
+        { id: '1', title: 'Evening Sanctuary Vibes', likes: '1.4k', tag: '#thecandlelab', url: 'https://instagram.com/_the_candlelab', image: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=800&q=80', isActive: true },
+        { id: '2', title: 'Unboxing 24K Gold Series', likes: '2.1k', tag: '#luxurycandles', url: 'https://instagram.com/_the_candlelab', image: 'https://images.unsplash.com/photo-1596435452227-886313d0130f?auto=format&fit=crop&w=800&q=80', isActive: true },
+        { id: '3', title: 'Botanical Oil Infusion', likes: '980', tag: '#soycandles', url: 'https://instagram.com/_the_candlelab', image: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=800&q=80', isActive: true },
+        { id: '4', title: 'Wood Wick Flame Dance', likes: '3.2k', tag: '#candlecare', url: 'https://instagram.com/_the_candlelab', image: 'https://images.unsplash.com/photo-1572726729207-a78d6fea73a7?auto=format&fit=crop&w=800&q=80', isActive: true },
+      ],
+    }
+  );
+
+  const [isPostModalOpen, setIsPostModalOpen] = useState(false);
+  const [editingPost, setEditingPost] = useState<CMSInstagramPost | null>(null);
+  const [postFormData, setPostFormData] = useState<CMSInstagramPost>({
+    id: '',
+    title: '',
+    image: '',
+    url: '',
+    tag: '#thecandlelab',
+    likes: '1.2k',
+    isActive: true,
+  });
+
   // Sync settings when loaded from Supabase remote bundle
   React.useEffect(() => {
     if (settings.headerSettings) {
@@ -87,6 +115,9 @@ export const AdminHomepageCMS: React.FC = () => {
     if (settings.homepageSections && settings.homepageSections.length > 0) {
       setSections(settings.homepageSections);
     }
+    if (settings.instagramGallery) {
+      setInstagramSettings(settings.instagramGallery);
+    }
   }, [settings]);
 
   const SUB_TABS: { id: StorefrontSubTab; label: string; icon: string }[] = [
@@ -96,7 +127,87 @@ export const AdminHomepageCMS: React.FC = () => {
     { id: 'megamenu', label: 'Mega Menu Builder', icon: '📂' },
     { id: 'announcement', label: 'Announcement Bar', icon: '📢' },
     { id: 'theme', label: 'Theme Settings', icon: '🎨' },
+    { id: 'instagram', label: 'Instagram Gallery', icon: '📸' },
   ];
+
+  const handleSaveInstagram = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    updateSettings({ instagramGallery: instagramSettings });
+    setSavedMessage('Instagram Gallery updated live!');
+    setTimeout(() => setSavedMessage(''), 3000);
+  };
+
+  const handleOpenAddPost = () => {
+    setEditingPost(null);
+    setPostFormData({
+      id: 'ig-' + Date.now(),
+      title: '',
+      image: '',
+      url: settings.socialLinks?.instagram || 'https://instagram.com/_the_candlelab',
+      tag: '#thecandlelab',
+      likes: '1.2k',
+      isActive: true,
+    });
+    setIsPostModalOpen(true);
+  };
+
+  const handleOpenEditPost = (post: CMSInstagramPost) => {
+    setEditingPost(post);
+    setPostFormData({ ...post });
+    setIsPostModalOpen(true);
+  };
+
+  const handleSavePostModal = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!postFormData.image.trim()) {
+      alert('Please provide an image URL or upload a photo.');
+      return;
+    }
+
+    let updatedPosts: CMSInstagramPost[];
+    if (editingPost) {
+      updatedPosts = (instagramSettings.posts || []).map((p) =>
+        p.id === editingPost.id ? { ...postFormData } : p
+      );
+    } else {
+      updatedPosts = [
+        ...(instagramSettings.posts || []),
+        { ...postFormData, id: postFormData.id || 'ig-' + Date.now() },
+      ];
+    }
+
+    const updatedGallery: CMSInstagramGallerySettings = {
+      ...instagramSettings,
+      posts: updatedPosts,
+    };
+
+    setInstagramSettings(updatedGallery);
+    updateSettings({ instagramGallery: updatedGallery });
+    setIsPostModalOpen(false);
+    setSavedMessage(editingPost ? 'Post updated successfully!' : 'New Instagram post added!');
+    setTimeout(() => setSavedMessage(''), 3000);
+  };
+
+  const handleDeletePost = (id: string) => {
+    if (!confirm('Are you sure you want to remove this Instagram post?')) return;
+    const updatedPosts = (instagramSettings.posts || []).filter((p) => p.id !== id);
+    const updatedGallery = { ...instagramSettings, posts: updatedPosts };
+    setInstagramSettings(updatedGallery);
+    updateSettings({ instagramGallery: updatedGallery });
+    setSavedMessage('Post removed.');
+    setTimeout(() => setSavedMessage(''), 3000);
+  };
+
+  const handleTogglePostActive = (id: string) => {
+    const updatedPosts = (instagramSettings.posts || []).map((p) =>
+      p.id === id ? { ...p, isActive: !p.isActive } : p
+    );
+    const updatedGallery = { ...instagramSettings, posts: updatedPosts };
+    setInstagramSettings(updatedGallery);
+    updateSettings({ instagramGallery: updatedGallery });
+    setSavedMessage('Post visibility updated.');
+    setTimeout(() => setSavedMessage(''), 3000);
+  };
 
   const handleHeroSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -747,6 +858,301 @@ export const AdminHomepageCMS: React.FC = () => {
             >
               Save Theme Colors →
             </button>
+          </div>
+        )}
+
+        {/* TAB: INSTAGRAM GALLERY */}
+        {activeSubTab === 'instagram' && (
+          <div className="space-y-8 max-w-5xl">
+            {/* Header / Intro */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#EFE8DB] pb-5">
+              <div>
+                <h3 className="font-serif font-bold text-xl text-[#2C1E16] flex items-center gap-2">
+                  <span>📸</span> Instagram Gallery & Feed Showcase
+                </h3>
+                <p className="text-[#7A6B5D] text-xs mt-1">
+                  Manage real Instagram candle photos, post links, captions, and section headers displayed on the homepage.
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleOpenAddPost}
+                  className="bg-[#B88B38] hover:bg-[#A3792E] text-white font-bold text-xs py-2.5 px-4 rounded-xl cursor-pointer shadow-sm transition-all flex items-center gap-1.5"
+                >
+                  <span>+</span> Add New Post
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveInstagram}
+                  className="bg-[#2C1E16] hover:bg-[#1C130E] text-white font-bold text-xs py-2.5 px-4 rounded-xl cursor-pointer shadow-sm transition-all"
+                >
+                  Save All Settings ✓
+                </button>
+              </div>
+            </div>
+
+            {/* Section Header Controls */}
+            <div className="bg-[#FAF6F0] border border-[#EFE8DB] rounded-2xl p-5 space-y-4">
+              <h4 className="font-serif font-bold text-sm text-[#2C1E16] uppercase tracking-wider">
+                Section Header & Branding Copy
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                <div>
+                  <label className="font-bold text-[#2C1E16] block mb-1">Badge Text</label>
+                  <input
+                    type="text"
+                    value={instagramSettings.badgeText || ''}
+                    onChange={(e) =>
+                      setInstagramSettings({ ...instagramSettings, badgeText: e.target.value })
+                    }
+                    placeholder="@_THE_CANDLELAB ON INSTAGRAM"
+                    className="w-full bg-[#FFFFFF] border border-[#EFE8DB] p-2.5 rounded-lg text-[#2C1E16]"
+                  />
+                </div>
+                <div>
+                  <label className="font-bold text-[#2C1E16] block mb-1">Featured Hashtag</label>
+                  <input
+                    type="text"
+                    value={instagramSettings.hashtag || ''}
+                    onChange={(e) =>
+                      setInstagramSettings({ ...instagramSettings, hashtag: e.target.value })
+                    }
+                    placeholder="#_The_CandleLab"
+                    className="w-full bg-[#FFFFFF] border border-[#EFE8DB] p-2.5 rounded-lg text-[#2C1E16]"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="font-bold text-[#2C1E16] block mb-1">Main Heading</label>
+                  <input
+                    type="text"
+                    value={instagramSettings.heading || ''}
+                    onChange={(e) =>
+                      setInstagramSettings({ ...instagramSettings, heading: e.target.value })
+                    }
+                    placeholder="Share Your Sanctuary Moment"
+                    className="w-full bg-[#FFFFFF] border border-[#EFE8DB] p-2.5 rounded-lg text-[#2C1E16]"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="font-bold text-[#2C1E16] block mb-1">Subheading Description</label>
+                  <textarea
+                    rows={2}
+                    value={instagramSettings.subheading || ''}
+                    onChange={(e) =>
+                      setInstagramSettings({ ...instagramSettings, subheading: e.target.value })
+                    }
+                    placeholder="Tag #_The_CandleLab on Instagram for a chance to be featured in our monthly gallery."
+                    className="w-full bg-[#FFFFFF] border border-[#EFE8DB] p-2.5 rounded-lg text-[#2C1E16]"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Posts Grid */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-serif font-bold text-base text-[#2C1E16]">
+                    Curated Instagram Posts ({instagramSettings.posts?.length || 0})
+                  </h4>
+                  <p className="text-xs text-[#7A6B5D]">
+                    {instagramSettings.posts?.filter((p) => p.isActive !== false).length || 0} active on homepage. Click "Edit" or "+ Add New Post" to use real photos and links.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {(instagramSettings.posts || []).map((post) => (
+                  <div
+                    key={post.id}
+                    className="bg-[#FFFFFF] border border-[#EFE8DB] rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between group"
+                  >
+                    <div className="relative aspect-square w-full bg-[#2C1E16] overflow-hidden">
+                      <img
+                        src={post.image}
+                        alt={post.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute top-2 right-2 flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => handleTogglePostActive(post.id)}
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold cursor-pointer transition-colors shadow-xs ${
+                            post.isActive !== false
+                              ? 'bg-emerald-600 text-white hover:bg-emerald-700'
+                              : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-800'
+                          }`}
+                          title="Click to toggle status"
+                        >
+                          {post.isActive !== false ? '● Live' : 'Hidden'}
+                        </button>
+                      </div>
+                      <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-xs text-white px-2 py-0.5 rounded text-[10px] font-mono">
+                        ♥ {post.likes || '0'}
+                      </div>
+                    </div>
+
+                    <div className="p-3.5 space-y-2 flex-1 flex flex-col justify-between">
+                      <div>
+                        <div className="text-[10px] uppercase font-bold text-[#B88B38] truncate">
+                          {post.tag || '#thecandlelab'}
+                        </div>
+                        <h5 className="font-serif font-bold text-xs text-[#2C1E16] line-clamp-1 mt-0.5" title={post.title}>
+                          {post.title || 'Untitled Post'}
+                        </h5>
+                      </div>
+
+                      <div className="space-y-2 pt-2 border-t border-[#F4EFE6]">
+                        {post.url ? (
+                          <a
+                            href={post.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[11px] text-blue-600 hover:underline flex items-center gap-1 truncate"
+                            title={post.url}
+                          >
+                            <span>↗</span> <span className="truncate">{post.url.replace(/^https?:\/\/(www\.)?/, '')}</span>
+                          </a>
+                        ) : (
+                          <span className="text-[11px] text-zinc-400 italic">No direct link set</span>
+                        )}
+
+                        <div className="flex items-center gap-1.5 pt-1">
+                          <button
+                            type="button"
+                            onClick={() => handleOpenEditPost(post)}
+                            className="flex-1 bg-[#F8F3EA] hover:bg-[#EFE8DB] text-[#2C1E16] text-[11px] font-bold py-1.5 px-2 rounded-lg cursor-pointer transition-colors text-center"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeletePost(post.id)}
+                            className="bg-red-50 hover:bg-red-100 text-red-600 text-[11px] font-bold py-1.5 px-2.5 rounded-lg cursor-pointer transition-colors"
+                            title="Delete Post"
+                          >
+                            🗑
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Modal for Add / Edit Post */}
+            {isPostModalOpen && (
+              <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
+                <div className="bg-[#FAF6F0] border border-[#EFE8DB] rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200">
+                  <div className="flex items-center justify-between border-b border-[#EFE8DB] pb-3">
+                    <h4 className="font-serif font-bold text-lg text-[#2C1E16]">
+                      {editingPost ? 'Edit Instagram Post' : 'Add Real Instagram Post'}
+                    </h4>
+                    <button
+                      type="button"
+                      onClick={() => setIsPostModalOpen(false)}
+                      className="text-stone-400 hover:text-stone-700 text-xl font-bold w-7 h-7 flex items-center justify-center rounded-full hover:bg-black/5 cursor-pointer"
+                    >
+                      ×
+                    </button>
+                  </div>
+
+                  <form onSubmit={handleSavePostModal} className="space-y-4 text-xs">
+                    <div>
+                      <AdminImageUploader
+                        label="Post Photo / Thumbnail"
+                        value={postFormData.image}
+                        onChange={(url) => setPostFormData({ ...postFormData, image: url })}
+                        aspectRatio="square"
+                        helperText="Upload candle photo or paste an image URL (PNG, JPG, WEBP)"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="font-bold text-[#2C1E16] block mb-1">Post Title / Caption</label>
+                      <input
+                        type="text"
+                        required
+                        value={postFormData.title}
+                        onChange={(e) => setPostFormData({ ...postFormData, title: e.target.value })}
+                        placeholder="e.g. Evening Sanctuary Vibes"
+                        className="w-full bg-[#FFFFFF] border border-[#EFE8DB] p-2.5 rounded-lg text-[#2C1E16]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="font-bold text-[#2C1E16] block mb-1">
+                        Direct Instagram Post / Reel URL
+                      </label>
+                      <input
+                        type="url"
+                        value={postFormData.url}
+                        onChange={(e) => setPostFormData({ ...postFormData, url: e.target.value })}
+                        placeholder="https://www.instagram.com/p/C_EXAMPLE/"
+                        className="w-full bg-[#FFFFFF] border border-[#EFE8DB] p-2.5 rounded-lg text-[#2C1E16]"
+                      />
+                      <p className="text-[10px] text-[#7A6B5D] mt-0.5">
+                        When users click the photo on the homepage, they will be redirected directly to this post.
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="font-bold text-[#2C1E16] block mb-1">Tag / Category</label>
+                        <input
+                          type="text"
+                          value={postFormData.tag}
+                          onChange={(e) => setPostFormData({ ...postFormData, tag: e.target.value })}
+                          placeholder="#thecandlelab"
+                          className="w-full bg-[#FFFFFF] border border-[#EFE8DB] p-2.5 rounded-lg text-[#2C1E16]"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-bold text-[#2C1E16] block mb-1">Likes Display</label>
+                        <input
+                          type="text"
+                          value={postFormData.likes}
+                          onChange={(e) => setPostFormData({ ...postFormData, likes: e.target.value })}
+                          placeholder="e.g. 1.4k or 850"
+                          className="w-full bg-[#FFFFFF] border border-[#EFE8DB] p-2.5 rounded-lg text-[#2C1E16]"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 pt-1">
+                      <input
+                        type="checkbox"
+                        id="modalPostActive"
+                        checked={postFormData.isActive}
+                        onChange={(e) => setPostFormData({ ...postFormData, isActive: e.target.checked })}
+                        className="w-4 h-4 rounded text-[#B88B38] accent-[#B88B38] cursor-pointer"
+                      />
+                      <label htmlFor="modalPostActive" className="text-[#2C1E16] font-medium cursor-pointer select-none">
+                        Show this post live on the homepage gallery
+                      </label>
+                    </div>
+
+                    <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#EFE8DB]">
+                      <button
+                        type="button"
+                        onClick={() => setIsPostModalOpen(false)}
+                        className="bg-[#EFE8DB] hover:bg-[#E3DCce] text-[#2C1E16] font-bold text-xs py-2 px-4 rounded-xl cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="bg-[#B88B38] hover:bg-[#A3792E] text-white font-bold text-xs py-2 px-5 rounded-xl cursor-pointer shadow-xs"
+                      >
+                        {editingPost ? 'Save Changes' : 'Add Post to Gallery'}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
