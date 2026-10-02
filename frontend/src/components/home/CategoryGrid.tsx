@@ -53,7 +53,7 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
     });
   };
 
-  // ONLY real LIVE Categories with products
+  // Live Categories from active CMS main categories
   const liveCategories = useMemo<LiveCategoryCard[]>(() => {
     if (mainCategories && mainCategories.length > 0) {
       return mainCategories
@@ -75,14 +75,13 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
             id: `cat:${cleanName}`,
             rawId: cat.id,
             name: cleanName,
-            subtitle: cat.description || `${count} hand-poured formulation${count === 1 ? '' : 's'}`,
+            subtitle: cat.description || (count > 0 ? `${count} hand-poured formulation${count === 1 ? '' : 's'}` : 'Handcrafted formulations'),
             count,
-            price: `From ${settings.currencySymbol || '₹'}999`,
+            price: count > 0 ? `From ${settings.currencySymbol || '₹'}999` : 'Explore Atelier',
             image,
             tag: cleanName.toLowerCase().includes('bestseller') ? 'Bestseller' : 'Category',
           };
-        })
-        .filter((c) => c.count > 0);
+        });
     }
 
     // Fallback if mainCategories table isn't populated: derive strictly from live products

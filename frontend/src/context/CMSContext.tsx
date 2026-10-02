@@ -1062,42 +1062,68 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
 
         // 6. Main Categories
-        if (categoriesRes.status === 'fulfilled' && Array.isArray(categoriesRes.value) && categoriesRes.value.length > 0) {
-          setMainCategories(
-            categoriesRes.value.map((c) => ({
-              id: String(c.id),
-              name: c.name,
-              slug: c.slug,
-              description: c.description || '',
-              imageUrl: c.image_url,
-              bannerDesktop: c.banner_desktop,
-              bannerMobile: c.banner_mobile,
-              metaTitle: c.meta_title,
-              metaDescription: c.meta_description,
-              isActive: c.is_active ?? true,
-              sortOrder: c.sort_order ?? 0,
-            }))
-          );
+        if (categoriesRes.status === 'fulfilled' && categoriesRes.value && Array.isArray(categoriesRes.value) && categoriesRes.value.length > 0) {
+          const remoteCats = categoriesRes.value;
+          setMainCategories((prevLocal) => {
+            const remoteMap = new Map<string, CMSMainCategory>(
+              remoteCats.map((c: any) => [
+                String(c.id),
+                {
+                  id: String(c.id),
+                  name: c.name,
+                  slug: c.slug,
+                  description: c.description || '',
+                  imageUrl: c.image_url,
+                  bannerDesktop: c.banner_desktop,
+                  bannerMobile: c.banner_mobile,
+                  metaTitle: c.meta_title,
+                  metaDescription: c.meta_description,
+                  isActive: c.is_active ?? true,
+                  sortOrder: c.sort_order ?? 0,
+                },
+              ])
+            );
+            const combined: CMSMainCategory[] = [...remoteMap.values()];
+            for (const local of prevLocal) {
+              if (!remoteMap.has(local.id)) {
+                combined.push(local);
+              }
+            }
+            return combined;
+          });
         }
 
         // 7. Sub Categories
-        if (subCategoriesRes.status === 'fulfilled' && Array.isArray(subCategoriesRes.value) && subCategoriesRes.value.length > 0) {
-          setSubCategories(
-            subCategoriesRes.value.map((s) => ({
-              id: String(s.id),
-              mainCategoryId: s.main_category_id ? String(s.main_category_id) : '',
-              name: s.name,
-              slug: s.slug,
-              description: s.description || '',
-              imageUrl: s.image_url,
-              bannerDesktop: s.banner_desktop,
-              bannerMobile: s.banner_mobile,
-              metaTitle: s.meta_title,
-              metaDescription: s.meta_description,
-              isActive: s.is_active ?? true,
-              sortOrder: s.sort_order ?? 0,
-            }))
-          );
+        if (subCategoriesRes.status === 'fulfilled' && subCategoriesRes.value && Array.isArray(subCategoriesRes.value) && subCategoriesRes.value.length > 0) {
+          const remoteSubs = subCategoriesRes.value;
+          setSubCategories((prevLocal) => {
+            const remoteMap = new Map<string, CMSSubCategory>(
+              remoteSubs.map((s: any) => [
+                String(s.id),
+                {
+                  id: String(s.id),
+                  mainCategoryId: s.main_category_id ? String(s.main_category_id) : '',
+                  name: s.name,
+                  slug: s.slug,
+                  description: s.description || '',
+                  imageUrl: s.image_url,
+                  bannerDesktop: s.banner_desktop,
+                  bannerMobile: s.banner_mobile,
+                  metaTitle: s.meta_title,
+                  metaDescription: s.meta_description,
+                  isActive: s.is_active ?? true,
+                  sortOrder: s.sort_order ?? 0,
+                },
+              ])
+            );
+            const combined: CMSSubCategory[] = [...remoteMap.values()];
+            for (const local of prevLocal) {
+              if (!remoteMap.has(local.id)) {
+                combined.push(local);
+              }
+            }
+            return combined;
+          });
         }
 
         // 8. Collections
@@ -1787,16 +1813,27 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Main Categories Mutations
   const addMainCategory = async (cat: Partial<CMSMainCategory>) => {
     const newId = cat.id && cat.id.length >= 32 ? cat.id : generateUUID();
+    let baseSlug = (cat.slug || cat.name || 'new-category')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '') || 'category';
+    let slug = baseSlug;
+    let counter = 1;
+    while (mainCategories.some((c) => c.slug === slug && c.id !== newId)) {
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+
     const newCat: CMSMainCategory = {
       id: newId,
-      name: cat.name || 'New Category',
-      slug: cat.slug || (cat.name || 'new-category').toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+      name: (cat.name || 'New Category').trim(),
+      slug,
       description: cat.description || '',
-      imageUrl: cat.imageUrl,
-      bannerDesktop: cat.bannerDesktop,
-      bannerMobile: cat.bannerMobile,
-      metaTitle: cat.metaTitle,
-      metaDescription: cat.metaDescription,
+      imageUrl: cat.imageUrl || '',
+      bannerDesktop: cat.bannerDesktop || '',
+      bannerMobile: cat.bannerMobile || '',
+      metaTitle: cat.metaTitle || '',
+      metaDescription: cat.metaDescription || '',
       isActive: cat.isActive ?? true,
       sortOrder: cat.sortOrder ?? (mainCategories.length + 1),
     };
@@ -1868,18 +1905,29 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const addSubCategory = async (sub: Partial<CMSSubCategory>) => {
     const newId = sub.id && sub.id.length >= 32 ? sub.id : generateUUID();
     const parentCat = mainCategories.find((c) => c.id === sub.mainCategoryId);
+    let baseSlug = (sub.slug || sub.name || 'new-sub')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '') || 'subcategory';
+    let slug = baseSlug;
+    let counter = 1;
+    while (subCategories.some((s) => s.slug === slug && s.id !== newId)) {
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+
     const newSub: CMSSubCategory = {
       id: newId,
       mainCategoryId: sub.mainCategoryId || (mainCategories[0]?.id ?? '11111111-1111-1111-1111-111111111111'),
       mainCategoryName: parentCat?.name,
-      name: sub.name || 'New Subcategory',
-      slug: sub.slug || (sub.name || 'new-sub').toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+      name: (sub.name || 'New Subcategory').trim(),
+      slug,
       description: sub.description || '',
-      imageUrl: sub.imageUrl,
-      bannerDesktop: sub.bannerDesktop,
-      bannerMobile: sub.bannerMobile,
-      metaTitle: sub.metaTitle,
-      metaDescription: sub.metaDescription,
+      imageUrl: sub.imageUrl || '',
+      bannerDesktop: sub.bannerDesktop || '',
+      bannerMobile: sub.bannerMobile || '',
+      metaTitle: sub.metaTitle || '',
+      metaDescription: sub.metaDescription || '',
       isActive: sub.isActive ?? true,
       sortOrder: sub.sortOrder ?? (subCategories.length + 1),
     };

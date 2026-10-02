@@ -20,6 +20,15 @@ export const AdminCategoriesManager: React.FC = () => {
   } = useCMS();
 
   const [activeSubTab, setActiveSubTab] = useState<'main' | 'sub'>('main');
+  const [isSaving, setIsSaving] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const showStatus = (type: 'success' | 'error', text: string) => {
+    setStatusMessage({ type, text });
+    setTimeout(() => {
+      setStatusMessage(null);
+    }, 4000);
+  };
 
   // Main Category Form State
   const [editingMainId, setEditingMainId] = useState<string | null>(null);
@@ -74,22 +83,41 @@ export const AdminCategoriesManager: React.FC = () => {
 
   const handleSaveMain = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!mainForm.name?.trim()) return;
-
-    if (isCreatingMain) {
-      await addMainCategory(mainForm);
-    } else if (editingMainId) {
-      await updateMainCategory(editingMainId, mainForm);
+    if (!mainForm.name?.trim()) {
+      showStatus('error', 'Please enter a category name');
+      return;
     }
-    setIsCreatingMain(false);
-    setEditingMainId(null);
+
+    try {
+      setIsSaving(true);
+      const catName = mainForm.name.trim();
+      if (isCreatingMain) {
+        await addMainCategory(mainForm);
+        showStatus('success', `Category "${catName}" created and published successfully!`);
+      } else if (editingMainId) {
+        await updateMainCategory(editingMainId, mainForm);
+        showStatus('success', `Category "${catName}" updated successfully!`);
+      }
+      setIsCreatingMain(false);
+      setEditingMainId(null);
+    } catch (err: any) {
+      showStatus('error', err?.message || 'Failed to save category. Please check your connection.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleDeleteMain = async (id: string, name: string) => {
     if (!confirm(`Are you sure you want to delete category "${name}"?`)) return;
-    const res = await deleteMainCategory(id);
-    if (!res.success) {
-      alert(res.message);
+    try {
+      const res = await deleteMainCategory(id);
+      if (!res.success) {
+        showStatus('error', res.message || 'Cannot delete category');
+      } else {
+        showStatus('success', `Category "${name}" deleted.`);
+      }
+    } catch (err: any) {
+      showStatus('error', err?.message || 'Failed to delete category');
     }
   };
 
@@ -118,27 +146,69 @@ export const AdminCategoriesManager: React.FC = () => {
 
   const handleSaveSub = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!subForm.name?.trim()) return;
-
-    if (isCreatingSub) {
-      await addSubCategory(subForm);
-    } else if (editingSubId) {
-      await updateSubCategory(editingSubId, subForm);
+    if (!subForm.name?.trim()) {
+      showStatus('error', 'Please enter a subcategory name');
+      return;
     }
-    setIsCreatingSub(false);
-    setEditingSubId(null);
+
+    try {
+      setIsSaving(true);
+      const subName = subForm.name.trim();
+      if (isCreatingSub) {
+        await addSubCategory(subForm);
+        showStatus('success', `Subcategory "${subName}" created and published successfully!`);
+      } else if (editingSubId) {
+        await updateSubCategory(editingSubId, subForm);
+        showStatus('success', `Subcategory "${subName}" updated successfully!`);
+      }
+      setIsCreatingSub(false);
+      setEditingSubId(null);
+    } catch (err: any) {
+      showStatus('error', err?.message || 'Failed to save subcategory. Please check your connection.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleDeleteSub = async (id: string, name: string) => {
     if (!confirm(`Are you sure you want to delete subcategory "${name}"?`)) return;
-    const res = await deleteSubCategory(id);
-    if (!res.success) {
-      alert(res.message);
+    try {
+      const res = await deleteSubCategory(id);
+      if (!res.success) {
+        showStatus('error', res.message || 'Cannot delete subcategory');
+      } else {
+        showStatus('success', `Subcategory "${name}" deleted.`);
+      }
+    } catch (err: any) {
+      showStatus('error', err?.message || 'Failed to delete subcategory');
     }
   };
 
   return (
     <div className="space-y-6">
+      {/* Status Feedback Toast/Banner */}
+      {statusMessage && (
+        <div
+          className={`p-4 rounded-xl text-xs font-medium flex items-center justify-between shadow-lg transition-all animate-fade-in ${
+            statusMessage.type === 'success'
+              ? 'bg-emerald-950/80 border border-emerald-500/50 text-emerald-200'
+              : 'bg-red-950/80 border border-red-500/50 text-red-200'
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            <span>{statusMessage.type === 'success' ? '✅' : '⚠️'}</span>
+            <span>{statusMessage.text}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setStatusMessage(null)}
+            className="text-stone-400 hover:text-stone-200 text-xs ml-4"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#1C130E] p-6 rounded-xl border border-[#2C2018]">
         <div>
@@ -276,9 +346,11 @@ export const AdminCategoriesManager: React.FC = () => {
                 </div>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-amber-600 hover:bg-amber-500 text-stone-950 font-medium text-xs rounded-lg transition-colors"
+                  disabled={isSaving}
+                  className="px-5 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-stone-950 font-medium text-xs rounded-lg transition-colors flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed"
                 >
-                  {isCreatingMain ? 'Create Category' : 'Save Changes'}
+                  {isSaving && <span className="inline-block animate-spin">⏳</span>}
+                  <span>{isSaving ? 'Saving Category...' : (isCreatingMain ? 'Create Category' : 'Save Changes')}</span>
                 </button>
               </div>
             </form>
@@ -463,9 +535,11 @@ export const AdminCategoriesManager: React.FC = () => {
                 </div>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-amber-600 hover:bg-amber-500 text-stone-950 font-medium text-xs rounded-lg transition-colors"
+                  disabled={isSaving}
+                  className="px-5 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-stone-950 font-medium text-xs rounded-lg transition-colors flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed"
                 >
-                  {isCreatingSub ? 'Create Subcategory' : 'Save Changes'}
+                  {isSaving && <span className="inline-block animate-spin">⏳</span>}
+                  <span>{isSaving ? 'Saving Subcategory...' : (isCreatingSub ? 'Create Subcategory' : 'Save Changes')}</span>
                 </button>
               </div>
             </form>
