@@ -1243,8 +1243,10 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               discount: localMatch?.discount || 0,
               shipping: localMatch?.shipping || 0,
               tax: 0,
-              paymentMethod: o.payment_method || localMatch?.paymentMethod || 'Razorpay Online',
-              paymentId: localMatch?.paymentId || (o.payment_method?.includes('COD') ? 'COD_VERIFIED' : `PAY_${ordId.replace(/[^A-Za-z0-9]/g, '')}`),
+              paymentMethod: (o.payment_method?.toLowerCase().includes('cod') || o.order_status?.toLowerCase().includes('cod') || localMatch?.isCOD || localMatch?.paymentMethod?.toLowerCase().includes('cod'))
+                ? 'Cash on Delivery (COD)'
+                : (o.payment_method || localMatch?.paymentMethod || 'Razorpay Online'),
+              paymentId: localMatch?.paymentId || ((o.payment_method?.includes('COD') || o.order_status?.toLowerCase().includes('cod')) ? 'COD_VERIFIED' : `PAY_${ordId.replace(/[^A-Za-z0-9]/g, '')}`),
               trackingNumber: localMatch?.trackingNumber || o.tracking_number || '',
               courier: localMatch?.courier || '',
               status: o.order_status || o.payment_status || localMatch?.status || 'Processing',

@@ -11,12 +11,14 @@ export interface PaymentMethodStepProps {
   initialData: PaymentData;
   onBack: () => void;
   onNext: (data: PaymentData) => void;
+  totalAmount?: number;
 }
 
 export const PaymentMethodStep: React.FC<PaymentMethodStepProps> = ({
   initialData,
   onBack,
   onNext,
+  totalAmount,
 }) => {
   const [paymentData, setPaymentData] = useState<PaymentData>({
     method: initialData.method || 'razorpay',
@@ -60,34 +62,46 @@ export const PaymentMethodStep: React.FC<PaymentMethodStepProps> = ({
           },
           {
             id: 'cod',
-            title: 'Cash on Delivery',
+            title: 'Cash on Delivery (COD)',
             subtitle: 'Pay at Doorstep',
             icon: '💵',
             badge: 'COD AVAILABLE',
           },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            type="button"
-            onClick={() => setPaymentData({ ...paymentData, method: tab.id as any })}
-            className={`p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between space-y-3 ${
-              paymentData.method === tab.id
-                ? 'border-[#8B6F4E] bg-[#FAF7F2] ring-2 ring-[#EADDCB]/40 shadow-card'
-                : 'border-[#EADDCB] bg-[#FFFFFF] hover:bg-[#FAF7F2]'
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-2xl">{tab.icon}</span>
-              <span className="text-[9px] font-bold uppercase bg-[#FDE8EF] text-[#C94C6D] px-2.5 py-0.5 rounded-full border border-[#EADDCB]">
-                {tab.badge}
-              </span>
-            </div>
-            <div>
-              <span className="text-sm font-bold text-[#232323] block leading-snug">{tab.title}</span>
-              <span className="text-[11px] text-[#7D6F63] block mt-0.5">{tab.subtitle}</span>
-            </div>
-          </button>
-        ))}
+        ].map((tab) => {
+          const isSelected = paymentData.method === tab.id;
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setPaymentData({ ...paymentData, method: tab.id as any })}
+              className={`p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between space-y-3 relative ${
+                isSelected
+                  ? 'border-[#8B6F4E] bg-[#FAF7F2] ring-2 ring-[#8B6F4E]/40 shadow-card'
+                  : 'border-[#EADDCB] bg-[#FFFFFF] hover:bg-[#FAF7F2]'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className={`w-4 h-4 rounded-full border flex items-center justify-center ${isSelected ? 'border-[#8B6F4E] bg-[#8B6F4E]' : 'border-[#C2B29F] bg-white'}`}>
+                    {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-white block" />}
+                  </span>
+                  <span className="text-2xl">{tab.icon}</span>
+                </div>
+                <span className={`text-[9px] font-bold uppercase px-2.5 py-0.5 rounded-full border ${
+                  isSelected && tab.id === 'cod'
+                    ? 'bg-amber-100 text-amber-900 border-amber-300'
+                    : 'bg-[#FDE8EF] text-[#C94C6D] border-[#EADDCB]'
+                }`}>
+                  {tab.badge}
+                </span>
+              </div>
+              <div>
+                <span className="text-sm font-bold text-[#232323] block leading-snug">{tab.title}</span>
+                <span className="text-[11px] text-[#7D6F63] block mt-0.5">{tab.subtitle}</span>
+              </div>
+            </button>
+          );
+        })}
       </div>
 
       {/* Razorpay Online Checkout Banner */}
@@ -136,15 +150,22 @@ export const PaymentMethodStep: React.FC<PaymentMethodStepProps> = ({
 
       {/* Cash on Delivery Banner */}
       {paymentData.method === 'cod' && (
-        <div className="p-5 bg-[#FFFFFF] border border-[#EADDCB] rounded-2xl space-y-3 animate-fade-in shadow-xs">
+        <div className="p-5 bg-[#FFFBF5] border-2 border-amber-600/40 rounded-2xl space-y-3 animate-fade-in shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs uppercase font-bold text-[#232323]">Cash on Delivery (COD)</span>
-            <span className="text-xs text-[#15803D] font-bold">🚚 Doorstep Verification</span>
+            <span className="text-xs uppercase font-bold text-amber-950 flex items-center gap-1.5">
+              <span>💵</span>
+              <span>Cash on Delivery (COD) Selected</span>
+            </span>
+            <span className="text-xs text-[#15803D] font-bold">✓ No Advance Payment</span>
           </div>
 
           <p className="text-xs text-[#5C5149] leading-relaxed">
-            Pay with cash or scan delivery agent UPI QR code when your candle shipment arrives at your delivery address.
+            Your order will be confirmed immediately. Pay with cash or scan the courier delivery agent's UPI QR code when your candle shipment arrives at your doorstep.
           </p>
+
+          <div className="text-[11px] text-amber-800 bg-amber-50 p-2.5 rounded-xl border border-amber-200/60 font-medium">
+            💡 <strong>Note:</strong> Razorpay payment gateway will <strong>not</strong> open for this COD order.
+          </div>
         </div>
       )}
 
@@ -154,13 +175,31 @@ export const PaymentMethodStep: React.FC<PaymentMethodStepProps> = ({
         onChange={(e) => setPaymentData({ ...paymentData, sameBilling: e.target.checked })}
       />
 
-      <div className="flex items-center gap-4 pt-4">
-        <Button type="button" variant="outline" size="lg" onClick={onBack}>
-          ← Back to Delivery
-        </Button>
-        <Button type="submit" variant="pink" size="lg" fullWidth>
-          Continue to Final Review →
-        </Button>
+      <div className="space-y-2 pt-4">
+        <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-4">
+          <Button type="button" variant="outline" size="lg" onClick={onBack} className="w-full sm:w-auto">
+            ← Back to Delivery
+          </Button>
+          <Button
+            type="submit"
+            variant="pink"
+            size="lg"
+            fullWidth
+            className={paymentData.method === 'cod' ? 'bg-[#8B6F4E] hover:bg-[#745A3D]' : ''}
+          >
+            {paymentData.method === 'cod'
+              ? `💵 Place Cash on Delivery Order${totalAmount ? ` (₹${totalAmount.toLocaleString('en-IN')})` : ''} →`
+              : paymentData.method === 'upi'
+              ? `📱 Proceed with UPI${totalAmount ? ` (₹${totalAmount.toLocaleString('en-IN')})` : ''} →`
+              : `⚡ Pay Securely with Razorpay${totalAmount ? ` (₹${totalAmount.toLocaleString('en-IN')})` : ''} →`}
+          </Button>
+        </div>
+
+        {paymentData.method === 'cod' && (
+          <p className="text-center text-[11px] text-stone-500 font-medium">
+            🔒 By clicking above, your order will be placed with Cash on Delivery without opening Razorpay.
+          </p>
+        )}
       </div>
     </form>
   );

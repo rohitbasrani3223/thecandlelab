@@ -356,7 +356,11 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
   };
 
   if (step === 4) {
-    const isOrderCOD = completedOrder?.isCOD ?? (payment.method === 'cod');
+    const isOrderCOD = Boolean(
+      completedOrder?.isCOD ||
+      completedOrder?.paymentMethod?.toLowerCase().includes('cod') ||
+      payment.method === 'cod'
+    );
     return (
       <OrderSuccessPage
         orderDetails={completedOrder || {
@@ -364,7 +368,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
           email: address.email || user?.email || '',
           customerName: `${address.firstName} ${address.lastName}`.trim() || user?.name || 'Valued Customer',
           phone: address.phone || user?.phone || '',
-          items: cartItems,
+          items: completedOrder?.items || [],
           subtotal: subtotal,
           discount: discountAmount,
           shippingFee: shippingFee,
@@ -446,6 +450,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
             {step === 3 && (
               <PaymentMethodStep
                 initialData={payment}
+                totalAmount={totalAmount}
                 onBack={() => setStep(2)}
                 onNext={(pay) => {
                   setPayment(pay);

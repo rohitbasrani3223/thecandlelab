@@ -57,8 +57,13 @@ export const PrintableInvoice: React.FC<PrintableInvoiceProps> = ({
   const shippingFee = order.shippingFee !== undefined ? order.shippingFee : (order.shipping || 0);
   const subtotal = order.subtotal !== undefined ? order.subtotal : (totalAmount > 0 ? (totalAmount - shippingFee + discount) : 0);
 
-  const paymentMethod = order.paymentMethod || 'Online (Razorpay / UPI)';
-  const isCOD = paymentMethod.toLowerCase().includes('cod') || paymentMethod.toLowerCase().includes('cash');
+  const isCOD = Boolean(
+    order.isCOD ||
+    String(order.paymentMethod || '').toLowerCase().includes('cod') ||
+    String(order.paymentMethod || '').toLowerCase().includes('cash') ||
+    String(order.status || '').toLowerCase().includes('cod')
+  );
+  const paymentMethod = isCOD ? 'Cash on Delivery (COD)' : (order.paymentMethod || 'Online (Razorpay / UPI)');
   const paymentStatus = isCOD ? 'PENDING (Cash on Delivery)' : 'PAID (Online Verified)';
   const paymentRef = order.paymentId || (isCOD ? 'COD_VERIFIED' : (cleanId ? `PAY_${cleanId}` : '—'));
   const trackingAWB = order.trackingNumber || order.awb || '—';
