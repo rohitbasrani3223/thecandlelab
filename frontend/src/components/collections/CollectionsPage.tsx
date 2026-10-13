@@ -77,6 +77,8 @@ export const CollectionsPage: React.FC<CollectionsPageProps> = ({
           pCol === nameLower ||
           pCol === curId.toLowerCase() ||
           (p.mainCategoryId && String(p.mainCategoryId) === curId) ||
+          p.categoryIds?.some((cId) => String(cId) === curId) ||
+          p.categories?.some((cName) => cName.toLowerCase().trim() === nameLower) ||
           pCat === nameLower
         );
       });
@@ -172,7 +174,13 @@ export const CollectionsPage: React.FC<CollectionsPageProps> = ({
       if (p.mainCategoryId && String(p.mainCategoryId) === curId) {
         return true;
       }
+      if (p.categoryIds && p.categoryIds.some((cId) => String(cId) === curId)) {
+        return true;
+      }
       if (pCat === curNameLower) {
+        return true;
+      }
+      if (p.categories && p.categories.some((cName) => cName.toLowerCase().trim() === curNameLower)) {
         return true;
       }
 

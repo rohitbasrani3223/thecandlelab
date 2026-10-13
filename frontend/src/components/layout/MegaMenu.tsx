@@ -26,7 +26,10 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, activeMenu,
         const count = products.filter((p) => {
           const pNorm = normalize(p.category || '');
           const pId = String(p.mainCategoryId || '').toLowerCase().trim();
-          return (pId && pId === c.id.toLowerCase()) || (pNorm && pNorm === norm);
+          if ((pId && pId === c.id.toLowerCase()) || (pNorm && pNorm === norm)) return true;
+          if (p.categoryIds && p.categoryIds.some((cid) => String(cid).toLowerCase().trim() === c.id.toLowerCase())) return true;
+          if (p.categories && p.categories.some((catName) => normalize(catName || '') === norm)) return true;
+          return false;
         }).length;
         list.push({ id: c.id, name: clean, count });
       }

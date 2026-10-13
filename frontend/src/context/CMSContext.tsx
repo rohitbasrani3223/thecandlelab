@@ -282,7 +282,9 @@ export interface CMSProduct {
   rating: number;
   reviewsCount: number;
   mainCategoryId?: string;
+  categoryIds?: string[];
   category: string;
+  categories?: string[];
   subCategoryId?: string;
   subCategory?: string;
   collectionIds?: string[];
@@ -789,6 +791,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     collections: CMSCollection[];
     mediaItems: CMSMediaItem[];
     coupons: CMSCoupon[];
+    productCategoryOverrides?: Record<string, { categoryIds: string[]; categories: string[] }>;
   }>({
     settings,
     announcement,
@@ -799,6 +802,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     collections,
     mediaItems,
     coupons,
+    productCategoryOverrides: {},
   });
 
   // Keep cmsBundleRef continuously in sync with latest React state
@@ -830,6 +834,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       collections: cmsBundleRef.current.collections,
       mediaItems: cmsBundleRef.current.mediaItems,
       coupons: cmsBundleRef.current.coupons,
+      productCategoryOverrides: cmsBundleRef.current.productCategoryOverrides,
     };
     try {
       await saveCmsBundle(bundleToSave);
@@ -994,6 +999,9 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           if (bundle.coupons && Array.isArray(bundle.coupons)) {
             setCoupons(bundle.coupons);
             cmsBundleRef.current.coupons = bundle.coupons;
+          }
+          if (bundle.productCategoryOverrides) {
+            cmsBundleRef.current.productCategoryOverrides = bundle.productCategoryOverrides;
           }
         }
 
@@ -1419,24 +1427,67 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
           const fallbackDefaultCategory = (categoriesRes.status === 'fulfilled' && categoriesRes.value?.[0]?.name) || 'Luxury Scented Candles';
 
+          // Local cache map for preserving locally assigned multi-categories across reloads
+          const localCachedProducts: CMSProduct[] = (() => {
+            try {
+              const s = localStorage.getItem(PRODUCTS_STORAGE_KEY);
+              return s ? JSON.parse(s) : [];
+            } catch {
+              return [];
+            }
+          })();
+          const localProductMap = new Map(localCachedProducts.map((lp) => [String(lp.id), lp]));
+
           const mapped: CMSProduct[] = dbProducts.map((p) => {
-            const gallery = imageMap.get(String(p.id)) || [];
+            const pId = String(p.id);
+            const gallery = imageMap.get(pId) || [];
             const primaryImg = gallery[0] || p.image_url || p.thumbnail || PRODUCT_IMAGE_PLACEHOLDER;
-            const vars = variantMap.get(String(p.id)) || [];
+            const vars = variantMap.get(pId) || [];
             const resolvedCat = p.main_category_id ? catLookup.get(String(p.main_category_id)) : undefined;
 
+            const localProd = localProductMap.get(pId);
+            const bundleOverride = cmsBundleRef.current.productCategoryOverrides?.[pId];
+
+            const rawCatIds: string[] =
+              bundleOverride?.categoryIds && bundleOverride.categoryIds.length > 0
+                ? bundleOverride.categoryIds
+                : Array.isArray(p.category_ids) && p.category_ids.length > 0
+                ? p.category_ids.map(String)
+                : localProd?.categoryIds && localProd.categoryIds.length > 0
+                ? localProd.categoryIds
+                : p.main_category_id
+                ? [String(p.main_category_id)]
+                : [];
+
+            const primaryId = p.main_category_id ? String(p.main_category_id) : rawCatIds[0];
+            const finalCatIds = Array.from(new Set(rawCatIds.length > 0 ? rawCatIds : primaryId ? [primaryId] : []));
+
+            const rawCatNames: string[] =
+              bundleOverride?.categories && bundleOverride.categories.length > 0
+                ? bundleOverride.categories
+                : Array.isArray(p.categories) && p.categories.length > 0
+                ? p.categories
+                : localProd?.categories && localProd.categories.length > 0
+                ? localProd.categories
+                : finalCatIds.map((id) => catLookup.get(id)).filter(Boolean) as string[];
+
+            const primaryName = resolvedCat || p.category || (primaryId ? catLookup.get(primaryId) : undefined) || localProd?.category || fallbackDefaultCategory;
+            const finalCatNames = Array.from(new Set([primaryName, ...rawCatNames])).filter(Boolean) as string[];
+
             return {
-              id: String(p.id),
+              id: pId,
               name: p.name,
               slug: p.slug,
               tagline: p.tagline,
-              sku: p.sku || `TCL-${String(p.id).slice(0, 6)}`,
+              sku: p.sku || `TCL-${pId.slice(0, 6)}`,
               price: Number(p.price || 999),
               originalPrice: Number(p.original_price || p.price || 1299),
               rating: Number(p.rating || 4.9),
               reviewsCount: Number(p.reviews_count || 12),
-              mainCategoryId: p.main_category_id ? String(p.main_category_id) : undefined,
-              category: resolvedCat || p.category || fallbackDefaultCategory,
+              mainCategoryId: primaryId || undefined,
+              categoryIds: finalCatIds,
+              category: primaryName,
+              categories: finalCatNames,
               subCategoryId: p.sub_category_id ? String(p.sub_category_id) : undefined,
               collectionIds: p.collection_id ? [String(p.collection_id)] : [],
               collection: '',
@@ -1887,7 +1938,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const deleteMainCategory = async (id: string): Promise<{ success: boolean; message?: string }> => {
-    const count = products.filter((p) => p.mainCategoryId === id).length;
+    const count = products.filter((p) => p.mainCategoryId === id || p.categoryIds?.includes(id)).length;
     if (count > 0) {
       return {
         success: false,
@@ -2177,8 +2228,14 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       originalPrice: product.originalPrice || product.price || 1299,
       rating: product.rating || 4.9,
       reviewsCount: product.reviewsCount || 0,
-      mainCategoryId: product.mainCategoryId,
-      category: product.category || 'Scented Soy Candles',
+      mainCategoryId: product.mainCategoryId || product.categoryIds?.[0],
+      categoryIds: product.categoryIds && product.categoryIds.length > 0
+        ? product.categoryIds
+        : (product.mainCategoryId ? [product.mainCategoryId] : []),
+      category: product.category || product.categories?.[0] || 'Scented Soy Candles',
+      categories: product.categories && product.categories.length > 0
+        ? product.categories
+        : [product.category || 'Scented Soy Candles'],
       subCategoryId: product.subCategoryId,
       collectionIds: product.collectionIds || [],
       collection: product.collection || '',
@@ -2227,6 +2284,18 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
     await syncProductImages(realId, newProduct.image, newProduct.images);
     await syncProductVariants(realId, newProduct.variants);
+
+    if (newProduct.categoryIds || newProduct.categories) {
+      const overrides = {
+        ...(cmsBundleRef.current.productCategoryOverrides || {}),
+        [realId]: {
+          categoryIds: newProduct.categoryIds || [],
+          categories: newProduct.categories || [],
+        },
+      };
+      cmsBundleRef.current.productCategoryOverrides = overrides;
+      persistCmsBundle({ productCategoryOverrides: overrides });
+    }
 
     try {
       await supabaseFetch('products', {
@@ -2290,6 +2359,18 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       await syncProductVariants(id, merged.variants);
     }
 
+    if (merged.categoryIds || merged.categories) {
+      const overrides = {
+        ...(cmsBundleRef.current.productCategoryOverrides || {}),
+        [id]: {
+          categoryIds: merged.categoryIds || [],
+          categories: merged.categories || [],
+        },
+      };
+      cmsBundleRef.current.productCategoryOverrides = overrides;
+      persistCmsBundle({ productCategoryOverrides: overrides });
+    }
+
     try {
       await supabaseFetch('products', {
         method: 'PATCH',
@@ -2343,6 +2424,13 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       } catch { }
       return next;
     });
+
+    if (cmsBundleRef.current.productCategoryOverrides?.[id]) {
+      const overrides = { ...cmsBundleRef.current.productCategoryOverrides };
+      delete overrides[id];
+      cmsBundleRef.current.productCategoryOverrides = overrides;
+      persistCmsBundle({ productCategoryOverrides: overrides });
+    }
 
     try {
       // 1. Delete associated images in Supabase

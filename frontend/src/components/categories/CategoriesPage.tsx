@@ -122,7 +122,7 @@ export const CategoriesPage: React.FC<CategoriesPageProps> = ({
   // Filter Products strictly by currentCategory
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
-      // Main Category Match (strict normalized alphanumeric or ID match)
+      // Main Category Match (strict normalized alphanumeric or ID match, plus multi-categories)
       const matchesCat = (() => {
         if (!currentCategory) return true;
         const curId = String(currentCategory.id || '').toLowerCase().trim();
@@ -131,6 +131,14 @@ export const CategoriesPage: React.FC<CategoriesPageProps> = ({
         const pCatNorm = (p.category || '').toLowerCase().replace(/[^a-z0-9]/g, '');
         if (pMainCatId && (pMainCatId === curId || pMainCatId === curNorm)) return true;
         if (pCatNorm && curNorm && pCatNorm === curNorm) return true;
+        if (p.categoryIds && p.categoryIds.some((cid) => {
+          const cidNorm = String(cid || '').toLowerCase().trim();
+          return cidNorm === curId || cidNorm === curNorm;
+        })) return true;
+        if (p.categories && p.categories.some((cname) => {
+          const cn = (cname || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+          return cn && curNorm && cn === curNorm;
+        })) return true;
         return false;
       })();
 

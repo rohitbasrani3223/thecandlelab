@@ -359,7 +359,7 @@ export const AdminCategoriesManager: React.FC = () => {
           {/* Main Categories List */}
           <div className="bg-[#1C130E] rounded-xl border border-[#2C2018] divide-y divide-[#2C2018]">
             {mainCategories.map((c) => {
-              const count = products.filter((p) => p.mainCategoryId === c.id).length;
+              const count = products.filter((p) => p.mainCategoryId === c.id || p.categoryIds?.includes(c.id)).length;
               const childSubs = subCategories.filter((s) => s.mainCategoryId === c.id);
 
               return (

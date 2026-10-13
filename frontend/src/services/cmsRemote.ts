@@ -26,6 +26,7 @@ export interface CmsRemoteBundle {
   mediaItems?: CMSMediaItem[];
   coupons?: CMSCoupon[];
   marketingSettings?: any;
+  productCategoryOverrides?: Record<string, { categoryIds: string[]; categories: string[] }>;
 }
 
 export async function fetchCmsBundle(): Promise<CmsRemoteBundle | null> {

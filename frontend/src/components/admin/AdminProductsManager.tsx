@@ -44,7 +44,9 @@ export const AdminProductsManager: React.FC = () => {
     rating: 0,
     reviewsCount: 0,
     mainCategoryId: mainCategories[0]?.id || '',
+    categoryIds: mainCategories[0]?.id ? [mainCategories[0].id] : [],
     category: mainCategories[0]?.name || '',
+    categories: mainCategories[0]?.name ? [mainCategories[0].name] : [],
     subCategoryId: '',
     subCategory: '',
     collectionIds: [],
@@ -97,9 +99,15 @@ export const AdminProductsManager: React.FC = () => {
 
   // Start Create Flow
   const handleStartCreate = () => {
+    const defaultCatId = mainCategories[0]?.id || '';
+    const defaultCatName = mainCategories[0]?.name || 'Luxury Scented Candles';
     const fresh: Partial<CMSProduct> = {
       ...initialFormState,
       sku: `TCL-${Math.floor(1000 + Math.random() * 9000)}`,
+      mainCategoryId: defaultCatId,
+      category: defaultCatName,
+      categoryIds: defaultCatId ? [defaultCatId] : [],
+      categories: defaultCatName ? [defaultCatName] : [],
       image: '',
       imageUrl: '',
       images: [],
@@ -135,10 +143,21 @@ export const AdminProductsManager: React.FC = () => {
       (c) => c.id === p.mainCategoryId || c.name.toLowerCase() === (p.category || '').toLowerCase()
     );
 
+    const resolvedCatId = matchingCat?.id || p.mainCategoryId || mainCategories[0]?.id || '';
+    const resolvedCatName = matchingCat?.name || p.category || mainCategories[0]?.name || 'Luxury Scented Candles';
+    const initialCatIds = (p.categoryIds && p.categoryIds.length > 0)
+      ? Array.from(new Set([...p.categoryIds, ...(resolvedCatId ? [resolvedCatId] : [])]))
+      : resolvedCatId ? [resolvedCatId] : [];
+    const initialCatNames = (p.categories && p.categories.length > 0)
+      ? Array.from(new Set([...p.categories, ...(resolvedCatName ? [resolvedCatName] : [])]))
+      : resolvedCatName ? [resolvedCatName] : [];
+
     setFormData({
       ...p,
-      mainCategoryId: matchingCat?.id || p.mainCategoryId || mainCategories[0]?.id || '',
-      category: matchingCat?.name || p.category || mainCategories[0]?.name || 'Luxury Scented Candles',
+      mainCategoryId: resolvedCatId,
+      category: resolvedCatName,
+      categoryIds: initialCatIds,
+      categories: initialCatNames,
       images: existingImages,
       image: existingImages[0] || p.image || p.imageUrl || '',
       imageUrl: existingImages[0] || p.imageUrl || p.image || '',
@@ -266,14 +285,30 @@ export const AdminProductsManager: React.FC = () => {
       return;
     }
 
-    const parentCat = mainCategories.find((c) => c.id === formData.mainCategoryId);
+    const primaryCatId = formData.mainCategoryId || (formData.categoryIds && formData.categoryIds[0]) || mainCategories[0]?.id || '';
+    const parentCat = mainCategories.find((c) => c.id === primaryCatId);
     const parentSub = subCategories.find((s) => s.id === formData.subCategoryId);
+    const primaryCatName = parentCat?.name || formData.category || 'Scented Soy Candles';
+
+    const finalCatIds = Array.from(new Set([
+      ...(primaryCatId ? [primaryCatId] : []),
+      ...(formData.categoryIds || []),
+    ])).filter(Boolean) as string[];
+
+    const finalCatNames = Array.from(new Set([
+      primaryCatName,
+      ...finalCatIds.map((id) => mainCategories.find((c) => c.id === id)?.name).filter(Boolean) as string[],
+      ...(formData.categories || []),
+    ])).filter(Boolean) as string[];
 
     const payload: CMSProduct = {
       ...(formData as CMSProduct),
       name: formData.name.trim(),
       slug: formData.slug || formData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
-      category: parentCat?.name || formData.category || 'Scented Soy Candles',
+      mainCategoryId: primaryCatId,
+      categoryIds: finalCatIds,
+      category: primaryCatName,
+      categories: finalCatNames,
       subCategory: parentSub?.name || formData.subCategory || 'Luxury Glass Jar Candles',
       scentProfile: formData.scentProfile || formData.tagline || formData.topNotes || 'Signature Scent',
       tagline: formData.tagline || formData.scentProfile || '',
@@ -331,7 +366,12 @@ export const AdminProductsManager: React.FC = () => {
         p.scentProfile?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         p.category?.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesCat = categoryFilter ? p.mainCategoryId === categoryFilter || p.category === categoryFilter : true;
+      const matchesCat = categoryFilter
+        ? p.mainCategoryId === categoryFilter ||
+          p.category === categoryFilter ||
+          p.categoryIds?.includes(categoryFilter) ||
+          p.categories?.includes(categoryFilter)
+        : true;
       const matchesCol = collectionFilter ? p.collectionIds?.includes(collectionFilter) || p.collection === collectionFilter : true;
       const matchesStatus =
         statusFilter === 'in_stock'
@@ -450,14 +490,27 @@ export const AdminProductsManager: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-mono uppercase text-stone-400 mb-1">Main Category *</label>
+                  <label className="block text-xs font-mono uppercase text-stone-400 mb-1">Primary Category *</label>
                   <select
                     disabled={activeMode === 'view'}
                     value={formData.mainCategoryId || ''}
                     onChange={(e) => {
                       const catId = e.target.value;
                       const catObj = mainCategories.find((c) => c.id === catId);
-                      setFormData((prev) => ({ ...prev, mainCategoryId: catId, category: catObj?.name || prev.category }));
+                      setFormData((prev) => {
+                        const curIds = prev.categoryIds || [];
+                        const nextIds = curIds.includes(catId) ? curIds : [catId, ...curIds];
+                        const nextNames = nextIds
+                          .map((id) => mainCategories.find((c) => c.id === id)?.name)
+                          .filter(Boolean) as string[];
+                        return {
+                          ...prev,
+                          mainCategoryId: catId,
+                          category: catObj?.name || prev.category,
+                          categoryIds: nextIds,
+                          categories: nextNames,
+                        };
+                      });
                     }}
                     className="w-full bg-[#140D09] border border-[#2C2018] rounded-lg px-3 py-2 text-xs text-[#FDFBF7]"
                   >
@@ -467,6 +520,66 @@ export const AdminProductsManager: React.FC = () => {
                       </option>
                     ))}
                   </select>
+                </div>
+
+                <div className="md:col-span-2">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-xs font-mono uppercase text-stone-400">
+                      Show in Multiple Categories <span className="text-amber-400/90 font-sans font-normal">(Product will appear in all selected categories)</span>
+                    </label>
+                    <span className="text-[10px] font-mono text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+                      {(formData.categoryIds?.length || (formData.mainCategoryId ? 1 : 0))} Categories Selected
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-2 p-3 bg-[#140D09] border border-[#2C2018] rounded-xl">
+                    {mainCategories.map((cat) => {
+                      const isPrimary = formData.mainCategoryId === cat.id;
+                      const isAssigned = isPrimary || (formData.categoryIds || []).includes(cat.id);
+
+                      return (
+                        <button
+                          type="button"
+                          key={cat.id}
+                          disabled={activeMode === 'view'}
+                          onClick={() => {
+                            if (isPrimary) return;
+                            setFormData((prev) => {
+                              const existing = prev.categoryIds || (prev.mainCategoryId ? [prev.mainCategoryId] : []);
+                              const next = existing.includes(cat.id)
+                                ? existing.filter((id) => id !== cat.id)
+                                : [...existing, cat.id];
+                              const nextNames = next
+                                .map((id) => mainCategories.find((c) => c.id === id)?.name)
+                                .filter(Boolean) as string[];
+                              return {
+                                ...prev,
+                                categoryIds: next,
+                                categories: nextNames,
+                              };
+                            });
+                          }}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-medium border flex items-center gap-1.5 transition-all ${
+                            isPrimary
+                              ? 'bg-amber-500/25 text-amber-200 border-amber-500/50 shadow-sm cursor-default'
+                              : isAssigned
+                              ? 'bg-amber-500/15 text-amber-300 border-amber-500/40 hover:bg-amber-500/20'
+                              : 'bg-[#1C130E] text-stone-400 border-[#2C2018] hover:text-stone-200 hover:border-[#3D2B20]'
+                          }`}
+                        >
+                          <span className="text-[11px] font-bold">{isAssigned ? '✓' : '+'}</span>
+                          <span>{cat.name}</span>
+                          {isPrimary && (
+                            <span className="text-[9px] font-mono px-1.5 py-0.2 bg-amber-500/30 text-amber-100 rounded ml-1 font-semibold">
+                              Primary
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p className="text-[11px] text-stone-400 mt-1.5">
+                    💡 Click on any category badge to assign or unassign. Products will automatically show on that category page, shop filters, and navigation.
+                  </p>
                 </div>
 
                 <div>
@@ -1274,8 +1387,25 @@ export const AdminProductsManager: React.FC = () => {
                             </div>
                           </div>
                         </td>
-                        <td className="p-3 font-mono text-stone-400">{p.sku}</td>
-                        <td className="p-3 text-stone-300">{p.category}</td>
+                        <td className="p-3">
+                          <div className="flex flex-col gap-1 items-start">
+                            <span className="font-medium text-xs text-stone-200">{p.category}</span>
+                            {p.categories && p.categories.filter((c) => c !== p.category).length > 0 && (
+                              <div className="flex flex-wrap gap-1 max-w-[180px]">
+                                {p.categories
+                                  .filter((c) => c !== p.category)
+                                  .map((catName) => (
+                                    <span
+                                      key={catName}
+                                      className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-[#140D09] border border-amber-500/20 text-amber-300/80"
+                                    >
+                                      +{catName}
+                                    </span>
+                                  ))}
+                              </div>
+                            )}
+                          </div>
+                        </td>
                         <td className="p-3">
                           <span className="font-medium text-amber-300">₹{p.price}</span>
                           {p.originalPrice > p.price && (

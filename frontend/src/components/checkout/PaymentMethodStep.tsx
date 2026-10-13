@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Button, Checkbox, Badge, SparklesIcon } from '../../design-system';
+import { useCMS } from '../../context/CMSContext';
 
 export interface PaymentData {
   method: 'razorpay' | 'upi' | 'cod';
@@ -15,13 +16,19 @@ export interface PaymentMethodStepProps {
 }
 
 export const PaymentMethodStep: React.FC<PaymentMethodStepProps> = ({
-  initialData,
+  initialData, 
   onBack,
   onNext,
   totalAmount,
 }) => {
+  const { settings } = useCMS();
+  const razorpayAllowed = settings.paymentSettings?.razorpayEnabled ?? true;
+  const codAllowed = settings.paymentSettings?.codEnabled ?? true;
+
+  const defaultMethod: PaymentData['method'] = initialData.method || (razorpayAllowed ? 'razorpay' : codAllowed ? 'cod' : 'upi');
+
   const [paymentData, setPaymentData] = useState<PaymentData>({
-    method: initialData.method || 'razorpay',
+    method: defaultMethod,
     upiId: initialData.upiId || '',
     sameBilling: initialData.sameBilling ?? true,
   });
@@ -46,13 +53,13 @@ export const PaymentMethodStep: React.FC<PaymentMethodStepProps> = ({
       {/* Payment Options Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
-          {
+          razorpayAllowed ? {
             id: 'razorpay',
             title: 'Razorpay Online',
             subtitle: 'UPI, Cards, NetBanking',
             icon: '⚡',
             badge: 'INSTANT & SECURE',
-          },
+          } : null,
           {
             id: 'upi',
             title: 'UPI / QR Code',
@@ -60,14 +67,14 @@ export const PaymentMethodStep: React.FC<PaymentMethodStepProps> = ({
             icon: '📱',
             badge: '0% FEES',
           },
-          {
+          codAllowed ? {
             id: 'cod',
             title: 'Cash on Delivery (COD)',
             subtitle: 'Pay at Doorstep',
             icon: '💵',
             badge: 'COD AVAILABLE',
-          },
-        ].map((tab) => {
+          } : null,
+        ].filter(Boolean).map((tab: any) => {
           const isSelected = paymentData.method === tab.id;
           return (
             <button

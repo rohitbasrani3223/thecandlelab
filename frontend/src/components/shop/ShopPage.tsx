@@ -134,7 +134,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({
     return activeProducts.filter((prod: any) => {
       if (filters.inStockOnly && !prod.inStock) return false;
 
-      // Strict Category Matching (case-insensitive, trimmed, alphanumeric, ID and name)
+      // Strict Category Matching (case-insensitive, trimmed, alphanumeric, ID, name and multi-categories)
       if (filters.categories.length > 0) {
         const pCatNorm = (prod.category || '').toLowerCase().replace(/[^a-z0-9]/g, '');
         const pMainCatId = String(prod.mainCategoryId || '').toLowerCase().trim();
@@ -142,10 +142,25 @@ export const ShopPage: React.FC<ShopPageProps> = ({
           const filterNorm = (c || '').toLowerCase().replace(/[^a-z0-9]/g, '');
           const filterRaw = (c || '').toLowerCase().trim();
           if (!filterNorm && !filterRaw) return false;
-          return (
+          if (
             (pCatNorm && filterNorm && pCatNorm === filterNorm) ||
             (pMainCatId && (pMainCatId === filterRaw || pMainCatId === filterNorm))
-          );
+          ) {
+            return true;
+          }
+          if (prod.categoryIds && prod.categoryIds.some((cid: string) => {
+            const cidNorm = String(cid || '').toLowerCase().trim();
+            return cidNorm === filterRaw || cidNorm === filterNorm;
+          })) {
+            return true;
+          }
+          if (prod.categories && prod.categories.some((cname: string) => {
+            const cnNorm = (cname || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+            return cnNorm && filterNorm && cnNorm === filterNorm;
+          })) {
+            return true;
+          }
+          return false;
         });
         if (!matchesCategory) return false;
       }

@@ -49,6 +49,13 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
       const nameClean = nameLower.replace(/[^a-z0-9]/g, '');
       if (pCatClean && nameClean && pCatClean === nameClean) return true;
 
+      if (p.categoryIds && p.categoryIds.some((cid) => String(cid).trim() === curId)) return true;
+      if (p.categories && p.categories.some((cname) => {
+        const cn = (cname || '').toLowerCase().trim();
+        const cnClean = cn.replace(/[^a-z0-9]/g, '');
+        return cn === nameLower || (cnClean && nameClean && cnClean === nameClean);
+      })) return true;
+
       return false;
     });
   };
