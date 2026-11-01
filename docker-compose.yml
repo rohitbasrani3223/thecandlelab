@@ -2,40 +2,51 @@ version: '3.8'
 
 services:
   web:
-    build: .
-    ports:
-      - "8085:8085"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
     environment:
+      - APP_NAME=The Candle Lab
       - APP_ENV=production
       - APP_DEBUG=false
-      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres.bpvbfnmthbthzvhqiwhh:[YOUR-PASSWORD]@aws-1-ap-south-1.pooler.supabase.com:5432/postgres}
-    depends_on:
-      - db
-      - redis
-
-  db:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_DB: candlelab_db
-      POSTGRES_USER: candlelab_user
-      POSTGRES_PASSWORD: candlelab_secure_password
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - APP_KEY=base64:X8vB3z9+9Z0lK4a6R2w8T1y5U7i0O2p4S6d8F0g2H4j=
+      - PORT=8085
+      - DB_CONNECTION=pgsql
+      - DB_HOST=aws-1-ap-northeast-2.pooler.supabase.com
+      - DB_PORT=5432
+      - DB_DATABASE=postgres
+      - DB_USERNAME=postgres.anaqrvrzbqhpgwjfpacx
+      - DB_PASSWORD=Thecandlelab@6264885453
+      - SUPABASE_URL=https://anaqrvrzbqhpgwjfpacx.supabase.co
+      - SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFuYXFydnJ6YnFocGd3amZwYWN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUyMzMzMzIsImV4cCI6MjEwMDgwOTMzMn0.NDzAvxZDP_TSlq1sXm1AID9xL8AzYl3QCA2LwH0TAhs
+      - RAZORPAY_KEY_ID=rzp_live_TL3hqziijFtNBM
+      - RAZORPAY_KEY_SECRET=oj2JHEVOnAdRJvwxR754XMzG
+    expose:
+      - "8085"
+    networks:
+      - candlelab_net
 
   redis:
     image: redis:7-alpine
-    ports:
-      - "6379:6379"
+    restart: always
+    networks:
+      - candlelab_net
 
   nginx:
     image: nginx:alpine
+    restart: always
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./frontend/dist:/usr/share/nginx/html:ro
     depends_on:
       - web
+    networks:
+      - candlelab_net
 
-volumes:
-  postgres_data:
+networks:
+  candlelab_net:
+    driver: bridge
