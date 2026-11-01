@@ -13,6 +13,8 @@ export interface StorefrontProductCardProps {
     originalPrice?: number;
     rating?: number;
     reviewsCount?: number;
+    displayRatingOnScreening?: boolean;
+    showRating?: boolean;
     burnTime?: string;
     topNotes?: string;
     heartNotes?: string;
@@ -106,11 +108,13 @@ export const StorefrontProductCard: React.FC<StorefrontProductCardProps> = ({
             <span className="font-medium text-[#8C7A6B] truncate">
               {product.scentProfile || product.category}
             </span>
-            <div className="flex shrink-0 items-center gap-1 font-semibold text-[#B88B38]">
-              <StarIcon size={13} className="fill-current" />
-              <span>{product.rating ?? 4.9}</span>
-              <span className="font-normal text-[#8C7A6B]">({product.reviewsCount ?? 0})</span>
-            </div>
+            {(product.displayRatingOnScreening || (product.showRating && (product.reviewsCount ?? 0) > 0)) && (
+              <div className="flex shrink-0 items-center gap-1 font-semibold text-[#B88B38]">
+                <StarIcon size={13} className="fill-current" />
+                <span>{product.rating ? Number(product.rating).toFixed(1) : '4.9'}</span>
+                <span className="font-normal text-[#8C7A6B]">({product.reviewsCount ?? 0})</span>
+              </div>
+            )}
           </div>
           <h3 className="font-serif text-base sm:text-lg font-bold text-[#2A1E17] leading-snug group-hover:text-[#B88B38] transition-colors line-clamp-2">
             {product.name}

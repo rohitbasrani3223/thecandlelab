@@ -43,6 +43,8 @@ export const AdminProductsManager: React.FC = () => {
     originalPrice: 0,
     rating: 0,
     reviewsCount: 0,
+    displayRatingOnScreening: false,
+    showRating: false,
     mainCategoryId: mainCategories[0]?.id || '',
     categoryIds: mainCategories[0]?.id ? [mainCategories[0].id] : [],
     category: mainCategories[0]?.name || '',
@@ -171,6 +173,9 @@ export const AdminProductsManager: React.FC = () => {
       availableSizeIds: p.availableSizeIds && p.availableSizeIds.length > 0 ? p.availableSizeIds : sizes.map((s) => s.id),
       availableColorIds: p.availableColorIds && p.availableColorIds.length > 0 ? p.availableColorIds : colors.map((c) => c.id),
       availableWickTypeIds: p.availableWickTypeIds && p.availableWickTypeIds.length > 0 ? p.availableWickTypeIds : wickTypes.map((w) => w.id),
+      displayRatingOnScreening: Boolean(p.displayRatingOnScreening),
+      showRating: Boolean(p.showRating ?? p.displayRatingOnScreening),
+      rating: p.rating ?? 4.9,
       variants: p.variants || [],
     });
     setEditingId(p.id);
@@ -854,6 +859,96 @@ export const AdminProductsManager: React.FC = () => {
                   ))}
                 </div>
               </div>
+
+              {/* Product Rating & Screening Display Settings */}
+              <div className="border-t border-[#2C2018] pt-5">
+                <div className="flex items-center justify-between mb-2">
+                  <div>
+                    <h4 className="text-xs font-mono uppercase text-amber-400 font-bold flex items-center gap-1.5">
+                      <span>⭐</span>
+                      <span>Product Screening Rating (4.9 Review Display)</span>
+                    </h4>
+                    <p className="text-xs text-stone-400 mt-0.5">
+                      Choose whether to show the 4.9 rating badge on product cards and top screening area.
+                      <span className="text-amber-300 font-medium ml-1">
+                        (The Connoisseur Reviews section at the bottom will always remain visible for real reviews).
+                      </span>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-[#140D09] border border-[#2C2018] rounded-xl space-y-4">
+                  {/* Toggle */}
+                  <div
+                    onClick={() => {
+                      if (activeMode !== 'view') {
+                        setFormData((prev) => ({
+                          ...prev,
+                          displayRatingOnScreening: !prev.displayRatingOnScreening,
+                          showRating: !prev.displayRatingOnScreening,
+                        }));
+                      }
+                    }}
+                    className={`flex items-center justify-between p-3.5 rounded-lg border transition-all cursor-pointer ${
+                      formData.displayRatingOnScreening
+                        ? 'bg-amber-500/15 border-amber-500/50 shadow-sm'
+                        : 'bg-[#1C130E] border-[#2C2018] opacity-75 hover:opacity-100'
+                    }`}
+                  >
+                    <div className="pr-4">
+                      <span className="text-xs font-bold text-[#FDFBF7] block">
+                        {formData.displayRatingOnScreening
+                          ? '✓ Rating Badge is SHOWN on Screening (Visible on Product Page & Cards)'
+                          : '✕ Rating Badge is HIDDEN on Screening (No fake 4.9 displayed)'}
+                      </span>
+                      <span className="text-[11px] text-stone-400">
+                        {formData.displayRatingOnScreening
+                          ? 'Stars and rating score will appear on product cards and header screening.'
+                          : 'Clean screening: Only In-Stock status will show on top. Customer reviews section below stays active.'}
+                      </span>
+                    </div>
+
+                    <span
+                      className={`text-xs font-mono px-3 py-1 rounded-full font-bold uppercase shrink-0 ${
+                        formData.displayRatingOnScreening
+                          ? 'bg-amber-500 text-black'
+                          : 'bg-[#2C2018] text-stone-500'
+                      }`}
+                    >
+                      {formData.displayRatingOnScreening ? 'SHOWN' : 'HIDDEN'}
+                    </span>
+                  </div>
+
+                  {/* Rating value override if enabled */}
+                  {formData.displayRatingOnScreening && (
+                    <div className="flex items-center gap-4 pt-1 bg-[#1C130E] p-3 rounded-lg border border-[#2C2018]">
+                      <div className="w-48">
+                        <label className="block text-[11px] font-mono uppercase text-stone-400 mb-1">
+                          Screening Rating Score
+                        </label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          min="1"
+                          max="5"
+                          disabled={activeMode === 'view'}
+                          value={formData.rating ?? 4.9}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              rating: parseFloat(e.target.value) || 4.9,
+                            }))
+                          }
+                          className="w-full bg-[#140D09] border border-[#2C2018] rounded-lg px-3 py-1.5 text-xs text-amber-300 font-bold font-mono focus:border-amber-500 outline-none"
+                        />
+                      </div>
+                      <div className="text-xs text-stone-400 pt-3">
+                        ⭐️ Storefront Preview: <strong className="text-amber-400 text-sm">{(formData.rating ?? 4.9).toFixed(1)} ★</strong>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           )}
 
@@ -1419,6 +1514,15 @@ export const AdminProductsManager: React.FC = () => {
                         </td>
                         <td className="p-3">
                           <div className="flex items-center gap-1 flex-wrap">
+                            {p.displayRatingOnScreening ? (
+                              <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold">
+                                ★ {Number(p.rating || 4.9).toFixed(1)}
+                              </span>
+                            ) : (
+                              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-[#140D09] text-stone-500 border border-[#2C2018]">
+                                Rating Off
+                              </span>
+                            )}
                             {p.hasFragranceOption !== false && <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-300 border border-amber-500/30 font-bold">🌸 Frag</span>}
                             {p.hasSizeOption !== false && <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-blue-500/15 text-blue-300 border border-blue-500/30 font-bold">📏 Size</span>}
                             {p.hasColorOption !== false && <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-bold">🎨 Color</span>}

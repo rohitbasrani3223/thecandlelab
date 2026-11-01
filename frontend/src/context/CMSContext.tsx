@@ -336,6 +336,8 @@ export interface CMSProduct {
   isFeatured?: boolean;
   isTrending?: boolean;
   isLimitedEdition?: boolean;
+  displayRatingOnScreening?: boolean;
+  showRating?: boolean;
   hasFragranceOption?: boolean;
   hasSizeOption?: boolean;
   hasColorOption?: boolean;
@@ -1482,8 +1484,8 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               sku: p.sku || `TCL-${pId.slice(0, 6)}`,
               price: Number(p.price || 999),
               originalPrice: Number(p.original_price || p.price || 1299),
-              rating: Number(p.rating || 4.9),
-              reviewsCount: Number(p.reviews_count || 12),
+              rating: Number(p.rating || 5.0),
+              reviewsCount: Number(p.reviews_count || 0),
               mainCategoryId: primaryId || undefined,
               categoryIds: finalCatIds,
               category: primaryName,
@@ -1515,6 +1517,8 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               isFeatured: Boolean(p.is_featured),
               isTrending: Boolean(p.is_trending),
               isLimitedEdition: Boolean(p.is_limited_edition),
+              displayRatingOnScreening: Boolean(p.display_rating_on_screening ?? p.displayRatingOnScreening ?? false),
+              showRating: Boolean(p.show_rating ?? p.showRating ?? p.display_rating_on_screening ?? false),
               hasFragranceOption: p.has_fragrance_option !== null && p.has_fragrance_option !== undefined ? Boolean(p.has_fragrance_option) : undefined,
               hasSizeOption: p.has_size_option !== null && p.has_size_option !== undefined ? Boolean(p.has_size_option) : undefined,
               hasColorOption: p.has_color_option !== null && p.has_color_option !== undefined ? Boolean(p.has_color_option) : undefined,
@@ -2226,8 +2230,10 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       sku: product.sku || `TCL-${realId.slice(0, 6)}`,
       price: product.price || 999,
       originalPrice: product.originalPrice || product.price || 1299,
-      rating: product.rating || 4.9,
+      rating: product.rating !== undefined ? Number(product.rating) : 0,
       reviewsCount: product.reviewsCount || 0,
+      displayRatingOnScreening: Boolean(product.displayRatingOnScreening),
+      showRating: Boolean(product.showRating ?? product.displayRatingOnScreening),
       mainCategoryId: product.mainCategoryId || product.categoryIds?.[0],
       categoryIds: product.categoryIds && product.categoryIds.length > 0
         ? product.categoryIds
@@ -2317,8 +2323,10 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           wick_type: newProduct.wickType,
           burn_time_hours: newProduct.burnTimeHours,
           weight_grams: newProduct.weightGrams,
-          rating: newProduct.rating || 4.9,
+          rating: Number(newProduct.rating || 0),
           reviews_count: newProduct.reviewsCount || 0,
+          display_rating_on_screening: Boolean(newProduct.displayRatingOnScreening),
+          show_rating: Boolean(newProduct.showRating ?? newProduct.displayRatingOnScreening),
           status: newProduct.inStock ? 'ACTIVE' : 'OUT_OF_STOCK',
           is_featured: Boolean(newProduct.isFeatured),
           is_bestseller: Boolean(newProduct.isBestSeller),
@@ -2393,6 +2401,8 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           weight_grams: merged.weightGrams,
           rating: merged.rating,
           reviews_count: merged.reviewsCount,
+          display_rating_on_screening: Boolean(merged.displayRatingOnScreening),
+          show_rating: Boolean(merged.showRating ?? merged.displayRatingOnScreening),
           status: merged.inStock ? 'ACTIVE' : 'OUT_OF_STOCK',
           is_featured: Boolean(merged.isFeatured),
           is_bestseller: Boolean(merged.isBestSeller),

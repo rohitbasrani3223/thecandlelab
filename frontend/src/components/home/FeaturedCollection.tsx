@@ -198,8 +198,10 @@ export const FeaturedCollection: React.FC<FeaturedCollectionProps> = ({ onSelect
                       <span className="text-[#7D6F63] font-medium">{prod.scentProfile || prod.category}</span>
                       <div className="flex items-center gap-1 text-[#E8C86D] font-bold">
                         <StarIcon size={14} className="fill-current text-[#E8C86D]" />
-                        <span>{prod.rating || 4.9}</span>
-                        <span className="text-[#7D6F63] font-normal">({prod.reviewsCount || 88})</span>
+                        <span>{prod.rating ? Number(prod.rating).toFixed(1) : '5.0'}</span>
+                        <span className="text-[#7D6F63] font-normal">
+                          ({Number(prod.reviewsCount || 0) > 0 ? prod.reviewsCount : 0})
+                        </span>
                       </div>
                     </div>
 

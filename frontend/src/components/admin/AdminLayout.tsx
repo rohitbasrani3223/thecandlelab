@@ -18,6 +18,7 @@ import { AdminStaffManager } from './AdminStaffManager';
 import { AdminStoreSettings } from './AdminStoreSettings';
 import { AdminSEOManager } from './AdminSEOManager';
 import { AdminDashboard } from './AdminDashboard';
+import { AdminReviewsManager } from './AdminReviewsManager';
 
 export interface AdminLayoutProps {
   onLogout?: () => void;
@@ -74,6 +75,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
     inventory: { title: 'Stock & Inventory', icon: '📦' },
     orders: { title: 'Orders & Fulfillment', icon: '🛍️' },
     customers: { title: 'Customer Directory', icon: '👥' },
+    reviews: { title: 'Customer Reviews Moderation', icon: '⭐' },
     'hero-banners': { title: 'Hero Banner Desktop', icon: '🖼️' },
     hero: { title: 'Hero & Announcements', icon: '🎨' },
     coupons: { title: 'Coupons & Promos', icon: '🎟️' },
@@ -138,6 +140,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
           {activeTab === 'inventory' && <AdminProductsManager />}
           {activeTab === 'orders' && <AdminOrdersManager />}
           {activeTab === 'customers' && <AdminCustomersCRM />}
+          {activeTab === 'reviews' && <AdminReviewsManager />}
           {activeTab === 'hero-banners' && <AdminHeroBannersManager />}
           {activeTab === 'hero' && <AdminHomepageCMS />}
           {activeTab === 'coupons' && <AdminMarketingCMS />}

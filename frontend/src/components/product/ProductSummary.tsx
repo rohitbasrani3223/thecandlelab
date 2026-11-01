@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useCart } from '../../context/CartContext';
 import { useCMS, type CMSProduct, type CMSProductVariant } from '../../context/CMSContext';
 import { ChevronDownIcon, ShoppingBagIcon, SparklesIcon } from '../../design-system';
+import { ProductShareModal } from './ProductShareModal';
 
 interface ProductSummaryProps {
   product: CMSProduct;
@@ -14,6 +15,7 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
   onVariantChange,
   onBuyNow,
 }) => {
+  const [showShareModal, setShowShareModal] = useState<boolean>(false);
   const { addToCart } = useCart();
   const { fragrances, sizes, colors, wickTypes } = useCMS();
 
@@ -308,9 +310,23 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
           <span className="text-[11px] font-mono uppercase tracking-widest text-[#8B6F4E] font-bold">
             {product.category || 'Artisanal Soy Candles'}
           </span>
-          <span className="text-[11px] font-mono text-[#7D6F63]">
-            SKU: <span className="text-[#232323] font-semibold">{currentSku}</span>
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="text-[11px] font-mono text-[#7D6F63]">
+              SKU: <span className="text-[#232323] font-semibold">{currentSku}</span>
+            </span>
+            {/* Flipkart / Amazon Style Share Button */}
+            <button
+              type="button"
+              onClick={() => setShowShareModal(true)}
+              title="Share this product (WhatsApp, Link, Social)"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-[#EADDCB] hover:border-[#8B6F4E] bg-[#FAF8F5] hover:bg-[#F0EBE1] text-[#232323] text-xs font-medium transition-all shadow-2xs hover:shadow-xs active:scale-95 cursor-pointer"
+            >
+              <svg className="w-3.5 h-3.5 text-[#8B6F4E]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+              </svg>
+              <span>Share</span>
+            </button>
+          </div>
         </div>
 
         <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-[#232323] font-bold leading-tight">
@@ -325,17 +341,35 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
       </div>
 
       {/* Rating & Stock Summary */}
-      <div className="flex items-center gap-3 py-2.5 border-y border-[#EADDCB]">
-        <div className="flex items-center text-[#8B6F4E] text-sm tracking-tighter">
-          {'★'.repeat(5)}
-        </div>
-        <span className="text-xs font-mono text-[#232323] font-bold">
-          {product.rating ? Number(product.rating).toFixed(1) : '4.9'}
-        </span>
-        <span className="text-xs text-[#7D6F63]">
-          ({product.reviewsCount || 18} Verified Reviews)
-        </span>
-        <span className="text-xs text-[#A39486]">•</span>
+      <div className="flex items-center gap-3 py-2.5 border-y border-[#EADDCB] flex-wrap">
+        {(product.displayRatingOnScreening || (product.showRating && Number(product.reviewsCount || 0) > 0)) ? (
+          <>
+            <div className="flex items-center text-[#8B6F4E] text-sm tracking-tighter">
+              {'★'.repeat(5)}
+            </div>
+            <span className="text-xs font-mono text-[#232323] font-bold">
+              {product.rating ? Number(product.rating).toFixed(1) : '4.9'}
+            </span>
+            <span className="text-xs text-[#7D6F63]">
+              {Number(product.reviewsCount || 0) > 0
+                ? `(${product.reviewsCount} Verified ${product.reviewsCount === 1 ? 'Review' : 'Reviews'})`
+                : '(Verified Formulation)'}
+            </span>
+            <span className="text-xs text-[#A39486]">•</span>
+          </>
+        ) : (
+          <>
+            <a
+              href="#reviews"
+              className="text-xs text-[#8B6F4E] hover:underline font-medium"
+            >
+              {Number(product.reviewsCount || 0) > 0
+                ? `★ ${product.reviewsCount} Customer ${product.reviewsCount === 1 ? 'Review' : 'Reviews'}`
+                : 'Write First Review ↓'}
+            </a>
+            <span className="text-xs text-[#A39486]">•</span>
+          </>
+        )}
         <span className={`text-xs font-semibold ${isOutOfStock ? 'text-rose-600' : 'text-[#6B6E4A]'}`}>
           {isOutOfStock ? 'Currently Sold Out' : '✓ In Stock & Hand-Poured'}
         </span>
@@ -635,6 +669,22 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
           )}
         </div>
       )}
+
+      {/* Flipkart / Amazon Style Product Share Modal */}
+      <ProductShareModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        product={{
+          id: String(product.id),
+          name: product.name,
+          price: currentPrice,
+          originalPrice: currentOriginalPrice,
+          image: currentVariant?.imageUrl || product.image || product.imageUrl,
+          category: product.category,
+          tagline: product.tagline,
+          slug: product.slug,
+        }}
+      />
     </div>
   );
 };

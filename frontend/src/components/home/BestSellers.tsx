@@ -204,8 +204,10 @@ export const BestSellers: React.FC<BestSellersProps> = ({ onSelectProduct }) => 
                       <span className="text-[#7D6F63] font-medium">{prod.scentProfile || prod.category}</span>
                       <div className="flex items-center gap-1 text-[#8B6F4E] font-bold">
                         <StarIcon size={14} className="fill-current text-[#8B6F4E]" />
-                        <span>{prod.rating || 4.9}</span>
-                        <span className="text-[#7D6F63] font-normal">({prod.reviewsCount || 42})</span>
+                        <span>{prod.rating ? Number(prod.rating).toFixed(1) : '5.0'}</span>
+                        <span className="text-[#7D6F63] font-normal">
+                          ({Number(prod.reviewsCount || 0) > 0 ? prod.reviewsCount : 0})
+                        </span>
                       </div>
                     </div>
 

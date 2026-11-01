@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\Admin\AttributeController;
 use App\Http\Controllers\Api\Admin\InventoryController;
 use App\Http\Controllers\Api\Admin\AdminManagementController;
 use App\Http\Controllers\Api\Admin\DashboardController;
+use App\Http\Controllers\Api\ReviewController;
 
 /*
 |--------------------------------------------------------------------------
@@ -55,6 +56,11 @@ Route::get('/fragrances', [FragranceController::class, 'publicIndex']);
 Route::get('/sizes', [AttributeController::class, 'getSizes']);
 Route::get('/colors', [AttributeController::class, 'getColors']);
 Route::get('/wick-types', [AttributeController::class, 'getWickTypes']);
+
+// Public Storefront Reviews API
+Route::get('/products/{id}/reviews', [ReviewController::class, 'indexForProduct']);
+Route::post('/products/{id}/reviews', [ReviewController::class, 'store']);
+Route::get('/reviews/recent', [ReviewController::class, 'getRecentApproved']);
 
 // Admin Management APIs
 Route::prefix('admin')->group(function () {
@@ -127,6 +133,11 @@ Route::prefix('admin')->group(function () {
     Route::post('/staff', [AdminManagementController::class, 'store']);
     Route::patch('/staff/{id}/status', [AdminManagementController::class, 'updateStatus']);
     Route::delete('/staff/{id}', [AdminManagementController::class, 'destroy']);
+
+    // Customer Reviews Moderation
+    Route::get('/reviews', [ReviewController::class, 'adminIndex']);
+    Route::patch('/reviews/{id}/status', [ReviewController::class, 'adminUpdateStatus']);
+    Route::delete('/reviews/{id}', [ReviewController::class, 'adminDestroy']);
 
     // CMS Bundle Settings
     Route::get('/cms', function () {

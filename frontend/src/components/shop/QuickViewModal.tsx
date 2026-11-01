@@ -93,8 +93,10 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5 text-xs text-[#E8C86D] font-bold">
                 <StarIcon size={14} className="fill-current text-[#E8C86D]" />
-                <span>{product.rating ? Number(product.rating).toFixed(1) : '4.9'}</span>
-                <span className="text-[#7D6F63] font-normal">({product.reviewsCount || 18} reviews)</span>
+                <span>{product.rating ? Number(product.rating).toFixed(1) : '5.0'}</span>
+                <span className="text-[#7D6F63] font-normal">
+                  {Number(product.reviewsCount || 0) > 0 ? `(${product.reviewsCount} reviews)` : '(No reviews yet)'}
+                </span>
               </div>
               <span className={`text-xs font-bold ${product.inStock !== false ? 'text-[#15803D]' : 'text-[#BE123C]'}`}>
                 {product.inStock !== false ? '✓ In Stock & Ready' : 'Sold Out'}

@@ -159,10 +159,12 @@ export const NewArrivalsTrending: React.FC<NewArrivalsTrendingProps> = ({ onSele
                       alt={item.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
-                    <div className="absolute top-2 right-2 flex items-center gap-1 bg-[#232323]/85 text-[#8B6F4E] px-2 py-1 rounded-full text-[10px] font-bold z-10 backdrop-blur-xs border border-[#EADDCB]/30">
-                      <StarIcon size={12} className="fill-current text-[#8B6F4E]" />
-                      <span>{item.rating || 4.9}</span>
-                    </div>
+                    {(item.displayRatingOnScreening || (item.reviewsCount && item.reviewsCount > 0)) && (
+                      <div className="absolute top-2 right-2 flex items-center gap-1 bg-[#232323]/85 text-[#8B6F4E] px-2 py-1 rounded-full text-[10px] font-bold z-10 backdrop-blur-xs border border-[#EADDCB]/30">
+                        <StarIcon size={12} className="fill-current text-[#8B6F4E]" />
+                        <span>{item.rating ? Number(item.rating).toFixed(1) : '4.9'}</span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-1.5">

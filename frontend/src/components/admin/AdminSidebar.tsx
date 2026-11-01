@@ -10,6 +10,7 @@ export type AdminTab =
   | 'inventory'
   | 'orders'
   | 'customers'
+  | 'reviews'
   | 'hero-banners'
   | 'hero'
   | 'coupons'
@@ -37,6 +38,7 @@ const navItems: { id: AdminTab; label: string; icon: string; badge?: string; sec
   { id: 'inventory', label: 'Stock & Inventory', icon: '📦' },
   { id: 'orders', label: 'Orders & Fulfillment', icon: '🛍️', section: 'Sales & Store' },
   { id: 'customers', label: 'Customer Directory', icon: '👥' },
+  { id: 'reviews', label: 'Customer Reviews', icon: '⭐', badge: 'New' },
   { id: 'coupons', label: 'Coupons & Promos', icon: '🎟️' },
   { id: 'hero-banners', label: 'Hero Banner Desktop', icon: '🖼️', section: 'Content & Settings' },
   { id: 'hero', label: 'Storefront CMS Builder', icon: '🎨' },

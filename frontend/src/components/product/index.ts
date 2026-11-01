@@ -7,3 +7,4 @@ export * from './ProductReviewsSection';
 export * from './StickyBuyBar';
 export * from './RelatedProducts';
 export * from './ProductDetailsPage';
+export * from './ProductShareModal';
