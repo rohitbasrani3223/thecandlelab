@@ -1,15 +1,5 @@
-# Multi-stage Dockerfile for The Candle Lab Platform
-
-# Stage 1: Build Frontend
-FROM node:20-alpine AS frontend-builder
-WORKDIR /app/frontend
-COPY frontend/package*.json ./
-RUN npm ci
-COPY frontend/ ./
-RUN npm run build
-
-# Stage 2: Laravel 12 Backend & Production Setup
-FROM php:8.3-cli-alpine AS runner
+# Laravel 12 Backend & Production Setup
+FROM php:8.3-cli-alpine
 WORKDIR /app/backend
 
 # Install PHP extensions required for Laravel & PostgreSQL
@@ -26,4 +16,3 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction || true
 EXPOSE 8085
 
 CMD ["sh", "-c", "php artisan config:clear && php artisan serve --host=0.0.0.0 --port=${PORT:-8085}"]
-
