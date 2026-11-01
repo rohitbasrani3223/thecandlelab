@@ -2,15 +2,12 @@ import React, { useState, useRef, useCallback } from 'react';
 import { Card, Button, Badge, StarIcon, SparklesIcon, HeartIcon, ChevronLeftIcon, ChevronRightIcon, useToast } from '../../design-system';
 import { useCMS } from '../../context/CMSContext';
 
-type CategoryTab = 'all' | 'woody' | 'floral' | 'vanilla' | 'aromatherapy';
-
 export interface BestSellersProps {
   onNavigateToShop?: () => void;
   onSelectProduct?: (product: any) => void;
 }
 
-export const BestSellers: React.FC<BestSellersProps> = ({ onSelectProduct }) => {
-  const [activeTab, setActiveTab] = useState<CategoryTab>('all');
+export const BestSellers: React.FC<BestSellersProps> = ({ onSelectProduct, onNavigateToShop }) => {
   const [wishlist, setWishlist] = useState<string[]>([]);
   const { toast } = useToast();
   const { products, settings } = useCMS();
@@ -51,16 +48,7 @@ export const BestSellers: React.FC<BestSellersProps> = ({ onSelectProduct }) => 
     return null;
   }
 
-  const filteredProducts = activeTab === 'all'
-    ? bestSellerList
-    : bestSellerList.filter((p) => {
-      const cat = p.scentProfile?.toLowerCase() || p.category?.toLowerCase() || '';
-      if (activeTab === 'woody') return cat.includes('wood') || cat.includes('spice');
-      if (activeTab === 'floral') return cat.includes('floral') || cat.includes('rose');
-      if (activeTab === 'vanilla') return cat.includes('vanilla') || cat.includes('gourmand');
-      if (activeTab === 'aromatherapy') return cat.includes('aroma') || cat.includes('fresh') || cat.includes('citrus');
-      return true;
-    });
+  const filteredProducts = bestSellerList;
 
   const updateScrollState = useCallback(() => {
     const el = scrollRef.current;
@@ -85,7 +73,7 @@ export const BestSellers: React.FC<BestSellersProps> = ({ onSelectProduct }) => 
     <section className="py-16 sm:py-24 bg-[#F8F6F0] border-b border-[#EADDCB] font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 space-y-8 sm:space-y-10">
         {/* Section Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 sm:gap-6 border-b border-[#EADDCB] pb-6 w-full max-w-full min-w-0">
+        <div className="flex items-end justify-between border-b border-[#EADDCB] pb-6 w-full max-w-full min-w-0">
           <div className="space-y-1 sm:space-y-2">
             <Badge variant="gold" icon={<SparklesIcon size={12} />}>MOST LOVED FORMULATIONS</Badge>
             <h2 className="text-2xl sm:text-4xl font-serif font-bold text-[#232323]">
@@ -93,32 +81,15 @@ export const BestSellers: React.FC<BestSellersProps> = ({ onSelectProduct }) => 
             </h2>
           </div>
 
-          <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
-            {/* Filter Tabs */}
-            <div className="w-full sm:w-auto max-w-full min-w-0 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 flex items-center gap-2 pb-2 sm:pb-0 touch-pan-x">
-              {[
-                { id: 'all', label: 'All Best Sellers' },
-                { id: 'woody', label: 'Woody & Spiced' },
-                { id: 'vanilla', label: 'Warm Vanilla' },
-                { id: 'floral', label: 'Floral & Rose' },
-                { id: 'aromatherapy', label: 'Aromatherapy' },
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => {
-                    setActiveTab(tab.id as CategoryTab);
-                    if (scrollRef.current) scrollRef.current.scrollTo({ left: 0, behavior: 'smooth' });
-                  }}
-                  className={`px-4 py-2 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap shrink-0 cursor-pointer min-h-[38px] sm:min-h-[32px] flex items-center justify-center ${
-                    activeTab === tab.id
-                      ? 'bg-[#232323] text-[#FFFFFF] shadow-sm'
-                      : 'bg-[#FFFFFF] text-[#5C5149] hover:text-[#232323] hover:bg-[#EADDCB] border border-[#EADDCB]'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
+          <div className="flex items-center gap-3">
+            {onNavigateToShop && (
+              <button
+                onClick={onNavigateToShop}
+                className="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-[#5C5149] hover:text-[#232323] transition-colors py-2 px-3 rounded-full hover:bg-[#EADDCB]/30 cursor-pointer"
+              >
+                View All &rarr;
+              </button>
+            )}
 
             {/* Mobile Navigation Arrows */}
             <div className="flex sm:hidden items-center gap-1.5 shrink-0 pl-1">

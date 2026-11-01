@@ -66,7 +66,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigateToShop, onSelectPr
 
       {/* 4. Best Sellers */}
       {isSectionEnabled('bestsellers') && (
-        <BestSellers onSelectProduct={onSelectProduct} />
+        <BestSellers onSelectProduct={onSelectProduct} onNavigateToShop={onNavigateToShop} />
       )}
 
       {/* 5. New Arrivals & Trending (Can be toggled in Admin) */}
