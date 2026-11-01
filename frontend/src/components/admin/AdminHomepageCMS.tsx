@@ -30,18 +30,29 @@ export const AdminHomepageCMS: React.FC = () => {
     }
   }, [announcement]);
 
+  const DEFAULT_STOREFRONT_SECTIONS = [
+    { id: 'hero', name: '🖼️ Hero Banner Carousel', enabled: true },
+    { id: 'categories', name: '🏷️ Category Grid & Product Showcase', enabled: true },
+    { id: 'featured_collection', name: '👑 Featured Royal Collection', enabled: true },
+    { id: 'bestsellers', name: '🔥 Best Sellers', enabled: true },
+    { id: 'new_arrivals', name: '✨ New Arrivals & Trending', enabled: false },
+    { id: 'reviews', name: '💬 Customer Connoisseur Reviews', enabled: true },
+    { id: 'instagram', name: '📸 Instagram Atelier Gallery', enabled: true },
+  ];
+
   // Local state for layout components
-  const [sections, setSections] = useState(
-    settings.homepageSections && settings.homepageSections.length > 0
-      ? settings.homepageSections
-      : [
-          { id: 'hero', name: 'Hero Banner Carousel', enabled: true },
-          { id: 'categories', name: 'Category Grid', enabled: true },
-          { id: 'featured', name: 'Featured Products Slider', enabled: true },
-          { id: 'story', name: 'Brand Heritage & Craft Story', enabled: true },
-          { id: 'testimonials', name: 'Customer Reviews Carousel', enabled: true },
-        ]
-  );
+  const [sections, setSections] = useState(() => {
+    if (settings.homepageSections && settings.homepageSections.length > 0) {
+      // Merge with default list to ensure all section keys exist
+      return DEFAULT_STOREFRONT_SECTIONS.map((def) => {
+        const match = settings.homepageSections?.find(
+          (s) => s.id === def.id || (def.id === 'featured_collection' && s.id === 'featured') || (def.id === 'reviews' && s.id === 'testimonials')
+        );
+        return match ? { ...def, enabled: match.enabled } : def;
+      });
+    }
+    return DEFAULT_STOREFRONT_SECTIONS;
+  });
 
   const [headerSettings, setHeaderSettings] = useState(
     settings.headerSettings || {
@@ -113,7 +124,14 @@ export const AdminHomepageCMS: React.FC = () => {
     if (settings.footerSettings) setFooterSettings(settings.footerSettings);
     if (settings.themeColors) setThemeColors(settings.themeColors);
     if (settings.homepageSections && settings.homepageSections.length > 0) {
-      setSections(settings.homepageSections);
+      setSections(
+        DEFAULT_STOREFRONT_SECTIONS.map((def) => {
+          const match = settings.homepageSections?.find(
+            (s) => s.id === def.id || (def.id === 'featured_collection' && s.id === 'featured') || (def.id === 'reviews' && s.id === 'testimonials')
+          );
+          return match ? { ...def, enabled: match.enabled } : def;
+        })
+      );
     }
     if (settings.instagramGallery) {
       setInstagramSettings(settings.instagramGallery);
@@ -304,27 +322,43 @@ export const AdminHomepageCMS: React.FC = () => {
 
             <div className="space-y-3 max-w-xl">
               {sections.map((sec, idx) => (
-                <div key={sec.id} className="flex items-center justify-between p-3.5 bg-[#FAF6F0] border border-[#EFE8DB] rounded-xl text-xs">
+                <div
+                  key={sec.id}
+                  onClick={() => {
+                    const updated = [...sections];
+                    updated[idx].enabled = !updated[idx].enabled;
+                    setSections(updated);
+                  }}
+                  className={`flex items-center justify-between p-3.5 border rounded-xl text-xs transition-all cursor-pointer ${
+                    sec.enabled
+                      ? 'bg-[#FAF6F0] border-[#B88B38]/50 shadow-xs'
+                      : 'bg-[#F9F9F9] border-stone-200 opacity-60'
+                  }`}
+                >
                   <div className="flex items-center gap-3">
-                    <span className="cursor-grab text-[#B88B38] font-bold">⋮⋮ {idx + 1}.</span>
-                    <strong className="text-[#2C1E16]">{sec.name}</strong>
+                    <span className="text-[#B88B38] font-bold">#{idx + 1}</span>
+                    <div>
+                      <strong className="text-[#2C1E16] block">{sec.name}</strong>
+                      <span className="text-[10px] text-stone-500">
+                        {sec.enabled ? '✓ Visible on Storefront' : '✕ Hidden from Storefront'}
+                      </span>
+                    </div>
                   </div>
-                  <input
-                    type="checkbox"
-                    checked={sec.enabled}
-                    onChange={(e) => {
-                      const updated = [...sections];
-                      updated[idx].enabled = e.target.checked;
-                      setSections(updated);
-                    }}
-                    className="w-4 h-4 accent-[#B88B38]"
-                  />
+                  <span
+                    className={`text-[10px] font-mono px-2.5 py-1 rounded-full font-bold uppercase transition-all ${
+                      sec.enabled
+                        ? 'bg-emerald-600 text-white'
+                        : 'bg-stone-200 text-stone-600'
+                    }`}
+                  >
+                    {sec.enabled ? 'ON' : 'OFF'}
+                  </span>
                 </div>
               ))}
               <button
                 type="button"
                 onClick={handleSaveSections}
-                className="bg-[#B88B38] hover:bg-[#A3792E] text-white font-bold text-xs py-2 px-5 rounded-xl cursor-pointer shadow-xs transition-colors"
+                className="bg-[#B88B38] hover:bg-[#A3792E] text-white font-bold text-xs py-2.5 px-6 rounded-xl cursor-pointer shadow-xs transition-colors"
               >
                 Save Sections Layout →
               </button>
