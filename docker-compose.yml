@@ -1,4 +1,11 @@
 services:
+  redis:
+    image: redis:7-alpine
+    restart: always
+    command: redis-server --maxmemory 128mb --maxmemory-policy allkeys-lru
+    networks:
+      - candlelab_net
+
   web:
     build:
       context: .
@@ -10,12 +17,8 @@ services:
       - PORT=8085
     expose:
       - "8085"
-    networks:
-      - candlelab_net
-
-  redis:
-    image: redis:7-alpine
-    restart: always
+    depends_on:
+      - redis
     networks:
       - candlelab_net
 
