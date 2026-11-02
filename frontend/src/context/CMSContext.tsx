@@ -537,7 +537,7 @@ const DEFAULT_SETTINGS: CMSStoreSettings = {
   standardShippingFee: 99,
   supportEmail: 'support.thecandlelab@gmail.com',
   supportPhone: '+916264885453',
-  studioAddress: 'Artisanal Studio, Bandra West, Mumbai, Maharashtra 400050',
+  studioAddress: 'The Candle Lab Atelier, Katni, Madhya Pradesh 483501',
   logoUrl: '/logo.jpeg',
   footerText: 'Artisanal hand-poured soy candles crafted in small batches using 100% natural botanical oils and lead-free wicks.',
   socialLinks: {

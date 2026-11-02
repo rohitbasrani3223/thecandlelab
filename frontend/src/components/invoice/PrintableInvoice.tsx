@@ -66,7 +66,6 @@ export const PrintableInvoice: React.FC<PrintableInvoiceProps> = ({
   const paymentMethod = isCOD ? 'Cash on Delivery (COD)' : (order.paymentMethod || 'Online (Razorpay / UPI)');
   const paymentStatus = isCOD ? 'PENDING (Cash on Delivery)' : 'PAID (Online Verified)';
   const paymentRef = order.paymentId || (isCOD ? 'COD_VERIFIED' : (cleanId ? `PAY_${cleanId}` : '—'));
-  const trackingAWB = order.trackingNumber || order.awb || '—';
 
   return (
     <div className="bg-white border border-[#EADDCB] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl max-w-4xl mx-auto font-sans text-xs text-[#232323]">
@@ -119,10 +118,9 @@ export const PrintableInvoice: React.FC<PrintableInvoiceProps> = ({
               Luxury Soy Wax Candles & Fragrance Atelier
             </p>
             <div className="text-[11px] text-[#5C5149] mt-2 space-y-0.5 leading-relaxed">
-              <p>The Candle Lab Atelier Private Limited</p>
-              <p>402, Heritage Sanctuary, Bandra West, Mumbai, MH - 400050</p>
-              <p><strong>GSTIN:</strong> 27AAACT9821Q1Z4 | <strong>MSME:</strong> UDYAM-MH-19-0048192</p>
-              <p><strong>Concierge:</strong> concierge@thecandlelab.in | +91 98200 12345</p>
+              <p>The Candle Lab Atelier</p>
+              <p>Katni, Madhya Pradesh - 483501</p>
+              <p><strong>Concierge:</strong> support.thecandlelab@gmail.com | +91 6264885453</p>
             </div>
           </div>
 
@@ -148,7 +146,7 @@ export const PrintableInvoice: React.FC<PrintableInvoiceProps> = ({
             </div>
             <div className="flex items-center justify-between text-xs">
               <span className="text-[#7D6F63] font-bold uppercase text-[10px]">Place of Supply:</span>
-              <span className="font-medium text-[#232323]">{order.state || 'Maharashtra (27)'}</span>
+              <span className="font-medium text-[#232323]">{order.state || 'Madhya Pradesh (23)'}</span>
             </div>
           </div>
 
@@ -183,12 +181,9 @@ export const PrintableInvoice: React.FC<PrintableInvoiceProps> = ({
 
           <div className="p-4 border border-[#EADDCB] rounded-xl bg-white space-y-1">
             <span className="text-[10px] font-bold uppercase tracking-wider text-[#8B6F4E] block border-b border-[#F0E6D8] pb-1">
-              🏠 Delivery Destination & Courier
+              🏠 Delivery Destination
             </span>
             <p className="text-[#232323] font-medium leading-relaxed">{shippingAddress}</p>
-            <p className="text-[11px] font-mono text-[#7D6F63] pt-1">
-              Courier Tracking AWB: <strong className="text-[#8B6F4E]">{trackingAWB}</strong>
-            </p>
           </div>
         </div>
 
@@ -290,7 +285,7 @@ export const PrintableInvoice: React.FC<PrintableInvoiceProps> = ({
         <div className="flex items-end justify-between border-t border-dashed border-[#C8B199] pt-4 text-[10px] text-[#7D6F63]">
           <div>
             <p>Computer-generated luxury Tax Invoice issued by The Candle Lab Atelier.</p>
-            <p className="italic">Questions? Contact concierge@thecandlelab.in</p>
+            <p className="italic">Questions? Contact support.thecandlelab@gmail.com</p>
           </div>
           <div className="text-right">
             <p className="font-serif font-bold text-sm text-[#8B6F4E] italic">The Candle Lab Atelier</p>

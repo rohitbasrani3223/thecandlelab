@@ -131,8 +131,6 @@ export function generateInvoiceHTML(order: InvoiceOrderData, mode: 'invoice' | '
   const paymentMethod = isCOD ? 'Cash on Delivery (COD)' : (order.paymentMethod || 'Online (Razorpay / UPI)');
   const paymentStatus = isCOD ? 'PENDING (Cash on Delivery)' : 'PAID (Online Verified)';
   const paymentRef = order.paymentId || (isCOD ? 'COD_VERIFIED' : (cleanId ? `PAY_${cleanId}` : '—'));
-  const trackingAWB = order.trackingNumber || order.awb || '—';
-  const courier = order.courier || 'Express Air Courier';
 
   const totalQuantity = parsedItems.reduce((acc, it) => acc + (Number(it.quantity) || 1), 0);
   const amountWords = numberToWordsINR(totalAmount);
@@ -467,10 +465,9 @@ export function generateInvoiceHTML(order: InvoiceOrderData, mode: 'invoice' | '
           <div class="brand-title">THE CANDLE LAB</div>
           <div class="brand-subtitle">LUXURY SOY WAX CANDLES & FRAGRANCE ATELIER</div>
           <div class="company-details">
-            <strong>The Candle Lab Atelier Private Limited</strong><br>
-            Regd Office: 402, Heritage Sanctuary, Bandra West, Mumbai, MH - 400050<br>
-            <strong>GSTIN:</strong> 27AAACT9821Q1Z4 | <strong>MSME Reg:</strong> UDYAM-MH-19-0048192<br>
-            <strong>Support:</strong> concierge@thecandlelab.in | <strong>WhatsApp:</strong> +91 98200 12345
+            <strong>The Candle Lab Atelier</strong><br>
+            Katni, Madhya Pradesh - 483501<br>
+            <strong>Support:</strong> support.thecandlelab@gmail.com | <strong>Care & WhatsApp:</strong> +91 6264885453
           </div>
         </td>
         <td width="40%" valign="top" class="doc-badge">
@@ -489,13 +486,13 @@ export function generateInvoiceHTML(order: InvoiceOrderData, mode: 'invoice' | '
         <div class="meta-item"><span class="meta-label">Invoice Number:</span> <span class="meta-value">${invoiceNo}</span></div>
         <div class="meta-item"><span class="meta-label">Order Number:</span> <span class="meta-value" style="font-family: monospace; font-weight: 700; color: #8B6F4E;">${orderId}</span></div>
         <div class="meta-item"><span class="meta-label">Order Date:</span> <span class="meta-value">${formattedDate}</span></div>
-        <div class="meta-item"><span class="meta-label">Place of Supply:</span> <span class="meta-value">${order.state || 'Maharashtra (27)'}</span></div>
+        <div class="meta-item"><span class="meta-label">Place of Supply:</span> <span class="meta-value">${order.state || 'Madhya Pradesh (23)'}</span></div>
       </div>
       <div class="meta-col">
         <div class="meta-item"><span class="meta-label">Payment Mode:</span> <span class="meta-value">${paymentMethod}</span></div>
         <div class="meta-item"><span class="meta-label">Payment Status:</span> <span class="meta-value" style="color: ${isCOD ? '#B45309' : '#15803D'}; font-weight: 700;">${paymentStatus}</span></div>
         <div class="meta-item"><span class="meta-label">Transaction Ref:</span> <span class="meta-value" style="font-family: monospace; font-size: 9.5px;">${paymentRef}</span></div>
-        <div class="meta-item"><span class="meta-label">Courier & AWB:</span> <span class="meta-value" style="font-family: monospace; font-weight: 700;">${courier} (${trackingAWB})</span></div>
+        <div class="meta-item"><span class="meta-label">Delivery Service:</span> <span class="meta-value" style="font-weight: 700;">Standard Dispatch</span></div>
       </div>
     </div>
 
@@ -604,7 +601,7 @@ export function generateInvoiceHTML(order: InvoiceOrderData, mode: 'invoice' | '
       <tr>
         <td width="50%" valign="bottom" style="font-size: 9px; color: #7D6F63;">
           This is an electronically generated Tax Invoice & Dispatch Slip verified by The Candle Lab.<br>
-          Subject to Mumbai Jurisdiction. Thank you for illuminating your sanctuary.
+          Subject to Katni Jurisdiction. Thank you for illuminating your sanctuary.
         </td>
         <td width="50%" valign="bottom" class="signatory-box">
           <div class="signatory-seal">The Candle Lab Atelier</div>
