@@ -53,6 +53,11 @@ export interface CMSStoreSettings {
     light: string;
     accent: string;
   };
+  typographySettings?: {
+    headingFont?: string;
+    bodyFont?: string;
+    accentFont?: string;
+  };
   homepageSections?: {
     id: string;
     name: string;
@@ -546,6 +551,11 @@ const DEFAULT_SETTINGS: CMSStoreSettings = {
     pinterest: 'https://pinterest.com/thecandlelab',
     whatsapp: 'https://wa.me/916264885453',
   },
+  typographySettings: {
+    headingFont: 'Playfair Display',
+    bodyFont: 'Plus Jakarta Sans',
+    accentFont: 'Cormorant Garamond',
+  },
   instagramGallery: {
     badgeText: '@_THE_CANDLELAB ON INSTAGRAM',
     heading: 'Share Your Sanctuary Moment',
@@ -849,6 +859,19 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     safeLocalStorageSet('tcl_settings', settings);
   }, [settings]);
+
+  // Dynamically apply custom luxury typography across the entire storefront
+  useEffect(() => {
+    if (typeof document !== 'undefined' && settings?.typographySettings) {
+      const heading = settings.typographySettings.headingFont || 'Playfair Display';
+      const body = settings.typographySettings.bodyFont || 'Plus Jakarta Sans';
+      const accent = settings.typographySettings.accentFont || 'Cormorant Garamond';
+
+      document.documentElement.style.setProperty('--font-serif', `'${heading}', Georgia, serif`);
+      document.documentElement.style.setProperty('--font-sans', `'${body}', system-ui, -apple-system, sans-serif`);
+      document.documentElement.style.setProperty('--font-accent', `'${accent}', Georgia, serif`);
+    }
+  }, [settings?.typographySettings]);
 
   useEffect(() => {
     safeLocalStorageSet('tcl_announcement', announcement);

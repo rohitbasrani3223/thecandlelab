@@ -16,6 +16,7 @@ export interface CartItem {
   variantId?: string;
   giftPackaging?: boolean;
   customMessage?: string;
+  customMessageFont?: string;
   inStock?: boolean;
 }
 

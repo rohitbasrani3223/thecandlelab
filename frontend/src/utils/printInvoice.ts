@@ -14,6 +14,7 @@ export interface InvoiceItem {
   price: number;
   giftPackaging?: boolean;
   customMessage?: string;
+  customMessageFont?: string;
   image?: string;
 }
 
@@ -142,6 +143,7 @@ export function generateInvoiceHTML(order: InvoiceOrderData, mode: 'invoice' | '
   <meta charset="UTF-8">
   <title>${mode === 'packingslip' ? 'Packing Slip' : 'Tax Invoice'} - ${orderId} - The Candle Lab</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cinzel:wght@700&family=Great+Vibes&family=Pinyon+Script&display=swap');
     @page {
       size: A4 portrait;
       margin: 12mm 15mm 15mm 15mm;
@@ -538,7 +540,7 @@ export function generateInvoiceHTML(order: InvoiceOrderData, mode: 'invoice' | '
               <div class="item-title">🕯️ ${item.name}</div>
               ${specs ? `<div class="item-spec">${specs}</div>` : ''}
               ${item.giftPackaging ? `<span class="gift-badge">🎁 Luxury Gift Packaging & Wax Seal Included</span>` : ''}
-              ${item.customMessage ? `<div class="gift-message-box"><strong>💌 Handwritten Note:</strong> "${item.customMessage}"</div>` : ''}
+              ${item.customMessage ? `<div class="gift-message-box" style="font-family: ${item.customMessageFont === 'handscript' ? `'Alex Brush', cursive` : item.customMessageFont === 'aristocratic' ? `'Pinyon Script', cursive` : item.customMessageFont === 'cinzel' ? `'Cinzel', serif` : `'Great Vibes', cursive`}; font-size: 15px; font-style: normal; line-height: 1.4;"><strong>💌 Handwritten Note:</strong> "${item.customMessage}"</div>` : ''}
             </td>
             <td class="text-center" style="font-family: monospace; font-size: 9.5px; color: #5C5149;">
               ${item.sku || `TCL-${(100 + index)}`}

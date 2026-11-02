@@ -6,6 +6,7 @@ type SettingsSubTab =
   | 'logo'
   | 'favicon'
   | 'themecolors'
+  | 'typography'
   | 'currency'
   | 'emails'
   | 'social'
@@ -36,6 +37,12 @@ export const AdminStoreSettings: React.FC = () => {
     accent: settings.themeColors?.accent || '#B93829',
   });
 
+  const [typography, setTypography] = useState({
+    headingFont: settings.typographySettings?.headingFont || 'Playfair Display',
+    bodyFont: settings.typographySettings?.bodyFont || 'Plus Jakarta Sans',
+    accentFont: settings.typographySettings?.accentFont || 'Cormorant Garamond',
+  });
+
   useEffect(() => {
     if (settings.themeColors) {
       setThemeColors({
@@ -43,6 +50,13 @@ export const AdminStoreSettings: React.FC = () => {
         dark: settings.themeColors.dark || '#1C130E',
         light: settings.themeColors.light || '#FAF6F0',
         accent: settings.themeColors.accent || '#B93829',
+      });
+    }
+    if (settings.typographySettings) {
+      setTypography({
+        headingFont: settings.typographySettings.headingFont || 'Playfair Display',
+        bodyFont: settings.typographySettings.bodyFont || 'Plus Jakarta Sans',
+        accentFont: settings.typographySettings.accentFont || 'Cormorant Garamond',
       });
     }
     if (settings.integrations) {
@@ -58,11 +72,25 @@ export const AdminStoreSettings: React.FC = () => {
     { id: 'logo', label: 'Store Identity & Logo', icon: '🖼️' },
     { id: 'favicon', label: 'Favicon', icon: '🌟' },
     { id: 'themecolors', label: 'Theme Colors', icon: '🎨' },
+    { id: 'typography', label: 'Typography & Fonts', icon: '🔤' },
     { id: 'currency', label: 'Currency & Shipping', icon: '💱' },
     { id: 'emails', label: 'Email Templates', icon: '✉️' },
     { id: 'social', label: 'Social & Footer', icon: '🌐' },
     { id: 'integrations', label: 'API Integrations', icon: '🔌' },
   ];
+
+  const handleTypographySave = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateSettings({
+      typographySettings: typography,
+    });
+    if (typeof document !== 'undefined') {
+      document.documentElement.style.setProperty('--font-serif', `'${typography.headingFont}', Georgia, serif`);
+      document.documentElement.style.setProperty('--font-sans', `'${typography.bodyFont}', system-ui, -apple-system, sans-serif`);
+      document.documentElement.style.setProperty('--font-accent', `'${typography.accentFont}', Georgia, serif`);
+    }
+    triggerSaveNotification('Storefront luxury typography updated live!');
+  };
 
   const triggerSaveNotification = (msg: string) => {
     setSavedMsg(msg);
@@ -386,6 +414,231 @@ export const AdminStoreSettings: React.FC = () => {
               className="bg-[#B88B38] hover:bg-[#A3792E] text-white font-bold text-xs py-2.5 px-6 rounded-xl shadow-xs transition-colors cursor-pointer"
             >
               Save Theme Colors →
+            </button>
+          </form>
+        )}
+
+        {/* TAB 3.5: TYPOGRAPHY & LUXURY FONTS */}
+        {activeSubTab === 'typography' && (
+          <form onSubmit={handleTypographySave} className="space-y-6 max-w-3xl text-xs font-sans">
+            <div>
+              <h3 className="font-serif font-bold text-xl text-[#2C1E16]">Luxury Typography & Font Architecture</h3>
+              <p className="text-[#7A6B5D] text-xs mt-0.5">
+                Select bespoke font pairings for the entire store or pick curated atelier combinations.
+              </p>
+            </div>
+
+            {/* 1. Curated Luxury Font Presets */}
+            <div className="p-4 bg-[#FAF6F0] rounded-2xl border border-[#EFE8DB] space-y-3">
+              <span className="font-bold text-[11px] uppercase tracking-wider text-[#7A6B5D] block">
+                ⭐ 1-Click Curated Luxury Font Presets
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+                {[
+                  {
+                    name: '👑 Royal Heritage',
+                    desc: 'Cinzel + Plus Jakarta Sans',
+                    heading: 'Cinzel',
+                    body: 'Plus Jakarta Sans',
+                    accent: 'Cormorant Garamond',
+                  },
+                  {
+                    name: '✨ Classic Vogue',
+                    desc: 'Playfair Display + Plus Jakarta',
+                    heading: 'Playfair Display',
+                    body: 'Plus Jakarta Sans',
+                    accent: 'Cormorant Garamond',
+                  },
+                  {
+                    name: '🕯️ Old Money Atelier',
+                    desc: 'Cormorant Garamond + Inter',
+                    heading: 'Cormorant Garamond',
+                    body: 'Inter',
+                    accent: 'Lora',
+                  },
+                  {
+                    name: '🇮🇹 Parisian Vogue',
+                    desc: 'Bodoni Moda + Poppins',
+                    heading: 'Bodoni Moda',
+                    body: 'Poppins',
+                    accent: 'Cormorant Garamond',
+                  },
+                  {
+                    name: '🏛️ Modern Minimalist',
+                    desc: 'Montserrat + Inter',
+                    heading: 'Montserrat',
+                    body: 'Inter',
+                    accent: 'Playfair Display',
+                  },
+                ].map((preset) => {
+                  const isActive =
+                    typography.headingFont === preset.heading && typography.bodyFont === preset.body;
+                  return (
+                    <button
+                      key={preset.name}
+                      type="button"
+                      onClick={() =>
+                        setTypography({
+                          headingFont: preset.heading,
+                          bodyFont: preset.body,
+                          accentFont: preset.accent,
+                        })
+                      }
+                      className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                        isActive
+                          ? 'border-[#B88B38] bg-white ring-2 ring-[#B88B38]/30 shadow-card'
+                          : 'border-[#EFE8DB] bg-white hover:bg-[#FDFBF7]'
+                      }`}
+                    >
+                      <div>
+                        <span className="font-bold text-xs text-[#2C1E16] block">{preset.name}</span>
+                        <span className="text-[10px] text-[#7A6B5D] block mt-0.5">{preset.desc}</span>
+                      </div>
+                      <span className="text-[13px] text-[#B88B38] font-serif font-bold mt-2" style={{ fontFamily: `'${preset.heading}', serif` }}>
+                        The Candle Lab
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* 2. Custom Selectors */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Heading Font Picker */}
+              <div className="p-4 bg-[#FAF6F0] rounded-2xl border border-[#EFE8DB] space-y-2.5">
+                <label className="font-bold text-[#2C1E16] block uppercase text-[11px] tracking-wider">
+                  Primary Heading Font (--font-serif)
+                </label>
+                <p className="text-[10px] text-[#7A6B5D]">Used for hero titles, section headings & product names.</p>
+                <div className="space-y-1.5">
+                  {[
+                    { id: 'Playfair Display', name: 'Playfair Display', style: 'Vogue & Luxury Editorial' },
+                    { id: 'Cinzel', name: 'Cinzel', style: 'Regal Roman Inscription' },
+                    { id: 'Cormorant Garamond', name: 'Cormorant Garamond', style: 'Old-Money French Atelier' },
+                    { id: 'Bodoni Moda', name: 'Bodoni Moda', style: 'Italian High-Fashion Vogue' },
+                    { id: 'Montserrat', name: 'Montserrat', style: 'Clean Architectural Luxury' },
+                  ].map((font) => (
+                    <label
+                      key={font.id}
+                      className={`flex items-center justify-between p-2.5 rounded-xl border cursor-pointer transition-all ${
+                        typography.headingFont === font.id
+                          ? 'border-[#B88B38] bg-white ring-1 ring-[#B88B38]'
+                          : 'border-[#EFE8DB] bg-white hover:bg-[#FDFBF7]'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <input
+                          type="radio"
+                          name="headingFont"
+                          checked={typography.headingFont === font.id}
+                          onChange={() => setTypography({ ...typography, headingFont: font.id })}
+                          className="text-[#B88B38] focus:ring-0"
+                        />
+                        <div>
+                          <span className="font-bold text-xs text-[#2C1E16] block">{font.name}</span>
+                          <span className="text-[10px] text-[#7A6B5D]">{font.style}</span>
+                        </div>
+                      </div>
+                      <span className="text-sm text-[#2C1E16]" style={{ fontFamily: `'${font.id}', serif` }}>
+                        Abc 123
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Body Font Picker */}
+              <div className="p-4 bg-[#FAF6F0] rounded-2xl border border-[#EFE8DB] space-y-2.5">
+                <label className="font-bold text-[#2C1E16] block uppercase text-[11px] tracking-wider">
+                  Body & Navigation Font (--font-sans)
+                </label>
+                <p className="text-[10px] text-[#7A6B5D]">Used for descriptions, price labels, buttons & navigation.</p>
+                <div className="space-y-1.5">
+                  {[
+                    { id: 'Plus Jakarta Sans', name: 'Plus Jakarta Sans', style: 'Ultra-Crisp Modern Luxury' },
+                    { id: 'Poppins', name: 'Poppins', style: 'Soft Contemporary Geometric' },
+                    { id: 'Inter', name: 'Inter', style: 'Clean Swiss Precision Minimal' },
+                    { id: 'Lora', name: 'Lora', style: 'Warm Literary Fine Serif' },
+                  ].map((font) => (
+                    <label
+                      key={font.id}
+                      className={`flex items-center justify-between p-2.5 rounded-xl border cursor-pointer transition-all ${
+                        typography.bodyFont === font.id
+                          ? 'border-[#B88B38] bg-white ring-1 ring-[#B88B38]'
+                          : 'border-[#EFE8DB] bg-white hover:bg-[#FDFBF7]'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <input
+                          type="radio"
+                          name="bodyFont"
+                          checked={typography.bodyFont === font.id}
+                          onChange={() => setTypography({ ...typography, bodyFont: font.id })}
+                          className="text-[#B88B38] focus:ring-0"
+                        />
+                        <div>
+                          <span className="font-bold text-xs text-[#2C1E16] block">{font.name}</span>
+                          <span className="text-[10px] text-[#7A6B5D]">{font.style}</span>
+                        </div>
+                      </div>
+                      <span className="text-xs text-[#2C1E16]" style={{ fontFamily: `'${font.id}', sans-serif` }}>
+                        Clean Elegance
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* 3. Live Interactive Storefront Preview Box */}
+            <div className="p-5 bg-gradient-to-br from-[#1C130E] to-[#2C2018] rounded-2xl text-white shadow-xl space-y-3 border border-amber-500/20">
+              <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                <span className="text-[10px] uppercase font-mono tracking-widest text-amber-400 font-bold flex items-center gap-1.5">
+                  <span>✨</span> Live Typography Storefront Preview
+                </span>
+                <span className="text-[10px] font-mono text-stone-400">
+                  {typography.headingFont} + {typography.bodyFont}
+                </span>
+              </div>
+
+              <div>
+                <span
+                  className="text-xs uppercase tracking-widest text-amber-300/80 block mb-1 font-bold"
+                  style={{ fontFamily: `'${typography.bodyFont}', sans-serif` }}
+                >
+                  HANDCRAFTED BOTANICAL SOY CANDLES
+                </span>
+                <h2
+                  className="text-2xl sm:text-3xl font-bold text-[#FAF6F0] leading-tight"
+                  style={{ fontFamily: `'${typography.headingFont}', serif` }}
+                >
+                  Illuminate Your Sanctuary With Pure Elegance
+                </h2>
+                <p
+                  className="text-xs text-stone-300 mt-2 leading-relaxed max-w-xl"
+                  style={{ fontFamily: `'${typography.bodyFont}', sans-serif` }}
+                >
+                  Artisanal soy wax candles hand-poured in small luxury batches using 100% natural botanical oils and lead-free organic wood wicks.
+                </p>
+              </div>
+
+              <div className="pt-2 flex items-center gap-3">
+                <button
+                  type="button"
+                  className="px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-stone-950 font-bold text-xs rounded-xl shadow-md transition-all uppercase tracking-wider"
+                  style={{ fontFamily: `'${typography.bodyFont}', sans-serif` }}
+                >
+                  Explore Atelier Collection →
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="bg-[#B88B38] hover:bg-[#A3792E] text-white font-bold text-xs py-3 px-8 rounded-xl shadow-xs transition-colors cursor-pointer uppercase tracking-wider"
+            >
+              Save Typography Configuration →
             </button>
           </form>
         )}

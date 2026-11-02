@@ -10,6 +10,15 @@ interface ProductSummaryProps {
   onBuyNow?: () => void;
 }
 
+export const MESSAGE_FONTS = [
+  { id: 'calligraphy', name: 'Parisian Calligraphy', fontClass: 'font-calligraphy', sample: 'Love & Warmth' },
+  { id: 'handscript', name: 'Royal Handscript', fontClass: 'font-handscript', sample: 'Forever Yours' },
+  { id: 'aristocratic', name: 'French Aristocrat', fontClass: 'font-aristocratic', sample: 'With Warmth' },
+  { id: 'garamond', name: 'Vintage Atelier', fontClass: 'font-garamond italic', sample: 'In Serenity' },
+  { id: 'cinzel', name: 'Regal Roman', fontClass: 'font-cinzel', sample: 'SANCTUARY' },
+  { id: 'sans', name: 'Modern Minimal', fontClass: 'font-sans', sample: 'Best Wishes' },
+];
+
 export const ProductSummary: React.FC<ProductSummaryProps> = ({
   product,
   onVariantChange,
@@ -149,6 +158,7 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
   const [quantity, setQuantity] = useState<number>(1);
   const [giftPackaging, setGiftPackaging] = useState<boolean>(false);
   const [customMessage, setCustomMessage] = useState<string>('');
+  const [selectedMessageFont, setSelectedMessageFont] = useState<string>('calligraphy');
   const [showGiftMessageInput, setShowGiftMessageInput] = useState<boolean>(false);
 
   // Sync state if options change
@@ -261,6 +271,7 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
       variantId: currentVariant?.id,
       giftPackaging: showGiftPackaging ? giftPackaging : false,
       customMessage: showCustomMessage && (showGiftMessageInput || !showGiftPackaging) ? customMessage : undefined,
+      customMessageFont: showCustomMessage && (showGiftMessageInput || !showGiftPackaging) && customMessage ? selectedMessageFont : undefined,
       quantity,
     } as any, { openDrawer: true });
   };
@@ -288,6 +299,7 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
       variantId: currentVariant?.id,
       giftPackaging: showGiftPackaging ? giftPackaging : false,
       customMessage: showCustomMessage && (showGiftMessageInput || !showGiftPackaging) ? customMessage : undefined,
+      customMessageFont: showCustomMessage && (showGiftMessageInput || !showGiftPackaging) && customMessage ? selectedMessageFont : undefined,
       quantity,
     };
 
@@ -657,14 +669,82 @@ export const ProductSummary: React.FC<ProductSummaryProps> = ({
           )}
 
           {showCustomMessage && (showGiftMessageInput || !showGiftPackaging) && (
-            <div className="pt-1">
-              <input
-                type="text"
-                placeholder="Enter handwritten gift message for recipient..."
+            <div className="pt-2 space-y-2 border-t border-[#EADDCB]/60">
+              <div className="flex items-center justify-between">
+                <label className="block text-[11px] font-mono uppercase tracking-wider text-[#5C5149] font-bold">
+                  💌 Custom Gift / Engraving Message:
+                </label>
+                <span className="text-[10px] text-[#7D6F63] font-mono">
+                  {customMessage.length}/150
+                </span>
+              </div>
+
+              <textarea
+                rows={2}
+                maxLength={150}
+                placeholder="Enter personal handwritten note for recipient..."
                 value={customMessage}
                 onChange={(e) => setCustomMessage(e.target.value)}
-                className="w-full bg-[#FAF7F2] border border-[#EADDCB] rounded-xl px-3 py-2 text-xs text-[#232323] outline-none focus:border-[#8B6F4E]"
+                className="w-full bg-[#FAF7F2] border border-[#EADDCB] rounded-xl px-3 py-2 text-xs text-[#232323] outline-none focus:border-[#8B6F4E] transition-all resize-none shadow-xs"
               />
+
+              {/* Calligraphy & Luxury Font Selector */}
+              <div className="space-y-1.5 pt-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-[#7D6F63] font-bold">
+                    Select Calligraphy Font:
+                  </span>
+                  <span className="text-[10px] text-[#8B6F4E] font-medium">
+                    {MESSAGE_FONTS.find((f) => f.id === selectedMessageFont)?.name}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                  {MESSAGE_FONTS.map((font) => {
+                    const isSelected = selectedMessageFont === font.id;
+                    return (
+                      <button
+                        key={font.id}
+                        type="button"
+                        onClick={() => setSelectedMessageFont(font.id)}
+                        className={`px-2.5 py-1.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                          isSelected
+                            ? 'border-[#8B6F4E] bg-[#FAF7F2] ring-1 ring-[#8B6F4E] shadow-xs'
+                            : 'border-[#EADDCB] bg-white hover:bg-[#FAF7F2]'
+                        }`}
+                      >
+                        <span className="text-[9px] font-bold text-[#7D6F63] block truncate">{font.name}</span>
+                        <span className={`text-sm text-[#232323] truncate leading-tight mt-0.5 ${font.fontClass}`}>
+                          {font.sample}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Live Luxury Card Preview */}
+              {customMessage.trim() && (
+                <div className="mt-2 p-3 bg-gradient-to-br from-[#FFFDF9] to-[#FAF6EE] border border-[#EADDCB] rounded-xl shadow-xs relative overflow-hidden">
+                  <div className="flex items-center justify-between mb-1.5 border-b border-[#EADDCB]/60 pb-1">
+                    <span className="text-[9px] uppercase font-bold tracking-widest text-[#8B6F4E] flex items-center gap-1">
+                      <span>🕯️</span> Live Gift Card Preview
+                    </span>
+                    <span className="text-[8px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#8B6F4E]/10 text-[#8B6F4E] font-mono font-bold">
+                      {MESSAGE_FONTS.find((f) => f.id === selectedMessageFont)?.name}
+                    </span>
+                  </div>
+                  <p
+                    className={`text-base sm:text-lg text-[#232323] leading-relaxed break-words py-1.5 ${
+                      MESSAGE_FONTS.find((f) => f.id === selectedMessageFont)?.fontClass || 'font-calligraphy'
+                    }`}
+                  >
+                    "{customMessage}"
+                  </p>
+                  <div className="text-right text-[8px] uppercase tracking-widest text-[#7D6F63] font-serif italic border-t border-[#EADDCB]/40 pt-1 mt-1">
+                    The Candle Lab Atelier Concierge
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

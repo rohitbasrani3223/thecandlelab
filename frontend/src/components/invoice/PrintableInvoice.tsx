@@ -218,8 +218,23 @@ export const PrintableInvoice: React.FC<PrintableInvoiceProps> = ({
                         </span>
                       )}
                       {item.customMessage && (
-                        <div className="mt-1 p-2 bg-[#FFFDF9] border-l-2 border-[#8B6F4E] text-[10px] italic text-[#4A3E36]">
-                          " {item.customMessage} "
+                        <div className="mt-1.5 p-2 bg-[#FAF7F2] border-l-2 border-[#8B6F4E] rounded-r-md">
+                          <span className="text-[9px] uppercase font-bold text-[#8B6F4E] block tracking-wider mb-0.5">💌 Personal Gift Note:</span>
+                          <p className={`text-base text-[#232323] leading-relaxed ${
+                            item.customMessageFont === 'handscript'
+                              ? 'font-handscript'
+                              : item.customMessageFont === 'aristocratic'
+                              ? 'font-aristocratic'
+                              : item.customMessageFont === 'garamond'
+                              ? 'font-garamond italic'
+                              : item.customMessageFont === 'cinzel'
+                              ? 'font-cinzel text-xs font-bold'
+                              : item.customMessageFont === 'sans'
+                              ? 'font-sans text-xs'
+                              : 'font-calligraphy'
+                          }`}>
+                            "{item.customMessage}"
+                          </p>
                         </div>
                       )}
                     </td>
