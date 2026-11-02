@@ -16,7 +16,7 @@ export const AdminPaymentsTaxes: React.FC = () => {
     razorpayKey: 'rzp_live_9488371891',
     razorpaySecret: '••••••••••••••••••••',
     razorpayEnabled: true,
-    codEnabled: true,
+    codEnabled: false,
     stripeEnabled: false,
     stripePublishableKey: 'pk_live_51M...',
     gstRatePercent: 18,

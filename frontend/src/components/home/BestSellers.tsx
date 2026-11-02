@@ -44,10 +44,6 @@ export const BestSellers: React.FC<BestSellersProps> = ({ onSelectProduct, onNav
     ? products.filter((p) => p.isBestSeller)
     : products;
 
-  if (products.length === 0) {
-    return null;
-  }
-
   const filteredProducts = bestSellerList;
 
   const updateScrollState = useCallback(() => {
@@ -68,6 +64,10 @@ export const BestSellers: React.FC<BestSellersProps> = ({ onSelectProduct, onNav
     const cardWidth = el.firstElementChild ? (el.firstElementChild as HTMLElement).offsetWidth + 14 : el.clientWidth * 0.78;
     el.scrollBy({ left: dir === 'left' ? -cardWidth : cardWidth, behavior: 'smooth' });
   };
+
+  if (products.length === 0) {
+    return null;
+  }
 
   return (
     <section className="py-16 sm:py-24 bg-[#F8F6F0] border-b border-[#EADDCB] font-sans">

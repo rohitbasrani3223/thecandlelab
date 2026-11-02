@@ -23,7 +23,7 @@ export const PaymentMethodStep: React.FC<PaymentMethodStepProps> = ({
 }) => {
   const { settings } = useCMS();
   const razorpayAllowed = settings.paymentSettings?.razorpayEnabled ?? true;
-  const codAllowed = settings.paymentSettings?.codEnabled ?? true;
+  const codAllowed = settings.paymentSettings?.codEnabled ?? false;
 
   const defaultMethod: PaymentData['method'] = initialData.method || (razorpayAllowed ? 'razorpay' : codAllowed ? 'cod' : 'upi');
 
