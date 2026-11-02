@@ -14,3 +14,4 @@ export * from './AdminStaffManager';
 export * from './AdminLoginPage';
 export * from './AdminHeroBannersManager';
 export * from './AdminReviewsManager';
+export * from './AdminPaymentsTaxes';

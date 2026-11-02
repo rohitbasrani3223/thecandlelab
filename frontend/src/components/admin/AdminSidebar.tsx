@@ -14,6 +14,7 @@ export type AdminTab =
   | 'hero-banners'
   | 'hero'
   | 'coupons'
+  | 'payments'
   | 'media'
   | 'staff'
   | 'settings'
@@ -40,6 +41,7 @@ const navItems: { id: AdminTab; label: string; icon: string; badge?: string; sec
   { id: 'customers', label: 'Customer Directory', icon: '👥' },
   { id: 'reviews', label: 'Customer Reviews', icon: '⭐', badge: 'New' },
   { id: 'coupons', label: 'Coupons & Promos', icon: '🎟️' },
+  { id: 'payments', label: 'Payments & COD', icon: '💳' },
   { id: 'hero-banners', label: 'Hero Banner Desktop', icon: '🖼️', section: 'Content & Settings' },
   { id: 'hero', label: 'Storefront CMS Builder', icon: '🎨' },
   { id: 'media', label: 'Media Library', icon: '🖼️' },

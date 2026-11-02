@@ -19,6 +19,7 @@ import { AdminStoreSettings } from './AdminStoreSettings';
 import { AdminSEOManager } from './AdminSEOManager';
 import { AdminDashboard } from './AdminDashboard';
 import { AdminReviewsManager } from './AdminReviewsManager';
+import { AdminPaymentsTaxes } from './AdminPaymentsTaxes';
 
 export interface AdminLayoutProps {
   onLogout?: () => void;
@@ -79,6 +80,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
     'hero-banners': { title: 'Hero Banner Desktop', icon: '🖼️' },
     hero: { title: 'Hero & Announcements', icon: '🎨' },
     coupons: { title: 'Coupons & Promos', icon: '🎟️' },
+    payments: { title: 'Payments, Taxes & COD', icon: '💳' },
     media: { title: 'Media Library', icon: '🖼️' },
     staff: { title: 'Staff & Roles', icon: '🛡️' },
     seo: { title: 'SEO & Metadata', icon: '🔍' },
@@ -144,6 +146,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
           {activeTab === 'hero-banners' && <AdminHeroBannersManager />}
           {activeTab === 'hero' && <AdminHomepageCMS />}
           {activeTab === 'coupons' && <AdminMarketingCMS />}
+          {activeTab === 'payments' && <AdminPaymentsTaxes />}
           {activeTab === 'media' && <AdminMediaLibrary />}
           {activeTab === 'staff' && <AdminStaffManager />}
           {activeTab === 'seo' && <AdminSEOManager />}
