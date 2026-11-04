@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Button, Badge, SparklesIcon, useToast } from '../../design-system';
 import { printOrderInvoice } from '../../utils/printInvoice';
 import { PrintableInvoice } from '../invoice/PrintableInvoice';
@@ -28,6 +29,23 @@ export const OrderSuccessPage: React.FC<OrderSuccessPageProps> = ({ onReturnHome
   const { toast } = useToast();
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const [showTrackModal, setShowTrackModal] = useState(false);
+
+  // Manage body scroll and Escape key for Invoice Modal
+  useEffect(() => {
+    if (!showInvoiceModal) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setShowInvoiceModal(false);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [showInvoiceModal]);
 
   // Hydrate from localStorage if props missing or items empty
   const latestLocalOrder = (() => {
@@ -348,16 +366,23 @@ export const OrderSuccessPage: React.FC<OrderSuccessPageProps> = ({ onReturnHome
         />
       )}
 
-      {/* Invoice Modal Preview */}
-      {showInvoiceModal && (
-        <div className="fixed inset-0 z-50 bg-[#1C130E]/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="my-8 max-w-4xl w-full">
+      {/* Invoice Modal Preview (Portaled to document.body with start-aligned scroll) */}
+      {showInvoiceModal && typeof document !== 'undefined' && createPortal(
+        <div
+          className="fixed inset-0 z-[99999] bg-[#141211]/85 backdrop-blur-md flex items-start justify-center p-2 sm:p-4 md:p-6 overflow-y-auto animate-fadeIn font-sans"
+          onClick={() => setShowInvoiceModal(false)}
+        >
+          <div
+            className="my-2 sm:my-6 max-w-4xl w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
             <PrintableInvoice
               order={invoiceOrderData}
               onClose={() => setShowInvoiceModal(false)}
             />
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

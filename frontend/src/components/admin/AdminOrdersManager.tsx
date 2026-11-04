@@ -110,8 +110,8 @@ export const AdminOrdersManager: React.FC = () => {
 
       {/* Full Order Specification, Packing Slip & Tax Invoice Modal */}
       {selectedPackingOrder && (
-        <div className="fixed inset-0 z-50 bg-[#1C130E]/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white border border-[#EFE8DB] rounded-3xl max-w-3xl w-full p-6 sm:p-8 space-y-6 shadow-2xl my-8">
+        <div className="fixed inset-0 z-50 bg-[#1C130E]/80 backdrop-blur-xs flex items-start justify-center p-2 sm:p-4 overflow-y-auto font-sans">
+          <div className="bg-white border border-[#EFE8DB] rounded-3xl max-w-4xl w-full p-3.5 sm:p-8 space-y-6 shadow-2xl my-2 sm:my-8">
             {/* Header with View Toggle */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#EFE8DB] pb-4">
               <div>
