@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { Card, Badge, StarIcon, Button, useToast } from '../../design-system';
 import {
   fetchProductReviews,
@@ -56,6 +57,16 @@ export const ProductReviewsSection: React.FC<ProductReviewsSectionProps> = ({
   useEffect(() => {
     loadReviews();
   }, [loadReviews]);
+
+  // Lock body scroll when review modal is open
+  useEffect(() => {
+    if (!isModalOpen) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isModalOpen]);
 
   // Handle Review Submission
   const handleSubmitReview = async (e: React.FormEvent) => {
@@ -310,8 +321,8 @@ export const ProductReviewsSection: React.FC<ProductReviewsSectionProps> = ({
       </div>
 
       {/* Write a Review Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fadeIn font-sans">
+      {isModalOpen && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fadeIn font-sans">
           <div
             className="fixed inset-0"
             onClick={() => !isSubmitting && setIsModalOpen(false)}
@@ -482,7 +493,8 @@ export const ProductReviewsSection: React.FC<ProductReviewsSectionProps> = ({
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </section>
   );

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronLeftIcon, ChevronRightIcon } from '../../design-system';
 
 interface ProductGalleryProps {
@@ -55,17 +56,24 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
     setCurrentIndex(index);
   };
 
-  // Keyboard navigation when Lightbox is open or gallery is focused
+  // Lock background scroll and enable keyboard navigation when Lightbox is open
   useEffect(() => {
+    if (!isLightboxOpen) return;
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (isLightboxOpen) {
-        if (e.key === 'ArrowRight') handleNext();
-        else if (e.key === 'ArrowLeft') handlePrev();
-        else if (e.key === 'Escape') setIsLightboxOpen(false);
-      }
+      if (e.key === 'ArrowRight') handleNext();
+      else if (e.key === 'ArrowLeft') handlePrev();
+      else if (e.key === 'Escape') setIsLightboxOpen(false);
     };
+
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, [isLightboxOpen, handleNext, handlePrev]);
 
   // Touch handlers for mobile swipe
@@ -257,21 +265,32 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
         </div>
       )}
 
-      {/* Fullscreen Lightbox Modal */}
-      {isLightboxOpen && (
+      {/* Fullscreen Lightbox Modal (Portaled directly to document.body to avoid stacking context overlaps) */}
+      {isLightboxOpen && typeof document !== 'undefined' && createPortal(
         <div
-          className="fixed inset-0 z-50 bg-black/95 backdrop-blur-lg flex flex-col items-center justify-between p-4 sm:p-6"
+          className="fixed inset-0 z-[99999] bg-[#0A0A0A]/95 backdrop-blur-xl flex flex-col justify-between p-4 sm:p-6 select-none animate-fadeIn font-sans"
           onClick={() => setIsLightboxOpen(false)}
         >
-          {/* Top Bar */}
-          <div className="w-full flex items-center justify-between text-white z-10">
-            <span className="text-xs font-mono tracking-wider text-stone-300">
-              {productName} • {currentIndex + 1} of {allImages.length}
-            </span>
+          {/* Top Bar with Product Name, Index Counter, and Prominent Close Button */}
+          <div
+            className="w-full flex items-center justify-between text-white z-20 max-w-7xl mx-auto pt-1 sm:pt-2 px-2"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3">
+              <span className="font-serif font-bold text-sm sm:text-base text-stone-100 tracking-wide drop-shadow-md truncate max-w-[200px] sm:max-w-md">
+                {productName}
+              </span>
+              <span className="text-[11px] font-mono px-3 py-1 rounded-full bg-white/10 text-stone-200 border border-white/15 backdrop-blur-md shrink-0">
+                {currentIndex + 1} / {allImages.length}
+              </span>
+            </div>
+
+            {/* Prominent High-Contrast Close Button */}
             <button
               type="button"
               onClick={() => setIsLightboxOpen(false)}
-              className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-xl transition-all cursor-pointer"
+              aria-label="Close fullscreen view"
+              className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/20 hover:bg-white text-white hover:text-[#1C130E] flex items-center justify-center text-lg font-bold transition-all duration-200 cursor-pointer backdrop-blur-md shadow-2xl border border-white/25 hover:scale-105 active:scale-95"
             >
               ✕
             </button>
@@ -279,32 +298,34 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
 
           {/* Central Image with Prev / Next Navigation */}
           <div
-            className="relative flex-1 flex items-center justify-center w-full max-w-5xl my-auto"
+            className="relative flex-1 flex items-center justify-center w-full max-w-6xl mx-auto my-auto px-2 sm:px-12"
             onClick={(e) => e.stopPropagation()}
           >
             {allImages.length > 1 && (
               <button
                 type="button"
                 onClick={handlePrev}
-                className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center text-2xl transition-all z-20 cursor-pointer backdrop-blur-md shadow-lg"
+                aria-label="Previous image"
+                className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-black/60 hover:bg-white text-white hover:text-black flex items-center justify-center transition-all duration-200 z-30 cursor-pointer backdrop-blur-md shadow-2xl border border-white/20 hover:scale-110 active:scale-95"
               >
-                ‹
+                <ChevronLeftIcon size={24} />
               </button>
             )}
 
             <img
               src={allImages[currentIndex]}
-              alt={`${productName} fullscreen`}
-              className="max-w-full max-h-[75vh] object-contain rounded-2xl shadow-2xl border border-white/15 select-none"
+              alt={`${productName} fullscreen ${currentIndex + 1}`}
+              className="max-w-full max-h-[72vh] sm:max-h-[76vh] object-contain rounded-2xl shadow-2xl border border-white/15 select-none"
             />
 
             {allImages.length > 1 && (
               <button
                 type="button"
                 onClick={handleNext}
-                className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center text-2xl transition-all z-20 cursor-pointer backdrop-blur-md shadow-lg"
+                aria-label="Next image"
+                className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-black/60 hover:bg-white text-white hover:text-black flex items-center justify-center transition-all duration-200 z-30 cursor-pointer backdrop-blur-md shadow-2xl border border-white/20 hover:scale-110 active:scale-95"
               >
-                ›
+                <ChevronRightIcon size={24} />
               </button>
             )}
           </div>
@@ -312,26 +333,32 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
           {/* Lightbox Bottom Thumbnail Bar */}
           {allImages.length > 1 && (
             <div
-              className="flex items-center gap-2 overflow-x-auto max-w-full py-2 z-10"
+              className="flex flex-col items-center gap-2 max-w-full py-2 z-20"
               onClick={(e) => e.stopPropagation()}
             >
-              {allImages.map((img, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => handleSelectIndex(idx)}
-                  className={`w-14 h-14 rounded-xl overflow-hidden border-2 shrink-0 transition-all cursor-pointer ${
-                    idx === currentIndex
-                      ? 'border-[#8B6F4E] scale-105 ring-2 ring-[#8B6F4E]/50'
-                      : 'border-white/20 opacity-50 hover:opacity-90'
-                  }`}
-                >
-                  <img src={img} alt="thumb" className="w-full h-full object-cover" />
-                </button>
-              ))}
+              <div className="flex items-center gap-2.5 overflow-x-auto max-w-full px-4 py-1 scrollbar-none">
+                {allImages.map((img, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => handleSelectIndex(idx)}
+                    className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden border-2 shrink-0 transition-all duration-200 cursor-pointer ${
+                      idx === currentIndex
+                        ? 'border-[#D4AF37] ring-2 ring-[#D4AF37]/60 scale-105 opacity-100 shadow-goldGlow'
+                        : 'border-white/20 opacity-50 hover:opacity-90 hover:scale-95'
+                    }`}
+                  >
+                    <img src={img} alt={`thumb ${idx + 1}`} className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+              <span className="hidden sm:inline-block text-[11px] font-mono text-stone-400">
+                Use ← → arrows to navigate • Esc or click outside to close
+              </span>
             </div>
           )}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

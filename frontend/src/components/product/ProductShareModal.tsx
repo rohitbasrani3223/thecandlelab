@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useToast } from '../../design-system';
 
 export interface ProductShareModalProps {
@@ -103,8 +104,8 @@ export const ProductShareModal: React.FC<ProductShareModalProps> = ({
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fadeIn font-sans">
+  return typeof document !== 'undefined' ? createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fadeIn font-sans">
       <div
         className="fixed inset-0"
         onClick={onClose}
@@ -259,6 +260,7 @@ export const ProductShareModal: React.FC<ProductShareModalProps> = ({
           )}
         </div>
       </div>
-    </div>
-  );
+    </div>,
+    document.body
+  ) : null;
 };
