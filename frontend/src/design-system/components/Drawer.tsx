@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { CloseIcon } from './Icons';
 
 export interface DrawerProps {
@@ -51,8 +52,8 @@ export const Drawer: React.FC<DrawerProps> = ({
     bottom: `bottom-0 left-0 right-0 max-h-[85vh] animate-slide-up rounded-t-2xl border-t border-[#EADDCB]`,
   };
 
-  return (
-    <div className="fixed inset-0 z-50 overflow-hidden font-sans">
+  return typeof document !== 'undefined' ? createPortal(
+    <div className="fixed inset-0 z-[9999] overflow-hidden font-sans">
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-[#141312]/60 backdrop-blur-xs transition-opacity animate-fade-in"
@@ -105,6 +106,7 @@ export const Drawer: React.FC<DrawerProps> = ({
           </div>
         )}
       </div>
-    </div>
-  );
+    </div>,
+    document.body
+  ) : null;
 };

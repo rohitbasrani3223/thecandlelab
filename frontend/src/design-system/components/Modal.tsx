@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { CloseIcon } from './Icons';
 
 export interface ModalProps {
@@ -46,8 +47,8 @@ export const Modal: React.FC<ModalProps> = ({
     full: 'max-w-4xl',
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+  return typeof document !== 'undefined' ? createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-start justify-center p-2.5 sm:p-6 overflow-y-auto animate-fadeIn font-sans">
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-[#141312]/60 backdrop-blur-xs transition-opacity animate-fade-in"
@@ -57,7 +58,7 @@ export const Modal: React.FC<ModalProps> = ({
 
       {/* Dialog */}
       <div
-        className={`relative w-full max-w-[92vw] ${sizeStyles[size]} bg-[#FFFFFF] border border-[#EADDCB] rounded-2xl shadow-modal z-10 overflow-hidden animate-modal-zoom my-8 font-sans`}
+        className={`relative w-full max-w-[92vw] ${sizeStyles[size]} bg-[#FFFFFF] border border-[#EADDCB] rounded-2xl shadow-modal z-10 overflow-hidden animate-modal-zoom my-2 sm:my-8 font-sans`}
         role="dialog"
         aria-modal="true"
       >
@@ -89,7 +90,7 @@ export const Modal: React.FC<ModalProps> = ({
         )}
 
         {/* Body */}
-        <div className="p-6 max-h-[75vh] overflow-y-auto">{children}</div>
+        <div className="p-4 sm:p-6 max-h-[78vh] overflow-y-auto">{children}</div>
 
         {/* Footer */}
         {footer && (
@@ -98,6 +99,7 @@ export const Modal: React.FC<ModalProps> = ({
           </div>
         )}
       </div>
-    </div>
-  );
+    </div>,
+    document.body
+  ) : null;
 };

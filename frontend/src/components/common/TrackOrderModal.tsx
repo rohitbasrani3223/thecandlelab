@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Modal, Input, Button, Badge, SparklesIcon, useToast } from '../../design-system';
 import { supabaseFetch } from '../../config/supabaseClient';
 import { printOrderInvoice } from '../../utils/printInvoice';
@@ -429,16 +430,23 @@ export const TrackOrderModal: React.FC<TrackOrderModalProps> = ({
           </div>
         )}
 
-        {/* Invoice Preview Modal */}
-        {showInvoicePreview && trackedOrder && (
-          <div className="fixed inset-0 z-50 bg-[#1C130E]/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-            <div className="my-8 max-w-4xl w-full">
+        {/* Invoice Preview Modal (Portaled directly to document.body) */}
+        {showInvoicePreview && trackedOrder && typeof document !== 'undefined' && createPortal(
+          <div
+            className="fixed inset-0 z-[99999] bg-[#141211]/85 backdrop-blur-md flex items-start justify-center p-2 sm:p-4 md:p-6 overflow-y-auto animate-fadeIn font-sans"
+            onClick={() => setShowInvoicePreview(false)}
+          >
+            <div
+              className="my-2 sm:my-6 max-w-4xl w-full"
+              onClick={(e) => e.stopPropagation()}
+            >
               <PrintableInvoice
                 order={trackedOrder}
                 onClose={() => setShowInvoicePreview(false)}
               />
             </div>
-          </div>
+          </div>,
+          document.body
         )}
       </div>
     </Modal>

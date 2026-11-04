@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { useCMS, type CMSProduct } from '../../context/CMSContext';
 
 interface SearchModalProps {
@@ -34,9 +35,15 @@ export const SearchModal: React.FC<SearchModalProps> = ({
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 bg-[#141312]/70 backdrop-blur-md flex items-start justify-center pt-20 px-4">
-      <div className="bg-[#FFFFFF] border border-[#EADDCB] rounded-3xl w-full max-w-2xl shadow-modal overflow-hidden animate-fade-in font-sans">
+  return typeof document !== 'undefined' ? createPortal(
+    <div
+      className="fixed inset-0 z-[9999] bg-[#141312]/75 backdrop-blur-md flex items-start justify-center pt-8 sm:pt-20 p-3 sm:px-4 overflow-y-auto animate-fadeIn"
+      onClick={onClose}
+    >
+      <div
+        className="bg-[#FFFFFF] border border-[#EADDCB] rounded-3xl w-full max-w-2xl shadow-modal overflow-hidden animate-modal-zoom font-sans my-2 sm:my-4"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Search Input Box */}
         <div className="p-4 border-b border-[#EADDCB] flex items-center gap-3 bg-[#FAF7F2]">
           <span className="text-[#8B6F4E] text-lg">🔍</span>
@@ -170,6 +177,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
           )}
         </div>
       </div>
-    </div>
-  );
+    </div>,
+    document.body
+  ) : null;
 };

@@ -62,8 +62,8 @@ export const AdminCustomersCRM: React.FC = () => {
 
       {/* Add Customer Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 bg-[#1C130E]/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white border border-[#EFE8DB] rounded-2xl max-w-md w-full p-6 space-y-4 shadow-card">
+        <div className="fixed inset-0 z-50 bg-[#1C130E]/70 backdrop-blur-xs flex items-start justify-center p-3 sm:p-6 overflow-y-auto font-sans">
+          <div className="bg-white border border-[#EFE8DB] rounded-2xl max-w-md w-full p-6 space-y-4 shadow-card my-2 sm:my-8">
             <div className="flex items-center justify-between border-b border-[#F2ECE1] pb-3">
               <h3 className="font-serif font-bold text-lg text-[#2C1E16]">Add New Customer</h3>
               <button onClick={() => setShowAddModal(false)} className="text-[#8C7A6B]">✕</button>
@@ -138,45 +138,47 @@ export const AdminCustomersCRM: React.FC = () => {
               + Add Customer
             </button>
           </div>
-          <table className="w-full text-left text-xs text-[#2C1E16]">
-            <thead className="bg-[#F8F3EA] border-b border-[#EFE8DB] uppercase font-bold text-[10px] tracking-wider text-[#7A6B5D]">
-              <tr>
-                <th className="p-4">Customer Name</th>
-                <th className="p-4">Email</th>
-                <th className="p-4">Orders Placed</th>
-                <th className="p-4">Total Spent</th>
-                <th className="p-4">Loyalty Tier</th>
-                <th className="p-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#F2ECE1]">
-              {customers.map((c) => (
-                <tr key={c.id} className="hover:bg-[#FAF6F0] transition-colors">
-                  <td className="p-4 font-bold text-[#2C1E16]">{c.name}</td>
-                  <td className="p-4 text-[#7A6B5D]">{c.email}</td>
-                  <td className="p-4 font-semibold">{c.ordersCount} Orders</td>
-                  <td className="p-4 font-bold text-[#2E6F40]">₹{c.totalSpent.toLocaleString('en-IN')}.00</td>
-                  <td className="p-4">
-                    <span className="bg-[#B88B38]/10 text-[#B88B38] font-bold px-2.5 py-1 rounded-full text-[10px]">
-                      ★ {c.tier}
-                    </span>
-                  </td>
-                  <td className="p-4 text-right">
-                    <button
-                      onClick={() => {
-                        deleteCustomer(c.id);
-                        setSavedMsg(`Customer ${c.name} removed.`);
-                        setTimeout(() => setSavedMsg(''), 3000);
-                      }}
-                      className="text-[#B93829] font-bold hover:underline cursor-pointer"
-                    >
-                      Delete
-                    </button>
-                  </td>
+          <div className="overflow-x-auto max-w-full">
+            <table className="w-full text-left text-xs text-[#2C1E16] min-w-[600px]">
+              <thead className="bg-[#F8F3EA] border-b border-[#EFE8DB] uppercase font-bold text-[10px] tracking-wider text-[#7A6B5D]">
+                <tr>
+                  <th className="p-4">Customer Name</th>
+                  <th className="p-4">Email</th>
+                  <th className="p-4">Orders Placed</th>
+                  <th className="p-4">Total Spent</th>
+                  <th className="p-4">Loyalty Tier</th>
+                  <th className="p-4 text-right">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-[#F2ECE1]">
+                {customers.map((c) => (
+                  <tr key={c.id} className="hover:bg-[#FAF6F0] transition-colors">
+                    <td className="p-4 font-bold text-[#2C1E16]">{c.name}</td>
+                    <td className="p-4 text-[#7A6B5D]">{c.email}</td>
+                    <td className="p-4 font-semibold">{c.ordersCount} Orders</td>
+                    <td className="p-4 font-bold text-[#2E6F40]">₹{c.totalSpent.toLocaleString('en-IN')}.00</td>
+                    <td className="p-4">
+                      <span className="bg-[#B88B38]/10 text-[#B88B38] font-bold px-2.5 py-1 rounded-full text-[10px]">
+                        ★ {c.tier}
+                      </span>
+                    </td>
+                    <td className="p-4 text-right">
+                      <button
+                        onClick={() => {
+                          deleteCustomer(c.id);
+                          setSavedMsg(`Customer ${c.name} removed.`);
+                          setTimeout(() => setSavedMsg(''), 3000);
+                        }}
+                        className="text-[#B93829] font-bold hover:underline cursor-pointer"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 

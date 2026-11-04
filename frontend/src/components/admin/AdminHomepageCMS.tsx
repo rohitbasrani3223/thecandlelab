@@ -1078,8 +1078,8 @@ export const AdminHomepageCMS: React.FC = () => {
 
             {/* Modal for Add / Edit Post */}
             {isPostModalOpen && (
-              <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
-                <div className="bg-[#FAF6F0] border border-[#EFE8DB] rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200">
+              <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-start justify-center p-3 sm:p-6 overflow-y-auto font-sans">
+                <div className="bg-[#FAF6F0] border border-[#EFE8DB] rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200 my-2 sm:my-8">
                   <div className="flex items-center justify-between border-b border-[#EFE8DB] pb-3">
                     <h4 className="font-serif font-bold text-lg text-[#2C1E16]">
                       {editingPost ? 'Edit Instagram Post' : 'Add Real Instagram Post'}

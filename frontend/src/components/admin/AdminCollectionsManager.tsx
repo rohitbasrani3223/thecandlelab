@@ -99,8 +99,8 @@ export const AdminCollectionsManager: React.FC = () => {
 
       {/* Product Assignment Modal */}
       {assigningCol && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#1C130E] border border-amber-500/30 rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm overflow-y-auto flex items-start justify-center p-3 sm:p-6 font-sans">
+          <div className="bg-[#1C130E] border border-amber-500/30 rounded-2xl w-full max-w-2xl max-h-[88vh] flex flex-col shadow-2xl overflow-hidden my-2 sm:my-6">
             <div className="p-5 border-b border-[#2C2018] flex items-center justify-between">
               <div>
                 <h3 className="font-serif text-base text-[#FDFBF7]">

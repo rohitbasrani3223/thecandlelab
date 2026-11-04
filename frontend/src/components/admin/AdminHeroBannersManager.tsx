@@ -405,8 +405,8 @@ export const AdminHeroBannersManager: React.FC = () => {
 
       {/* 4. Create / Edit Hero Banner Desktop Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[92vh] flex flex-col overflow-hidden border border-stone-200">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-start justify-center p-2.5 sm:p-4 animate-in fade-in duration-200 font-sans">
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[92vh] flex flex-col overflow-hidden border border-stone-200 my-2 sm:my-6">
             {/* Modal Header */}
             <div className="p-4 sm:p-5 border-b border-stone-200 flex items-center justify-between bg-stone-50">
               <div className="flex items-center gap-3">

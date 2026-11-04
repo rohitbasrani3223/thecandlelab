@@ -336,8 +336,8 @@ export const AdminOrdersManager: React.FC = () => {
 
       {/* Add Order Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 bg-[#1C130E]/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white border border-[#EFE8DB] rounded-2xl max-w-md w-full p-6 space-y-4 shadow-card">
+        <div className="fixed inset-0 z-50 bg-[#1C130E]/70 backdrop-blur-xs flex items-start justify-center p-3 sm:p-6 overflow-y-auto font-sans">
+          <div className="bg-white border border-[#EFE8DB] rounded-2xl max-w-md w-full p-6 space-y-4 shadow-card my-2 sm:my-8">
             <div className="flex items-center justify-between border-b border-[#F2ECE1] pb-3">
               <h3 className="font-serif font-bold text-lg text-[#2C1E16]">Create Manual Store Order</h3>
               <button onClick={() => setShowAddModal(false)} className="text-[#8C7A6B]">✕</button>
@@ -437,7 +437,7 @@ export const AdminOrdersManager: React.FC = () => {
       )}
 
       {shipmentOrder && (
-        <div className="fixed inset-0 z-50 bg-[#1C130E]/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-[#1C130E]/70 backdrop-blur-xs flex items-start justify-center p-3 sm:p-6 overflow-y-auto font-sans">
           <form
             onSubmit={(event) => {
               event.preventDefault();
@@ -454,7 +454,7 @@ export const AdminOrdersManager: React.FC = () => {
               setShipment({ courier: 'Shiprocket', awb: '', pickupDate: '' });
               setTimeout(() => setSavedMsg(''), 4000);
             }}
-            className="bg-white border border-[#EFE8DB] rounded-2xl max-w-md w-full p-6 space-y-4 shadow-card"
+            className="bg-white border border-[#EFE8DB] rounded-2xl max-w-md w-full p-6 space-y-4 shadow-card my-2 sm:my-8"
           >
             <div className="flex items-center justify-between border-b border-[#F2ECE1] pb-3">
               <div><h3 className="font-serif font-bold text-lg text-[#2C1E16]">Create Shipment</h3><p className="text-[11px] text-[#7A6B5D]">Order {shipmentOrder}</p></div>

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { SearchIcon, CloseIcon, Chip, Badge, SparklesIcon } from '../../design-system';
 import { SearchResultsView } from './SearchResultsView';
 import type { SearchProductItem } from './SearchResultsView';
@@ -93,11 +94,11 @@ export const SearchOverlayModal: React.FC<SearchOverlayModalProps> = ({
 
   const showNoResults = query.trim() !== '' && suggestions.length === 0 && query.toLowerCase().includes('qwerty');
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-10 sm:pt-16 px-4 font-sans">
+  return typeof document !== 'undefined' ? createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-6 sm:pt-16 p-3 sm:px-4 overflow-y-auto font-sans">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-[#1C130E]/75 backdrop-blur-md animate-fade-in"
+        className="fixed inset-0 bg-[#1C130E]/80 backdrop-blur-md animate-fade-in"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -231,6 +232,7 @@ export const SearchOverlayModal: React.FC<SearchOverlayModalProps> = ({
           )}
         </div>
       </div>
-    </div>
-  );
+    </div>,
+    document.body
+  ) : null;
 };
