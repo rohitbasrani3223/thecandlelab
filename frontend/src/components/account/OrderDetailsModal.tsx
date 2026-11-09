@@ -3,7 +3,7 @@ import { Modal, Button, Badge, SparklesIcon, useToast } from '../../design-syste
 import { useAuth } from '../../context/AuthContext';
 import { useCMS } from '../../context/CMSContext';
 import { useCart } from '../../context/CartContext';
-import { printOrderInvoice } from '../../utils/printInvoice';
+import { printOrderInvoice, deduplicateOrderItems } from '../../utils/printInvoice';
 import { PrintableInvoice } from '../invoice/PrintableInvoice';
 import { supabaseFetch } from '../../config/supabaseClient';
 
@@ -98,19 +98,21 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
     itemsList: [],
   };
 
-  const parsedItems: any[] = Array.isArray(currentOrder.itemsList) && currentOrder.itemsList.length > 0
-    ? currentOrder.itemsList
-    : Array.isArray(currentOrder.items) && currentOrder.items.length > 0
-      ? currentOrder.items
-      : (typeof currentOrder.items === 'string' && currentOrder.items.trim())
-        ? [{
-            name: currentOrder.items,
-            quantity: 1,
-            price: currentOrder.totalAmount || 999,
-            fragrance: '',
-            size: '',
-          }]
-        : [];
+  const parsedItems: any[] = deduplicateOrderItems(
+    Array.isArray(currentOrder.itemsList) && currentOrder.itemsList.length > 0
+      ? currentOrder.itemsList
+      : Array.isArray(currentOrder.items) && currentOrder.items.length > 0
+        ? currentOrder.items
+        : (typeof currentOrder.items === 'string' && currentOrder.items.trim())
+          ? [{
+              name: currentOrder.items,
+              quantity: 1,
+              price: currentOrder.totalAmount || 999,
+              fragrance: '',
+              size: '',
+            }]
+          : []
+  );
 
   let totalAmountNum = 0;
   if (typeof currentOrder.totalAmount === 'number') {

@@ -14,7 +14,6 @@ import { useAuth } from '../../context/AuthContext';
 import { useCMS } from '../../context/CMSContext';
 import { processRazorpayPayment } from '../../services/razorpay';
 import { useToast, Button } from '../../design-system';
-import { supabaseFetch } from '../../config/supabaseClient';
 import { getApiUrl } from '../../config/api';
 import { useCart } from '../../context/CartContext';
 
@@ -209,45 +208,6 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
       });
     } catch (e) {
       console.warn('CMS addOrder note:', e);
-    }
-
-    try {
-      const dbOrderId = (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function')
-        ? crypto.randomUUID()
-        : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-            const r = (Math.random() * 16) | 0;
-            const v = c === 'x' ? r : (r & 0x3) | 0x8;
-            return v.toString(16);
-          });
-
-      await supabaseFetch('orders', {
-        method: 'POST',
-        body: {
-          id: dbOrderId,
-          order_number: orderNumber,
-          customer_name: newOrder.customerName,
-          customer_email: newOrder.customerEmail,
-          total_amount: totalAmount,
-          payment_method: isCOD ? 'COD' : (isUPI ? 'UPI' : 'RAZORPAY'),
-          order_status: isCOD ? 'Pending COD' : 'Paid',
-          shipping_address: newOrder.shippingAddress,
-        },
-      });
-
-      if (orderItemsArr.length > 0) {
-        await supabaseFetch('order_items', {
-          method: 'POST',
-          body: orderItemsArr.map((it) => ({
-            order_id: dbOrderId,
-            product_name: `${it.name}${it.fragrance ? ` (${it.fragrance})` : ''}`,
-            quantity: it.quantity || 1,
-            unit_price: it.price || 999,
-            total_price: (it.price || 999) * (it.quantity || 1),
-          })),
-        });
-      }
-    } catch (e) {
-      console.warn('Supabase order insert note:', e);
     }
 
     try {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Button, Badge, SparklesIcon, useToast } from '../../design-system';
-import { printOrderInvoice } from '../../utils/printInvoice';
+import { printOrderInvoice, deduplicateOrderItems } from '../../utils/printInvoice';
 import { PrintableInvoice } from '../invoice/PrintableInvoice';
 import { TrackOrderModal } from '../common/TrackOrderModal';
 
@@ -114,11 +114,13 @@ export const OrderSuccessPage: React.FC<OrderSuccessPageProps> = ({ onReturnHome
     } catch {}
   }, [orderId, isCOD]);
 
-  const items = Array.isArray(orderDetails?.itemsList) && orderDetails.itemsList.length > 0
-    ? orderDetails.itemsList
-    : Array.isArray(orderDetails?.items) && orderDetails.items.length > 0
-      ? orderDetails.items
-      : [];
+  const items = deduplicateOrderItems(
+    Array.isArray(orderDetails?.itemsList) && orderDetails.itemsList.length > 0
+      ? orderDetails.itemsList
+      : Array.isArray(orderDetails?.items) && orderDetails.items.length > 0
+        ? orderDetails.items
+        : []
+  );
 
   const customerEmail = orderDetails?.email || orderDetails?.customerEmail || '';
   const customerName = orderDetails?.customerName || '';

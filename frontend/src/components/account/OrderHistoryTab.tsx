@@ -6,6 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { supabaseFetch } from '../../config/supabaseClient';
 import { getApiUrl } from '../../config/api';
+import { deduplicateOrderItems } from '../../utils/printInvoice';
 
 export interface OrderItem {
   id: string;
@@ -63,23 +64,27 @@ export const OrderHistoryTab: React.FC<OrderHistoryTabProps> = ({ onNavigateToSh
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
-          userLocalOrders = parsed.map((o: any) => ({
-            id: o.id || o.orderNumber,
-            orderNumber: o.orderNumber || o.id,
-            date: o.date || (o.createdAt ? new Date(o.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })),
-            status: o.status || 'Processing',
-            badgeVariant: getStatusBadgeVariant(o.status),
-            itemsSummary: o.itemsSummary || (Array.isArray(o.items) ? o.items.map((i: any) => `${i.quantity || 1}x ${i.name}`).join(', ') : o.items) || 'Handcrafted Candle Formulations',
-            items: Array.isArray(o.items) ? o.items : (o.itemsList || []),
-            itemsList: Array.isArray(o.itemsList) ? o.itemsList : (o.items || []),
-            totalAmount: typeof o.totalAmount === 'number' ? `₹${o.totalAmount.toLocaleString('en-IN')}.00` : (o.totalAmount || '₹0.00'),
-            trackingNumber: o.trackingNumber,
-            courier: o.courier || 'Blue Dart Express',
-            shippingAddress: o.shippingAddress || o.address || '',
-            customerName: o.customerName || user?.name || '',
-            customerEmail: o.customerEmail || o.email || userEmailLower,
-            paymentMethod: o.paymentMethod || 'Online',
-          }));
+          userLocalOrders = parsed.map((o: any) => {
+            const rawList = Array.isArray(o.itemsList) ? o.itemsList : (Array.isArray(o.items) ? o.items : []);
+            const dedupedList = deduplicateOrderItems(rawList);
+            return {
+              id: o.id || o.orderNumber,
+              orderNumber: o.orderNumber || o.id,
+              date: o.date || (o.createdAt ? new Date(o.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })),
+              status: o.status || 'Processing',
+              badgeVariant: getStatusBadgeVariant(o.status),
+              itemsSummary: dedupedList.length > 0 ? dedupedList.map((i: any) => `${i.quantity || 1}x ${i.name}`).join(', ') : (o.itemsSummary || 'Handcrafted Candle Formulations'),
+              items: dedupedList,
+              itemsList: dedupedList,
+              totalAmount: typeof o.totalAmount === 'number' ? `₹${o.totalAmount.toLocaleString('en-IN')}.00` : (o.totalAmount || '₹0.00'),
+              trackingNumber: o.trackingNumber,
+              courier: o.courier || 'Blue Dart Express',
+              shippingAddress: o.shippingAddress || o.address || '',
+              customerName: o.customerName || user?.name || '',
+              customerEmail: o.customerEmail || o.email || userEmailLower,
+              paymentMethod: o.paymentMethod || 'Online',
+            };
+          });
         }
       }
     } catch (e) {

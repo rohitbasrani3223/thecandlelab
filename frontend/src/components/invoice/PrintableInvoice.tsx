@@ -1,5 +1,5 @@
 import React from 'react';
-import { printOrderInvoice } from '../../utils/printInvoice';
+import { printOrderInvoice, deduplicateOrderItems } from '../../utils/printInvoice';
 import type { InvoiceOrderData } from '../../utils/printInvoice';
 
 export interface PrintableInvoiceProps {
@@ -35,20 +35,22 @@ export const PrintableInvoice: React.FC<PrintableInvoiceProps> = ({
     totalAmount = Number(order.totalAmount.replace(/[^0-9.]/g, '')) || 0;
   }
 
-  let parsedItems = Array.isArray(order.itemsList) && order.itemsList.length > 0
-    ? order.itemsList
-    : Array.isArray(order.items) && order.items.length > 0
-      ? order.items
-      : (typeof order.items === 'string' && order.items.trim())
-        ? [{
-            name: order.items,
-            quantity: 1,
-            price: totalAmount,
-            fragrance: '',
-            size: '',
-            wickType: '',
-          }]
-        : [];
+  let parsedItems = deduplicateOrderItems(
+    Array.isArray(order.itemsList) && order.itemsList.length > 0
+      ? order.itemsList
+      : Array.isArray(order.items) && order.items.length > 0
+        ? order.items
+        : (typeof order.items === 'string' && order.items.trim())
+          ? [{
+              name: order.items,
+              quantity: 1,
+              price: totalAmount,
+              fragrance: '',
+              size: '',
+              wickType: '',
+            }]
+          : []
+  );
 
   if (totalAmount === 0 && parsedItems.length > 0) {
     totalAmount = parsedItems.reduce((sum, item) => sum + (Number(item.price || 0) * Number(item.quantity || 1)), 0);

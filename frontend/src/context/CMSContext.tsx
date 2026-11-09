@@ -4,6 +4,7 @@ import { fetchCmsBundle, saveCmsBundle } from '../services/cmsRemote';
 import { PRODUCT_IMAGE_PLACEHOLDER } from '../config/placeholders';
 import { safeLocalStorageSet } from '../utils/storage';
 import { getApiUrl } from '../config/api';
+import { deduplicateOrderItems } from '../utils/printInvoice';
 
 // Storage keys
 const PRODUCTS_STORAGE_KEY = 'tcl_cms_products';
@@ -1209,26 +1210,30 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             : [];
 
           const itemsByOrderId = new Map<string, any[]>();
+          const seenDbKeys = new Set<string>();
+
           dbOrderItems.forEach((item: any) => {
-            const rawKey = String(item.order_id || '');
-            const pushItem = (k: string) => {
-              const current = itemsByOrderId.get(k) || [];
-              current.push({
-                name: item.product_name || 'Handcrafted Soy Candle',
-                fragrance: item.fragrance || '',
-                size: item.size || '250g Classic',
-                color: item.color || 'Amber Glass',
-                wickType: item.wick_type || 'Organic Wood Wick',
-                sku: item.sku || 'TCL-CANDLE',
-                quantity: Number(item.quantity) || 1,
-                price: Number(item.unit_price) || 999,
-              });
-              itemsByOrderId.set(k, current);
-            };
-            if (rawKey) {
-              pushItem(rawKey);
-              pushItem(rawKey.toLowerCase());
-            }
+            const rawKey = String(item.order_id || '').trim();
+            if (!rawKey) return;
+
+            // Generate unique signature for each order item row in DB to prevent duplicates
+            const itemSig = `${rawKey.toLowerCase()}|${item.id || ''}|${item.product_name || ''}|${item.fragrance || ''}|${item.size || ''}|${item.wick_type || ''}|${item.color || ''}|${item.quantity || 1}|${item.unit_price || 0}`;
+            if (seenDbKeys.has(itemSig)) return;
+            seenDbKeys.add(itemSig);
+
+            const canonicalKey = rawKey.toLowerCase();
+            const current = itemsByOrderId.get(canonicalKey) || [];
+            current.push({
+              name: item.product_name || 'Handcrafted Soy Candle',
+              fragrance: item.fragrance || '',
+              size: item.size || '250g Classic',
+              color: item.color || 'Amber Glass',
+              wickType: item.wick_type || 'Organic Wood Wick',
+              sku: item.sku || 'TCL-CANDLE',
+              quantity: Number(item.quantity) || 1,
+              price: Number(item.unit_price) || 999,
+            });
+            itemsByOrderId.set(canonicalKey, current);
           });
 
           const mappedOrders: CMSOrder[] = ordersRes.value.map((o) => {
@@ -1236,15 +1241,17 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             const rawDbId = String(o.id);
             const localMatch = localOrdersMap.get(ordId) || localOrdersMap.get(ordId.toLowerCase()) || localOrdersMap.get(rawDbId) || localOrdersMap.get(rawDbId.toLowerCase());
 
-            const dbMatchedItems = itemsByOrderId.get(rawDbId) || itemsByOrderId.get(rawDbId.toLowerCase()) || itemsByOrderId.get(ordId) || itemsByOrderId.get(ordId.toLowerCase());
+            const dbMatchedItems = itemsByOrderId.get(rawDbId.toLowerCase()) || itemsByOrderId.get(ordId.toLowerCase());
 
-            const itemsList = (dbMatchedItems && dbMatchedItems.length > 0)
+            const rawItemsList = (dbMatchedItems && dbMatchedItems.length > 0)
               ? dbMatchedItems
               : (localMatch?.itemsList && localMatch.itemsList.length > 0)
                 ? localMatch.itemsList
                 : Array.isArray(localMatch?.items) && localMatch.items.length > 0
                   ? localMatch.items
                   : [];
+
+            const itemsList = deduplicateOrderItems(rawItemsList);
 
             let itemsSummary = '';
             if (itemsList.length > 0) {
@@ -1302,7 +1309,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               address: lo.address || lo.shippingAddress || '',
               shippingAddress: lo.shippingAddress || lo.address || '',
               items: lo.itemsSummary || (Array.isArray(lo.items) ? lo.items.map((i: any) => i.name).join(', ') : lo.items) || '',
-              itemsList: lo.itemsList || (Array.isArray(lo.items) ? lo.items : []),
+              itemsList: deduplicateOrderItems(lo.itemsList || (Array.isArray(lo.items) ? lo.items : [])),
               totalAmount: Number(lo.totalAmount || 0),
               subtotal: lo.subtotal || Number(lo.totalAmount || 0),
               discount: lo.discount || 0,
@@ -1333,7 +1340,7 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             address: lo.address || lo.shippingAddress || 'Store Destination',
             shippingAddress: lo.shippingAddress || lo.address || 'Store Destination',
             items: lo.itemsSummary || (Array.isArray(lo.items) ? lo.items.map((i: any) => i.name).join(', ') : lo.items) || 'Handcrafted Candle',
-            itemsList: lo.itemsList || (Array.isArray(lo.items) ? lo.items : []),
+            itemsList: deduplicateOrderItems(lo.itemsList || (Array.isArray(lo.items) ? lo.items : [])),
             totalAmount: Number(lo.totalAmount || 0),
             subtotal: lo.subtotal,
             discount: lo.discount,
@@ -2660,9 +2667,10 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         },
       });
 
-      const itemsToInsert = order.itemsList && Array.isArray(order.itemsList) && order.itemsList.length > 0
+      const rawItems = order.itemsList && Array.isArray(order.itemsList) && order.itemsList.length > 0
         ? order.itemsList
         : [{ name: typeof order.items === 'string' ? order.items : 'Artisanal Soy Candle', quantity: 1, price: order.totalAmount }];
+      const itemsToInsert = deduplicateOrderItems(rawItems);
 
       await supabaseFetch('order_items', {
         method: 'POST',

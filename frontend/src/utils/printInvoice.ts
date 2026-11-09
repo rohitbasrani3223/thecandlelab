@@ -74,6 +74,34 @@ function numberToWordsINR(num: number): string {
   return 'Rupees ' + convert(n) + ' Only';
 }
 
+export function deduplicateOrderItems<T = any>(items: T[]): T[] {
+  if (!Array.isArray(items) || items.length <= 1) return items || [];
+
+  const seen = new Set<string>();
+  const deduplicated: T[] = [];
+
+  for (const item of items) {
+    if (!item) continue;
+    const it = item as Record<string, any>;
+    const normName = String(it.name || '').trim().toLowerCase();
+    const normFrag = String(it.fragrance || '').trim().toLowerCase();
+    const normSize = String(it.size || '').trim().toLowerCase();
+    const normWick = String(it.wickType || it.wick_type || '').trim().toLowerCase();
+    const normColor = String(it.color || '').trim().toLowerCase();
+    const normPrice = Number(it.price || it.unit_price || 0);
+    const normQty = Number(it.quantity || 1);
+
+    const key = `${normName}|${normFrag}|${normSize}|${normWick}|${normColor}|${normPrice}|${normQty}`;
+
+    if (!seen.has(key)) {
+      seen.add(key);
+      deduplicated.push(item);
+    }
+  }
+
+  return deduplicated;
+}
+
 export function generateInvoiceHTML(order: InvoiceOrderData, mode: 'invoice' | 'packingslip' = 'invoice'): string {
   const orderId = order.orderNumber || order.id || '';
   const cleanId = orderId.replace(/^#/, '');
@@ -102,12 +130,12 @@ export function generateInvoiceHTML(order: InvoiceOrderData, mode: 'invoice' | '
     totalAmount = Number(order.totalAmount.replace(/[^0-9.]/g, '')) || 0;
   }
 
-  // Normalize items
+  // Normalize items and deduplicate accidental duplicate order items
   let parsedItems: InvoiceItem[] = [];
   if (Array.isArray(order.itemsList) && order.itemsList.length > 0) {
-    parsedItems = order.itemsList;
+    parsedItems = deduplicateOrderItems(order.itemsList);
   } else if (Array.isArray(order.items) && order.items.length > 0) {
-    parsedItems = order.items;
+    parsedItems = deduplicateOrderItems(order.items);
   } else if (typeof order.items === 'string' && order.items.trim()) {
     parsedItems = [{
       name: order.items,

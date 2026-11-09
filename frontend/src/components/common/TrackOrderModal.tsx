@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Modal, Input, Button, Badge, SparklesIcon, useToast } from '../../design-system';
 import { supabaseFetch } from '../../config/supabaseClient';
-import { printOrderInvoice } from '../../utils/printInvoice';
+import { printOrderInvoice, deduplicateOrderItems } from '../../utils/printInvoice';
 import { PrintableInvoice } from '../invoice/PrintableInvoice';
 
 export interface TrackOrderModalProps {
@@ -57,7 +57,7 @@ export const TrackOrderModal: React.FC<TrackOrderModalProps> = ({
               query: `order_id=eq.${encodeURIComponent(raw.id)}`,
             });
             if (Array.isArray(dbItems) && dbItems.length > 0) {
-              itemsList = dbItems.map((it) => ({
+              const rawItems = dbItems.map((it) => ({
                 name: it.product_name || 'Handcrafted Soy Candle',
                 fragrance: it.fragrance || '',
                 size: it.size || '250g Classic',
@@ -65,6 +65,7 @@ export const TrackOrderModal: React.FC<TrackOrderModalProps> = ({
                 quantity: Number(it.quantity) || 1,
                 price: Number(it.unit_price) || 999,
               }));
+              itemsList = deduplicateOrderItems(rawItems);
             }
           } catch {}
 
@@ -120,7 +121,7 @@ export const TrackOrderModal: React.FC<TrackOrderModalProps> = ({
             status: localMatch.status || 'Processing',
             trackingNumber: localMatch.trackingNumber || `AWB-TCL-${cleanOrderId.slice(-6)}`,
             courier: localMatch.courier || 'Blue Dart Express',
-            itemsList: Array.isArray(localMatch.itemsList) ? localMatch.itemsList : (Array.isArray(localMatch.items) ? localMatch.items : []),
+            itemsList: deduplicateOrderItems(Array.isArray(localMatch.itemsList) ? localMatch.itemsList : (Array.isArray(localMatch.items) ? localMatch.items : [])),
           };
         }
       }

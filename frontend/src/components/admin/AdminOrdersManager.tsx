@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useCMS } from '../../context/CMSContext';
 import { safeLocalStorageSet } from '../../utils/storage';
-import { printOrderInvoice } from '../../utils/printInvoice';
+import { printOrderInvoice, deduplicateOrderItems } from '../../utils/printInvoice';
 import { PrintableInvoice } from '../invoice/PrintableInvoice';
 
 type OrdersSubTab = 'orders' | 'returns' | 'refunds' | 'shipping' | 'tracking';
@@ -39,7 +39,7 @@ export const AdminOrdersManager: React.FC = () => {
         (o: any) => o.id === ord.id || o.orderNumber === ord.id || String(o.id).toLowerCase() === String(ord.id).toLowerCase()
       );
 
-      const resolvedItems = (ord.itemsList && Array.isArray(ord.itemsList) && ord.itemsList.length > 0)
+      const rawItems = (ord.itemsList && Array.isArray(ord.itemsList) && ord.itemsList.length > 0)
         ? ord.itemsList
         : (match?.itemsList && Array.isArray(match.itemsList) && match.itemsList.length > 0)
           ? match.itemsList
@@ -48,6 +48,8 @@ export const AdminOrdersManager: React.FC = () => {
             : (typeof ord.items === 'string' && ord.items.trim())
               ? [{ name: ord.items, quantity: 1, price: Number(ord.totalAmount) || 0 }]
               : [];
+
+      const resolvedItems = deduplicateOrderItems(rawItems);
 
       const orderTot = Number(ord.totalAmount) || Number(match?.totalAmount) || 0;
       const orderSub = ord.subtotal !== undefined ? ord.subtotal : (match?.subtotal !== undefined ? match.subtotal : Math.round(orderTot / 1.18));
@@ -205,7 +207,7 @@ export const AdminOrdersManager: React.FC = () => {
 
                   <div className="space-y-3">
                     {selectedPackingOrder.itemsList && Array.isArray(selectedPackingOrder.itemsList) && selectedPackingOrder.itemsList.length > 0 ? (
-                      selectedPackingOrder.itemsList.map((item: any, idx: number) => (
+                      deduplicateOrderItems(selectedPackingOrder.itemsList).map((item: any, idx: number) => (
                         <div
                           key={idx}
                           className="p-4 bg-white border border-[#EFE8DB] rounded-2xl space-y-2 shadow-xs"
@@ -521,7 +523,7 @@ export const AdminOrdersManager: React.FC = () => {
                     <td className="p-4 text-xs">
                       {ord.itemsList && Array.isArray(ord.itemsList) && ord.itemsList.length > 0 ? (
                         <div className="space-y-1 max-w-xs">
-                          {ord.itemsList.map((it: any, i: number) => (
+                          {deduplicateOrderItems(ord.itemsList).map((it: any, i: number) => (
                             <div key={i} className="flex items-center gap-1.5 text-xs text-[#232323]">
                               <span className="font-bold text-[#8B6F4E]">{it.quantity || 1}x</span>
                               <span className="font-medium truncate">{it.name}</span>
