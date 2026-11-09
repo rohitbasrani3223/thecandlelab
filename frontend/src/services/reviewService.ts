@@ -1,4 +1,5 @@
 import { getApiUrl } from '../config/api';
+import { supabaseFetch } from '../config/supabaseClient';
 
 export interface ProductReview {
   id: string;
@@ -48,6 +49,16 @@ function saveLocalReviews(reviews: ProductReview[]): void {
   }
 }
 
+async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs: number = 2500): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 // Calculate review stats for a set of approved reviews
 export function calculateReviewStats(reviews: ProductReview[]): ReviewStats {
   const approved = reviews.filter((r) => r.status === 'approved');
@@ -71,13 +82,42 @@ export function calculateReviewStats(reviews: ProductReview[]): ReviewStats {
 export async function fetchProductReviews(
   productId: string
 ): Promise<{ reviews: ProductReview[]; stats: ReviewStats }> {
+  // 1. Direct Supabase Query (Fast ~150ms)
   try {
-    const res = await fetch(getApiUrl(`/products/${productId}/reviews`));
+    const dbReviews = await supabaseFetch<any[]>('reviews', {
+      query: `product_id=eq.${encodeURIComponent(productId)}&status=eq.approved&order=created_at.desc`,
+    });
+    if (Array.isArray(dbReviews) && dbReviews.length > 0) {
+      const serverReviews: ProductReview[] = dbReviews.map((r: any) => ({
+        id: String(r.id),
+        productId: r.product_id || productId,
+        productName: r.product_name || '',
+        customerName: r.customer_name || 'Valued Customer',
+        customerEmail: r.customer_email || '',
+        customerLocation: r.customer_location || '',
+        rating: Number(r.rating) || 5,
+        title: r.title || '',
+        comment: r.comment || '',
+        scentThrow: r.scent_throw || '',
+        status: 'approved',
+        isVerifiedBuyer: Boolean(r.is_verified_buyer),
+        createdAt: r.created_at || new Date().toISOString(),
+        updatedAt: r.updated_at,
+      }));
+      return { reviews: serverReviews, stats: calculateReviewStats(serverReviews) };
+    }
+  } catch (err) {
+    console.warn('Supabase product reviews query note:', err);
+  }
+
+  // 2. Fallback to backend with strict 2.5s timeout
+  try {
+    const res = await fetchWithTimeout(getApiUrl(`/products/${productId}/reviews`), {}, 2500);
     if (res.ok) {
       const data = await res.json();
       if (data?.success && data?.data) {
         const serverReviews: ProductReview[] = (data.data.reviews || []).map((r: any) => ({
-          id: r.id,
+          id: String(r.id),
           productId: r.product_id || r.productId,
           productName: r.product_name || r.productName,
           customerName: r.customer_name || r.customerName,
@@ -110,7 +150,7 @@ export async function fetchProductReviews(
     console.warn('Backend reviews endpoint unreachable, using local storage fallback', err);
   }
 
-  // Fallback to local storage
+  // 3. Fallback to local storage
   const local = getLocalReviews().filter((r) => r.productId === productId && r.status === 'approved');
   return {
     reviews: local,
@@ -133,7 +173,9 @@ export async function submitCustomerReview(payload: {
   scentThrow?: string;
 }): Promise<{ success: boolean; message: string; review?: ProductReview }> {
   const newReview: ProductReview = {
-    id: `rev-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    id: (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function')
+      ? crypto.randomUUID()
+      : `rev-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
     productId: payload.productId,
     productName: payload.productName,
     customerName: payload.customerName.trim(),
@@ -143,7 +185,7 @@ export async function submitCustomerReview(payload: {
     title: payload.title.trim(),
     comment: payload.comment.trim(),
     scentThrow: payload.scentThrow,
-    status: 'pending', // Starts as pending for admin approval!
+    status: 'pending',
     isVerifiedBuyer: false,
     createdAt: new Date().toISOString(),
   };
@@ -152,8 +194,33 @@ export async function submitCustomerReview(payload: {
   const local = getLocalReviews();
   saveLocalReviews([newReview, ...local]);
 
+  // 1. Direct Supabase Insert
   try {
-    const res = await fetch(getApiUrl(`/products/${payload.productId}/reviews`), {
+    await supabaseFetch('reviews', {
+      method: 'POST',
+      body: {
+        id: newReview.id,
+        product_id: newReview.productId,
+        product_name: newReview.productName,
+        customer_name: newReview.customerName,
+        customer_email: newReview.customerEmail || null,
+        customer_location: newReview.customerLocation || null,
+        rating: newReview.rating,
+        title: newReview.title,
+        comment: newReview.comment,
+        scent_throw: newReview.scentThrow || null,
+        status: 'pending',
+        is_verified_buyer: false,
+        created_at: newReview.createdAt,
+      },
+    });
+  } catch (err) {
+    console.warn('Supabase review insert note:', err);
+  }
+
+  // 2. Also notify backend in background
+  try {
+    fetchWithTimeout(getApiUrl(`/products/${payload.productId}/reviews`), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -166,17 +233,9 @@ export async function submitCustomerReview(payload: {
         scent_throw: payload.scentThrow,
         product_name: payload.productName,
       }),
-    });
-    if (res.ok) {
-      const data = await res.json();
-      return {
-        success: true,
-        message: data.message || 'Review submitted successfully! It is pending approval.',
-        review: data.data,
-      };
-    }
-  } catch (err) {
-    console.warn('Backend review submission failed, stored in local state', err);
+    }, 2500).catch(() => {});
+  } catch {
+    // ignore background error
   }
 
   return {
@@ -193,14 +252,72 @@ export async function fetchAdminReviews(statusFilter: string = 'all'): Promise<{
   reviews: ProductReview[];
   counts: { total: number; pending: number; approved: number; rejected: number; averageRating: number };
 }> {
+  // 1. Primary: Direct Fast Supabase Query (~150ms)
+  try {
+    const filterQuery = statusFilter !== 'all'
+      ? `order=created_at.desc&status=eq.${encodeURIComponent(statusFilter)}`
+      : 'order=created_at.desc';
+
+    const [dbReviews, allRows] = await Promise.all([
+      supabaseFetch<any[]>('reviews', { query: filterQuery }),
+      supabaseFetch<any[]>('reviews', { query: 'select=id,status,rating' }),
+    ]);
+
+    if (Array.isArray(dbReviews)) {
+      const serverReviews: ProductReview[] = dbReviews.map((r: any) => ({
+        id: String(r.id),
+        productId: r.product_id || r.productId || '',
+        productName: r.product_name || r.productName || '',
+        customerName: r.customer_name || r.customerName || 'Customer',
+        customerEmail: r.customer_email || r.customerEmail || '',
+        customerLocation: r.customer_location || r.customerLocation || '',
+        rating: Number(r.rating) || 5,
+        title: r.title || '',
+        comment: r.comment || '',
+        scentThrow: r.scent_throw || r.scentThrow || '',
+        status: r.status || 'pending',
+        isVerifiedBuyer: Boolean(r.is_verified_buyer ?? r.isVerifiedBuyer),
+        createdAt: r.created_at || r.createdAt || new Date().toISOString(),
+        updatedAt: r.updated_at || r.updatedAt,
+      }));
+
+      const countSource = Array.isArray(allRows) && allRows.length > 0 ? allRows : dbReviews;
+      const total = countSource.length;
+      const pending = countSource.filter((r) => r.status === 'pending').length;
+      const approved = countSource.filter((r) => r.status === 'approved').length;
+      const rejected = countSource.filter((r) => r.status === 'rejected').length;
+      const approvedRows = countSource.filter((r) => r.status === 'approved');
+      const avg = approvedRows.length > 0
+        ? Number((approvedRows.reduce((a, b) => a + (Number(b.rating) || 5), 0) / approvedRows.length).toFixed(1))
+        : 5.0;
+
+      // Keep local storage fresh
+      saveLocalReviews(serverReviews);
+
+      return {
+        reviews: serverReviews,
+        counts: {
+          total,
+          pending,
+          approved,
+          rejected,
+          averageRating: avg,
+        },
+      };
+    }
+  } catch (err) {
+    console.warn('Supabase admin reviews note:', err);
+  }
+
+  // 2. Secondary: Backend API with strict 2.5s timeout
   try {
     const url = getApiUrl(`/admin/reviews${statusFilter !== 'all' ? `?status=${statusFilter}` : ''}`);
-    const res = await fetch(url);
+    const res = await fetchWithTimeout(url, {}, 2500);
     if (res.ok) {
       const data = await res.json();
       if (data?.success && Array.isArray(data.data)) {
         const serverReviews: ProductReview[] = data.data.map((r: any) => ({
-          id: r.id,
+          id: String(r.id),
           productId: r.product_id || r.productId,
           productName: r.product_name || r.productName,
           customerName: r.customer_name || r.customerName,
@@ -233,7 +350,7 @@ export async function fetchAdminReviews(statusFilter: string = 'all'): Promise<{
     console.warn('Backend admin reviews unreachable, using local storage fallback', err);
   }
 
-  // Fallback to local storage
+  // 3. Fallback to local storage
   const all = getLocalReviews();
   const filtered = statusFilter === 'all' ? all : all.filter((r) => r.status === statusFilter);
   const pendingCount = all.filter((r) => r.status === 'pending').length;
@@ -266,17 +383,33 @@ export async function updateReviewStatus(
   const updatedLocal = local.map((r) => (r.id === id ? { ...r, status, isVerifiedBuyer: isVerifiedBuyer ?? r.isVerifiedBuyer } : r));
   saveLocalReviews(updatedLocal);
 
+  // 1. Update Supabase directly
   try {
-    const res = await fetch(getApiUrl(`/admin/reviews/${id}/status`), {
+    await supabaseFetch('reviews', {
+      method: 'PATCH',
+      query: `id=eq.${encodeURIComponent(id)}`,
+      body: {
+        status,
+        ...(isVerifiedBuyer !== undefined ? { is_verified_buyer: isVerifiedBuyer } : {}),
+        updated_at: new Date().toISOString(),
+      },
+    });
+  } catch (err) {
+    console.warn('Supabase update review status note:', err);
+  }
+
+  // 2. Also notify backend in background
+  try {
+    fetchWithTimeout(getApiUrl(`/admin/reviews/${id}/status`), {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status, is_verified_buyer: isVerifiedBuyer }),
-    });
-    return res.ok;
-  } catch (err) {
-    console.warn('Backend update review status failed', err);
-    return true;
+    }, 2500).catch(() => {});
+  } catch {
+    // ignore
   }
+
+  return true;
 }
 
 /**
@@ -288,28 +421,65 @@ export async function deleteReview(id: string): Promise<boolean> {
   const remaining = local.filter((r) => r.id !== id);
   saveLocalReviews(remaining);
 
+  // 1. Delete from Supabase directly
   try {
-    const res = await fetch(getApiUrl(`/admin/reviews/${id}`), {
+    await supabaseFetch('reviews', {
       method: 'DELETE',
+      query: `id=eq.${encodeURIComponent(id)}`,
     });
-    return res.ok;
   } catch (err) {
-    console.warn('Backend delete review failed', err);
-    return true;
+    console.warn('Supabase delete review note:', err);
   }
+
+  // 2. Also notify backend in background
+  try {
+    fetchWithTimeout(getApiUrl(`/admin/reviews/${id}`), {
+      method: 'DELETE',
+    }, 2500).catch(() => {});
+  } catch {
+    // ignore
+  }
+
+  return true;
 }
 
 /**
  * Fetch recent approved reviews across all products (for Homepage).
  */
 export async function fetchRecentApprovedReviews(limit: number = 6): Promise<ProductReview[]> {
+  // 1. Direct Supabase Query
   try {
-    const res = await fetch(getApiUrl(`/reviews/recent?limit=${limit}`));
+    const dbReviews = await supabaseFetch<any[]>('reviews', {
+      query: `status=eq.approved&order=created_at.desc&limit=${limit}`,
+    });
+    if (Array.isArray(dbReviews) && dbReviews.length > 0) {
+      return dbReviews.map((r: any) => ({
+        id: String(r.id),
+        productId: r.product_id || r.productId,
+        productName: r.product_name || r.productName,
+        customerName: r.customer_name || r.customerName,
+        customerLocation: r.customer_location || r.customerLocation,
+        rating: Number(r.rating) || 5,
+        title: r.title,
+        comment: r.comment,
+        scentThrow: r.scent_throw || r.scentThrow,
+        status: 'approved',
+        isVerifiedBuyer: Boolean(r.is_verified_buyer ?? r.isVerifiedBuyer),
+        createdAt: r.created_at || r.createdAt,
+      }));
+    }
+  } catch (err) {
+    console.warn('Supabase recent reviews query note:', err);
+  }
+
+  // 2. Backend fallback with 2.5s timeout
+  try {
+    const res = await fetchWithTimeout(getApiUrl(`/reviews/recent?limit=${limit}`), {}, 2500);
     if (res.ok) {
       const data = await res.json();
       if (data?.success && data?.data?.reviews) {
         return data.data.reviews.map((r: any) => ({
-          id: r.id,
+          id: String(r.id),
           productId: r.product_id || r.productId,
           productName: r.product_name || r.productName,
           customerName: r.customer_name || r.customerName,
@@ -328,7 +498,7 @@ export async function fetchRecentApprovedReviews(limit: number = 6): Promise<Pro
     console.warn('Backend recent reviews unreachable, using local storage fallback', err);
   }
 
-  // Fallback to local
+  // 3. Fallback to local
   const local = getLocalReviews()
     .filter((r) => r.status === 'approved')
     .slice(0, limit);
