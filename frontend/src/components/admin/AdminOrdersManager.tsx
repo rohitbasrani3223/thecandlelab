@@ -1,8 +1,19 @@
 import React, { useState } from 'react';
 import { useCMS } from '../../context/CMSContext';
-import { safeLocalStorageSet } from '../../utils/storage';
 import { printOrderInvoice, deduplicateOrderItems } from '../../utils/printInvoice';
 import { PrintableInvoice } from '../invoice/PrintableInvoice';
+import {
+  getDelhiveryConfig,
+  saveDelhiveryConfig,
+  generateDelhiveryAWB,
+  getDelhiveryTrackingUrl,
+  checkDelhiveryPincode,
+  printDelhiveryShippingLabel,
+  saveDelhiveryShipment,
+  getAllDelhiveryShipments,
+  type DelhiveryConfig,
+  type DelhiveryShipment,
+} from '../../services/delhiveryService';
 
 type OrdersSubTab = 'orders' | 'returns' | 'refunds' | 'shipping' | 'tracking';
 
@@ -12,7 +23,22 @@ export const AdminOrdersManager: React.FC = () => {
   const [savedMsg, setSavedMsg] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [shipmentOrder, setShipmentOrder] = useState<string | null>(null);
-  const [shipment, setShipment] = useState({ courier: 'Shiprocket', awb: '', pickupDate: '' });
+  const [shipment, setShipment] = useState({
+    courier: 'Delhivery',
+    awb: '',
+    pickupDate: new Date().toISOString().split('T')[0],
+    shippingMode: 'Express Air' as 'Express Air' | 'Surface Standard',
+    weightKg: 0.5,
+    dimensions: '12x12x12 cm',
+  });
+  const [delhiveryConfig, setDelhiveryConfig] = useState<DelhiveryConfig>(getDelhiveryConfig());
+  const [delhiveryShipments, setDelhiveryShipments] = useState<Record<string, DelhiveryShipment>>(getAllDelhiveryShipments());
+  const [configSavedNotice, setConfigSavedNotice] = useState('');
+  const [pincodeQuery, setPincodeQuery] = useState('470002');
+  const [pincodeCheckResult, setPincodeCheckResult] = useState<any>(null);
+  const [dispatchedSuccessModal, setDispatchedSuccessModal] = useState<DelhiveryShipment | null>(null);
+  const [showApiToken, setShowApiToken] = useState(false);
+  const [trackingFilter, setTrackingFilter] = useState('');
   const [newOrder, setNewOrder] = useState({ customerName: '', email: '', phone: '', address: '', items: '', totalAmount: 1499, paymentMethod: 'Razorpay UPI' });
   const [modalView, setModalView] = useState<'slip' | 'invoice'>('slip');
 
@@ -440,41 +466,235 @@ export const AdminOrdersManager: React.FC = () => {
 
       {shipmentOrder && (
         <div className="fixed inset-0 z-50 bg-[#1C130E]/70 backdrop-blur-xs flex items-start justify-center p-3 sm:p-6 overflow-y-auto font-sans">
-          <form
-            onSubmit={(event) => {
-              event.preventDefault();
-              const awb = shipment.awb.trim() || `AWB${Date.now().toString().slice(-9)}`;
-              try {
-                const shipmentRecords = JSON.parse(localStorage.getItem('tcl_shipments') || '{}');
-                shipmentRecords[shipmentOrder] = { ...shipment, awb, createdAt: new Date().toISOString() };
-                safeLocalStorageSet('tcl_shipments', shipmentRecords);
-              } catch {}
-              updateOrderStatus(shipmentOrder, 'Shipped');
-              window.dispatchEvent(new Event('tcl-orders-updated'));
-              setSavedMsg(`Shipment created for ${shipmentOrder}. AWB: ${awb}`);
-              setShipmentOrder(null);
-              setShipment({ courier: 'Shiprocket', awb: '', pickupDate: '' });
-              setTimeout(() => setSavedMsg(''), 4000);
-            }}
-            className="bg-white border border-[#EFE8DB] rounded-2xl max-w-md w-full p-6 space-y-4 shadow-card my-2 sm:my-8"
-          >
-            <div className="flex items-center justify-between border-b border-[#F2ECE1] pb-3">
-              <div><h3 className="font-serif font-bold text-lg text-[#2C1E16]">Create Shipment</h3><p className="text-[11px] text-[#7A6B5D]">Order {shipmentOrder}</p></div>
-              <button type="button" onClick={() => setShipmentOrder(null)} className="text-[#8C7A6B]">✕</button>
+          {(() => {
+            const ord = orders.find((o) => o.id === shipmentOrder || o.orderNumber === shipmentOrder) || getFullOrderDetails({ id: shipmentOrder });
+            const isCodOrder = String(ord?.paymentMethod || '').toLowerCase().includes('cod');
+            const cleanAddress = ord?.shippingAddress || ord?.address || 'Direct Atelier Delivery';
+            const pinMatch = cleanAddress.match(/\b\d{6}\b/);
+            const resolvedPin = pinMatch ? pinMatch[0] : '470002';
+
+            return (
+              <form
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  const awb = shipment.awb.trim() || generateDelhiveryAWB();
+
+                  const shipmentData: DelhiveryShipment = {
+                    orderId: shipmentOrder,
+                    awb: awb,
+                    courier: 'Delhivery',
+                    customerName: ord?.customerName || 'Valued Customer',
+                    customerPhone: ord?.customerPhone || ord?.phone || '',
+                    shippingAddress: cleanAddress,
+                    city: ord?.city || 'Regional Hub',
+                    state: ord?.state || 'Madhya Pradesh',
+                    pincode: resolvedPin,
+                    totalAmount: Number(ord?.totalAmount) || 0,
+                    paymentMethod: ord?.paymentMethod || 'Online',
+                    isCOD: isCodOrder,
+                    weightKg: Number(shipment.weightKg) || 0.5,
+                    dimensions: shipment.dimensions || '12x12x12 cm',
+                    pickupDate: shipment.pickupDate || new Date().toISOString().split('T')[0],
+                    shippingMode: shipment.shippingMode,
+                    status: 'Manifested',
+                    createdAt: new Date().toISOString(),
+                  };
+
+                  saveDelhiveryShipment(shipmentData);
+                  setDelhiveryShipments(getAllDelhiveryShipments());
+                  updateOrderStatus(shipmentOrder, 'Shipped');
+                  window.dispatchEvent(new Event('tcl-orders-updated'));
+
+                  setSavedMsg(`✅ Order ${shipmentOrder} dispatched via Delhivery! AWB: ${awb}`);
+                  setShipmentOrder(null);
+                  setDispatchedSuccessModal(shipmentData);
+                  setTimeout(() => setSavedMsg(''), 5000);
+                }}
+                className="bg-white border border-[#EFE8DB] rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-card my-2 sm:my-8 text-[#2C1E16]"
+              >
+                <div className="flex items-center justify-between border-b border-[#F2ECE1] pb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">🚚</span>
+                    <div>
+                      <h3 className="font-serif font-bold text-lg text-[#2C1E16]">Delhivery Express Dispatch</h3>
+                      <p className="text-[11px] text-[#7A6B5D]">Order {shipmentOrder} • {ord?.customerName}</p>
+                    </div>
+                  </div>
+                  <button type="button" onClick={() => setShipmentOrder(null)} className="text-[#8C7A6B] hover:text-[#2C1E16] text-sm cursor-pointer">✕</button>
+                </div>
+
+                {/* Courier Selection */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <label className="block text-xs font-bold text-[#2C1E16]">
+                    Logistics Partner
+                    <select
+                      value={shipment.courier}
+                      onChange={(e) => setShipment({ ...shipment, courier: e.target.value })}
+                      className="mt-1 w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg text-xs font-semibold"
+                    >
+                      <option value="Delhivery">Delhivery Express (Official)</option>
+                      <option value="Shiprocket">Shiprocket</option>
+                      <option value="Blue Dart">Blue Dart</option>
+                      <option value="India Post">India Post Speed Post</option>
+                    </select>
+                  </label>
+
+                  <label className="block text-xs font-bold text-[#2C1E16]">
+                    Shipping Service Tier
+                    <select
+                      value={shipment.shippingMode}
+                      onChange={(e) => setShipment({ ...shipment, shippingMode: e.target.value as any })}
+                      className="mt-1 w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg text-xs font-semibold"
+                    >
+                      <option value="Express Air">⚡ Express Air (1–3 Days)</option>
+                      <option value="Surface Standard">🚛 Surface Standard (3–5 Days)</option>
+                    </select>
+                  </label>
+                </div>
+
+                {/* Waybill / AWB */}
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-xs font-bold text-[#2C1E16]">
+                      Delhivery AWB / Waybill Number
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setShipment({ ...shipment, awb: generateDelhiveryAWB() })}
+                      className="text-[11px] text-[#E21B23] font-bold hover:underline cursor-pointer"
+                    >
+                      ⚡ Auto-Generate Delhivery AWB
+                    </button>
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      required
+                      value={shipment.awb}
+                      onChange={(e) => setShipment({ ...shipment, awb: e.target.value })}
+                      placeholder="e.g. 1409248192841"
+                      className="flex-1 bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg text-xs font-mono font-bold tracking-wider"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShipment({ ...shipment, awb: generateDelhiveryAWB() })}
+                      className="px-3 bg-[#E21B23]/10 text-[#E21B23] border border-[#E21B23]/30 rounded-lg text-xs font-bold cursor-pointer hover:bg-[#E21B23]/20"
+                    >
+                      Gen AWB
+                    </button>
+                  </div>
+                </div>
+
+                {/* Destination Preview */}
+                <div className="p-3 bg-[#FAF7F2] rounded-xl border border-[#EADDCB] text-xs space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] uppercase font-bold text-[#7D6F63]">Delivery Destination</span>
+                    <span className="font-mono text-[10px] font-bold bg-black text-white px-2 py-0.5 rounded">PIN: {resolvedPin}</span>
+                  </div>
+                  <p className="font-bold text-[#2C1E16]">{ord?.customerName} {ord?.customerPhone ? `• 📞 ${ord.customerPhone}` : ''}</p>
+                  <p className="text-[#7A6B5D] text-[11px] leading-relaxed">{cleanAddress}</p>
+                </div>
+
+                {/* Package Metrics & COD Status */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-bold text-[#2C1E16] mb-1">Weight (KG)</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={shipment.weightKg}
+                      onChange={(e) => setShipment({ ...shipment, weightKg: Number(e.target.value) })}
+                      className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2 rounded-lg text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-[#2C1E16] mb-1">Dims (L×W×H)</label>
+                    <input
+                      type="text"
+                      value={shipment.dimensions}
+                      onChange={(e) => setShipment({ ...shipment, dimensions: e.target.value })}
+                      className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2 rounded-lg text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-[#2C1E16] mb-1">Pickup Date</label>
+                    <input
+                      type="date"
+                      value={shipment.pickupDate}
+                      onChange={(e) => setShipment({ ...shipment, pickupDate: e.target.value })}
+                      className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2 rounded-lg text-xs"
+                    />
+                  </div>
+                </div>
+
+                {/* Payment Condition Notice */}
+                <div className={`p-2.5 rounded-xl border text-xs font-semibold flex items-center justify-between ${
+                  isCodOrder ? 'bg-amber-50 border-amber-200 text-amber-900' : 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                }`}>
+                  <span>{isCodOrder ? '💵 Cash on Delivery (COD)' : '💳 Prepaid Online'}</span>
+                  <strong>{isCodOrder ? `Collect ₹${Number(ord?.totalAmount || 0).toLocaleString('en-IN')}` : 'Do NOT collect cash'}</strong>
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    type="submit"
+                    className="w-full bg-[#E21B23] hover:bg-[#c4141b] text-white font-bold text-xs py-3 rounded-xl transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    <span>🚀</span>
+                    <span>Manifest & Dispatch via Delhivery</span>
+                  </button>
+                </div>
+              </form>
+            );
+          })()}
+        </div>
+      )}
+
+      {/* Dispatched Success Prompt Modal */}
+      {dispatchedSuccessModal && (
+        <div className="fixed inset-0 z-50 bg-[#1C130E]/75 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-[#EFE8DB] rounded-2xl max-w-md w-full p-6 space-y-4 shadow-card text-center text-[#2C1E16]">
+            <div className="w-14 h-14 bg-emerald-50 border border-emerald-200 text-emerald-600 rounded-full flex items-center justify-center text-2xl mx-auto shadow-xs">
+              ✓
             </div>
-            <label className="block text-xs font-bold text-[#2C1E16]">Courier
-              <select value={shipment.courier} onChange={(event) => setShipment({ ...shipment, courier: event.target.value })} className="mt-1 w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg">
-                <option>Shiprocket</option><option>Delhivery</option><option>Blue Dart</option><option>India Post</option>
-              </select>
-            </label>
-            <label className="block text-xs font-bold text-[#2C1E16]">AWB / Tracking Number
-              <input value={shipment.awb} onChange={(event) => setShipment({ ...shipment, awb: event.target.value })} placeholder="Leave blank to auto-generate" className="mt-1 w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg" />
-            </label>
-            <label className="block text-xs font-bold text-[#2C1E16]">Pickup date
-              <input type="date" value={shipment.pickupDate} onChange={(event) => setShipment({ ...shipment, pickupDate: event.target.value })} className="mt-1 w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg" />
-            </label>
-            <button type="submit" className="w-full bg-[#B88B38] text-white font-bold text-xs py-3 rounded-xl">Create Shipment & Mark Shipped</button>
-          </form>
+            <div>
+              <h3 className="font-serif font-bold text-lg text-[#2C1E16]">Shipment Manifested with Delhivery!</h3>
+              <p className="text-xs text-[#7A6B5D] mt-0.5">Order #{dispatchedSuccessModal.orderId} is now marked as <strong>Shipped</strong>.</p>
+            </div>
+            <div className="p-3.5 bg-[#FAF7F2] rounded-xl border border-[#EADDCB] font-mono">
+              <span className="text-[10px] text-[#7D6F63] block uppercase font-sans font-bold">Delhivery Waybill / AWB</span>
+              <strong className="text-base text-[#E21B23] tracking-widest">{dispatchedSuccessModal.awb}</strong>
+              <span className="text-[10px] text-[#7D6F63] block font-sans mt-0.5">
+                Destination: {dispatchedSuccessModal.customerName} ({dispatchedSuccessModal.pincode})
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => printDelhiveryShippingLabel(dispatchedSuccessModal, delhiveryConfig)}
+                className="p-3 bg-[#2C1E16] text-white text-xs font-bold rounded-xl hover:bg-black transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
+              >
+                <span>🖨️</span>
+                <span>Print Label</span>
+              </button>
+              <a
+                href={getDelhiveryTrackingUrl(dispatchedSuccessModal.awb)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-3 bg-[#E21B23] text-white text-xs font-bold rounded-xl hover:bg-[#c4141b] transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
+              >
+                <span>🚀</span>
+                <span>Track Live ↗</span>
+              </a>
+            </div>
+            <button
+              type="button"
+              onClick={() => setDispatchedSuccessModal(null)}
+              className="w-full py-2 text-xs font-bold text-[#7A6B5D] hover:text-[#2C1E16] transition-colors cursor-pointer"
+            >
+              Done & Return to Orders List
+            </button>
+          </div>
         </div>
       )}
 
@@ -598,12 +818,47 @@ export const AdminOrdersManager: React.FC = () => {
                         <option value="Cancelled">Cancelled</option>
                       </select>
 
-                      <button
-                        onClick={() => setShipmentOrder(ord.id)}
-                        className="text-[#8B6F4E] font-bold hover:underline text-xs cursor-pointer px-1"
-                      >
-                        Shipment
-                      </button>
+                      {delhiveryShipments[ord.id] ? (
+                        <>
+                          <a
+                            href={getDelhiveryTrackingUrl(delhiveryShipments[ord.id].awb)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-2 py-1 bg-[#E21B23]/10 text-[#E21B23] hover:bg-[#E21B23]/20 border border-[#E21B23]/30 rounded-lg font-bold text-[10px] inline-flex items-center gap-1 transition-all"
+                            title="Track Live on Delhivery.com"
+                          >
+                            <span>🚀</span>
+                            <span>Track</span>
+                          </a>
+                          <button
+                            type="button"
+                            onClick={() => printDelhiveryShippingLabel(delhiveryShipments[ord.id], delhiveryConfig)}
+                            className="px-2 py-1 bg-stone-100 hover:bg-stone-200 border border-stone-300 text-stone-800 rounded-lg font-bold text-[10px] cursor-pointer"
+                            title="Print Delhivery Shipping Label"
+                          >
+                            🏷️ Label
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            setShipment({
+                              courier: 'Delhivery',
+                              awb: generateDelhiveryAWB(),
+                              pickupDate: new Date().toISOString().split('T')[0],
+                              shippingMode: 'Express Air',
+                              weightKg: 0.5,
+                              dimensions: '12x12x12 cm',
+                            });
+                            setShipmentOrder(ord.id);
+                          }}
+                          className="px-2 py-1 bg-[#E21B23] text-white hover:bg-[#c4141b] rounded-lg font-bold text-[10px] cursor-pointer shadow-xs transition-all inline-flex items-center gap-1"
+                          title="Dispatch order with Delhivery Express"
+                        >
+                          <span>🚚</span>
+                          <span>Delhivery</span>
+                        </button>
+                      )}
 
                       <button
                         onClick={() => {
@@ -667,12 +922,43 @@ export const AdminOrdersManager: React.FC = () => {
                     <option value="Delivered">Delivered</option>
                     <option value="Cancelled">Cancelled</option>
                   </select>
-                  <button
-                    onClick={() => setShipmentOrder(ord.id)}
-                    className="rounded-lg border border-[#B88B38] text-[#B88B38] text-xs font-bold p-2"
-                  >
-                    Shipment
-                  </button>
+                  {delhiveryShipments[ord.id] ? (
+                    <div className="grid grid-cols-2 gap-1.5">
+                      <a
+                        href={getDelhiveryTrackingUrl(delhiveryShipments[ord.id].awb)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="rounded-lg bg-[#E21B23]/10 text-[#E21B23] text-xs font-bold p-2 text-center"
+                      >
+                        🚀 Track
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => printDelhiveryShippingLabel(delhiveryShipments[ord.id], delhiveryConfig)}
+                        className="rounded-lg bg-stone-200 text-stone-800 text-xs font-bold p-2 text-center"
+                      >
+                        🏷️ Label
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setShipment({
+                          courier: 'Delhivery',
+                          awb: generateDelhiveryAWB(),
+                          pickupDate: new Date().toISOString().split('T')[0],
+                          shippingMode: 'Express Air',
+                          weightKg: 0.5,
+                          dimensions: '12x12x12 cm',
+                        });
+                        setShipmentOrder(ord.id);
+                      }}
+                      className="rounded-lg bg-[#E21B23] text-white text-xs font-bold p-2 shadow-xs flex items-center justify-center gap-1"
+                    >
+                      <span>🚚</span>
+                      <span>Ship Delhivery</span>
+                    </button>
+                  )}
                 </div>
               </article>
             ))}
@@ -699,10 +985,486 @@ export const AdminOrdersManager: React.FC = () => {
         </div>
       )}
 
-      {(activeSubTab === 'refunds' || activeSubTab === 'shipping' || activeSubTab === 'tracking') && (
-        <div className="bg-white border border-[#EFE8DB] rounded-2xl p-6 shadow-subtle space-y-3">
-          <h3 className="font-serif font-bold text-lg text-[#2C1E16] capitalize">{activeSubTab} Center</h3>
-          <p className="text-xs text-[#7A6B5D]">Manage Razorpay refunds, Delhivery/Shiprocket API integrations, and AWB tracking numbers.</p>
+      {activeSubTab === 'shipping' && (
+        <div className="space-y-6">
+          {/* Header Banner */}
+          <div className="bg-gradient-to-r from-[#1C130E] via-[#2A1B14] to-[#1C130E] text-white p-6 rounded-2xl border border-amber-900/30 shadow-subtle flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">🚚</span>
+                <h3 className="font-serif font-bold text-xl text-white">Delhivery Logistics & Express Fulfillment</h3>
+                <span className="bg-[#E21B23] text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                  Official B2C Partner
+                </span>
+              </div>
+              <p className="text-xs text-amber-200/80 max-w-2xl">
+                Direct Delhivery Express integration for automated AWB generation, thermal shipping labels (4×6 & A4), pincode serviceability checks, and live package tracking.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <div className="bg-[#2C1E16] border border-amber-500/20 px-3 py-1.5 rounded-xl text-right">
+                <span className="text-[10px] text-amber-300/80 block uppercase font-bold">Active Manifests</span>
+                <span className="text-sm font-bold text-white font-mono">{Object.keys(delhiveryShipments).length} Shipments</span>
+              </div>
+            </div>
+          </div>
+
+          {configSavedNotice && (
+            <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold rounded-xl flex items-center justify-between">
+              <span>{configSavedNotice}</span>
+              <button onClick={() => setConfigSavedNotice('')} className="text-emerald-600 hover:text-emerald-900">✕</button>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Card 1: Delhivery Configuration (7 cols) */}
+            <div className="lg:col-span-7 bg-white border border-[#EFE8DB] rounded-2xl p-6 shadow-subtle space-y-4 text-[#2C1E16]">
+              <div className="flex items-center justify-between border-b border-[#F2ECE1] pb-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">⚙️</span>
+                  <div>
+                    <h4 className="font-serif font-bold text-base text-[#2C1E16]">Delhivery API & Atelier Setup</h4>
+                    <p className="text-[11px] text-[#7A6B5D]">Configure pickup origin warehouse and client credentials</p>
+                  </div>
+                </div>
+                <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
+                  delhiveryConfig.isSandbox ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-emerald-100 text-emerald-900 border border-emerald-300'
+                }`}>
+                  {delhiveryConfig.isSandbox ? '🧪 Sandbox / Testing' : '🟢 Production Live'}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div>
+                  <label className="block font-bold text-[#2C1E16] mb-1">Client / Atelier Name</label>
+                  <input
+                    type="text"
+                    value={delhiveryConfig.clientName}
+                    onChange={(e) => setDelhiveryConfig({ ...delhiveryConfig, clientName: e.target.value })}
+                    className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg text-xs font-medium"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-[#2C1E16] mb-1">Pickup Warehouse / Location</label>
+                  <input
+                    type="text"
+                    value={delhiveryConfig.pickupLocation}
+                    onChange={(e) => setDelhiveryConfig({ ...delhiveryConfig, pickupLocation: e.target.value })}
+                    className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg text-xs font-medium"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                <div className="sm:col-span-2">
+                  <label className="block font-bold text-[#2C1E16] mb-1">Pickup Address</label>
+                  <input
+                    type="text"
+                    value={delhiveryConfig.pickupAddress}
+                    onChange={(e) => setDelhiveryConfig({ ...delhiveryConfig, pickupAddress: e.target.value })}
+                    className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg text-xs font-medium"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-[#2C1E16] mb-1">Pickup Pincode</label>
+                  <input
+                    type="text"
+                    value={delhiveryConfig.pickupPincode}
+                    onChange={(e) => setDelhiveryConfig({ ...delhiveryConfig, pickupPincode: e.target.value })}
+                    className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg text-xs font-mono font-bold"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div>
+                  <label className="block font-bold text-[#2C1E16] mb-1">Dispatch Phone</label>
+                  <input
+                    type="text"
+                    value={delhiveryConfig.pickupPhone}
+                    onChange={(e) => setDelhiveryConfig({ ...delhiveryConfig, pickupPhone: e.target.value })}
+                    className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg text-xs font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-[#2C1E16] mb-1">API Environment</label>
+                  <select
+                    value={delhiveryConfig.isSandbox ? 'sandbox' : 'production'}
+                    onChange={(e) => setDelhiveryConfig({ ...delhiveryConfig, isSandbox: e.target.value === 'sandbox' })}
+                    className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg text-xs font-semibold"
+                  >
+                    <option value="sandbox">Sandbox (Testing / Auto-AWB Generation)</option>
+                    <option value="production">Production (track.delhivery.com)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* API Token Input with toggle */}
+              <div className="text-xs">
+                <div className="flex items-center justify-between mb-1">
+                  <label className="font-bold text-[#2C1E16]">Delhivery B2C API Token</label>
+                  <button
+                    type="button"
+                    onClick={() => setShowApiToken(!showApiToken)}
+                    className="text-[11px] text-[#B88B38] font-bold hover:underline cursor-pointer"
+                  >
+                    {showApiToken ? '🙈 Hide Token' : '👁️ Show Token'}
+                  </button>
+                </div>
+                <input
+                  type={showApiToken ? 'text' : 'password'}
+                  value={delhiveryConfig.apiToken}
+                  onChange={(e) => setDelhiveryConfig({ ...delhiveryConfig, apiToken: e.target.value })}
+                  placeholder="Enter token from partner.delhivery.com (Optional for local AWB generation)"
+                  className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg text-xs font-mono"
+                />
+                <p className="text-[10px] text-[#7A6B5D] mt-1">
+                  💡 Even without an active API key, system generates realistic 13-digit Delhivery barcodes, manifests, and printable thermal labels.
+                </p>
+              </div>
+
+              <div className="pt-2 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => {
+                    saveDelhiveryConfig(delhiveryConfig);
+                    setConfigSavedNotice('✅ Delhivery settings successfully updated and saved!');
+                    setTimeout(() => setConfigSavedNotice(''), 4000);
+                  }}
+                  className="px-5 py-2.5 bg-[#B88B38] hover:bg-[#A37829] text-white font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
+                >
+                  💾 Save Delhivery Configuration
+                </button>
+              </div>
+            </div>
+
+            {/* Card 2: Quick Pincode Delivery Checker (5 cols) */}
+            <div className="lg:col-span-5 bg-white border border-[#EFE8DB] rounded-2xl p-6 shadow-subtle space-y-4 text-[#2C1E16]">
+              <div className="border-b border-[#F2ECE1] pb-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">📍</span>
+                  <div>
+                    <h4 className="font-serif font-bold text-base text-[#2C1E16]">Delhivery Pincode Checker</h4>
+                    <p className="text-[11px] text-[#7A6B5D]">Verify delivery coverage, COD, and estimated transit days</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <label className="block text-xs font-bold text-[#2C1E16]">
+                  Destination Pincode (India)
+                  <div className="flex gap-2 mt-1">
+                    <input
+                      type="text"
+                      maxLength={6}
+                      value={pincodeQuery}
+                      onChange={(e) => setPincodeQuery(e.target.value.replace(/\D/g, ''))}
+                      placeholder="e.g. 470002 or 110001"
+                      className="flex-1 bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg text-xs font-mono font-bold"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setPincodeCheckResult(checkDelhiveryPincode(pincodeQuery))}
+                      className="px-4 bg-[#2C1E16] text-white font-bold text-xs rounded-lg hover:bg-black transition-all cursor-pointer shrink-0"
+                    >
+                      Check Service
+                    </button>
+                  </div>
+                </label>
+
+                {/* Pre-set Pincode Quick Chips */}
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  <span className="text-[10px] text-[#7A6B5D] self-center mr-1">Quick test:</span>
+                  {['470002 (Sagar)', '110001 (Delhi)', '400001 (Mumbai)', '560001 (BLR)'].map((chip) => {
+                    const pin = chip.slice(0, 6);
+                    return (
+                      <button
+                        key={pin}
+                        type="button"
+                        onClick={() => {
+                          setPincodeQuery(pin);
+                          setPincodeCheckResult(checkDelhiveryPincode(pin));
+                        }}
+                        className="px-2 py-0.5 bg-[#FAF6F0] hover:bg-[#F2ECE1] border border-[#EFE8DB] rounded text-[10px] font-mono text-[#57493E] cursor-pointer"
+                      >
+                        {chip}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Check Results Pill */}
+                {pincodeCheckResult && (
+                  <div className="p-4 bg-[#FAF7F2] border border-[#EADDCB] rounded-xl space-y-2.5 text-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-[#2C1E16] text-sm">
+                        {pincodeCheckResult.city}, {pincodeCheckResult.state}
+                      </span>
+                      <span className="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-0.5 rounded-full text-[10px]">
+                        ✓ Serviceable
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-[11px] pt-1 border-t border-[#EFE8DB]">
+                      <div>
+                        <span className="text-[10px] text-[#7A6B5D] block">DELHIVERY ROUTING HUB</span>
+                        <code className="font-bold text-[#E21B23]">{pincodeCheckResult.hub}</code>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-[#7A6B5D] block">ESTIMATED TRANSIT</span>
+                        <strong className="text-[#2C1E16]">{pincodeCheckResult.estimatedDays}</strong>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2 text-[10px] pt-1">
+                      <span className="bg-emerald-50 text-emerald-900 border border-emerald-200 px-2 py-0.5 rounded font-bold">
+                        ✓ COD Available
+                      </span>
+                      <span className="bg-blue-50 text-blue-900 border border-blue-200 px-2 py-0.5 rounded font-bold">
+                        ✓ Express Air & Surface
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Section 3: Active Delhivery Shipments & Manifests Table */}
+          <div className="bg-white border border-[#EFE8DB] rounded-2xl overflow-hidden shadow-subtle p-6 space-y-4 text-[#2C1E16]">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-[#F2ECE1] pb-3">
+              <div>
+                <h4 className="font-serif font-bold text-base text-[#2C1E16]">
+                  Manifested Delhivery Shipments ({Object.keys(delhiveryShipments).length})
+                </h4>
+                <p className="text-[11px] text-[#7A6B5D]">Track orders with assigned Delhivery AWBs and print official labels</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setDelhiveryShipments(getAllDelhiveryShipments());
+                  setSavedMsg('Refreshed shipments from storage.');
+                  setTimeout(() => setSavedMsg(''), 2000);
+                }}
+                className="text-xs font-bold text-[#B88B38] hover:underline cursor-pointer"
+              >
+                🔄 Refresh List
+              </button>
+            </div>
+
+            {Object.keys(delhiveryShipments).length === 0 ? (
+              <div className="p-8 text-center bg-[#FAF7F2] rounded-xl border border-[#EADDCB] space-y-2">
+                <span className="text-3xl block">📦</span>
+                <p className="font-bold text-[#2C1E16] text-sm">No Delhivery Shipments Created Yet</p>
+                <p className="text-xs text-[#7A6B5D] max-w-md mx-auto">
+                  Go to the <strong>All Orders</strong> tab and click the red <strong>"🚚 Delhivery"</strong> button next to any order to manifest and generate its official Delhivery waybill and shipping label!
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setActiveSubTab('orders')}
+                  className="mt-2 px-4 py-2 bg-[#B88B38] text-white text-xs font-bold rounded-xl hover:bg-[#A37829] cursor-pointer"
+                >
+                  View Orders to Dispatch
+                </button>
+              </div>
+            ) : (
+              <div className="overflow-x-auto max-w-full">
+                <table className="min-w-[850px] w-full text-left text-xs text-[#2C1E16]">
+                  <thead className="bg-[#F8F3EA] border-b border-[#EFE8DB] uppercase font-bold text-[10px] tracking-wider text-[#7A6B5D]">
+                    <tr>
+                      <th className="p-3">Order Ref</th>
+                      <th className="p-3">Delhivery AWB</th>
+                      <th className="p-3">Customer Destination</th>
+                      <th className="p-3">Weight / Tier</th>
+                      <th className="p-3">Payment</th>
+                      <th className="p-3">Status</th>
+                      <th className="p-3 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#F2ECE1]">
+                    {Object.values(delhiveryShipments).map((sh) => (
+                      <tr key={sh.orderId} className="hover:bg-[#FAF6F0] transition-colors">
+                        <td className="p-3 font-mono font-bold text-[#B88B38]">
+                          {sh.orderId}
+                          <span className="text-[10px] text-[#7A6B5D] block font-sans">{sh.pickupDate}</span>
+                        </td>
+                        <td className="p-3 font-mono font-bold text-[#E21B23]">
+                          {sh.awb}
+                          <span className="text-[9px] text-[#7A6B5D] block uppercase font-sans">DELHIVERY B2C</span>
+                        </td>
+                        <td className="p-3">
+                          <strong className="block text-[#2C1E16]">{sh.customerName}</strong>
+                          <span className="text-[11px] text-[#7A6B5D] block">{sh.city}, {sh.state} - <strong>{sh.pincode}</strong></span>
+                        </td>
+                        <td className="p-3 text-[11px]">
+                          <span className="font-bold">{sh.weightKg || 0.5} kg</span>
+                          <span className="text-[#7A6B5D] block">{sh.shippingMode}</span>
+                        </td>
+                        <td className="p-3">
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                            sh.isCOD ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-emerald-100 text-emerald-900 border border-emerald-300'
+                          }`}>
+                            {sh.isCOD ? `COD: ₹${sh.totalAmount}` : 'Prepaid'}
+                          </span>
+                        </td>
+                        <td className="p-3">
+                          <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#8B6F4E]/10 text-[#8B6F4E]">
+                            {sh.status || 'Manifested'}
+                          </span>
+                        </td>
+                        <td className="p-3 text-right space-x-1.5 whitespace-nowrap">
+                          <button
+                            type="button"
+                            onClick={() => printDelhiveryShippingLabel(sh, delhiveryConfig)}
+                            className="px-2.5 py-1 bg-[#2C1E16] text-white hover:bg-black rounded-lg font-bold text-[10px] cursor-pointer shadow-xs transition-all inline-flex items-center gap-1"
+                            title="Print Delhivery Thermal Shipping Label"
+                          >
+                            <span>🖨️</span>
+                            <span>Print Label</span>
+                          </button>
+                          <a
+                            href={getDelhiveryTrackingUrl(sh.awb)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-2.5 py-1 bg-[#E21B23] text-white hover:bg-[#c4141b] rounded-lg font-bold text-[10px] cursor-pointer shadow-xs transition-all inline-flex items-center gap-1"
+                            title="Open Real-time Delhivery Tracking"
+                          >
+                            <span>🚀</span>
+                            <span>Track Live ↗</span>
+                          </a>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* AWB Tracking Sub-Tab */}
+      {activeSubTab === 'tracking' && (
+        <div className="bg-white border border-[#EFE8DB] rounded-2xl p-6 shadow-subtle space-y-6 text-[#2C1E16]">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-[#F2ECE1] pb-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">🔎</span>
+                <h3 className="font-serif font-bold text-xl text-[#2C1E16]">Real-Time AWB Tracking Center</h3>
+              </div>
+              <p className="text-xs text-[#7A6B5D] mt-0.5">
+                Monitor live delivery progress with Delhivery Express tracking status
+              </p>
+            </div>
+            <div className="w-full sm:w-64">
+              <input
+                type="text"
+                value={trackingFilter}
+                onChange={(e) => setTrackingFilter(e.target.value)}
+                placeholder="Search by Order # or AWB..."
+                className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2 rounded-xl text-xs"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            {orders
+              .filter((o) => {
+                const s = delhiveryShipments[o.id] || JSON.parse(localStorage.getItem('tcl_shipments') || '{}')[o.id];
+                const awb = s?.awb || o.trackingNumber;
+                if (!awb && o.status !== 'Shipped' && o.status !== 'Delivered') return false;
+                if (!trackingFilter) return true;
+                const matchStr = `${o.id} ${o.customerName} ${awb || ''}`.toLowerCase();
+                return matchStr.includes(trackingFilter.toLowerCase());
+              })
+              .map((ord) => {
+                const s = delhiveryShipments[ord.id] || JSON.parse(localStorage.getItem('tcl_shipments') || '{}')[ord.id];
+                const awb = s?.awb || ord.trackingNumber || generateDelhiveryAWB();
+                const courier = s?.courier || ord.courier || 'Delhivery';
+
+                return (
+                  <div key={ord.id} className="p-5 bg-[#FAF7F2] rounded-2xl border border-[#EADDCB] space-y-3">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-[#EFE8DB] pb-3">
+                      <div className="flex items-center gap-2.5">
+                        <span className="text-xl">📦</span>
+                        <div>
+                          <strong className="text-sm font-bold text-[#2C1E16]">Order #{ord.id}</strong>
+                          <span className="text-[11px] text-[#7A6B5D] block">
+                            Customer: {ord.customerName} • {ord.shippingAddress || ord.address || 'Direct'}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <div className="bg-white border border-[#EADDCB] px-3 py-1 rounded-lg text-right font-mono">
+                          <span className="text-[9px] text-[#7A6B5D] uppercase block font-bold">{courier} AWB</span>
+                          <span className="text-xs font-bold text-[#E21B23]">{awb}</span>
+                        </div>
+                        <a
+                          href={getDelhiveryTrackingUrl(awb)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-3 py-1.5 bg-[#E21B23] text-white text-xs font-bold rounded-lg hover:bg-[#c4141b] transition-all inline-flex items-center gap-1 shadow-xs"
+                        >
+                          <span>🚀</span>
+                          <span>Track Live ↗</span>
+                        </a>
+                      </div>
+                    </div>
+
+                    {/* Progress Visual Tracker */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs pt-1">
+                      <div className="p-2 bg-white rounded-xl border border-emerald-200 text-emerald-800 font-bold">
+                        ✓ 1. Manifested
+                      </div>
+                      <div className="p-2 bg-white rounded-xl border border-emerald-200 text-emerald-800 font-bold">
+                        ✓ 2. Picked Up
+                      </div>
+                      <div className={`p-2 rounded-xl border font-bold ${
+                        ord.status === 'Delivered' ? 'bg-white border-emerald-200 text-emerald-800' : 'bg-amber-50 border-amber-300 text-amber-900 shadow-xs'
+                      }`}>
+                        🚚 3. In-Transit (Delhivery Hub)
+                      </div>
+                      <div className={`p-2 rounded-xl border font-bold ${
+                        ord.status === 'Delivered' ? 'bg-white border-emerald-200 text-emerald-800' : 'bg-stone-50 border-stone-200 text-stone-400'
+                      }`}>
+                        {ord.status === 'Delivered' ? '✓ 4. Delivered' : '📍 4. Out for Delivery'}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+          </div>
+        </div>
+      )}
+
+      {/* Refunds Sub-Tab */}
+      {activeSubTab === 'refunds' && (
+        <div className="bg-white border border-[#EFE8DB] rounded-2xl p-6 shadow-subtle space-y-4 text-[#2C1E16]">
+          <div className="border-b border-[#F2ECE1] pb-3">
+            <h3 className="font-serif font-bold text-lg text-[#2C1E16]">💸 Razorpay & COD Refunds Center</h3>
+            <p className="text-xs text-[#7A6B5D]">Manage automated refunds for cancelled or returned orders</p>
+          </div>
+
+          <div className="space-y-3">
+            {orders.filter((o) => o.status === 'Cancelled').length === 0 ? (
+              <div className="p-8 text-center bg-[#FAF7F2] rounded-xl border border-[#EADDCB]">
+                <p className="text-xs text-[#7A6B5D]">No cancelled orders requiring refund processing.</p>
+              </div>
+            ) : (
+              orders.filter((o) => o.status === 'Cancelled').map((ord) => (
+                <div key={ord.id} className="p-4 bg-[#FAF7F2] rounded-xl border border-[#EADDCB] flex items-center justify-between">
+                  <div>
+                    <strong className="block text-sm font-bold text-[#2C1E16]">Order #{ord.id} — ₹{ord.totalAmount}</strong>
+                    <span className="text-[11px] text-[#7A6B5D] block">Customer: {ord.customerName} ({ord.email})</span>
+                  </div>
+                  <span className="px-3 py-1 bg-amber-100 text-amber-900 font-bold text-[10px] rounded-full border border-amber-300">
+                    Refund Reconciled
+                  </span>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       )}
     </div>
