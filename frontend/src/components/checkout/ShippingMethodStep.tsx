@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Button, Badge, SparklesIcon } from '../../design-system';
-import { calculateShiprocketPincodeRate } from '../../services/shiprocketService';
+import { calculateShiprocketPincodeRate, type LiveShiprocketRate } from '../../services/shiprocketService';
 
 export interface ShippingOption {
   id: string;
@@ -15,6 +15,7 @@ export interface ShippingMethodStepProps {
   selectedOptionId: string;
   subtotal?: number;
   destinationZip?: string;
+  liveRate?: LiveShiprocketRate | null;
   onBack: () => void;
   onNext: (option: ShippingOption) => void;
 }
@@ -23,6 +24,7 @@ export const ShippingMethodStep: React.FC<ShippingMethodStepProps> = ({
   selectedOptionId,
   subtotal = 0,
   destinationZip = '483501',
+  liveRate,
   onBack,
   onNext,
 }) => {
@@ -33,14 +35,18 @@ export const ShippingMethodStep: React.FC<ShippingMethodStepProps> = ({
   );
 
   const dynamicShippingOptions: ShippingOption[] = useMemo(() => {
+    const courierName = liveRate ? liveRate.courier_name : rateResult.courier;
+    const courierPrice = liveRate ? liveRate.rate : rateResult.rate;
+    const courierDays = liveRate ? liveRate.estimated_days : rateResult.estimatedDays;
+
     return isFreeEligible
       ? [
           {
             id: 'free-express',
-            name: `Complimentary Express to ${rateResult.city}`,
-            timeframe: rateResult.estimatedDays,
+            name: `Complimentary Express (${courierName})`,
+            timeframe: courierDays,
             price: 0,
-            description: `Unlocked! Free ${rateResult.courier} shipping to PIN ${rateResult.pincode || destinationZip} (Orders ₹999+).`,
+            description: `Unlocked! Free ${courierName} shipping to PIN ${destinationZip} (Orders ₹999+).`,
             badge: 'FREE DELIVERY',
           },
           {
@@ -55,22 +61,22 @@ export const ShippingMethodStep: React.FC<ShippingMethodStepProps> = ({
       : [
           {
             id: 'standard-delivery',
-            name: `Express Delivery to ${rateResult.city}`,
-            timeframe: rateResult.estimatedDays,
-            price: rateResult.rate,
-            description: `Calculated Shiprocket courier rate (${rateResult.courier}) for PIN ${rateResult.pincode || destinationZip}.`,
-            badge: rateResult.zone === 'Local' ? 'LOCAL RATE' : 'EXPRESS RATE',
+            name: `Express Delivery (${courierName})`,
+            timeframe: courierDays,
+            price: courierPrice,
+            description: `Live Shiprocket quote for destination PIN ${destinationZip}.`,
+            badge: liveRate ? 'LIVE SHIPROCKET QUOTE' : 'EXPRESS RATE',
           },
           {
             id: 'priority-delivery',
             name: 'Priority Air Courier Handling',
             timeframe: '1 - 2 Business Days',
-            price: rateResult.rate + 30,
+            price: courierPrice + 30,
             description: 'Fastest air cargo with dedicated handling & insurance.',
             badge: 'FASTEST',
           },
         ];
-  }, [isFreeEligible, rateResult, destinationZip]);
+  }, [isFreeEligible, rateResult, destinationZip, liveRate]);
 
   const [selectedId, setSelectedId] = useState(
     selectedOptionId && dynamicShippingOptions.some((o) => o.id === selectedOptionId)

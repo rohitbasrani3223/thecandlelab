@@ -56,6 +56,83 @@ export const DEFAULT_SHIPROCKET_CONFIG: ShiprocketConfig = {
   autoAssign: true,
 };
 
+export interface LiveShiprocketRate {
+  success: boolean;
+  courier_name: string;
+  rate: number;
+  raw_rate?: number;
+  estimated_days: string;
+  source: 'shiprocket_live_api' | 'cached';
+  available_couriers?: Array<{
+    courier_name: string;
+    rate: number;
+    estimated_delivery_days: string;
+    cod_available: boolean;
+  }>;
+}
+
+const liveRateCache: Record<string, LiveShiprocketRate> = {};
+
+/**
+ * Directly queries Shiprocket Live API via our backend proxy using the merchant's saved API credentials.
+ * Returns the exact live courier quote from Shiprocket (Delhivery, Blue Dart, DTDC, Xpressbees).
+ */
+export async function fetchLiveShiprocketRate(
+  deliveryPincode: string,
+  weightKg = 0.5,
+  isCod = false
+): Promise<LiveShiprocketRate | null> {
+  const cleanPin = String(deliveryPincode || '').replace(/\D/g, '').slice(0, 6);
+  if (cleanPin.length !== 6) return null;
+
+  const cacheKey = `${cleanPin}_${weightKg}_${isCod ? 1 : 0}`;
+  if (liveRateCache[cacheKey]) {
+    return liveRateCache[cacheKey];
+  }
+
+  const config = getShiprocketConfig();
+
+  try {
+    const res = await fetch('/api/shipping/shiprocket/rate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({
+        pickup_pincode: config.pickupPincode || '483501',
+        delivery_pincode: cleanPin,
+        weight: weightKg,
+        cod: isCod ? 1 : 0,
+        email: config.email,
+        password: config.password || config.apiToken,
+        token: config.apiToken,
+      }),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success && data.rate) {
+        const result: LiveShiprocketRate = {
+          success: true,
+          courier_name: data.courier_name || 'Shiprocket Express',
+          rate: Number(data.rate),
+          raw_rate: Number(data.raw_rate || data.rate),
+          estimated_days: data.estimated_days || '2-3 Days',
+          source: 'shiprocket_live_api',
+          available_couriers: data.available_couriers,
+        };
+        liveRateCache[cacheKey] = result;
+        return result;
+      }
+    }
+  } catch (err) {
+    console.warn('Live Shiprocket Rate fetch error:', err);
+  }
+
+  return null;
+}
+
 export interface PincodeRateResult {
   pincode: string;
   city: string;

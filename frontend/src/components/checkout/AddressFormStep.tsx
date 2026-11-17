@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Input, Button, Checkbox, Select, Badge, SparklesIcon } from '../../design-system';
-import { calculateShiprocketPincodeRate } from '../../services/shiprocketService';
+import { calculateShiprocketPincodeRate, fetchLiveShiprocketRate, type LiveShiprocketRate } from '../../services/shiprocketService';
 
 export interface AddressData {
   email: string;
@@ -87,17 +87,29 @@ export const AddressFormStep: React.FC<AddressFormStepProps> = ({ initialData, c
   const [isCustomCity, setIsCustomCity] = useState(Boolean(initialData.city));
   const [pincodeLoading, setPincodeLoading] = useState(false);
   const [pincodeDetected, setPincodeDetected] = useState<string | null>(null);
+  const [liveRate, setLiveRate] = useState<LiveShiprocketRate | null>(null);
+  const [isRateLoading, setIsRateLoading] = useState(false);
 
   const availableStates = Object.keys(INDIAN_STATES_CITIES);
   const availableCities = formData.state ? (INDIAN_STATES_CITIES[formData.state] || []) : [];
 
-  // Indian Pincode Auto-Fill
+  // Indian Pincode Auto-Fill & Shiprocket Live Rate Fetch
   const handlePincodeChange = async (pin: string) => {
     const cleanPin = pin.replace(/\D/g, '').slice(0, 6);
     setFormData((prev) => ({ ...prev, zip: cleanPin }));
 
     if (cleanPin.length === 6) {
       setPincodeLoading(true);
+      setIsRateLoading(true);
+
+      // Fetch Live Rate directly from user's Shiprocket API
+      fetchLiveShiprocketRate(cleanPin).then((res) => {
+        if (res && res.success) {
+          setLiveRate(res);
+        }
+        setIsRateLoading(false);
+      });
+
       try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 3500);
@@ -133,6 +145,7 @@ export const AddressFormStep: React.FC<AddressFormStepProps> = ({ initialData, c
       }
     } else {
       setPincodeDetected(null);
+      setLiveRate(null);
     }
   };
 
@@ -394,13 +407,17 @@ export const AddressFormStep: React.FC<AddressFormStepProps> = ({ initialData, c
 
               {formData.zip && formData.zip.length === 6 && (
                 (() => {
-                  const rateInfo = calculateShiprocketPincodeRate(formData.zip, subtotal || 0);
+                  const rateToShow = liveRate ? liveRate.rate : calculateShiprocketPincodeRate(formData.zip, subtotal || 0).rate;
+                  const courierName = liveRate ? liveRate.courier_name : 'Shiprocket Express';
+                  const days = liveRate ? liveRate.estimated_days : '2 - 3 Days';
+
                   return (
                     <div className="mt-2 p-2.5 bg-[#FAF7F2] border border-[#EADDCB] rounded-xl flex items-center justify-between text-[11px]">
                       <div className="flex items-center gap-1.5 text-[#2C1E16]">
                         <span>🚀</span>
                         <span>
-                          <strong>{rateInfo.courier}</strong> • {rateInfo.estimatedDays}
+                          <strong>{courierName}</strong> • {days}
+                          {liveRate && <span className="ml-1 text-[9px] text-[#733DD9] font-bold uppercase">(Shiprocket API Live)</span>}
                         </span>
                       </div>
                       <span className={`font-bold px-2 py-0.5 rounded-md ${
@@ -408,7 +425,7 @@ export const AddressFormStep: React.FC<AddressFormStepProps> = ({ initialData, c
                           ? 'bg-emerald-100 text-emerald-800'
                           : 'bg-purple-100 text-[#733DD9]'
                       }`}>
-                        {(subtotal || 0) >= 999 ? 'FREE (₹999+)' : `₹${rateInfo.rate}`}
+                        {isRateLoading ? 'Fetching Rate...' : ((subtotal || 0) >= 999 ? 'FREE (₹999+)' : `₹${rateToShow}`)}
                       </span>
                     </div>
                   );

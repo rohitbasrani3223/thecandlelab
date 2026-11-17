@@ -16,7 +16,7 @@ import { processRazorpayPayment } from '../../services/razorpay';
 import { useToast, Button } from '../../design-system';
 import { getApiUrl } from '../../config/api';
 import { useCart } from '../../context/CartContext';
-import { calculateShiprocketPincodeRate } from '../../services/shiprocketService';
+import { calculateShiprocketPincodeRate, fetchLiveShiprocketRate, type LiveShiprocketRate } from '../../services/shiprocketService';
 
 export interface CheckoutPageProps {
   onReturnHome?: () => void;
@@ -92,6 +92,19 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
   const [discountPercent, setDiscountPercent] = useState<number>(0);
 
+  const [liveShiprocketRate, setLiveShiprocketRate] = useState<LiveShiprocketRate | null>(null);
+
+  useEffect(() => {
+    const cleanZip = String(address.zip || '').replace(/\D/g, '').slice(0, 6);
+    if (cleanZip.length === 6) {
+      fetchLiveShiprocketRate(cleanZip).then((res) => {
+        if (res && res.success) {
+          setLiveShiprocketRate(res);
+        }
+      });
+    }
+  }, [address.zip]);
+
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0);
   const isFreeShippingEligible = subtotal >= 999;
 
@@ -100,9 +113,12 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
     return calculateShiprocketPincodeRate(address.zip || '', subtotal);
   }, [address.zip, subtotal]);
 
+  // Use Live Shiprocket API rate if available, otherwise zone fallback
+  const effectiveLiveRate = liveShiprocketRate ? liveShiprocketRate.rate : pincodeRate.rate;
+
   const shippingFee = isFreeShippingEligible
     ? (shipping.id === 'vip-courier' ? 49 : 0)
-    : (shipping.price !== undefined && shipping.price !== 99 && shipping.price !== 0 ? shipping.price : pincodeRate.rate);
+    : (shipping.price !== undefined && shipping.price !== 99 && shipping.price !== 0 ? shipping.price : effectiveLiveRate);
 
   const discountAmount = appliedCoupon ? Math.round((subtotal * discountPercent) / 100) : 0;
   const totalAmount = Math.max(0, Math.round(subtotal - discountAmount + shippingFee));
@@ -407,6 +423,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
                 selectedOptionId={shipping.id}
                 subtotal={subtotal}
                 destinationZip={address.zip}
+                liveRate={liveShiprocketRate}
                 onBack={() => setStep(1)}
                 onNext={(opt) => {
                   setShipping(opt);

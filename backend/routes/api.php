@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\Admin\InventoryController;
 use App\Http\Controllers\Api\Admin\AdminManagementController;
 use App\Http\Controllers\Api\Admin\DashboardController;
 use App\Http\Controllers\Api\ReviewController;
+use App\Http\Controllers\Api\ShippingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,6 +39,9 @@ Route::post('/create-order', [PaymentController::class, 'createOrder']);
 Route::post('/verify-payment', [PaymentController::class, 'verifyPayment']);
 Route::post('/razorpay/create-order', [PaymentController::class, 'createOrder']);
 Route::post('/razorpay/verify-payment', [PaymentController::class, 'verifyPayment']);
+
+// Shiprocket Live Shipping Rate API Endpoint
+Route::post('/shipping/shiprocket/rate', [ShippingController::class, 'getShiprocketRate']);
 
 // Public Storefront Products API
 Route::get('/products', [ProductController::class, 'index']);
