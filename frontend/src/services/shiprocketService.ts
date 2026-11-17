@@ -133,6 +133,50 @@ export async function fetchLiveShiprocketRate(
   return null;
 }
 
+/**
+ * Pushes the manifested order directly to the merchant's Shiprocket account.
+ * Endpoint: POST /api/shipping/shiprocket/create-order
+ */
+export async function createShiprocketApiOrder(
+  shipment: ShiprocketShipment,
+  config?: ShiprocketConfig
+): Promise<any> {
+  const cfg = config || getShiprocketConfig();
+  try {
+    const res = await fetch('/api/shipping/shiprocket/create-order', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({
+        order_id: shipment.orderId,
+        customer_name: shipment.customerName,
+        customer_phone: shipment.customerPhone,
+        shipping_address: shipment.shippingAddress,
+        city: shipment.city,
+        state: shipment.state,
+        pincode: shipment.pincode,
+        total_amount: shipment.totalAmount,
+        is_cod: shipment.isCOD,
+        weight_kg: shipment.weightKg,
+        pickup_location: cfg.pickupLocation || 'The Candle Lab Atelier',
+        auth_email: cfg.email,
+        auth_password: cfg.password || cfg.apiToken,
+        token: cfg.apiToken,
+      }),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      return data;
+    }
+  } catch (err) {
+    console.warn('Shiprocket Order Creation network call:', err);
+  }
+  return null;
+}
+
 export interface PincodeRateResult {
   pincode: string;
   city: string;

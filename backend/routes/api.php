@@ -40,8 +40,9 @@ Route::post('/verify-payment', [PaymentController::class, 'verifyPayment']);
 Route::post('/razorpay/create-order', [PaymentController::class, 'createOrder']);
 Route::post('/razorpay/verify-payment', [PaymentController::class, 'verifyPayment']);
 
-// Shiprocket Live Shipping Rate API Endpoint
+// Shiprocket Live Shipping Rate & Order Creation Endpoints
 Route::post('/shipping/shiprocket/rate', [ShippingController::class, 'getShiprocketRate']);
+Route::post('/shipping/shiprocket/create-order', [ShippingController::class, 'createShiprocketOrder']);
 
 // Public Storefront Products API
 Route::get('/products', [ProductController::class, 'index']);

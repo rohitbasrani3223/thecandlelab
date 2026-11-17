@@ -22,6 +22,7 @@ import {
   printShiprocketShippingLabel,
   saveShiprocketShipment,
   getAllShiprocketShipments,
+  createShiprocketApiOrder,
   type ShiprocketConfig,
   type ShiprocketShipment,
 } from '../../services/shiprocketService';
@@ -520,6 +521,20 @@ export const AdminOrdersManager: React.FC = () => {
                     setShiprocketShipments(getAllShiprocketShipments());
                     updateOrderStatus(shipmentOrder, 'Shipped');
                     window.dispatchEvent(new Event('tcl-orders-updated'));
+
+                    // Synchronize in background with merchant's Shiprocket API
+                    createShiprocketApiOrder(srData, shiprocketConfig).then((apiRes) => {
+                      if (apiRes && apiRes.success && apiRes.awb_code) {
+                        const updatedSr = {
+                          ...srData,
+                          awb: apiRes.awb_code,
+                          shipmentId: String(apiRes.shipment_id || ''),
+                          courierName: apiRes.courier_name || srData.courierName,
+                        };
+                        saveShiprocketShipment(updatedSr);
+                        setShiprocketShipments(getAllShiprocketShipments());
+                      }
+                    });
 
                     setSavedMsg(`✅ Order ${shipmentOrder} dispatched via Shiprocket! AWB: ${awb}`);
                     setShipmentOrder(null);
