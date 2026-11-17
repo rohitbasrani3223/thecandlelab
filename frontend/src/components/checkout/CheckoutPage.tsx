@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { CheckoutHeader } from './CheckoutHeader';
 import type { CheckoutStep } from './CheckoutHeader';
 import { AddressFormStep } from './AddressFormStep';
@@ -16,6 +16,7 @@ import { processRazorpayPayment } from '../../services/razorpay';
 import { useToast, Button } from '../../design-system';
 import { getApiUrl } from '../../config/api';
 import { useCart } from '../../context/CartContext';
+import { calculateShiprocketPincodeRate } from '../../services/shiprocketService';
 
 export interface CheckoutPageProps {
   onReturnHome?: () => void;
@@ -93,9 +94,15 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
 
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0);
   const isFreeShippingEligible = subtotal >= 999;
+
+  // Real-time Pincode Rate based on Katni, MP origin (483501)
+  const pincodeRate = useMemo(() => {
+    return calculateShiprocketPincodeRate(address.zip || '', subtotal);
+  }, [address.zip, subtotal]);
+
   const shippingFee = isFreeShippingEligible
-    ? (shipping.id === 'vip-courier' ? 99 : 0)
-    : (shipping.price || 99);
+    ? (shipping.id === 'vip-courier' ? 49 : 0)
+    : (shipping.price !== undefined && shipping.price !== 99 && shipping.price !== 0 ? shipping.price : pincodeRate.rate);
 
   const discountAmount = appliedCoupon ? Math.round((subtotal * discountPercent) / 100) : 0;
   const totalAmount = Math.max(0, Math.round(subtotal - discountAmount + shippingFee));
@@ -399,6 +406,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
               <ShippingMethodStep
                 selectedOptionId={shipping.id}
                 subtotal={subtotal}
+                destinationZip={address.zip}
                 onBack={() => setStep(1)}
                 onNext={(opt) => {
                   setShipping(opt);
@@ -500,7 +508,9 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onReturnHome }) => {
                 )}
 
                 <div className="flex justify-between text-[#7D6F63]">
-                  <span>Delivery ({isFreeShippingEligible ? 'Pan-India Free Express' : 'Standard Express'})</span>
+                  <span>
+                    Delivery ({shippingFee === 0 ? 'Free Express (₹999+)' : `${pincodeRate.city} Express`})
+                  </span>
                   <span>
                     {shippingFee === 0 ? (
                       <strong className="text-[#15803D]">FREE</strong>

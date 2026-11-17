@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Button, Badge, SparklesIcon } from '../../design-system';
+import { calculateShiprocketPincodeRate } from '../../services/shiprocketService';
 
 export interface ShippingOption {
   id: string;
@@ -13,6 +14,7 @@ export interface ShippingOption {
 export interface ShippingMethodStepProps {
   selectedOptionId: string;
   subtotal?: number;
+  destinationZip?: string;
   onBack: () => void;
   onNext: (option: ShippingOption) => void;
 }
@@ -20,47 +22,55 @@ export interface ShippingMethodStepProps {
 export const ShippingMethodStep: React.FC<ShippingMethodStepProps> = ({
   selectedOptionId,
   subtotal = 0,
+  destinationZip = '483501',
   onBack,
   onNext,
 }) => {
   const isFreeEligible = subtotal >= 999;
+  const rateResult = useMemo(
+    () => calculateShiprocketPincodeRate(destinationZip, subtotal),
+    [destinationZip, subtotal]
+  );
 
-  const dynamicShippingOptions: ShippingOption[] = isFreeEligible
-    ? [
-        {
-          id: 'free-express',
-          name: 'Complimentary Pan-India Express Shipping',
-          timeframe: '2 - 3 Business Days',
-          price: 0,
-          description: 'Unlocked! Free Express delivery on orders above ₹999.',
-          badge: 'FREE DELIVERY',
-        },
-        {
-          id: 'vip-courier',
-          name: 'VIP Priority Air Dispatch',
-          timeframe: '1 - 2 Business Days',
-          price: 99.0,
-          description: 'Top-priority courier dispatch with wax seal gift packaging.',
-          badge: 'FASTEST',
-        },
-      ]
-    : [
-        {
-          id: 'standard-delivery',
-          name: 'Pan-India Express Delivery',
-          timeframe: '3 - 4 Business Days',
-          price: 99.0,
-          description: 'Insured transit in protective cushioned packaging.',
-        },
-        {
-          id: 'priority-delivery',
-          name: 'Priority Courier Handling',
-          timeframe: '1 - 2 Business Days',
-          price: 149.0,
-          description: 'Temperature-controlled courier with fast dispatch.',
-          badge: 'FASTEST',
-        },
-      ];
+  const dynamicShippingOptions: ShippingOption[] = useMemo(() => {
+    return isFreeEligible
+      ? [
+          {
+            id: 'free-express',
+            name: `Complimentary Express to ${rateResult.city}`,
+            timeframe: rateResult.estimatedDays,
+            price: 0,
+            description: `Unlocked! Free ${rateResult.courier} shipping to PIN ${rateResult.pincode || destinationZip} (Orders ₹999+).`,
+            badge: 'FREE DELIVERY',
+          },
+          {
+            id: 'vip-courier',
+            name: 'VIP Priority Air Dispatch',
+            timeframe: '1 - 2 Business Days',
+            price: 49.0,
+            description: 'Top-priority courier dispatch with wax seal gift packaging.',
+            badge: 'FASTEST AIR',
+          },
+        ]
+      : [
+          {
+            id: 'standard-delivery',
+            name: `Express Delivery to ${rateResult.city}`,
+            timeframe: rateResult.estimatedDays,
+            price: rateResult.rate,
+            description: `Calculated Shiprocket courier rate (${rateResult.courier}) for PIN ${rateResult.pincode || destinationZip}.`,
+            badge: rateResult.zone === 'Local' ? 'LOCAL RATE' : 'EXPRESS RATE',
+          },
+          {
+            id: 'priority-delivery',
+            name: 'Priority Air Courier Handling',
+            timeframe: '1 - 2 Business Days',
+            price: rateResult.rate + 30,
+            description: 'Fastest air cargo with dedicated handling & insurance.',
+            badge: 'FASTEST',
+          },
+        ];
+  }, [isFreeEligible, rateResult, destinationZip]);
 
   const [selectedId, setSelectedId] = useState(
     selectedOptionId && dynamicShippingOptions.some((o) => o.id === selectedOptionId)

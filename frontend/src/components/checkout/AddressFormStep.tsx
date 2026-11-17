@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Input, Button, Checkbox, Select, Badge, SparklesIcon } from '../../design-system';
+import { calculateShiprocketPincodeRate } from '../../services/shiprocketService';
 
 export interface AddressData {
   email: string;
@@ -76,19 +77,19 @@ export const AddressFormStep: React.FC<AddressFormStepProps> = ({ initialData, c
     }
     return {
       ...initialData,
-      state: initialData.state || 'Maharashtra',
-      city: initialData.city || 'Mumbai',
+      state: initialData.state || '',
+      city: initialData.city || '',
       country: initialData.country || 'IN',
     };
   });
 
-  const [isCustomState, setIsCustomState] = useState(false);
-  const [isCustomCity, setIsCustomCity] = useState(false);
+  const [isCustomState, setIsCustomState] = useState(Boolean(initialData.state));
+  const [isCustomCity, setIsCustomCity] = useState(Boolean(initialData.city));
   const [pincodeLoading, setPincodeLoading] = useState(false);
   const [pincodeDetected, setPincodeDetected] = useState<string | null>(null);
 
   const availableStates = Object.keys(INDIAN_STATES_CITIES);
-  const availableCities = INDIAN_STATES_CITIES[formData.state] || ['Mumbai', 'Pune', 'Other City'];
+  const availableCities = formData.state ? (INDIAN_STATES_CITIES[formData.state] || []) : [];
 
   // Indian Pincode Auto-Fill
   const handlePincodeChange = async (pin: string) => {
@@ -141,6 +142,9 @@ export const AddressFormStep: React.FC<AddressFormStepProps> = ({ initialData, c
       ...formData,
       ...addr,
     });
+    if (addr.zip && addr.city) {
+      setPincodeDetected(`${addr.city}, ${addr.state}`);
+    }
   };
 
   const handleAddNewAddressClick = () => {
@@ -151,8 +155,8 @@ export const AddressFormStep: React.FC<AddressFormStepProps> = ({ initialData, c
       lastName: '',
       street: '',
       apartment: '',
-      city: 'Mumbai',
-      state: 'Maharashtra',
+      city: '',
+      state: '',
       zip: '',
       saveAddress: true,
     });
@@ -386,6 +390,29 @@ export const AddressFormStep: React.FC<AddressFormStepProps> = ({ initialData, c
                   <span>📍 Auto-detected:</span>
                   <strong className="underline">{pincodeDetected}</strong>
                 </span>
+              )}
+
+              {formData.zip && formData.zip.length === 6 && (
+                (() => {
+                  const rateInfo = calculateShiprocketPincodeRate(formData.zip, subtotal || 0);
+                  return (
+                    <div className="mt-2 p-2.5 bg-[#FAF7F2] border border-[#EADDCB] rounded-xl flex items-center justify-between text-[11px]">
+                      <div className="flex items-center gap-1.5 text-[#2C1E16]">
+                        <span>🚀</span>
+                        <span>
+                          <strong>{rateInfo.courier}</strong> • {rateInfo.estimatedDays}
+                        </span>
+                      </div>
+                      <span className={`font-bold px-2 py-0.5 rounded-md ${
+                        (subtotal || 0) >= 999
+                          ? 'bg-emerald-100 text-emerald-800'
+                          : 'bg-purple-100 text-[#733DD9]'
+                      }`}>
+                        {(subtotal || 0) >= 999 ? 'FREE (₹999+)' : `₹${rateInfo.rate}`}
+                      </span>
+                    </div>
+                  );
+                })()
               )}
             </div>
 

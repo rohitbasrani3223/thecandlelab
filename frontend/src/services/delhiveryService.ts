@@ -41,12 +41,12 @@ const SHIPMENTS_KEY = 'tcl_delhivery_shipments';
 export const DEFAULT_DELHIVERY_CONFIG: DelhiveryConfig = {
   apiToken: '',
   clientName: 'The Candle Lab Atelier',
-  pickupLocation: 'The Candle Lab Central Studio',
-  pickupAddress: 'Sindhi Camp, Sagar',
-  pickupCity: 'Sagar',
+  pickupLocation: 'The Candle Lab Atelier',
+  pickupAddress: 'Sant nagar, Katni behind bajaj hospital, KATNI, Madhya Pradesh 483501',
+  pickupCity: 'Katni',
   pickupState: 'Madhya Pradesh',
-  pickupPincode: '470002',
-  pickupPhone: '7096282361',
+  pickupPincode: '483501',
+  pickupPhone: '6264885453',
   isSandbox: true,
   autoAssign: true,
 };
@@ -181,10 +181,10 @@ export function checkDelhiveryPincode(pincode: string): {
     case '46':
     case '47':
     case '48':
-      city = 'Bhopal / Sagar / Indore';
+      city = 'Katni / Jabalpur / Bhopal / Indore';
       state = 'Madhya Pradesh';
-      days = '1-2 Business Days (Local Atelier Hub)';
-      hub = 'DEL/MP-SGR';
+      days = '1-2 Business Days (Local Katni Hub)';
+      hub = 'DEL/MP-KTN';
       break;
     case '56':
       city = 'Bengaluru';

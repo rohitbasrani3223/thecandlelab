@@ -45,16 +45,122 @@ const SHIPMENTS_KEY = 'tcl_shiprocket_shipments';
 export const DEFAULT_SHIPROCKET_CONFIG: ShiprocketConfig = {
   clientName: 'The Candle Lab',
   isSandbox: true,
-  email: 'support.thecandlelab@gmail.com',
+  email: 'basranirohi23@gmail.com',
   apiToken: '',
   pickupLocation: 'The Candle Lab Atelier',
-  pickupAddress: 'Sindhi Camp, Sagar',
-  pickupCity: 'Sagar',
+  pickupAddress: 'Sant nagar, Katni behind bajaj hospital, KATNI, Madhya Pradesh 483501',
+  pickupCity: 'Katni',
   pickupState: 'Madhya Pradesh',
-  pickupPincode: '470002',
-  pickupPhone: '7096282361',
+  pickupPincode: '483501',
+  pickupPhone: '6264885453',
   autoAssign: true,
 };
+
+export interface PincodeRateResult {
+  pincode: string;
+  city: string;
+  state: string;
+  zone: 'Local' | 'Regional' | 'Metro' | 'National' | 'Remote';
+  courier: string;
+  rate: number;
+  estimatedDays: string;
+  isServiceable: boolean;
+  description: string;
+}
+
+/**
+ * Dynamic Courier Rate Calculator based on Destination Pincode relative to Katni, MP (483501).
+ * Rates reflect actual Shiprocket / Blue Dart / Delhivery weight slabs for handcrafted soy candles.
+ */
+export function calculateShiprocketPincodeRate(pincode: string, orderSubtotal = 0): PincodeRateResult {
+  const cleanPin = String(pincode || '').replace(/\D/g, '').slice(0, 6);
+  const prefix2 = cleanPin.slice(0, 2);
+
+  // Default Fallback
+  let zone: PincodeRateResult['zone'] = 'National';
+  let rate = 65;
+  let estimatedDays = '3 - 5 Days';
+  let courier = 'Blue Dart / Delhivery Surface';
+  let city = 'All India';
+  let state = 'India';
+  let description = 'Standard National Express Delivery';
+
+  // Zone A: Local Katni & Central MP (Pincodes starting with 48, 46, 45, 47)
+  if (['48', '46', '45', '47'].includes(prefix2)) {
+    zone = 'Local';
+    rate = 35;
+    courier = 'Delhivery / Blue Dart Express';
+    estimatedDays = cleanPin.startsWith('483') ? '1 Day (Local Katni)' : '1 - 2 Days (MP Intra-State)';
+    city = cleanPin.startsWith('483') ? 'Katni' : (prefix2 === '48' ? 'Jabalpur / Katni Region' : (prefix2 === '46' ? 'Bhopal' : (prefix2 === '45' ? 'Indore' : 'Gwalior / Sagar')));
+    state = 'Madhya Pradesh';
+    description = 'Intra-State Express from Katni Atelier';
+  }
+  // Zone C: National Tier-1 Metros
+  else if (
+    ['110', '111', '121', '122', '201'].some((p) => cleanPin.startsWith(p)) || // Delhi NCR
+    ['400', '401', '411'].some((p) => cleanPin.startsWith(p)) || // Mumbai & Pune
+    ['560'].some((p) => cleanPin.startsWith(p)) || // Bengaluru
+    ['500'].some((p) => cleanPin.startsWith(p)) || // Hyderabad
+    ['600'].some((p) => cleanPin.startsWith(p)) || // Chennai
+    ['700'].some((p) => cleanPin.startsWith(p)) || // Kolkata
+    ['380'].some((p) => cleanPin.startsWith(p))    // Ahmedabad
+  ) {
+    zone = 'Metro';
+    rate = 48;
+    courier = 'Blue Dart Air Express';
+    estimatedDays = '2 - 3 Days';
+    city = cleanPin.startsWith('11') ? 'Delhi NCR' : (cleanPin.startsWith('40') ? 'Mumbai' : (cleanPin.startsWith('56') ? 'Bengaluru' : (cleanPin.startsWith('50') ? 'Hyderabad' : 'Metro Hub')));
+    state = 'Metro Express Hub';
+    description = 'Priority Metro Air Express';
+  }
+  // Zone B: Regional Neighboring States (UP: 20-28, Rajasthan: 30-34, Gujarat: 36-39, Maharashtra: 40-44, Chhattisgarh: 49)
+  else if (['20', '21', '22', '23', '24', '25', '26', '27', '28', '30', '31', '32', '33', '34', '36', '37', '38', '39', '41', '42', '43', '44', '49'].includes(prefix2)) {
+    zone = 'Regional';
+    rate = 45;
+    courier = 'Delhivery / Blue Dart Express';
+    estimatedDays = '2 - 3 Days';
+    city = prefix2 === '49' ? 'Raipur / CG' : (['20', '21', '22', '23', '24', '25', '26', '27', '28'].includes(prefix2) ? 'Uttar Pradesh' : 'Regional Hub');
+    state = 'Regional Tier 1';
+    description = 'Interstate Neighboring Hub Delivery';
+  }
+  // Zone D: Remote / Special Terrains (Northeast: 78, 79, J&K: 18, 19, Andaman: 744)
+  else if (['78', '79', '18', '19'].includes(prefix2) || cleanPin.startsWith('744')) {
+    zone = 'Remote';
+    rate = 75;
+    courier = 'Delhivery Air / Speed Post';
+    estimatedDays = '4 - 6 Days';
+    city = cleanPin.startsWith('7') ? 'Northeast / Special' : 'J&K / Special';
+    state = 'Special Terrain';
+    description = 'Special Air Express Zone';
+  }
+  // Zone E: Standard National (Punjab, Haryana, Bihar, Odisha, South)
+  else {
+    zone = 'National';
+    rate = 65;
+    courier = 'Delhivery / Blue Dart Express';
+    estimatedDays = '3 - 4 Days';
+    city = 'National Destination';
+    state = 'All India';
+    description = 'Standard Pan-India Express';
+  }
+
+  // If order meets free shipping threshold (e.g. ₹999+), rate is 0
+  if (orderSubtotal >= 999) {
+    rate = 0;
+  }
+
+  return {
+    pincode: cleanPin,
+    city,
+    state,
+    zone,
+    courier,
+    rate,
+    estimatedDays,
+    isServiceable: true,
+    description,
+  };
+}
 
 export function getShiprocketConfig(): ShiprocketConfig {
   try {

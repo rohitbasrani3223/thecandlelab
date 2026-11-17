@@ -13,7 +13,7 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
   isFreeShipping,
   onProceedToCheckout,
 }) => {
-  const shippingFee = isFreeShipping ? 0 : 99;
+  const shippingFee = isFreeShipping ? 0 : 0;
   const grandTotal = Math.max(0, Math.round(subtotal - discountAmount + shippingFee));
 
   return (
@@ -38,10 +38,10 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
         <div className="flex items-center justify-between text-[#232323]">
           <span>Atelier Express Shipping</span>
           <span>
-            {isFreeShipping || shippingFee === 0 ? (
-              <strong className="text-[#15803D]">FREE</strong>
+            {isFreeShipping ? (
+              <strong className="text-[#15803D]">FREE (₹999+)</strong>
             ) : (
-              `₹${shippingFee}`
+              <span className="text-[#8B6F4E] font-medium">Calculated by Pincode (From ₹35)</span>
             )}
           </span>
         </div>

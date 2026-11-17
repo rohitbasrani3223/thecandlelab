@@ -1328,7 +1328,7 @@ export const AdminOrdersManager: React.FC = () => {
                       <span className="text-lg">⚡</span>
                       <div>
                         <h4 className="font-serif font-bold text-base text-[#2C1E16]">Carrier Partners & Rates</h4>
-                        <p className="text-[11px] text-[#7A6B5D]">Aggregated live coverage from your Sagar studio</p>
+                        <p className="text-[11px] text-[#7A6B5D]">Aggregated live coverage from your Katni studio</p>
                       </div>
                     </div>
                   </div>
@@ -1703,7 +1703,7 @@ export const AdminOrdersManager: React.FC = () => {
                     {/* Pre-set Pincode Quick Chips */}
                     <div className="flex flex-wrap gap-1.5 pt-1">
                       <span className="text-[10px] text-[#7A6B5D] self-center mr-1">Quick test:</span>
-                      {['470002 (Sagar)', '110001 (Delhi)', '400001 (Mumbai)', '560001 (BLR)'].map((chip) => {
+                      {['483501 (Katni)', '110001 (Delhi)', '400001 (Mumbai)', '560001 (BLR)'].map((chip) => {
                         const pin = chip.slice(0, 6);
                         return (
                           <button
