@@ -289,20 +289,27 @@ export const TrackOrderModal: React.FC<TrackOrderModalProps> = ({
                   <span>{trackedOrder.courier || 'Delhivery Express'}</span>
                 </span>
                 <code className="text-[11px] font-mono text-[#232323] font-bold block">{trackedOrder.trackingNumber || 'AWB-PENDING'}</code>
-                {trackedOrder.trackingNumber && trackedOrder.trackingNumber !== 'AWB-PENDING' && (
-                  <a
-                    href={
-                      String(trackedOrder.courier || '').toLowerCase().includes('delhivery') || /^\d{10,14}$/.test(String(trackedOrder.trackingNumber))
-                        ? `https://www.delhivery.com/track/package/${encodeURIComponent(trackedOrder.trackingNumber)}`
-                        : `https://www.google.com/search?q=${encodeURIComponent(trackedOrder.courier || 'Delhivery')}+tracking+${encodeURIComponent(trackedOrder.trackingNumber)}`
-                    }
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-[11px] font-bold text-[#C94C6D] hover:underline cursor-pointer"
-                  >
-                    <span>🚀 Live Track on Delhivery.com ↗</span>
-                  </a>
-                )}
+                {trackedOrder.trackingNumber && trackedOrder.trackingNumber !== 'AWB-PENDING' && (() => {
+                  const isShiprocket = String(trackedOrder.courier || '').toLowerCase().includes('shiprocket') || /^SR/i.test(String(trackedOrder.trackingNumber));
+                  const isDelhivery = String(trackedOrder.courier || '').toLowerCase().includes('delhivery') || /^\d{10,14}$/.test(String(trackedOrder.trackingNumber));
+                  const trackUrl = isShiprocket
+                    ? `https://shiprocket.co/tracking/${encodeURIComponent(trackedOrder.trackingNumber)}`
+                    : isDelhivery
+                      ? `https://www.delhivery.com/track/package/${encodeURIComponent(trackedOrder.trackingNumber)}`
+                      : `https://www.google.com/search?q=${encodeURIComponent(trackedOrder.courier || 'courier')}+tracking+${encodeURIComponent(trackedOrder.trackingNumber)}`;
+                  const label = isShiprocket ? '🚀 Live Track on Shiprocket.co ↗' : '🚀 Live Track on Delhivery.com ↗';
+
+                  return (
+                    <a
+                      href={trackUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-[11px] font-bold text-[#C94C6D] hover:underline cursor-pointer"
+                    >
+                      <span>{label}</span>
+                    </a>
+                  );
+                })()}
               </div>
             </div>
 
