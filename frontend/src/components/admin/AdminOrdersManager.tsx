@@ -10,6 +10,7 @@ import {
   checkDelhiveryPincode,
   printDelhiveryShippingLabel,
   saveDelhiveryShipment,
+  deleteDelhiveryShipment,
   getAllDelhiveryShipments,
   type DelhiveryConfig,
   type DelhiveryShipment,
@@ -21,6 +22,7 @@ import {
   getShiprocketTrackingUrl,
   printShiprocketShippingLabel,
   saveShiprocketShipment,
+  deleteShiprocketShipment,
   getAllShiprocketShipments,
   createShiprocketApiOrder,
   testShiprocketConnection,
@@ -1601,6 +1603,23 @@ export const AdminOrdersManager: React.FC = () => {
                                 <span>🚀</span>
                                 <span>Track Live ↗</span>
                               </a>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (window.confirm(`Reset Order ${sh.orderId} and cancel manifest? Status will return to Processing.`)) {
+                                    deleteShiprocketShipment(sh.orderId);
+                                    setShiprocketShipments(getAllShiprocketShipments());
+                                    updateOrderStatus(sh.orderId, 'Processing');
+                                    window.dispatchEvent(new Event('tcl-orders-updated'));
+                                    setSavedMsg(`Order ${sh.orderId} reset to Processing.`);
+                                    setTimeout(() => setSavedMsg(''), 3000);
+                                  }
+                                }}
+                                className="px-2 py-1 bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 rounded-lg font-bold text-[10px] cursor-pointer transition-all"
+                                title="Cancel Manifest & Reset Order to Processing"
+                              >
+                                ✕ Reset
+                              </button>
                             </td>
                           </tr>
                         ))}
@@ -2041,22 +2060,63 @@ export const AdminOrdersManager: React.FC = () => {
 
                     {/* Progress Visual Tracker */}
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs pt-1">
-                      <div className="p-2 bg-white rounded-xl border border-emerald-200 text-emerald-800 font-bold">
-                        ✓ 1. Manifested
-                      </div>
-                      <div className="p-2 bg-white rounded-xl border border-emerald-200 text-emerald-800 font-bold">
-                        ✓ 2. Picked Up
+                      <div className="p-2 bg-emerald-50 rounded-xl border border-emerald-300 text-emerald-800 font-bold">
+                        ✓ 1. Manifested (Katni)
                       </div>
                       <div className={`p-2 rounded-xl border font-bold ${
-                        ord.status === 'Delivered' ? 'bg-white border-emerald-200 text-emerald-800' : 'bg-purple-50 border-purple-300 text-purple-950 shadow-xs'
+                        s?.status === 'In-Transit' || s?.status === 'Out for Delivery' || ord.status === 'Delivered'
+                          ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
+                          : 'bg-amber-50 border-amber-200 text-amber-900'
                       }`}>
-                        🚚 3. In-Transit ({isSR ? 'Shiprocket Carrier' : 'Delhivery Hub'})
+                        {s?.status === 'In-Transit' || s?.status === 'Out for Delivery' || ord.status === 'Delivered'
+                          ? '✓ 2. Picked Up'
+                          : '⏳ 2. Awaiting Courier Pickup'}
                       </div>
                       <div className={`p-2 rounded-xl border font-bold ${
-                        ord.status === 'Delivered' ? 'bg-white border-emerald-200 text-emerald-800' : 'bg-stone-50 border-stone-200 text-stone-400'
+                        s?.status === 'In-Transit' || s?.status === 'Out for Delivery'
+                          ? 'bg-purple-50 border-purple-300 text-purple-950 shadow-xs'
+                          : ord.status === 'Delivered'
+                          ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
+                          : 'bg-stone-50 border-stone-200 text-stone-400'
+                      }`}>
+                        {s?.status === 'In-Transit' || s?.status === 'Out for Delivery'
+                          ? `🚚 3. In-Transit (${isSR ? 'Shiprocket' : 'Delhivery'})`
+                          : ord.status === 'Delivered'
+                          ? '✓ 3. Transit Complete'
+                          : '⏳ 3. Transit Pending'}
+                      </div>
+                      <div className={`p-2 rounded-xl border font-bold ${
+                        ord.status === 'Delivered' ? 'bg-emerald-50 border-emerald-300 text-emerald-800' : 'bg-stone-50 border-stone-200 text-stone-400'
                       }`}>
                         {ord.status === 'Delivered' ? '✓ 4. Delivered' : '📍 4. Out for Delivery'}
                       </div>
+                    </div>
+
+                    {/* Accurate Status Explainer Banner */}
+                    <div className="px-3 py-2 bg-[#F8F3EA] rounded-xl border border-[#EFE8DB] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-[11px] text-[#7A6B5D]">
+                      <span>
+                        {s?.status === 'In-Transit' || s?.status === 'Out for Delivery'
+                          ? '🚚 Parcel is in-transit with courier network.'
+                          : '📦 Parcel label is created. Physical package is at Katni studio (483501), awaiting courier boy pickup.'}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (window.confirm(`Reset Order ${ord.id} back to Processing? This will remove it from Tracking.`)) {
+                            if (isSR) deleteShiprocketShipment(ord.id);
+                            else deleteDelhiveryShipment(ord.id);
+                            setShiprocketShipments(getAllShiprocketShipments());
+                            setDelhiveryShipments(getAllDelhiveryShipments());
+                            updateOrderStatus(ord.id, 'Processing');
+                            window.dispatchEvent(new Event('tcl-orders-updated'));
+                            setSavedMsg(`Order ${ord.id} removed from Tracking and reset to Processing.`);
+                            setTimeout(() => setSavedMsg(''), 3000);
+                          }
+                        }}
+                        className="text-rose-600 hover:text-rose-800 font-bold hover:underline cursor-pointer"
+                      >
+                        Reset / Cancel Tracking ✕
+                      </button>
                     </div>
                   </div>
                 );

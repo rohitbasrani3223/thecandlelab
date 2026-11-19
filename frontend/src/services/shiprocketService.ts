@@ -383,6 +383,20 @@ export function saveShiprocketShipment(shipment: ShiprocketShipment): void {
   }
 }
 
+export function deleteShiprocketShipment(orderId: string): void {
+  try {
+    const all = getAllShiprocketShipments();
+    delete all[orderId];
+    localStorage.setItem(SHIPMENTS_KEY, JSON.stringify(all));
+
+    const legacy = JSON.parse(localStorage.getItem('tcl_shipments') || '{}');
+    delete legacy[orderId];
+    localStorage.setItem('tcl_shipments', JSON.stringify(legacy));
+  } catch {
+    // ignore
+  }
+}
+
 /**
  * Generates a realistic 12-digit Shiprocket Waybill / AWB.
  * Format: SR + 10 digits, e.g. SR8492019382

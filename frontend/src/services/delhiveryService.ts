@@ -104,6 +104,20 @@ export function saveDelhiveryShipment(shipment: DelhiveryShipment): void {
   }
 }
 
+export function deleteDelhiveryShipment(orderId: string): void {
+  try {
+    const all = getAllDelhiveryShipments();
+    delete all[orderId];
+    localStorage.setItem(SHIPMENTS_KEY, JSON.stringify(all));
+
+    const legacy = JSON.parse(localStorage.getItem('tcl_shipments') || '{}');
+    delete legacy[orderId];
+    localStorage.setItem('tcl_shipments', JSON.stringify(legacy));
+  } catch {
+    // ignore
+  }
+}
+
 /**
  * Generates a realistic 13-digit standard Delhivery B2C AWB/Waybill number.
  * Example: 1409248192841
