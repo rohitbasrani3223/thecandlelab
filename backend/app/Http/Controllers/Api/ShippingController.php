@@ -132,10 +132,10 @@ class ShippingController extends Controller
     {
         try {
             $orderId = $request->input('order_id', 'TCL-' . time());
-            $customerName = $request->input('customer_name', 'Customer');
+            $customerName = $request->input('customer_name', 'Valued Customer');
             $phone = $request->input('customer_phone', '6264885453');
-            $email = $request->input('customer_email', 'support.thecandlelab@gmail.com');
-            $address = $request->input('shipping_address', 'Sant nagar, Katni');
+            $email = $request->input('customer_email', 'basranirohi23@gmail.com');
+            $address = $request->input('shipping_address', 'Sant nagar, Katni behind bajaj hospital');
             $city = $request->input('city', 'Katni');
             $state = $request->input('state', 'Madhya Pradesh');
             $pincode = $request->input('pincode', '483501');
@@ -143,6 +143,38 @@ class ShippingController extends Controller
             $isCOD = (bool) $request->input('is_cod', false);
             $weight = (float) $request->input('weight_kg', 0.5);
             $pickupLocation = $request->input('pickup_location', 'The Candle Lab Atelier');
+
+            // Sanitize Order ID for Shiprocket API compliance (No leading #, alphanumeric and hyphens only)
+            $cleanOrderId = preg_replace('/[^a-zA-Z0-9_-]/', '', $orderId);
+            if (empty($cleanOrderId)) {
+                $cleanOrderId = 'TCL-' . time();
+            }
+
+            // Split customer name into first and last name
+            $nameParts = explode(' ', trim($customerName), 2);
+            $firstName = $nameParts[0] ?: 'Customer';
+            $lastName = $nameParts[1] ?? 'Patron';
+
+            // Sanitize 10-digit phone
+            $cleanPhone = preg_replace('/\D/', '', $phone);
+            if (strlen($cleanPhone) > 10) {
+                $cleanPhone = substr($cleanPhone, -10);
+            }
+            if (strlen($cleanPhone) < 10) {
+                $cleanPhone = '6264885453';
+            }
+
+            // Sanitize 6-digit destination pincode
+            $cleanPin = preg_replace('/\D/', '', $pincode);
+            if (strlen($cleanPin) !== 6) {
+                $cleanPin = '483501';
+            }
+
+            // Sanitize address min length
+            $cleanAddress = trim($address) ?: 'Sant nagar, Katni behind bajaj hospital';
+            if (strlen($cleanAddress) < 6) {
+                $cleanAddress .= ' Katni Madhya Pradesh';
+            }
 
             $authEmail = $request->input('auth_email') ?: env('SHIPROCKET_EMAIL', 'basranirohi23@gmail.com');
             $authPassword = $request->input('auth_password') ?: env('SHIPROCKET_PASSWORD', '');
@@ -195,18 +227,18 @@ class ShippingController extends Controller
                 $createOrderUrl = 'https://apiv2.shiprocket.in/v1/external/orders/create/adhoc';
 
                 $payload = [
-                    'order_id' => $orderId,
+                    'order_id' => $cleanOrderId,
                     'order_date' => date('Y-m-d H:i'),
                     'pickup_location' => $pickupLocation,
-                    'billing_customer_name' => $customerName,
-                    'billing_last_name' => '',
-                    'billing_address' => $address,
+                    'billing_customer_name' => $firstName,
+                    'billing_last_name' => $lastName,
+                    'billing_address' => $cleanAddress,
                     'billing_city' => $city,
-                    'billing_pincode' => $pincode,
+                    'billing_pincode' => $cleanPin,
                     'billing_state' => $state,
                     'billing_country' => 'India',
                     'billing_email' => $email,
-                    'billing_phone' => $phone,
+                    'billing_phone' => $cleanPhone,
                     'shipping_is_billing' => true,
                     'order_items' => [
                         [
@@ -226,7 +258,13 @@ class ShippingController extends Controller
                     'weight' => $weight,
                 ];
 
-                $response = Http::withToken($cleanToken)->timeout(10)->post($createOrderUrl, $payload);
+                $response = Http::withToken($cleanToken)->timeout(12)->post($createOrderUrl, $payload);
+
+                // If duplicate order ID error, retry with a fresh timestamped ID suffix
+                if (!$response->successful() && str_contains(strtolower($response->body()), 'already exists')) {
+                    $payload['order_id'] = $cleanOrderId . '-' . substr(time(), -4);
+                    $response = Http::withToken($cleanToken)->timeout(12)->post($createOrderUrl, $payload);
+                }
 
                 if ($response->successful()) {
                     $resData = $response->json();
@@ -239,10 +277,13 @@ class ShippingController extends Controller
                         'data' => $resData,
                     ]);
                 } else {
-                    Log::warning('Shiprocket Create Order API Response: ' . $response->body());
+                    $bodyStr = $response->body();
+                    Log::warning('Shiprocket Create Order API Response: ' . $bodyStr);
+                    $parsed = $response->json();
+                    $msg = $parsed['message'] ?? $bodyStr;
                     return response()->json([
                         'success' => false,
-                        'error' => 'Shiprocket API returned: ' . $response->body(),
+                        'error' => 'Shiprocket: ' . (is_string($msg) ? $msg : json_encode($msg)),
                     ], 400);
                 }
             }

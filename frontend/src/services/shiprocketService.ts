@@ -153,6 +153,7 @@ export async function createShiprocketApiOrder(
         order_id: shipment.orderId,
         customer_name: shipment.customerName,
         customer_phone: shipment.customerPhone,
+        customer_email: cfg.email || 'basranirohi23@gmail.com',
         shipping_address: shipment.shippingAddress,
         city: shipment.city,
         state: shipment.state,
