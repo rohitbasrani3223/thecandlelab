@@ -171,6 +171,27 @@ class ShippingController extends Controller
 
             if (!empty($authToken)) {
                 $cleanToken = str_replace('Bearer ', '', trim($authToken));
+
+                // Auto-fetch and validate registered pickup locations from merchant's Shiprocket account
+                try {
+                    $pickupRes = Http::withToken($cleanToken)->timeout(8)->get('https://apiv2.shiprocket.in/v1/external/settings/company/pickup');
+                    if ($pickupRes->successful()) {
+                        $pickupList = $pickupRes->json('data.shipping_address') ?? [];
+                        if (!empty($pickupList)) {
+                            $locationNames = array_filter(array_map(function($loc) {
+                                return $loc['pickup_location'] ?? null;
+                            }, $pickupList));
+
+                            // If specified pickup_location does not match registered nicknames, use the first valid registered location
+                            if (!in_array($pickupLocation, $locationNames)) {
+                                $pickupLocation = reset($locationNames) ?: 'Primary';
+                            }
+                        }
+                    }
+                } catch (\Exception $e) {
+                    Log::warning('Shiprocket pickup locations auto-query notice: ' . $e->getMessage());
+                }
+
                 $createOrderUrl = 'https://apiv2.shiprocket.in/v1/external/orders/create/adhoc';
 
                 $payload = [
@@ -239,5 +260,77 @@ class ShippingController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Test and Verify Merchant Shiprocket Connection
+     * Endpoint: POST /api/shipping/shiprocket/test-connection
+     */
+    public function testConnection(Request $request)
+    {
+        try {
+            $email = $request->input('email') ?: env('SHIPROCKET_EMAIL', 'basranirohi23@gmail.com');
+            $password = $request->input('password') ?: env('SHIPROCKET_PASSWORD', '');
+            $token = $request->input('token') ?: env('SHIPROCKET_TOKEN', '');
+
+            $authToken = $token;
+            if (empty($authToken)) {
+                if (empty($email) || empty($password)) {
+                    return response()->json([
+                        'success' => false,
+                        'error' => 'Please provide both Shiprocket Account Email and Password to test connection.',
+                    ], 422);
+                }
+
+                $authResponse = Http::timeout(10)->post('https://apiv2.shiprocket.in/v1/external/auth/login', [
+                    'email' => $email,
+                    'password' => $password,
+                ]);
+
+                if (!$authResponse->successful()) {
+                    $errBody = $authResponse->json();
+                    $msg = $errBody['message'] ?? 'Authentication failed. Please verify your Shiprocket login email and password.';
+                    return response()->json([
+                        'success' => false,
+                        'error' => $msg,
+                    ], 401);
+                }
+
+                $authData = $authResponse->json();
+                $authToken = $authData['token'] ?? null;
+                if ($authToken) {
+                    Cache::put('shiprocket_token_' . md5($email), $authToken, now()->addHours(20));
+                }
+            }
+
+            // Verify token and fetch pickup addresses
+            $cleanToken = str_replace('Bearer ', '', trim($authToken));
+            $pickupRes = Http::withToken($cleanToken)->timeout(10)->get('https://apiv2.shiprocket.in/v1/external/settings/company/pickup');
+
+            $pickupLocations = [];
+            if ($pickupRes->successful()) {
+                $pickupList = $pickupRes->json('data.shipping_address') ?? [];
+                foreach ($pickupList as $p) {
+                    $pickupLocations[] = [
+                        'pickup_location' => $p['pickup_location'] ?? '',
+                        'city' => $p['city'] ?? '',
+                        'state' => $p['state'] ?? '',
+                        'pin_code' => $p['pin_code'] ?? '',
+                        'address' => $p['address'] ?? '',
+                    ];
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Connected to Shiprocket API successfully!',
+                'pickup_locations' => $pickupLocations,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Connection test error: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 }

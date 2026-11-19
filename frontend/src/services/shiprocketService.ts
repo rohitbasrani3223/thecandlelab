@@ -140,7 +140,7 @@ export async function fetchLiveShiprocketRate(
 export async function createShiprocketApiOrder(
   shipment: ShiprocketShipment,
   config?: ShiprocketConfig
-): Promise<any> {
+): Promise<{ success: boolean; awb_code?: string; shipment_id?: string; courier_name?: string; order_id?: string; error?: string; data?: any }> {
   const cfg = config || getShiprocketConfig();
   try {
     const res = await fetch('/api/shipping/shiprocket/create-order', {
@@ -167,14 +167,61 @@ export async function createShiprocketApiOrder(
       }),
     });
 
-    if (res.ok) {
-      const data = await res.json();
+    const data = await res.json().catch(() => null);
+    if (res.ok && data?.success) {
       return data;
     }
-  } catch (err) {
+    return {
+      success: false,
+      error: data?.error || data?.message || `Shiprocket API error (HTTP ${res.status})`,
+    };
+  } catch (err: any) {
     console.warn('Shiprocket Order Creation network call:', err);
+    return {
+      success: false,
+      error: err?.message || 'Network connection failed to Shiprocket backend',
+    };
   }
-  return null;
+}
+
+/**
+ * Diagnostic utility to test merchant's credentials directly with Shiprocket API
+ */
+export async function testShiprocketConnection(config?: ShiprocketConfig): Promise<{
+  success: boolean;
+  message?: string;
+  error?: string;
+  pickup_locations?: Array<{ pickup_location: string; city: string; state: string; pin_code: string }>;
+}> {
+  const cfg = config || getShiprocketConfig();
+  try {
+    const res = await fetch('/api/shipping/shiprocket/test-connection', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({
+        email: cfg.email,
+        password: cfg.password || cfg.apiToken,
+        token: cfg.apiToken,
+      }),
+    });
+
+    const data = await res.json().catch(() => null);
+    if (res.ok && data?.success) {
+      return data;
+    }
+    return {
+      success: false,
+      error: data?.error || data?.message || `HTTP ${res.status}: Failed to authenticate with Shiprocket`,
+    };
+  } catch (err: any) {
+    return {
+      success: false,
+      error: err?.message || 'Network connection error while testing Shiprocket',
+    };
+  }
 }
 
 export interface PincodeRateResult {

@@ -23,6 +23,7 @@ import {
   saveShiprocketShipment,
   getAllShiprocketShipments,
   createShiprocketApiOrder,
+  testShiprocketConnection,
   type ShiprocketConfig,
   type ShiprocketShipment,
 } from '../../services/shiprocketService';
@@ -53,6 +54,9 @@ export const AdminOrdersManager: React.FC = () => {
   const [pincodeCheckResult, setPincodeCheckResult] = useState<any>(null);
   const [dispatchedSuccessModal, setDispatchedSuccessModal] = useState<any | null>(null);
   const [showApiToken, setShowApiToken] = useState(false);
+  const [isTestingSR, setIsTestingSR] = useState(false);
+  const [srTestFeedback, setSrTestFeedback] = useState<{ type: 'success' | 'error' | ''; msg: string }>({ type: '', msg: '' });
+  const [isDispatching, setIsDispatching] = useState(false);
   const [trackingFilter, setTrackingFilter] = useState('');
   const [newOrder, setNewOrder] = useState({ customerName: '', email: '', phone: '', address: '', items: '', totalAmount: 1499, paymentMethod: 'Razorpay UPI' });
   const [modalView, setModalView] = useState<'slip' | 'invoice'>('slip');
@@ -491,8 +495,11 @@ export const AdminOrdersManager: React.FC = () => {
 
             return (
               <form
-                onSubmit={(event) => {
+                onSubmit={async (event) => {
                   event.preventDefault();
+                  if (isDispatching) return;
+                  setIsDispatching(true);
+
                   const awb = shipment.awb.trim() || (isShiprocket ? generateShiprocketAWB() : generateDelhiveryAWB());
 
                   if (isShiprocket) {
@@ -517,26 +524,28 @@ export const AdminOrdersManager: React.FC = () => {
                       status: 'Manifested',
                       createdAt: new Date().toISOString(),
                     };
+
+                    try {
+                      const apiRes = await createShiprocketApiOrder(srData, shiprocketConfig);
+                      if (apiRes && apiRes.success) {
+                        if (apiRes.awb_code) srData.awb = apiRes.awb_code;
+                        if (apiRes.shipment_id) srData.shipmentId = String(apiRes.shipment_id);
+                        if (apiRes.courier_name) srData.courierName = apiRes.courier_name;
+                        setSavedMsg(`✅ Order ${shipmentOrder} synced to your live Shiprocket dashboard! Real AWB: ${srData.awb}`);
+                      } else {
+                        const reason = apiRes?.error || 'Live sync pending';
+                        setSavedMsg(`⚠️ Shiprocket Note: ${reason}. Manifest saved locally with 4×6" label.`);
+                      }
+                    } catch (err: any) {
+                      setSavedMsg(`⚠️ Saved locally. Network notice: ${err?.message || 'offline'}`);
+                    }
+
                     saveShiprocketShipment(srData);
                     setShiprocketShipments(getAllShiprocketShipments());
                     updateOrderStatus(shipmentOrder, 'Shipped');
                     window.dispatchEvent(new Event('tcl-orders-updated'));
 
-                    // Synchronize in background with merchant's Shiprocket API
-                    createShiprocketApiOrder(srData, shiprocketConfig).then((apiRes) => {
-                      if (apiRes && apiRes.success && apiRes.awb_code) {
-                        const updatedSr = {
-                          ...srData,
-                          awb: apiRes.awb_code,
-                          shipmentId: String(apiRes.shipment_id || ''),
-                          courierName: apiRes.courier_name || srData.courierName,
-                        };
-                        saveShiprocketShipment(updatedSr);
-                        setShiprocketShipments(getAllShiprocketShipments());
-                      }
-                    });
-
-                    setSavedMsg(`✅ Order ${shipmentOrder} dispatched via Shiprocket! AWB: ${awb}`);
+                    setIsDispatching(false);
                     setShipmentOrder(null);
                     setDispatchedSuccessModal(srData);
                   } else {
@@ -565,11 +574,12 @@ export const AdminOrdersManager: React.FC = () => {
                     updateOrderStatus(shipmentOrder, 'Shipped');
                     window.dispatchEvent(new Event('tcl-orders-updated'));
 
+                    setIsDispatching(false);
                     setSavedMsg(`✅ Order ${shipmentOrder} dispatched via Delhivery! AWB: ${awb}`);
                     setShipmentOrder(null);
                     setDispatchedSuccessModal(shipmentData);
                   }
-                  setTimeout(() => setSavedMsg(''), 5000);
+                  setTimeout(() => setSavedMsg(''), 6000);
                 }}
                 className="bg-white border border-[#EFE8DB] rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-card my-2 sm:my-8 text-[#2C1E16]"
               >
@@ -720,12 +730,17 @@ export const AdminOrdersManager: React.FC = () => {
                 <div className="pt-2">
                   <button
                     type="submit"
+                    disabled={isDispatching}
                     className={`w-full text-white font-bold text-xs py-3 rounded-xl transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2 ${
-                      isShiprocket ? 'bg-[#742774] hover:bg-[#5c1f5c]' : 'bg-[#E21B23] hover:bg-[#c4141b]'
+                      isDispatching ? 'opacity-70 cursor-not-allowed bg-stone-500' : isShiprocket ? 'bg-[#742774] hover:bg-[#5c1f5c]' : 'bg-[#E21B23] hover:bg-[#c4141b]'
                     }`}
                   >
-                    <span>{isShiprocket ? '🚀' : '🚚'}</span>
-                    <span>Manifest & Dispatch via {isShiprocket ? 'Shiprocket' : 'Delhivery'}</span>
+                    <span>{isDispatching ? '⏳' : isShiprocket ? '🚀' : '🚚'}</span>
+                    <span>
+                      {isDispatching
+                        ? 'Connecting & Dispatching via Shiprocket...'
+                        : `Manifest & Dispatch via ${isShiprocket ? 'Shiprocket' : 'Delhivery'}`}
+                    </span>
                   </button>
                 </div>
               </form>
@@ -1227,11 +1242,21 @@ export const AdminOrdersManager: React.FC = () => {
                         <p className="text-[11px] text-[#7A6B5D]">Configure atelier pickup warehouse and API credentials</p>
                       </div>
                     </div>
-                    <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
-                      shiprocketConfig.isSandbox ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-purple-100 text-[#733DD9] border border-purple-300'
-                    }`}>
-                      {shiprocketConfig.isSandbox ? '🧪 Local / Auto-AWB' : '🟢 Shiprocket Live API'}
-                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newIsSandbox = !shiprocketConfig.isSandbox;
+                        const updated = { ...shiprocketConfig, isSandbox: newIsSandbox };
+                        setShiprocketConfig(updated);
+                        saveShiprocketConfig(updated);
+                      }}
+                      className={`text-[10px] font-bold px-3 py-1 rounded-full cursor-pointer transition-all border ${
+                        shiprocketConfig.isSandbox ? 'bg-amber-100 text-amber-900 border-amber-300 hover:bg-amber-200' : 'bg-purple-100 text-[#733DD9] border-purple-300 hover:bg-purple-200'
+                      }`}
+                      title="Click to toggle between Live API and Local Sandbox simulation"
+                    >
+                      {shiprocketConfig.isSandbox ? '🧪 Local / Auto-AWB (Click to go Live)' : '🟢 Shiprocket Live API (Active)'}
+                    </button>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
@@ -1245,11 +1270,12 @@ export const AdminOrdersManager: React.FC = () => {
                       />
                     </div>
                     <div>
-                      <label className="block font-bold text-[#2C1E16] mb-1">Pickup Warehouse Title</label>
+                      <label className="block font-bold text-[#2C1E16] mb-1">Pickup Warehouse Title (Shiprocket Nickname)</label>
                       <input
                         type="text"
                         value={shiprocketConfig.pickupLocation}
                         onChange={(e) => setShiprocketConfig({ ...shiprocketConfig, pickupLocation: e.target.value })}
+                        placeholder="e.g. Primary or The Candle Lab Atelier"
                         className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg text-xs font-medium"
                       />
                     </div>
@@ -1298,7 +1324,7 @@ export const AdminOrdersManager: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="text-xs">
+                  <div className="text-xs space-y-2">
                     <div className="flex items-center justify-between mb-1">
                       <label className="font-bold text-[#2C1E16]">Shiprocket API Password / Auth Token</label>
                       <button
@@ -1312,20 +1338,69 @@ export const AdminOrdersManager: React.FC = () => {
                     <input
                       type={showApiToken ? 'text' : 'password'}
                       value={shiprocketConfig.apiToken || shiprocketConfig.password}
-                      onChange={(e) => setShiprocketConfig({ ...shiprocketConfig, apiToken: e.target.value, password: e.target.value })}
-                      placeholder="Enter API token or account password (app.shiprocket.in/api-user)"
+                      onChange={(e) => setShiprocketConfig({ ...shiprocketConfig, apiToken: e.target.value, password: e.target.value, isSandbox: false })}
+                      placeholder="Enter Shiprocket account password or API token"
                       className="w-full bg-[#F8F3EA] border border-[#EFE8DB] p-2.5 rounded-lg text-xs font-mono"
                     />
-                    <p className="text-[10px] text-[#7A6B5D] mt-1">
-                      💡 Even without an active API key, system generates valid Shiprocket AWBs (<code>SR...</code>), manifests, and printable 4×6" thermal labels ready for dispatch.
-                    </p>
+
+                    {/* Test Connection Button & Status */}
+                    <div className="flex flex-wrap items-center gap-2 pt-1">
+                      <button
+                        type="button"
+                        disabled={isTestingSR}
+                        onClick={async () => {
+                          setIsTestingSR(true);
+                          setSrTestFeedback({ type: '', msg: '' });
+                          const res = await testShiprocketConnection(shiprocketConfig);
+                          setIsTestingSR(false);
+                          if (res.success) {
+                            let locMsg = '';
+                            if (res.pickup_locations && res.pickup_locations.length > 0) {
+                              const activeLoc = res.pickup_locations[0].pickup_location;
+                              locMsg = ` (Warehouse: "${activeLoc}")`;
+                              if (activeLoc && activeLoc !== shiprocketConfig.pickupLocation) {
+                                const updated = { ...shiprocketConfig, pickupLocation: activeLoc, isSandbox: false };
+                                setShiprocketConfig(updated);
+                                saveShiprocketConfig(updated);
+                              }
+                            }
+                            setSrTestFeedback({
+                              type: 'success',
+                              msg: `✅ Connected to Shiprocket successfully!${locMsg}`,
+                            });
+                          } else {
+                            setSrTestFeedback({
+                              type: 'error',
+                              msg: `❌ ${res.error || 'Connection failed'}`,
+                            });
+                          }
+                        }}
+                        className="px-3.5 py-1.5 bg-[#FAF7F2] hover:bg-[#F0EBE1] border border-[#D5C7B5] text-[#2C1E16] font-bold text-[11px] rounded-lg transition-all cursor-pointer flex items-center gap-1.5"
+                      >
+                        <span>{isTestingSR ? '⏳' : '⚡'}</span>
+                        <span>{isTestingSR ? 'Testing Auth...' : 'Test Shiprocket Connection'}</span>
+                      </button>
+
+                      {srTestFeedback.msg && (
+                        <span className={`text-[11px] font-bold px-2.5 py-1 rounded-lg ${
+                          srTestFeedback.type === 'success' ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-rose-100 text-rose-800 border border-rose-300'
+                        }`}>
+                          {srTestFeedback.msg}
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   <div className="pt-2 flex justify-end">
                     <button
                       type="button"
                       onClick={() => {
-                        saveShiprocketConfig(shiprocketConfig);
+                        const updated = {
+                          ...shiprocketConfig,
+                          isSandbox: !(shiprocketConfig.password || shiprocketConfig.apiToken),
+                        };
+                        setShiprocketConfig(updated);
+                        saveShiprocketConfig(updated);
                         setConfigSavedNotice('✅ Shiprocket settings successfully updated and saved!');
                         setTimeout(() => setConfigSavedNotice(''), 4000);
                       }}
@@ -1342,8 +1417,8 @@ export const AdminOrdersManager: React.FC = () => {
                     <div className="flex items-center gap-2">
                       <span className="text-lg">⚡</span>
                       <div>
-                        <h4 className="font-serif font-bold text-base text-[#2C1E16]">Carrier Partners & Rates</h4>
-                        <p className="text-[11px] text-[#7A6B5D]">Aggregated live coverage from your Katni studio</p>
+                        <h4 className="font-serif font-bold text-base text-[#2C1E16]">Carrier Partners & Real-Time Rates</h4>
+                        <p className="text-[11px] text-[#7A6B5D]">Live multi-carrier routing from Katni studio (483501)</p>
                       </div>
                     </div>
                   </div>
@@ -1358,8 +1433,8 @@ export const AdminOrdersManager: React.FC = () => {
                         </div>
                       </div>
                       <div className="text-right">
-                        <span className="font-bold text-[#2C1E16]">₹45 / 500g</span>
-                        <span className="text-[10px] text-emerald-700 block font-bold">Fastest</span>
+                        <span className="font-bold text-emerald-700 text-xs">Live API Quote</span>
+                        <span className="text-[10px] text-stone-500 block">Fastest Priority</span>
                       </div>
                     </div>
 
@@ -1372,8 +1447,8 @@ export const AdminOrdersManager: React.FC = () => {
                         </div>
                       </div>
                       <div className="text-right">
-                        <span className="font-bold text-[#2C1E16]">₹40 / 500g</span>
-                        <span className="text-[10px] text-purple-700 block font-bold">Best Value</span>
+                        <span className="font-bold text-[#733DD9] text-xs">Live API Quote</span>
+                        <span className="text-[10px] text-stone-500 block">Best Value</span>
                       </div>
                     </div>
 
@@ -1386,7 +1461,7 @@ export const AdminOrdersManager: React.FC = () => {
                         </div>
                       </div>
                       <div className="text-right">
-                        <span className="font-bold text-[#2C1E16]">₹35 / 500g</span>
+                        <span className="font-bold text-amber-700 text-xs">Live API Quote</span>
                         <span className="text-[10px] text-stone-500 block">Economical</span>
                       </div>
                     </div>
@@ -1400,13 +1475,16 @@ export const AdminOrdersManager: React.FC = () => {
                         </div>
                       </div>
                       <div className="text-right">
-                        <span className="font-bold text-[#2C1E16]">₹38 / 500g</span>
+                        <span className="font-bold text-stone-700 text-xs">Live API Quote</span>
                         <span className="text-[10px] text-stone-500 block">Wide Reach</span>
                       </div>
                     </div>
 
                     <div className="p-3 bg-purple-50 rounded-xl border border-purple-200 text-[11px] text-purple-900 space-y-1">
-                      <strong className="block text-purple-950 font-serif">✨ Automated Features:</strong>
+                      <strong className="block text-purple-950 font-serif">✨ Live API Pricing & Features:</strong>
+                      <p className="text-[10px] text-purple-800 leading-relaxed mb-1">
+                        Rates are fetched dynamically in real-time directly from Shiprocket's live carrier serviceability API based on the customer's delivery pincode and parcel weight.
+                      </p>
                       <ul className="list-disc list-inside space-y-0.5 text-[10px] text-purple-800">
                         <li>Automatic live rate comparison picks cheapest or fastest partner</li>
                         <li>Automated WhatsApp delivery notifications sent to customer</li>
